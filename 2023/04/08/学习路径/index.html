@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Rust学习Rust的过程涉及多个阶段。这里提供了一个详细的Rust学习计划，帮助您逐步掌握这门语言： 1. 基础阶段  阅读《Rust编程语言》（The Rust Programming Language，又称”The Book”）：这是学习Rust的官方教材，为初学者提供了全面的入门知识。在线版本可免费访问：The Rust Programming Language - The Rust Pr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="学习路径">
+<meta property="og:url" content="http://example.com/2023/04/08/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="Rust学习Rust的过程涉及多个阶段。这里提供了一个详细的Rust学习计划，帮助您逐步掌握这门语言： 1. 基础阶段  阅读《Rust编程语言》（The Rust Programming Language，又称”The Book”）：这是学习Rust的官方教材，为初学者提供了全面的入门知识。在线版本可免费访问：The Rust Programming Language - The Rust Pr">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-04-08T12:15:26.000Z">
+<meta property="article:modified_time" content="2023-04-10T12:14:08.370Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/04/08/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>学习路径 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/08/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="随便记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          学习路径
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-04-08 20:15:26" itemprop="dateCreated datePublished" datetime="2023-04-08T20:15:26+08:00">2023-04-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-04-10 20:14:08" itemprop="dateModified" datetime="2023-04-10T20:14:08+08:00">2023-04-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84/" itemprop="url" rel="index"><span itemprop="name">学习路径</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.3k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>8 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Rust"><a href="#Rust" class="headerlink" title="Rust"></a>Rust</h1><p>学习Rust的过程涉及多个阶段。这里提供了一个详细的Rust学习计划，帮助您逐步掌握这门语言：</p>
+<p><strong>1. 基础阶段</strong></p>
+<ul>
+<li>阅读《Rust编程语言》（The Rust Programming Language，又称”The Book”）：这是学习Rust的官方教材，为初学者提供了全面的入门知识。在线版本可免费访问：<a target="_blank" rel="noopener" href="https://doc.rust-lang.org/book/">The Rust Programming Language - The Rust Programming Language</a></li>
+<li>学习Rust的基本语法、数据类型、控制结构、错误处理等概念。</li>
+<li>完成《The Book》中的示例和练习，以巩固所学知识。</li>
+<li>参加Rust社区活动，如阅读论坛帖子、加入聊天室和邮件列表，以了解最新动态和获得帮助。</li>
+</ul>
+<p><strong>2. 实践阶段</strong></p>
+<ul>
+<li>尝试解决一些简单的编程问题，例如LeetCode上的题目，以熟悉Rust的编程范式。</li>
+<li>阅读Rust编写的开源项目代码，学习他人如何使用Rust解决实际问题。</li>
+<li>参与开源项目，为Rust生态做贡献。这可以帮助您熟悉实际项目中的编程实践、代码审查和协作流程。</li>
+<li>开始实现自己的项目，将学到的知识应用于实践。可以从一个简单的命令行工具或Web服务开始。</li>
+</ul>
+<p><strong>3. 进阶阶段</strong></p>
+<ul>
+<li>深入了解Rust的所有权（Ownership）、借用（Borrowing）和生命周期（Lifetime）系统。这是理解Rust内存安全的关键。</li>
+<li>学习Rust的并发和异步编程。掌握如何使用线程、通道、异步I&#x2F;O和<code>async/await</code>编写高性能、可扩展的Rust代码。</li>
+<li>阅读Rust的官方文档，例如《Rust异步编程》（Asynchronous Programming in Rust）和《Rust标准库文档》（The Rust Standard Library Documentation），以深入了解各种概念和API。</li>
+<li>学习Rust的宏（Macros）系统，了解如何编写DRY（Don’t Repeat Yourself）代码和元编程。</li>
+</ul>
+<p><strong>4. 专业阶段</strong></p>
+<ul>
+<li><p>探索Rust在不同领域的应用，例如Web开发、嵌入式系统、游戏开发、区块链等。</p>
+</li>
+<li><p>阅读有关Rust性能优化、安全性和最佳实践的文章和教程。</p>
+</li>
+<li><p>参加Rust会议和研讨会，与其他Rust开发者交流经验和技巧。</p>
+</li>
+<li><p>考虑投入到Rust生态系统的开发中，例如编写库、工具和框架，为社区提供贡献。学习Rust的过程涉及多个阶段。这里提供了一个详细的Rust学习计划，帮助您逐步掌握这门语言：</p>
+<p><strong>1. 基础阶段</strong></p>
+<ul>
+<li>阅读《Rust编程语言》（The Rust Programming Language，又称”The Book”）：这是学习Rust的官方教材，为初学者提供了全面的入门知识。在线版本可免费访问：<a target="_blank" rel="noopener" href="https://doc.rust-lang.org/book/">The Rust Programming Language - The Rust Programming Language</a></li>
+<li>学习Rust的基本语法、数据类型、控制结构、错误处理等概念。</li>
+<li>完成《The Book》中的示例和练习，以巩固所学知识。</li>
+<li>参加Rust社区活动，如阅读论坛帖子、加入聊天室和邮件列表，以了解最新动态和获得帮助。</li>
+</ul>
+<p><strong>2. 实践阶段</strong></p>
+<ul>
+<li>尝试解决一些简单的编程问题，例如LeetCode上的题目，以熟悉Rust的编程范式。</li>
+<li>阅读Rust编写的开源项目代码，学习他人如何使用Rust解决实际问题。</li>
+<li>参与开源项目，为Rust生态做贡献。这可以帮助您熟悉实际项目中的编程实践、代码审查和协作流程。</li>
+<li>开始实现自己的项目，将学到的知识应用于实践。可以从一个简单的命令行工具或Web服务开始。</li>
+</ul>
+<p><strong>3. 进阶阶段</strong></p>
+<ul>
+<li>深入了解Rust的所有权（Ownership）、借用（Borrowing）和生命周期（Lifetime）系统。这是理解Rust内存安全的关键。</li>
+<li>学习Rust的并发和异步编程。掌握如何使用线程、通道、异步I&#x2F;O和<code>async/await</code>编写高性能、可扩展的Rust代码。</li>
+<li>阅读Rust的官方文档，例如《Rust异步编程》（Asynchronous Programming in Rust）和《Rust标准库文档》（The Rust Standard Library Documentation），以深入了解各种概念和API。</li>
+<li>学习Rust的宏（Macros）系统，了解如何编写DRY（Don’t Repeat Yourself）代码和元编程。</li>
+</ul>
+<p><strong>4. 专业阶段</strong></p>
+<ul>
+<li>探索Rust在不同领域的应用，例如Web开发、嵌入式系统、游戏开发、区块链等。</li>
+<li>阅读有关Rust性能优化、安全性和最佳实践的文章和教程。</li>
+<li>参加Rust会议和研讨会，与其他Rust开发者交流经验和技巧。</li>
+<li>考虑投入到Rust生态系统的开发中，例如编写库、工具和框架，为社区提供贡献。</li>
+</ul>
+</li>
+</ul>
+<h1 id="C"><a href="#C" class="headerlink" title="C++"></a>C++</h1><p>C++是一门功能强大的编程语言，学习过程可以分为多个阶段。以下是一份详细的C++学习计划，帮助您逐步掌握C++：</p>
+<p><strong>1. 基础阶段</strong></p>
+<ul>
+<li>阅读C++的经典教材，如《C++ Primer》(by Stanley B. Lippman, Josée Lajoie, and Barbara E. Moo) 或《C++程序设计原理与实践》（Programming: Principles and Practice Using C++, by Bjarne Stroustrup）。</li>
+<li>学习C++的基本语法、数据类型、控制结构、函数、类和对象等概念。</li>
+<li>练习编写简单的C++程序，巩固所学知识。</li>
+<li>参加在线C++社区活动，如Stack Overflow和C++ subreddit，了解最新动态和获得帮助。</li>
+</ul>
+<p><strong>2. 实践阶段</strong></p>
+<ul>
+<li>学习使用C++标准库（STL），掌握容器、算法和迭代器等重要概念。</li>
+<li>尝试解决一些实际编程问题，例如LeetCode上的题目，以熟悉C++编程范式。</li>
+<li>阅读开源C++项目的代码，学习他人如何使用C++解决实际问题。</li>
+<li>参与开源项目，为C++生态做贡献。这可以帮助您熟悉实际项目中的编程实践、代码审查和协作流程。</li>
+<li>开始实现自己的项目，将学到的知识应用于实践。可以从一个简单的命令行工具或图形界面应用开始。</li>
+</ul>
+<p><strong>3. 进阶阶段</strong></p>
+<ul>
+<li>深入学习C++的高级特性，如模板、异常处理、智能指针、多态等。</li>
+<li>学习C++的并发和多线程编程，掌握线程、互斥量、条件变量等概念。</li>
+<li>阅读有关C++性能优化、内存管理和最佳实践的文章和教程。</li>
+<li>学习C++11、C++14、C++17、C++20等新标准中的新特性，以便编写现代、高效的C++代码。</li>
+</ul>
+<p><strong>4. 专业阶段</strong></p>
+<ul>
+<li>探索C++在不同领域的应用，例如游戏开发、高性能计算、嵌入式系统等。</li>
+<li>学习使用C++编写跨平台应用程序，使用诸如Qt等框架。</li>
+<li>参加C++会议和研讨会，与其他C++开发者交流经验和技巧。</li>
+<li>考虑投入到C++生态系统的开发中，例如编写库、工具和框架，为社区提供贡献。</li>
+</ul>
+<h1 id="云系统内核安全"><a href="#云系统内核安全" class="headerlink" title="云系统内核安全"></a>云系统内核安全</h1><p>云系统内核安全是一个高度专业化的领域，涉及操作系统、虚拟化技术、硬件安全等多方面知识。以下是一份详细的云系统内核安全学习计划，帮助您逐步掌握相关知识：</p>
+<p><strong>1. 基础阶段</strong></p>
+<ul>
+<li>学习计算机组成原理和计算机体系结构，了解CPU、内存、IO设备等基本概念。</li>
+<li>学习操作系统基础知识，如进程、线程、内存管理、文件系统、设备驱动等。</li>
+<li>学习网络基础知识，掌握TCP&#x2F;IP协议栈、网络设备、网络安全等概念。</li>
+</ul>
+<p><strong>2. 虚拟化技术阶段</strong></p>
+<ul>
+<li>学习虚拟化技术的基本原理，了解全虚拟化和半虚拟化的区别。</li>
+<li>学习常见的虚拟化平台，如VMware、KVM、Xen、Hyper-V等，了解它们的架构和特点。</li>
+<li>学习容器技术，如Docker和Kubernetes，了解与虚拟机相比的优势和局限。</li>
+</ul>
+<p><strong>3. 云安全阶段</strong></p>
+<ul>
+<li>学习云计算的基本概念，了解IaaS、PaaS、SaaS等服务模型。</li>
+<li>学习主流云服务提供商（如AWS、Azure、Google Cloud、阿里云等）的安全服务和最佳实践。</li>
+<li>了解云安全的共享责任模型，学会在云环境中保护数据、网络、应用和用户的安全。</li>
+</ul>
+<p><strong>4. 内核安全阶段</strong></p>
+<ul>
+<li>深入学习操作系统内核，了解内核态和用户态的区别，学习内核编程。</li>
+<li>学习内核漏洞的类型和原理，例如缓冲区溢出、竞争条件、提权漏洞等。</li>
+<li>学习内核漏洞的利用技术，如ROP、堆喷射、内核地址泄露等。</li>
+<li>学习内核安全防护技术，如内核地址随机化（KASLR）、内核代码只读（RO）、内存保护扩展（MPX）等。</li>
+</ul>
+<p><strong>5. 云系统内核安全阶段</strong></p>
+<ul>
+<li>学习虚拟化环境下的内核安全挑战，如虚拟机逃逸、共享资源攻击等。</li>
+<li>学习容器环境下的内核安全挑战，如容器逃逸、资源隔离不足等。</li>
+<li>学习硬件安全技术，如安全引导（Secure Boot）、可信计算（TPM）、英特尔SGX等。</li>
+<li>学习云环境下的内核安全加固措施，如安全基线、监控、自动化补丁等。</li>
+</ul>
+<p><strong>6. 实践阶段</strong></p>
+<ul>
+<li>参与开源内核安全项目，为社区提供贡献。</li>
+<li>阅读内核安全相关的研究论文和技术报告，了解最新的研究动态。</li>
+<li>参加内核安全和云安全的会议和研讨会，与同行交流经验和技巧。</li>
+</ul>
+<h1 id="pwn"><a href="#pwn" class="headerlink" title="pwn"></a>pwn</h1><p>学习网络安全和 “pwn” 技能需要时间和努力，但通过制定一个合理的计划，你可以逐步掌握所需的知识和技能。以下是一个建议的学习计划：</p>
+<ol>
+<li><p>学习基础知识：</p>
+<ul>
+<li>计算机科学基础：了解计算机系统的基本原理，学习编程语言（如 Python, C, Java 或 JavaScript）。</li>
+<li>计算机网络：学习网络基本原理，如 OSI 模型、TCP&#x2F;IP 协议、路由和交换等。</li>
+<li>操作系统：熟悉 Windows、Linux 和 macOS 等操作系统的原理和使用。</li>
+</ul>
+</li>
+<li><p>学习网络安全基础：</p>
+<ul>
+<li>加密与解密：学习基本的密码学原理，如对称加密、非对称加密、哈希函数等。</li>
+<li>系统安全：了解常见的系统漏洞，如缓冲区溢出、SQL 注入、跨站脚本等。</li>
+<li>安全工具：熟悉常用的安全工具，如 Wireshark、Nmap、Metasploit 等。</li>
+</ul>
+</li>
+<li><p>掌握 Pwn 技能：</p>
+<ul>
+<li>静态分析：学习使用反汇编和调试工具（如 IDA Pro、Ghidra、OllyDbg 等）分析程序。</li>
+<li>动态分析：学习使用调试器（如 GDB、x64dbg 等）调试程序，了解程序运行时的状态。</li>
+<li>漏洞挖掘：学习如何发现潜在漏洞，如内存泄漏、整数溢出、格式化字符串等。</li>
+<li>漏洞利用：学习编写利用代码，如利用 ROP 技术绕过 DEP、使用堆喷射绕过 ASLR 等。</li>
+</ul>
+</li>
+<li><p>实践与进阶：</p>
+<ul>
+<li>参加 CTF 比赛：参加 Capture The Flag（CTF）比赛，提高实战能力。</li>
+<li>研究漏洞案例：分析已知的漏洞案例，了解漏洞发现和利用的具体过程。</li>
+<li>学习安全研究论文：阅读网络安全领域的学术论文，跟踪最新技术和研究成果。</li>
+<li>参与开源项目：参与网络安全相关的开源项目，如漏洞扫描器、安全框架等。</li>
+</ul>
+</li>
+<li><p>持续学习：</p>
+<ul>
+<li>关注安全领域的新闻和动态：关注网络安全领域的新闻、博客、漏洞报告等。</li>
+<li>参加安全会议：参加网络安全会议（如 DEFCON、Black Hat 等），了解最新的安全趋势和技术。</li>
+<li>建立个人网络：加入网络安全社区，与同行交流，分享经验和技巧。</li>
+</ul>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/04/06/Ubuntu%E6%BA%90%E7%A0%81-proc-meminfo/" rel="prev" title="Ubuntu源码 /proc/meminfo">
+      <i class="fa fa-chevron-left"></i> Ubuntu源码 /proc/meminfo
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/04/09/C++-%E5%AD%A6%E4%B9%A0-%E6%8C%87%E9%92%88/" rel="next" title="C++学习 指针">
+      C++学习 指针 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Rust"><span class="nav-number">1.</span> <span class="nav-text">Rust</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#C"><span class="nav-number">2.</span> <span class="nav-text">C++</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%91%E7%B3%BB%E7%BB%9F%E5%86%85%E6%A0%B8%E5%AE%89%E5%85%A8"><span class="nav-number">3.</span> <span class="nav-text">云系统内核安全</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pwn"><span class="nav-number">4.</span> <span class="nav-text">pwn</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">随便记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">274k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">8:17</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : '00aff2841e4bc2a98f1a99613fab816b',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
