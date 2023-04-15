@@ -197,6 +197,179 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/09/C++-%E5%AD%A6%E4%B9%A0-%E6%8C%87%E9%92%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="随便记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/04/09/C++-%E5%AD%A6%E4%B9%A0-%E6%8C%87%E9%92%88/" class="post-title-link" itemprop="url">C++学习 指针</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-04-09 13:57:28" itemprop="dateCreated datePublished" datetime="2023-04-09T13:57:28+08:00">2023-04-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-04-10 15:43:50" itemprop="dateModified" datetime="2023-04-10T15:43:50+08:00">2023-04-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>7 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="指针基本概念"><a href="#指针基本概念" class="headerlink" title="指针基本概念"></a>指针基本概念</h1><p><strong>指针的作用：</strong> 可以通过指针间接访问内存</p>
+<ul>
+<li><p>内存编号是从0开始记录的，一般用十六进制数字表示</p>
+</li>
+<li><p>可以利用指针变量保存地址</p>
+</li>
+</ul>
+<p>可以通过一个指针来保存一个地址</p>
+<h1 id="指针的定义和使用"><a href="#指针的定义和使用" class="headerlink" title="指针的定义和使用"></a>指针的定义和使用</h1><h2 id="定义指针"><a href="#定义指针" class="headerlink" title="定义指针"></a>定义指针</h2><p>指针定义的语法： <code>数据类型 \* 指针变量名</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span>* p;</span><br><span class="line">    p = &amp;a;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a的地址为&quot;</span> &lt;&lt; &amp;a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;指针p为&quot;</span> &lt;&lt; p &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>a的地址为00000087472FFC84<br>指针p为00000087472FFC84</p>
+</blockquote>
+<p>我们可以得到指针就是地址</p>
+<h2 id="使用指针"><a href="#使用指针" class="headerlink" title="使用指针"></a>使用指针</h2><p>可以通过解引用的方式来找到指针指向的内存</p>
+<p>指针前加 <code>*</code>代表解引用</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span>* p;</span><br><span class="line">    p = &amp;a;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a的地址为&quot;</span> &lt;&lt; &amp;a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;指针p为&quot;</span> &lt;&lt; p &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">    *p = <span class="number">1000</span>;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a = &quot;</span> &lt;&lt; a &lt;&lt;endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;*p = &quot;</span> &lt;&lt; *p &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>a的地址为0000003F9953F7C4<br>指针p为0000003F9953F7C4<br>a &#x3D; 1000<br>*p &#x3D; 1000</p>
+</blockquote>
+<p>通过<code>p</code>找到<code>a</code>的内存，并且可以通过<code>*p</code>修改内存</p>
+<h1 id="指针所占内存空间"><a href="#指针所占内存空间" class="headerlink" title="指针所占内存空间"></a>指针所占内存空间</h1><p>指针也是一种数据类型，那么这种数据类型占用多少内存空间呢？</p>
+<p>在32位操作系统下：占用4个字节空间</p>
+<p>在64位操作系统下：占用8个字节空间</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span>* p = &amp;a;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;sizeof (p) = &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(p) &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;sizeof (int *) = &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(<span class="type">int</span> *) &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;sizeof (char *) = &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(<span class="type">char</span> *) &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;sizeof (float *) = &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(<span class="type">float</span> *) &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;sizeof (double *) = &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(<span class="type">double</span> *) &lt;&lt; endl;</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>sizeof (p) &#x3D; 8<br>sizeof (int *) &#x3D; 8<br>sizeof (char *) &#x3D; 8<br>sizeof (float *) &#x3D; 8<br>sizeof (double *) &#x3D; 8</p>
+</blockquote>
+<p>因为指针是内存，所以不管是什么数据类型下，64位操作系统，指针都是占用8个字节空间大小</p>
+<h1 id="空指针和野指针"><a href="#空指针和野指针" class="headerlink" title="空指针和野指针"></a>空指针和野指针</h1><h2 id="空指针"><a href="#空指针" class="headerlink" title="空指针"></a>空指针</h2><p><strong>空指针</strong>：指针变量指向内存中为0的空间</p>
+<p><strong>用途</strong>：初始化指针变量</p>
+<p><strong>注意</strong>：空指针的内存是不可以访问的</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span>* p = <span class="literal">NULL</span>;</span><br><span class="line">    *p = <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
+
+<p>程序运行错误</p>
+<p><img src="/2023/04/09/C++-%E5%AD%A6%E4%B9%A0-%E6%8C%87%E9%92%88/Error.png"></p>
+<p>0~255之间的内存编号是系统占用的，因此不可以访问</p>
+<h2 id="野指针"><a href="#野指针" class="headerlink" title="野指针"></a>野指针</h2><p><strong>野指针</strong>：指针变量指向一段非法的内存空间</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span>* p = (<span class="type">int</span> *)<span class="number">0x1100</span>;</span><br><span class="line">    cout &lt;&lt; *p &lt;&lt; endl;</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
+
+<p>程序运行错误</p>
+<p><img src="/2023/04/09/C++-%E5%AD%A6%E4%B9%A0-%E6%8C%87%E9%92%88/Erro1.png"></p>
+<p>在程序中尽量避免野指针</p>
+<h1 id="const修饰指针"><a href="#const修饰指针" class="headerlink" title="const修饰指针"></a>const修饰指针</h1><p>const修饰指针有三种情况</p>
+<h2 id="const修饰指针-常量指针"><a href="#const修饰指针-常量指针" class="headerlink" title="const修饰指针 - 常量指针"></a>const修饰指针 - 常量指针</h2><p>指针的指向可以修改，指针指向的值不能修改</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">int</span> * p;</span><br></pre></td></tr></table></figure>
+
+<h2 id="const修饰常量-指针常量"><a href="#const修饰常量-指针常量" class="headerlink" title="const修饰常量 - 指针常量"></a>const修饰常量 - 指针常量</h2><p>指针的指向不可以改，指针指向的值可以改</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> * <span class="type">const</span> p;</span><br></pre></td></tr></table></figure>
+
+<h2 id="const既修饰指针，又修饰常量"><a href="#const既修饰指针，又修饰常量" class="headerlink" title="const既修饰指针，又修饰常量"></a>const既修饰指针，又修饰常量</h2><p>指针的指向不可以改，指针指向的值也不可以改</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">int</span> * <span class="type">const</span> p;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span> b = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//1、const 修饰指针 常量指针</span></span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> * p1 = &amp;a;</span><br><span class="line">    <span class="comment">//*p1 = 20 错误</span></span><br><span class="line">    p1 = &amp;b;<span class="comment">//正确</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//2、const 修饰常量 指针常量</span></span><br><span class="line">    <span class="type">int</span>* <span class="type">const</span> p2 = &amp;a;</span><br><span class="line">    *p2 = <span class="number">100</span>;<span class="comment">//正确</span></span><br><span class="line">    <span class="comment">//p2 = &amp;b; 错误</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//3、const 既修饰常量又修饰指针</span></span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> * <span class="type">const</span> p3 = &amp;a;</span><br><span class="line">    <span class="comment">//*p3 = 100 错误</span></span><br><span class="line">    <span class="comment">//p3 = &amp;b 错误</span></span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
+
+<h1 id="指针和数组"><a href="#指针和数组" class="headerlink" title="指针和数组"></a>指针和数组</h1><p>利用指针访问数组中的数据元素</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> arr[] = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span> ,<span class="number">10</span> &#125;;</span><br><span class="line">    <span class="type">int</span>* p = arr;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;第一个元素为：&quot;</span> &lt;&lt; arr[<span class="number">0</span>] &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;指针访问第一个元素：&quot;</span> &lt;&lt; *p &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; *p &lt;&lt; endl;</span><br><span class="line">        p++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>第一个元素为：1<br>指针访问第一个元素：1<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</p>
+</blockquote>
+<h1 id="指针和函数"><a href="#指针和函数" class="headerlink" title="指针和函数"></a>指针和函数</h1><p>利用指针作为函数参数，可以修改实参的值</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">swap01</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> temp = a;</span><br><span class="line">    a = b;</span><br><span class="line">    b = temp;</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">swap02</span><span class="params">(<span class="type">int</span>* p1, <span class="type">int</span>* p2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> temp = *p1;</span><br><span class="line">    *p1 = *p2;</span><br><span class="line">    *p2 = temp;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span> b = <span class="number">20</span>;</span><br><span class="line">    <span class="comment">//1、值传递</span></span><br><span class="line">    <span class="built_in">swap01</span>(a, b);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;swap01后a的值为&quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;swap01后b的值为&quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">    <span class="comment">//2、地址传递</span></span><br><span class="line">    <span class="built_in">swap02</span>(&amp;a, &amp;b);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;swap02后a的值为&quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;swap02后b的值为&quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<blockquote>
+<p>swap01后a的值为10<br>swap01后b的值为20<br>swap02后a的值为20<br>swap02后b的值为10</p>
+</blockquote>
+<h1 id="指针、数组、函数"><a href="#指针、数组、函数" class="headerlink" title="指针、数组、函数"></a>指针、数组、函数</h1><p>案例描述：封装一个函数，利用冒泡排序，实现对整型数组的升序排序 </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="comment">//冒泡排序函数</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">bubbleSort</span><span class="params">(<span class="type">int</span> * arr, <span class="type">int</span> len)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; len - <span class="number">1</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; len - i - <span class="number">1</span>; j++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//如果j&gt;j+1,交换数字</span></span><br><span class="line">            <span class="keyword">if</span> (arr[j] &gt; arr[j + <span class="number">1</span>])</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="type">int</span> temp = arr[j];</span><br><span class="line">                arr[j] = arr[j + <span class="number">1</span>];</span><br><span class="line">                arr[j + <span class="number">1</span>] = temp;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//打印数组</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">printArray</span><span class="params">(<span class="type">int</span>* arr, <span class="type">int</span> len)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; len; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; arr[i] &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//1、创建数组</span></span><br><span class="line">    <span class="type">int</span> arr[<span class="number">10</span>] = &#123;<span class="number">4</span> , <span class="number">3</span> , <span class="number">6</span> , <span class="number">9</span> , <span class="number">1</span> , <span class="number">2</span> , <span class="number">10</span> , <span class="number">8</span> , <span class="number">7</span> , <span class="number">5</span>&#125;;</span><br><span class="line">    <span class="comment">//数组长度</span></span><br><span class="line">    <span class="type">int</span> len = <span class="built_in">sizeof</span>(arr) / <span class="built_in">sizeof</span>(arr[<span class="number">0</span>]);</span><br><span class="line">    <span class="comment">//2、创建函数，实现冒泡排序</span></span><br><span class="line">    <span class="built_in">bubbleSort</span>(arr, len);</span><br><span class="line">    <span class="comment">//3、打印排序后的数组</span></span><br><span class="line">    <span class="built_in">printArray</span>(arr, len);</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<blockquote>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/08/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1257,7 +1430,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/30/A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -1271,7 +1444,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2023/03/30/A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/" class="post-title-link" itemprop="url">A Study on the Security Implications of Information Leakages in Container Clouds</a>
+            <a href="/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/" class="post-title-link" itemprop="url">论文阅读 A Study on the Security Implications of Information Leakages in Container Clouds</a>
         </h2>
 
         <div class="post-meta">
@@ -1288,7 +1461,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-09 13:50:35" itemprop="dateModified" datetime="2023-04-09T13:50:35+08:00">2023-04-09</time>
+                <time title="Modified: 2023-04-15 13:07:00" itemprop="dateModified" datetime="2023-04-15T13:07:00+08:00">2023-04-15</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1381,13 +1554,13 @@
 <h1 id="Information-Leakages-In-Container-Clouds"><a href="#Information-Leakages-In-Container-Clouds" class="headerlink" title="Information Leakages In Container Clouds"></a>Information Leakages In Container Clouds</h1><p>Linux内核为容器抽象提供了大量支持以实现资源隔离和控制。这些内核机制是在多租户云上运行容器的启用技术。由于优先级和困难程度，Linux内核的某些组件尚未转化为支持容器化。我们打算系统地探索哪些部分的内核没有覆盖，根本原因是什么以及潜在对手如何利用它们。</p>
 <h2 id="Container-Information-Leakages"><a href="#Container-Information-Leakages" class="headerlink" title="Container Information Leakages"></a>Container Information Leakages</h2><p>我们首先在本地安装了Docker和LXC容器，并在Linux机器上进行实验。系统设置为默认配置，所有容器都以用户特权启动，与商业容器云类似。Linux提供了两种从用户空间进程到内核的受控接口：系统调用和基于内存的伪文件系统。系统调用主要设计用于用户进程请求内核服务。这些系统调用具有严格的公共接口定义，并通常向后兼容。然而，基于内存的伪文件系统更灵活，可扩展内核功能（例如<code>ioctl</code>），访问内核数据（例如<code>procfs</code>）并调整内核参数（例如<code>sysctl</code>）。此外，这样的伪文件系统使得通过正常文件I&#x2F;O操作操纵内核数据成为可能。Linux有许多基于内存的伪文件系统（例如，<code>procfs</code>、<code>sysfs</code>、<code>devfs</code>、<code>securityfs</code>、<code>debugfs</code>等），这些文件系统服务于不同的内核操作目的。我们更感兴趣的是<code>procfs</code>和<code>sysfs</code>，默认情况下由容器运行时软件挂载。</p>
 <p>如图所示，我们设计了一个交叉验证工具，自动发现这些将主机信息暴露给容器的基于内存的伪文件。关键思想是在两个执行上下文中递归探索<code>procfs</code>和<code>sysfs</code>下所有伪文件，在一个未经特权处理的容器中运行，并在主机上运行另一个。我们根据它们的路径对齐并重新排序这些文件，然后对相同内容之间进行成对差分分析。如果从特定虚拟文件访问到的系统资源没有被Linux内核<code>namespace</code>化，则主机和容器会达到相同片段（如图中❷的情况）。否则，如果正确<code>namespace</code>化，则容器可以检索到自己的私有和定制内核数据（如图中❶的情况）。使用这个交叉验证工具，我们可以快速识别可能将系统范围主机信息暴露给容器的伪文件（及其内部内核数据结构）。</p>
-<p><img src="/2023/03/30/A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/Framework.png"></p>
+<p><img src="/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/Framework.png"></p>
 <h2 id="Leakage-Channel-Analysis"><a href="#Leakage-Channel-Analysis" class="headerlink" title="Leakage Channel Analysis"></a>Leakage Channel Analysis</h2><p>我们在表中列出了可能泄露主机信息的所有伪文件。这些泄漏渠道包含主机信息的不同方面。容器用户可以检索内核数据结构（例如，<code>/proc/modules</code>显示加载模块列表），内核事件（例如，<code>/proc/interrupt</code>s显示每个IRQ的中断数）和硬件信息（例如，<code>/proc/cpuinfo</code>和<code>/proc/meminfo</code>分别显示CPU和内存规格）。此外，容器用户还可以通过某些通道获取性能统计数据。例如，容器可以通过<code>RAPL sysfs</code>接口获得硬件传感器数据（如果这些传感器在物理机上可用），如每个package、核心和DRAM的功耗，并通过数字温度传感器(DTS)<code>sysfs</code>接口获得每个核心的温度。此外，处理器、内存和磁盘I&#x2F;O的使用情况也暴露给容器。虽然乍一看泄露这样的信息似乎无害，但恶意对手可能利用它来发动攻击。</p>
 <p>我们通过检查内核代码（在Linux内核版本4.7中）进一步调查了这些信息泄漏的根本原因。通常，泄漏问题是由于内核中<code>namespace</code>实现不完整引起的。更具体地说，我们总结了两个主要原因如下：（1）对于现有<code>namespace</code>缺少context check，以及（2）某些Linux子系统没有（完全）进行<code>namespace</code>隔离。我们提供了两个案例研究，分别是容器中的<code>net prio.ifpriomap</code>和<code>RAPL</code>，以揭示泄漏源头。</p>
 <h3 id="Case-study-1-net-prio-ifpriomap"><a href="#Case-study-1-net-prio-ifpriomap" class="headerlink" title="Case study 1 - net_prio.ifpriomap"></a>Case study 1 - net_prio.ifpriomap</h3><p>伪文件<code>net prio.ifpriomap</code>（位于<code>/sys/fs/cgroup/net prio</code>下）包含了一个映射，该映射将从cgroup中的进程开始并离开系统的流量分配给不同接口。数据格式为<code>[ifname priority]</code>。我们发现，在<code>net prio.ifpriomap</code>上挂钩的内核处理程序函数不知道NET命名空间，因此它向容器化应用程序披露物理机器上所有网络接口。更具体地说，<code>net prio.ifpriomap</code>的读操作由<code>read_priomap</code>函数处理。从这个函数跟踪，我们发现它调用<code>for_each_netdev_rcu</code>，并将第一个参数设置为<code>init_net</code>地址。它迭代主机的所有网络设备，而不考虑NET命名空间。因此，在容器视图中，可以读取主机所有网络设备名称。</p>
 <h3 id="Case-study-2-RAPL-in-containers"><a href="#Case-study-2-RAPL-in-containers" class="headerlink" title="Case study 2 - RAPL in containers"></a>Case study 2 - RAPL in containers</h3><p>RAPL是英特尔最近推出的用于设置单个服务器处理器包和DRAM功率限制的技术，可以在毫秒级别响应。在容器云中，<code>RAPL sysfs</code>接口位于<code>/sys/class/powercap/intel-rapl</code>，容器可以访问该接口。因此，容器租户可以通过这个sysfs接口获取主机的系统范围内电源状态，包括核心、DRAM和package等。例如，容器用户可以从伪文件energy uj中读取当前微焦耳能量计数器值。Intel RAPL Linux驱动程序中energy uj的函数处理程序是<code>get_energy_counte</code>r。该函数从<code>RAPL MSR</code>检索原始能量数据。由于尚未实现功率数据名称空间，则<code>energy_raw</code>指针引用主机的能量消耗数据。</p>
 <p>我们进一步调查了采用Docker&#x2F;LXC容器引擎的容器云服务中存在的信息泄漏问题。我们选择了五个商业公共多租户容器云服务进行泄漏检测，并在表中呈现结果。在云提供商修补通道之前，我们对这些容器云服务的名称（CCi代表第i个Container Cloud）进行匿名化处理。如果结果与我们的容器实例配置不一致，则确认泄露存在。黑点表示通道不存在于该云中，而白点表示通道存在于该云中。我们发现大多数本地机器上的泄露渠道也可以在容器云服务上使用。其中一些由于缺乏特定硬件支持而无法使用（例如Sandy Bridge之前的英特尔处理器或不支持RAPL技术的AMD处理器）。对于CC5，我们发现某些通道信息与本地测试平台不同，这意味着云供应商已经定制了一些额外限制条件。例如，只有属于租户核心和内存相关信息是可用的。然而，这些渠道部分泄露主机信息仍可能被高级攻击者利用, 我们将它们标记为黑白点。</p>
-<p><img src="/2023/03/30/A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/Files.png"></p>
+<p><img src="/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/Files.png"></p>
 <h2 id="Inference-of-Co-resident-Container"><a href="#Inference-of-Co-resident-Container" class="headerlink" title="Inference of Co-resident Container"></a>Inference of Co-resident Container</h2><p>我们进一步深入研究特定案例，以查看它们是否可以被利用来检测共存容器</p>
 <h3 id="Co-residence-problems-in-cloud-settings"><a href="#Co-residence-problems-in-cloud-settings" class="headerlink" title="Co-residence problems in cloud settings"></a>Co-residence problems in cloud settings</h3><p><code>Co-residence</code>是云安全中一个众所周知的研究问题。为了提取受害者的信息，攻击者倾向于将恶意实例移动到与受害者相同的物理主机上。Zhang等人已经证明，攻击者可以使用共存实例劫持用户帐户并提取私钥。</p>
 <p>此外，实现<code>Co-residence</code>的成本相当低。由于意图整合服务器资源和降低成本，<code>Co-residence</code>仍然是现有云中存在的问题。验证<code>Co-residence</code>的传统方法基于缓存或基于内存泄漏通道。这些方法的准确性可能会因云环境中高噪声而下降。</p>
@@ -1404,7 +1577,7 @@
 <p>每个多重独立数据字段Xi，n表示独立数据字段的数量。每个Xi都有可能的值{xi1，· · · ，xim}。我们根据表中的熵结果对能够揭示<code>co-residence</code>能力的九个通道（其中U&#x3D;False且V&#x3D;True）进行排名。</p>
 <p>指标M表示容器租户是否可以操作数据。如果租户可以直接将特制的数据嵌入通道中，我们会对其进行标记为黑色。例如，我们可以在容器内创建一个带有特殊任务名称的计时器程序。该任务名称及其关联的计时器将出现在<code>/proc/timer</code>列表中。另一个容器可以搜索计时器列表中的此特殊任务名称以验证共存性。如果租户只能间接影响此通道中的数据，则我们会标记为黑白色。例如，攻击者可以使用<code>taskset</code>命令将计算密集型工作负载绑定到特定核心，并从另一个容器检查CPU利用率、功耗或温度等信息。这些条目可能被高级攻击者利用作为隐蔽信道来传输信号。</p>
 <p>对于那些没有这些 U V M 属性的通道，我们认为它们很难被利用。例如，在云数据中心中，大多数服务器可能安装了相同的操作系统分发版和相同的模块列表。虽然 <code>/proc/modules</code>泄漏了主机上加载模块的信息，但是使用此通道推断<code>co-resident</code>容器是困难的。</p>
-<p><img src="/2023/03/30/A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/Leakage%20Channel.png"></p>
+<p><img src="/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/Leakage%20Channel.png"></p>
 <h1 id="Constructing-Covert-Channels"><a href="#Constructing-Covert-Channels" class="headerlink" title="Constructing Covert Channels"></a>Constructing Covert Channels</h1><p>包含manipulation（M）的通道可以进一步利用，以在两个容器之间建立隐蔽通道。我们证明了这些信息泄漏通道中的动态标识符和性能数据都可以被滥用来传输信息。特别地，我们实现了两个通道并测试它们的吞吐量和错误率。</p>
 <h2 id="Covert-channel-based-on-unique-dynamic-identifiers"><a href="#Covert-channel-based-on-unique-dynamic-identifiers" class="headerlink" title="Covert channel based on unique dynamic identifiers"></a>Covert channel based on unique dynamic identifiers</h2><p>我们以<code>/proc/locks</code>为例来演示隐蔽通道可以构建在唯一动态标识符之上。通道<code>/proc/locks</code>显示了操作系统中所有锁信息的概述，包括锁类型、相应的进程以及inode号。</p>
 <p>这种泄漏也破坏了 pid命名空间，因为所有锁的全局pid都被泄露了。Linux内核的维护者在4.9版本中部分修复了<code>/proc/locks</code>。内核4.9版本中部分修复了<code>/proc/locks</code>，将当前pid命名空间中的所有pid屏蔽为零。然而，其他信息，如锁的数量和节点信息仍然在容器。</p>
@@ -1485,12 +1658,12 @@
 <p>对于DRAM，我们使用package失败的数量来分析power。图显示了核心实验中相同基准测试和相同配置的能耗。它清楚地表明cache miss的数量与DRAM能量近似线性。</p>
 <p>在此基础上，我们利用的线性回归对DRAM能量进行建模。</p>
 <p>对于package的功耗，我们将核心、DRAM和一个额外常数的值相加。具体模型如式所示，其中M为建模能量;CM、BM、C分别表示cache miss次数、branch miss次数和CPU周期;F为通过多次线性回归拟合斜率得到的函数。I是退役指令的数量。α， β， γ， λ是由图实验数据得出的常数。</p>
-<img src="/2023/03/30/A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/formula1.png" title alt data-align="center">
+<img src="/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/formula1.png" title alt data-align="center">
 
 <p>这里我们讨论浮点指令对功率建模的影响。独立的浮点指令可能比整数操作消耗更多的能量。具有高浮点指令比例的工作负载实际上可能导致整体功耗较低，因为功能单元可能被迫在管道的不同阶段处于空闲状态。为了建立一个更精细的模型，有必要考虑微架构。我们计划在今后的工作中朝着这个方向努力。此外，α、β、γ参数的选择也受结构的影响。这样的问题可以在接下来的校准步骤中得到缓解。</p>
 <h3 id="On-the-fly-calibration"><a href="#On-the-fly-calibration" class="headerlink" title="On-the-fly calibration"></a>On-the-fly calibration</h3><p>我们的系统还为主机的能量数据建模，并与通过RAPL获得的实际能量数据进行交叉验证。为了尽量减小建模数据的误差，我们使用下式对每个容器的建模能量数据进行校准。Econtainer表示返回给每个容器的能量值。这种实时校准是对RAPL接口的每个读取操作进行的，可以有效地减少前一步的错误数量。</p>
-<p><img src="/2023/03/30/A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/formula2.png"></p>
-<p><img src="/2023/03/30/A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/workflow.png"></p>
+<p><img src="/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/formula2.png"></p>
+<p><img src="/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/workflow.png"></p>
 <h1 id="Defense-Ecaluation"><a href="#Defense-Ecaluation" class="headerlink" title="Defense Ecaluation"></a>Defense Ecaluation</h1><p>我们从三个方面评估本地机器上基于功能的名称空间:准确性、安全性和性能。我们的测试平台配备了Intel i7-6700 3.40GHz 8核CPU, 16GB RAM，运行Ubuntu Linux 16.04，内核版本为4.7.0。</p>
 <h2 id="Accuracy"><a href="#Accuracy" class="headerlink" title="Accuracy"></a>Accuracy</h2><p>我们使用SPECCPU2006基准来测量power建模的准确性。我们将建模的power使用情况与通过RAPL获得的ground truth进行比较。</p>
 <p>功耗等于每秒的能量消耗。由于Docker容器的安全策略的限制，我们选择了SPECCPU2006基准测试的一个子集，这些基准测试可以在容器内运行，并且与用于功率建模的基准测试没有重叠。误差ξ定义如下:</p>
@@ -1642,7 +1815,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/30/Demons-in-the-Shared-Kernel-Abstract-Resource-Attacks-Against/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20Demons-in-the-Shared-Kernel-Abstract-Resource-Attacks-Against/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -1656,7 +1829,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2023/03/30/Demons-in-the-Shared-Kernel-Abstract-Resource-Attacks-Against/" class="post-title-link" itemprop="url">Demons in the Shared Kernel: Abstract Resource Attacks Against</a>
+            <a href="/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20Demons-in-the-Shared-Kernel-Abstract-Resource-Attacks-Against/" class="post-title-link" itemprop="url">论文阅读 Demons in the Shared Kernel: Abstract Resource Attacks Against</a>
         </h2>
 
         <div class="post-meta">
@@ -1673,7 +1846,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-13 15:10:36" itemprop="dateModified" datetime="2023-04-13T15:10:36+08:00">2023-04-13</time>
+                <time title="Modified: 2023-04-15 13:52:39" itemprop="dateModified" datetime="2023-04-15T13:52:39+08:00">2023-04-15</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1714,12 +1887,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><p>由于其更快的启动速度和更好的资源利用效率，OS-level的虚拟化（virtualization）已被广泛采用，并成为云计算的一项基本技术。与硬件虚拟化相比，OS-level的虚拟化利用共享内核（shared-kernel）设计来实现高效率，并在共享内核上运行多个用户空间实例（又称容器）</p>
+          <p><strong>摘要</strong></p>
+<p>由于其更快的启动速度和更好的资源利用效率，OS-level的虚拟化（virtualization）已被广泛采用，并成为云计算的一项基本技术。与硬件虚拟化相比，OS-level的虚拟化利用共享内核（shared-kernel）设计来实现高效率，并在共享内核上运行多个用户空间实例（又称容器）</p>
 <p>然而，在本文中，我们揭示了一种新的攻击面，它是操作系统级虚拟化所固有的，会影响Linux、FreeBSD和Fuchsia。根本原因是操作系统级虚拟化中的共享内核设计导致容器直接或间接地共享成千上万的内核变量和数据结构。在不利用任何内核漏洞的情况下，非特权容器可以轻松耗尽共享的内核变量和数据结构实例，从而对其他容器发起DoS攻击。与物理资源相比，这些内核变量或数据结构实例(称为抽象资源)更普遍，但保护不足。</p>
 <p>为了说明限制抽象资源的重要性，我们针对操作系统内核的不同方面进行了抽象资源攻击。结果表明，攻击抽象的资源是非常实用和关键的。我们进一步进行了系统分析，识别出Linux内核中脆弱的抽象资源，成功检测到1010个抽象资源，其中501个可以动态重复使用。我们还在前四家云供应商的自部署共享内核容器环境中进行了攻击实验。结果表明，所有环境都容易受到抽象资源攻击。我们得出结论，containing抽象资源是困难的，并给出了多种策略来降低风险</p>
-<p>注：本文的所有§标题需要加1</p>
-<h2 id="CCS-CONCEPTS"><a href="#CCS-CONCEPTS" class="headerlink" title="CCS CONCEPTS"></a>CCS CONCEPTS</h2><p>Security and privacy -&gt; Virtualization and security</p>
-<h2 id="KEYWORDS"><a href="#KEYWORDS" class="headerlink" title="KEYWORDS"></a>KEYWORDS</h2><p>OS-level Virtualization；Shared Kernel；Abstract Resource Attack</p>
+<p><strong>CCS CONCEPTS</strong></p>
+<p>Security and privacy -&gt; Virtualization and security</p>
+<p><strong>KEYWORDS</strong></p>
+<p>OS-level Virtualization；Shared Kernel；Abstract Resource Attack</p>
 <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>OS-level虚拟化允许多个包含且隔离的用户空间环境在同一个内核上运行。与硬件虚拟化相比（虚拟机），OS-level虚拟化消除了为每个用户空间实例维护操作系统内核的负担，因此具有更快的启动速度和更好的资源利用效率。因此，OS-level虚拟化在近年来得到了广泛的应用，并成为云计算的基础技术。OS-level虚拟化中的空间实例在FreeBSD中命名为jails，在Solaris命名为Zones，在Linux中命名为containers。</p>
 <p>尽管OS-level的虚拟化效率很高，但它也带来了多种安全问题。首先，由于共享内核，操作系统级虚拟化容易受到内核漏洞的攻击。因此，它不能隔离内核错误。一旦共享内核受到威胁，所有用户空间实例(称为容器)都将失去隔离和保护。此外，研究人员最近对容器技术的隔离提出了质疑，例如信息泄漏、隐蔽通道和out-of-band workloads 打破了cgroup。</p>
 <p>然而，在本文中，我们揭示了OS-level虚拟化所固有的一种新的攻击面（attack surface）。与硬件虚拟化相比，OS-level虚拟化利用共享内核设计来实现高效率。在典型的OS-level虚拟化环境中，容器运行在相同的操作系统内核上，并通过300多个系统调用请求各种服务。请注意，底层OS内核包含数十万个变量和数据结构实例，用于为容器提供服务。因此，这些容器直接或间接地共享这些内核变量和数据结构实例。</p>
@@ -1898,7 +2073,7 @@
 </ul>
 <p>图显示了我们的工具的体系结构，它自动识别出容器可耗尽的抽象资源。分析工具以内核源<code>IR</code>作为输入。它首先使用§4.1中基于配置的分析和基于访问的分析来识别所有内核可共享的抽象资源。然后进行§4.2中的系统调用可达性分析和容器限制分析，包括<code>seccomp</code>、<code>per-user</code>和<code>namespace</code>限制分析，分析这些抽象资源上的容器可控性。</p>
 <p>此外，我们在§4.3给出了分析结果。</p>
-<p><img src="/2023/03/30/Demons-in-the-Shared-Kernel-Abstract-Resource-Attacks-Against/architecture.png"></p>
+<p><img src="/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20Demons-in-the-Shared-Kernel-Abstract-Resource-Attacks-Against/architecture.png"></p>
 <h2 id="Identification-of-Kernel-Shareable-Abstract-Resources"><a href="#Identification-of-Kernel-Shareable-Abstract-Resources" class="headerlink" title="Identification of Kernel Shareable Abstract Resources"></a>Identification of Kernel Shareable Abstract Resources</h2><p>如前所述，从成千上万的内核变量和数据结构实例中识别有意义的抽象资源具有挑战性。更困难的是，为了确保这些抽象资源在容器之间直接或间接地共享，我们需要将它们缩小到可共享的内核抽象资源。</p>
 <p>为了克服这一挑战，我们利用内核编程范例并提出基于配置的分析和基于访问的分析来识别内核可共享资源。</p>
 <h3 id="Configuration-based-Analysis"><a href="#Configuration-based-Analysis" class="headerlink" title="Configuration-based Analysis"></a>Configuration-based Analysis</h3><p>Linux内核在<code>/proc/sys</code>下提供<code>sysctl</code>接口，允许用户空间程序配置内核参数。我们的主要观察结果是，这些<code>sysctl</code>配置中的大多数用于抽象的资源限制，例如限制文件数<code>fs.file-nr</code>或内存大页<code>vm.nr_hugepages</code>。因此，所有容器都共享由<code>sysctl</code>配置指定的相同全局限制。这样的<code>sysctl</code>配置提供了关于容器之间可共享的抽象资源的重要线索。</p>
@@ -1997,7 +2172,7 @@
 <h2 id="Selection-of-Abstract-Resources"><a href="#Selection-of-Abstract-Resources" class="headerlink" title="Selection of Abstract Resources"></a>Selection of Abstract Resources</h2><p>为了进行攻击，我们需要选择有意义的抽象资源。为了演示抽象资源攻击的有效性，我们希望选择影响操作系统服务各个方面的抽象资源，包括进程管理、内存管理、存储管理和IO管理。</p>
 <p>因此，我们首先根据它们的声明位置将所有标识的资源分为这四类，即用于进程、内存、存储和IO管理的资源。然后，我们根据我们的领域知识从每个类别中选择至少一个资源，即我们知道资源耗尽的影响。</p>
 <p>最终，我们选择了涵盖所有四个方面的7个抽象资源，。资源名称列在表的第二列中。在所选的抽象资源中，基于访问分析识别出<code>PID idr</code>、<code>dirty ratio</code>、<code>inode</code>、<code>netns_ct-&gt;count</code>、<code>random entropy</code>个，基于配置分析识别出<code>nr_files</code>、<code>pty_count</code> 2个，如表第三列所示。我们还在表的第四列中列出了资源消耗函数，在表的最后一列中列出了用于触发攻击的系统调用。</p>
-<p><img src="/2023/03/30/Demons-in-the-Shared-Kernel-Abstract-Resource-Attacks-Against/Resource.png"></p>
+<p><img src="/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20Demons-in-the-Shared-Kernel-Abstract-Resource-Attacks-Against/Resource.png"></p>
 <h2 id="Attacking-Results-on-Cloud-Platforms"><a href="#Attacking-Results-on-Cloud-Platforms" class="headerlink" title="Attacking Results on Cloud Platforms"></a>Attacking Results on Cloud Platforms</h2><p>如前一节所述，我们为我们提出的攻击设置了5个测试环境，包括本地、AWS、Azure、谷歌云和阿里云。对于每个测试环境，我们设置了两个具有严格安全策略的容器，作为<code>attacker-container</code>和<code>victim-container</code>。<code>attacker-container</code>针对某些抽象资源发起攻击。我们使用上述7个选定的抽象资源来发起攻击。在<code>victim-container</code>和主机上都运行一个基准测试，以测量它们在抽象资源攻击下的性能下降。结果如表所示。</p>
 <ul>
 <li><p><code>PID idr</code>攻击。<code>PID idr</code>攻击及其根源已在§3.2.1中详细介绍。针对厂商的PID攻击，所有受害容器，甚至在Local、AWS、Azure和谷歌测试环境中的主机都不能<code>fork</code>新的进程。<code>victim-container</code>甚至会被驱逐。阿里云不容易受到PID攻击。</p>
@@ -2016,7 +2191,7 @@
 <p>由于没有<code>namespace</code>或<code>cgroup</code>来隔离<code>random entropy</code>，<code>attacker-container</code>很容易通过反复读取<code>/dev/random</code>来消耗所有的<code>random entropy</code>，从而导致良性的读取阻塞。最新的Linux内核v5.10通过将<code>/dev/random</code>读重定向到<code>/dev/urandom</code>修复了这个问题。然而，Azure和阿里云都容易受到这种攻击。</p>
 </li>
 </ul>
-<p><img src="/2023/03/30/Demons-in-the-Shared-Kernel-Abstract-Resource-Attacks-Against/result.png"></p>
+<p><img src="/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20Demons-in-the-Shared-Kernel-Abstract-Resource-Attacks-Against/result.png"></p>
 <h2 id="Attacking-gVisor"><a href="#Attacking-gVisor" class="headerlink" title="Attacking gVisor"></a>Attacking gVisor</h2><p>我们还对gVisor进行了7种资源攻击。为了建立gVisor环境，我们在谷歌Kubernetes Engine (GKE)中选择runsc而不是runc作为容器运行时，如§5.1所述。其中<code>nr_files</code>攻击和<code>netns_ct-&gt;count</code>攻击两种攻击在<code>gVisor</code>环境下仍然有效。在接下来的文章中，我们将分析为什么这两种攻击可以在<code>gVisor</code>上工作。</p>
 <p>对于<code>nr_files</code>, gVisor使用<code>Sentry</code>为系统调用服务，而Gofer为<code>Sentry</code>处理不同类型的IO。<code>Sentry</code>拦截来自容器的<code>open syscall</code>并将请求发送给Gofer。在另一边，Gofer通过调用主机操作系统的<code>openat</code>系统调用来处理该请求。最终，主机操作系统上的<code>openat</code>系统调用触发了<code>alloc_empty_file</code>函数，它消耗了<code>nr_files</code>。通过这种方式，gVisor的攻击者能够耗尽主机的nr_files。<br>对于<code>netns_ct-&gt;count</code>，<code>Sentry</code>拦截连接系统调用，并使用自己的网络堆栈将数据包转发到主机中创建的veth-peer网卡。<code>vth -peer</code>连接到主机中的虚拟网桥。当网络帧通过虚拟网桥转发时，主机上的netfilter被触发调用<code>nf_conntrack_alloc</code>函数，该函数消耗<code>netns_ct-&gt;count</code>。因此，gVisor中的攻击者仍然可以耗尽主机的<code>netns_ct-&gt;count</code>。</p>
 <h2 id="Summary-1"><a href="#Summary-1" class="headerlink" title="Summary"></a>Summary</h2><p>对于自部署的共享内核容器环境，其中两个易受6次攻击，一个易受5攻击，另一个易受4攻击。令人惊讶的是，gVisor运行时也容易受到两种攻击——<code>nr_files</code>攻击和<code>netns_ct-&gt;count</code>攻击。我们已经向所有四个供应商报告了这些攻击。他们都确认了问题存在于他们的共享内核容器环境中。</p>
@@ -2615,7 +2790,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -2628,7 +2803,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -2673,12 +2848,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">274k</span>
+    <span title="Symbols count total">295k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">8:17</span>
+    <span title="Reading time total">8:57</span>
 </div>
 
 <!--
