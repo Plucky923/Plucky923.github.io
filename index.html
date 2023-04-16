@@ -197,6 +197,135 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/16/C++-%E5%AD%A6%E4%B9%A0-%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="随便记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/04/16/C++-%E5%AD%A6%E4%B9%A0-%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1/" class="post-title-link" itemprop="url">C++学习 类与对象</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-04-16 20:31:16 / Modified: 21:45:33" itemprop="dateCreated datePublished" datetime="2023-04-16T20:31:16+08:00">2023-04-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>C++面向对象三大特性：封装、继承、多态</p>
+<p>C++认为万事万物都皆为对象，对象上有其属性和行为</p>
+<p>例如：</p>
+<p>人可以作为对象，属性有姓名、年龄、身高、体重…..，行为有走、跑、跳……</p>
+<p>具有相同性质的对象，我们可以抽象称为类，人属于人类，车属于车类</p>
+<h1 id="封装"><a href="#封装" class="headerlink" title="封装"></a>封装</h1><h2 id="封装的意义"><a href="#封装的意义" class="headerlink" title="封装的意义"></a>封装的意义</h2><p>封装是C++面向对象三大特性之一</p>
+<p>封装的意义：</p>
+<ul>
+<li><p>将属性和行为作为一个整体，表现生活中的事物</p>
+</li>
+<li><p>将属性和行为加以权限控制</p>
+</li>
+</ul>
+<h3 id="封装的意义一"><a href="#封装的意义一" class="headerlink" title="封装的意义一"></a>封装的意义一</h3><p>在设计类的时候，属性和行为写在一起，表现事物</p>
+<p>语法：<code>class 类名 &#123; 访问权限 : 属性 / 行为 &#125;;</code></p>
+<p>示例一：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="type">const</span> <span class="type">double</span> PI = <span class="number">3.14</span>;</span><br><span class="line"><span class="comment">//设计一个圆类，求圆的周长</span></span><br><span class="line"><span class="comment">//圆求周长的公式：2*PI*半径</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//class代表设计一个类，类后面紧跟着的就是类名称</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Circle</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//访问权限</span></span><br><span class="line">	<span class="comment">//公共权限</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">//属性</span></span><br><span class="line">	<span class="comment">//半径</span></span><br><span class="line">	<span class="type">int</span> m_r;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//行为</span></span><br><span class="line">	<span class="comment">//获取圆的周长</span></span><br><span class="line">	<span class="function"><span class="type">double</span> <span class="title">calculateZC</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">2</span> * PI * m_r;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//通过圆类 创建具体的圆 （对象）</span></span><br><span class="line">	Circle c1;</span><br><span class="line">	<span class="comment">//给圆对象的属性进行赋值</span></span><br><span class="line">	c1.m_r = <span class="number">10</span>;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;圆的周长为：&quot;</span> &lt;&lt; c1.<span class="built_in">calculateZC</span>() &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>圆的周长为：62.8</p>
+</blockquote>
+<p>示例二：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="type">const</span> <span class="type">double</span> PI = <span class="number">3.14</span>;</span><br><span class="line"><span class="comment">//设计一个学生类，属性具有姓名和学号</span></span><br><span class="line"><span class="comment">//可以给姓名和学号赋值，可以显示学生的姓名和学号</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//设计学生类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Student</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//访问权限</span></span><br><span class="line">	<span class="comment">//公共权限</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">//属性</span></span><br><span class="line">	<span class="comment">//姓名和学号</span></span><br><span class="line">	string m_Name;<span class="comment">//姓名</span></span><br><span class="line">	<span class="type">int</span> m_id;<span class="comment">//学号</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">//行为</span></span><br><span class="line">	<span class="comment">//显示姓名和学号</span></span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">showStudent</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;姓名： &quot;</span> &lt;&lt; m_Name &lt;&lt; <span class="string">&quot; 学号：&quot;</span> &lt;&lt; m_id &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//给姓名赋值</span></span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">setName</span><span class="params">(string name)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		m_Name = name;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">setId</span><span class="params">(<span class="type">int</span> id)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		m_id = id;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//创建一个具体学生 实例化对象</span></span><br><span class="line">	Student s1;</span><br><span class="line">	Student s2;</span><br><span class="line">	<span class="comment">//给S1对象 进行属性复制操作</span></span><br><span class="line">	s1.<span class="built_in">setName</span>(<span class="string">&quot;张三&quot;</span>);</span><br><span class="line">	s1.<span class="built_in">setId</span>(<span class="number">1</span>);</span><br><span class="line">	s2.m_Name = <span class="string">&quot;李四&quot;</span>;</span><br><span class="line">	s2.m_id = <span class="number">2</span>;</span><br><span class="line">	s1.<span class="built_in">showStudent</span>();</span><br><span class="line">	s2.<span class="built_in">showStudent</span>();</span><br><span class="line"></span><br><span class="line">&#125;<span class="built_in">showStudent</span>();</span><br><span class="line">	s2.<span class="built_in">showStudent</span>();</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>姓名： 张三 学号：1<br>姓名： 李四 学号：2</p>
+</blockquote>
+<h3 id="封装的意义二"><a href="#封装的意义二" class="headerlink" title="封装的意义二"></a>封装的意义二</h3><p>类在设计时，可以把属性和行为放在不同的权限下，加以控制</p>
+<p>访问权限有三种：</p>
+<ul>
+<li><p>public    公共权限</p>
+</li>
+<li><p>protected    保护权限</p>
+</li>
+<li><p>private    私有权限</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//访问权限</span></span><br><span class="line"><span class="comment">//三种</span></span><br><span class="line"><span class="comment">//公共权限 public		成员 类内可以访问	类外可以访问	</span></span><br><span class="line"><span class="comment">//保护权限 protected	成员 类内可以访问	类外不可以访问	儿子也可以访问父亲中的保护内容</span></span><br><span class="line"><span class="comment">//私有权限 private		成员 类内可以访问	类外不可以访问	儿子不可以访问父亲中的私有内容</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//公共权限</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	string m_Name;<span class="comment">//姓名</span></span><br><span class="line">	</span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">	<span class="comment">//保护权限</span></span><br><span class="line">	string m_Car;<span class="comment">//汽车</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="comment">//私有权限</span></span><br><span class="line">	<span class="type">int</span> m_Password;<span class="comment">//银行卡密码</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">func</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		m_Name = <span class="string">&quot;张三&quot;</span>;</span><br><span class="line">		m_Car = <span class="string">&quot;拖拉机&quot;</span>;</span><br><span class="line">		m_Password = <span class="number">123456</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//实例化具体对象</span></span><br><span class="line">	Person p1;</span><br><span class="line">	p1.m_Name = <span class="string">&quot;李四&quot;</span>;</span><br><span class="line">	p1.m_Car = <span class="string">&quot;奔驰&quot;</span>;</span><br><span class="line">	p1.m_Password = <span class="number">654321</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/04/16/C++-%E5%AD%A6%E4%B9%A0-%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1/Error1.png" title alt data-align="center">
+
+<p><img src="/2023/04/16/C++-%E5%AD%A6%E4%B9%A0-%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1/Error2.png"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1454,198 +1583,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/10/C++-%E5%AD%A6%E4%B9%A0-%E7%BB%93%E6%9E%84%E4%BD%93/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="随便记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/04/10/C++-%E5%AD%A6%E4%B9%A0-%E7%BB%93%E6%9E%84%E4%BD%93/" class="post-title-link" itemprop="url">C++学习 结构体</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-04-10 15:42:49" itemprop="dateCreated datePublished" datetime="2023-04-10T15:42:49+08:00">2023-04-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-12 23:03:17" itemprop="dateModified" datetime="2023-04-12T23:03:17+08:00">2023-04-12</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>7.1k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>13 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="结构体的基本概念"><a href="#结构体的基本概念" class="headerlink" title="结构体的基本概念"></a>结构体的基本概念</h1><p>结构体属于用户自定义的数据类型，允许用户存储不同的数据类型</p>
-<h1 id="结构体的定义和使用"><a href="#结构体的定义和使用" class="headerlink" title="结构体的定义和使用"></a>结构体的定义和使用</h1><p>语法： struct 结构体名（结构体成员列表）；</p>
-<p>通过结构体创建变量的方式有三种：</p>
-<ul>
-<li><p>struct 结构体名 变量名</p>
-</li>
-<li><p>struct 结构体名 变量名 &#x3D; {成员1值 ， 成员2值…}</p>
-</li>
-<li><p>定义结构体时顺便创建变量</p>
-</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">student</span> &#123;</span><br><span class="line">    string name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    <span class="type">int</span> score;</span><br><span class="line">&#125;s3;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">student</span> s1;</span><br><span class="line">    s1.name = <span class="string">&quot;张三&quot;</span>;</span><br><span class="line">    s1.age = <span class="number">15</span>;</span><br><span class="line">    s1.score = <span class="number">100</span>;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;姓名： &quot;</span> &lt;&lt; s1.name &lt;&lt; <span class="string">&quot;年龄： &quot;</span> &lt;&lt; s1.age &lt;&lt; <span class="string">&quot;成绩： &quot;</span> &lt;&lt; s1.score &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">student</span> s2 = &#123; <span class="string">&quot;李四&quot;</span> , <span class="number">16</span> , <span class="number">90</span> &#125;;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;姓名： &quot;</span> &lt;&lt; s2.name &lt;&lt; <span class="string">&quot;年龄： &quot;</span> &lt;&lt; s2.age &lt;&lt; <span class="string">&quot;成绩： &quot;</span> &lt;&lt; s2.score &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">    s3.name = <span class="string">&quot;王五&quot;</span>;</span><br><span class="line">    s3.age = <span class="number">17</span>;</span><br><span class="line">    s3.score = <span class="number">85</span>;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;姓名： &quot;</span> &lt;&lt; s3.name &lt;&lt; <span class="string">&quot;年龄： &quot;</span> &lt;&lt; s3.age &lt;&lt; <span class="string">&quot;成绩： &quot;</span> &lt;&lt; s3.score &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行结果如下：</p>
-<blockquote>
-<p>姓名： 张三年龄： 15成绩： 100<br>姓名： 李四年龄： 16成绩： 90<br>姓名： 王五年龄： 17成绩： 85</p>
-</blockquote>
-<h1 id="结构体数组"><a href="#结构体数组" class="headerlink" title="结构体数组"></a>结构体数组</h1><p>作用：将自定义的结构体放入到数组中方便维护</p>
-<p>语法：struct 结构体 数组名[元素个数] &#x3D; { {} ， {} ，… ，{} }</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">student</span> &#123;</span><br><span class="line">    string name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    <span class="type">int</span> score;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">student</span> stuArray[<span class="number">3</span>] =</span><br><span class="line">    &#123;</span><br><span class="line">        &#123;<span class="string">&quot;张三&quot;</span>,<span class="number">18</span>,<span class="number">100</span>&#125;,</span><br><span class="line">        &#123;<span class="string">&quot;李四&quot;</span>, <span class="number">19</span>, <span class="number">90</span>&#125;,</span><br><span class="line">        &#123;<span class="string">&quot;王五&quot;</span>, <span class="number">20</span>, <span class="number">85</span>&#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    stuArray[<span class="number">2</span>].name = <span class="string">&quot;赵六&quot;</span>;</span><br><span class="line">    stuArray[<span class="number">2</span>].age = <span class="number">15</span>;</span><br><span class="line">    stuArray[<span class="number">2</span>].score = <span class="number">95</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;姓名： &quot;</span> &lt;&lt; stuArray[i].name &lt;&lt; <span class="string">&quot; 年龄： &quot;</span> &lt;&lt; stuArray[i].age &lt;&lt; <span class="string">&quot; 分数： &quot;</span> &lt;&lt; stuArray[i].score &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行结果如下：</p>
-<blockquote>
-<p>姓名： 张三 年龄： 18 分数： 100<br>姓名： 李四 年龄： 19 分数： 90<br>姓名： 赵六 年龄： 15 分数： 95</p>
-</blockquote>
-<h1 id="结构体指针"><a href="#结构体指针" class="headerlink" title="结构体指针"></a>结构体指针</h1><p>作用：通过指针访问结构体中的成员</p>
-<ul>
-<li>利用操作符 <code>-&gt;</code>可以通过结构体指针访问结构体属性</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">student</span> &#123;</span><br><span class="line">    string name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    <span class="type">int</span> score;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">student</span> s = &#123; <span class="string">&quot;张三&quot;</span> , <span class="number">16</span> , <span class="number">98</span> &#125;;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">student</span> * p = &amp;s;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;姓名： &quot;</span> &lt;&lt; p-&gt;name &lt;&lt; <span class="string">&quot; 年龄： &quot;</span> &lt;&lt; p-&gt;age &lt;&lt; <span class="string">&quot; 分数： &quot;</span> &lt;&lt; p-&gt;score &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行结果为：</p>
-<blockquote>
-<p>姓名： 张三 年龄： 16 分数： 98</p>
-</blockquote>
-<h1 id="结构体嵌套结构体"><a href="#结构体嵌套结构体" class="headerlink" title="结构体嵌套结构体"></a>结构体嵌套结构体</h1><p>作用：结构体中的成员可以是另一个结构体</p>
-<p>例如：每个老师辅导一个学员，一个老师的结构体中，记录一个学生的结构体</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">student</span> </span><br><span class="line">&#123;</span><br><span class="line">    string name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    <span class="type">int</span> score;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">teacher</span></span><br><span class="line">&#123;</span><br><span class="line">    string name;</span><br><span class="line">    <span class="type">int</span> id;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">student</span> stu;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">teacher</span> t;</span><br><span class="line">    t.name = <span class="string">&quot;张三&quot;</span>;</span><br><span class="line">    t.id = <span class="number">100</span>;</span><br><span class="line">    t.age = <span class="number">45</span>;</span><br><span class="line">    t.stu.name = <span class="string">&quot;李四&quot;</span>;</span><br><span class="line">    t.stu.age = <span class="number">16</span>;</span><br><span class="line">    t.stu.score = <span class="number">100</span>;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;老师的姓名：&quot;</span> &lt;&lt; t.name &lt;&lt; <span class="string">&quot; 老师的id：&quot;</span> &lt;&lt; t.id &lt;&lt; <span class="string">&quot; 老师的年龄：&quot;</span> &lt;&lt; t.age &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;老师指导的学生的姓名：&quot;</span> &lt;&lt; t.stu.name &lt;&lt; <span class="string">&quot; 学生的年龄： &quot;</span> &lt;&lt; t.stu.age &lt;&lt; <span class="string">&quot; 学生的成绩：&quot;</span> &lt;&lt; t.stu.score &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行结果为：</p>
-<blockquote>
-<p>老师的姓名：张三 老师的id：100 老师的年龄：45<br>老师指导的学生的姓名：李四 学生的年龄： 16 学生的成绩：100</p>
-</blockquote>
-<h1 id="结构体做函数参数"><a href="#结构体做函数参数" class="headerlink" title="结构体做函数参数"></a>结构体做函数参数</h1><p>作用：将结构体作为参数向函数中传递</p>
-<p>传递方式有两种：</p>
-<ul>
-<li><p>值传递</p>
-</li>
-<li><p>地址传递</p>
-</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">student</span> </span><br><span class="line">&#123;</span><br><span class="line">    string name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    <span class="type">int</span> score;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">PrintStu1</span><span class="params">(<span class="keyword">struct</span> student s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    s.name = <span class="string">&quot;李四&quot;</span>;</span><br><span class="line">    s.age = <span class="number">19</span>;</span><br><span class="line">    s.score = <span class="number">90</span>;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;子函数1中学生姓名：&quot;</span> &lt;&lt; s.name &lt;&lt; <span class="string">&quot; 年龄：&quot;</span> &lt;&lt; s.age &lt;&lt; <span class="string">&quot; 分数：&quot;</span> &lt;&lt; s.score &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">PrintStu2</span><span class="params">(<span class="keyword">struct</span> student* p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    p-&gt;name = <span class="string">&quot;李四&quot;</span>;</span><br><span class="line">    p-&gt;age = <span class="number">19</span>;</span><br><span class="line">    p-&gt;score = <span class="number">90</span>;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;子函数2中学生姓名：&quot;</span> &lt;&lt; p-&gt;name &lt;&lt; <span class="string">&quot; 年龄：&quot;</span> &lt;&lt; p-&gt;age &lt;&lt; <span class="string">&quot; 分数：&quot;</span> &lt;&lt; p-&gt;score &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">student</span> s = &#123;  <span class="string">&quot;张三&quot;</span> , <span class="number">16</span>  , <span class="number">100</span> &#125;;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;main函数中学生姓名：&quot;</span> &lt;&lt; s.name &lt;&lt; <span class="string">&quot; 年龄：&quot;</span> &lt;&lt; s.age &lt;&lt; <span class="string">&quot; 分数：&quot;</span> &lt;&lt; s.score &lt;&lt; endl;</span><br><span class="line">    <span class="built_in">PrintStu1</span>(s);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;main函数中学生姓名：&quot;</span> &lt;&lt; s.name &lt;&lt; <span class="string">&quot; 年龄：&quot;</span> &lt;&lt; s.age &lt;&lt; <span class="string">&quot; 分数：&quot;</span> &lt;&lt; s.score &lt;&lt; endl;</span><br><span class="line">    <span class="built_in">PrintStu2</span>(&amp;s);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;main函数中学生姓名：&quot;</span> &lt;&lt; s.name &lt;&lt; <span class="string">&quot; 年龄：&quot;</span> &lt;&lt; s.age &lt;&lt; <span class="string">&quot; 分数：&quot;</span> &lt;&lt; s.score &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行结果为：</p>
-<blockquote>
-<p>main函数中学生姓名：张三 年龄：16 分数：100<br>子函数1中学生姓名：李四 年龄：19 分数：90<br>main函数中学生姓名：张三 年龄：16 分数：100<br>子函数2中学生姓名：李四 年龄：19 分数：90<br>main函数中学生姓名：李四 年龄：19 分数：90</p>
-</blockquote>
-<h1 id="结构体中const的使用场景"><a href="#结构体中const的使用场景" class="headerlink" title="结构体中const的使用场景"></a>结构体中const的使用场景</h1><p>作用：用const来防止误操作</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">student</span> </span><br><span class="line">&#123;</span><br><span class="line">    string name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    <span class="type">int</span> score;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">PrintStu</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> student * s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    s-&gt;name = <span class="string">&quot;李四&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">student</span> s = &#123;  <span class="string">&quot;张三&quot;</span> , <span class="number">16</span>  , <span class="number">100</span> &#125;;</span><br><span class="line">    <span class="built_in">PrintStu</span>(&amp;s);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>结果如下：</p>
-<p><img src="/2023/04/10/C++-%E5%AD%A6%E4%B9%A0-%E7%BB%93%E6%9E%84%E4%BD%93/Error.png"></p>
-<p>程序报错，不能修改</p>
-<h1 id="结构体案例一"><a href="#结构体案例一" class="headerlink" title="结构体案例一"></a>结构体案例一</h1><p>案例描述：<br>学校正在做毕设项目，每名老师带领五个学生，总共有三名老师，需求如下</p>
-<p>设计学生和老师的结构体，其中在老师的结构体中，有老师姓名和一个存放五名学生的数组作为成员</p>
-<p>学生的成员有姓名、考试分数，创建数组存放三名老师，通过函数给每个老师及所带学生的学生数赋值</p>
-<p>最终打印出老师数据以及老师所带学生的数据</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">student</span> </span><br><span class="line">&#123;</span><br><span class="line">    string sname;</span><br><span class="line">    <span class="type">int</span> score;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">teacher</span></span><br><span class="line">&#123;</span><br><span class="line">    string tname;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">student</span> stuArray[<span class="number">5</span>];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">inAll</span><span class="params">(<span class="keyword">struct</span> teacher * s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;请输入老师的姓名：&quot;</span>);</span><br><span class="line">    cin &gt;&gt; s-&gt;tname;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\n请输入第%d位同学的姓名和成绩&quot;</span>,i+<span class="number">1</span>);</span><br><span class="line">        cin&gt;&gt;s-&gt;stuArray[i].sname&gt;&gt;s-&gt;stuArray[i].score;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">outAll</span><span class="params">(<span class="keyword">struct</span> teacher t)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;老师的姓名&quot;</span> &lt;&lt; t.tname &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;学生&quot;</span> &lt;&lt;i+<span class="number">1</span>&lt;&lt;<span class="string">&quot;姓名为：&quot;</span>&lt;&lt; t.stuArray[i].sname &lt;&lt; <span class="string">&quot; 成绩为：&quot;</span> &lt;&lt; t.stuArray[i].score &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">teacher</span> tArray[<span class="number">3</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">inAll</span>(&amp;tArray[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">outAll</span>(tArray[i]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行结果如下：</p>
-<blockquote>
-<p>请输入老师的姓名：老师1</p>
-<p>请输入第1位同学的姓名和成绩学生11 90</p>
-<p>请输入第2位同学的姓名和成绩学生12 90</p>
-<p>请输入第3位同学的姓名和成绩学生13 80</p>
-<p>请输入第4位同学的姓名和成绩学生14 79</p>
-<p>请输入第5位同学的姓名和成绩学生15 98<br>请输入老师的姓名：老师2</p>
-<p>请输入第1位同学的姓名和成绩学生21 80</p>
-<p>请输入第2位同学的姓名和成绩学生22 79</p>
-<p>请输入第3位同学的姓名和成绩学生23 80</p>
-<p>请输入第4位同学的姓名和成绩学生24 79</p>
-<p>请输入第5位同学的姓名和成绩学生25 90<br>请输入老师的姓名：老师3</p>
-<p>请输入第1位同学的姓名和成绩学生31 90</p>
-<p>请输入第2位同学的姓名和成绩学生32 89</p>
-<p>请输入第3位同学的姓名和成绩学生33 79</p>
-<p>请输入第4位同学的姓名和成绩学生34 80</p>
-<p>请输入第5位同学的姓名和成绩学生35 98<br>老师的姓名老师1<br>学生1姓名为：学生11 成绩为：90<br>学生2姓名为：学生12 成绩为：90<br>学生3姓名为：学生13 成绩为：80<br>学生4姓名为：学生14 成绩为：79<br>学生5姓名为：学生15 成绩为：98<br>老师的姓名老师2<br>学生1姓名为：学生21 成绩为：80<br>学生2姓名为：学生22 成绩为：79<br>学生3姓名为：学生23 成绩为：80<br>学生4姓名为：学生24 成绩为：79<br>学生5姓名为：学生25 成绩为：90<br>老师的姓名老师3<br>学生1姓名为：学生31 成绩为：90<br>学生2姓名为：学生32 成绩为：89<br>学生3姓名为：学生33 成绩为：79<br>学生4姓名为：学生34 成绩为：80<br>学生5姓名为：学生35 成绩为：98</p>
-</blockquote>
-<h1 id="结构体案例二"><a href="#结构体案例二" class="headerlink" title="结构体案例二"></a>结构体案例二</h1><p>案例描述：</p>
-<p>设计一个英雄的结构体，包括成员姓名，年龄，性别：创建结构体数组，数组中存放五名英雄。</p>
-<p>通过冒泡排序的算法，将数组中的英雄按照年龄进行升序排序，最终打印排序后的结果。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Hero</span></span><br><span class="line">&#123;</span><br><span class="line">    string name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    string sex;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">Hero</span> heroArray[<span class="number">5</span>] =</span><br><span class="line">    &#123;</span><br><span class="line">        &#123;<span class="string">&quot;刘备&quot;</span>, <span class="number">21</span>, <span class="string">&quot;男&quot;</span>&#125;,</span><br><span class="line">        &#123; <span class="string">&quot;关羽&quot;</span>,<span class="number">19</span>,<span class="string">&quot;男&quot;</span> &#125;,</span><br><span class="line">        &#123; <span class="string">&quot;张飞&quot;</span>,<span class="number">23</span>,<span class="string">&quot;男&quot;</span> &#125;,</span><br><span class="line">        &#123; <span class="string">&quot;赵云&quot;</span>,<span class="number">20</span>,<span class="string">&quot;男&quot;</span> &#125;,</span><br><span class="line">        &#123; <span class="string">&quot;黄忠&quot;</span>,<span class="number">18</span>,<span class="string">&quot;男&quot;</span> &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="type">int</span> len = <span class="built_in">sizeof</span>(heroArray) / <span class="built_in">sizeof</span>(heroArray[<span class="number">0</span>]);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; len - <span class="number">1</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; len; j++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (heroArray[j+<span class="number">1</span>].age &gt; heroArray[j].age)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">struct</span> <span class="title class_">Hero</span> temp = heroArray[j];</span><br><span class="line">                heroArray[j] = heroArray[j+<span class="number">1</span>];</span><br><span class="line">                heroArray[j+<span class="number">1</span>] = temp;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; len; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; heroArray[i].name &lt;&lt; heroArray[i].age &lt;&lt; heroArray[i].sex &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行结果如下：</p>
-<blockquote>
-<p>张飞23男<br>刘备21男<br>赵云20男<br>关羽19男<br>黄忠18男</p>
-</blockquote>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1711,7 +1652,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-count">21</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1769,12 +1710,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">295k</span>
+    <span title="Symbols count total">297k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">8:57</span>
+    <span title="Reading time total">9:01</span>
 </div>
 
 <!--

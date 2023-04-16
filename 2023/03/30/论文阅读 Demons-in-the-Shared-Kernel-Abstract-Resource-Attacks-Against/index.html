@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20Demons-in-the-Shared-Kernel-Abstract-Resource-Attacks-Against/Resource.png">
 <meta property="og:image" content="http://example.com/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20Demons-in-the-Shared-Kernel-Abstract-Resource-Attacks-Against/result.png">
 <meta property="article:published_time" content="2023-03-30T14:06:58.000Z">
-<meta property="article:modified_time" content="2023-04-15T05:52:39.814Z">
+<meta property="article:modified_time" content="2023-04-16T12:31:41.581Z">
 <meta property="article:author" content="Plucky">
 <meta property="article:tag" content="操作系统">
 <meta property="article:tag" content="云安全">
@@ -236,7 +236,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-15 13:52:39" itemprop="dateModified" datetime="2023-04-15T13:52:39+08:00">2023-04-15</time>
+                <time title="Modified: 2023-04-16 20:31:41" itemprop="dateModified" datetime="2023-04-16T20:31:41+08:00">2023-04-16</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -605,7 +605,7 @@
 <p>我们建议使用Kubernetes集群的监控工具，如Falco，来监控容器的资源消耗。对于敏感的抽象资源(如<code>nr_files</code>和<code>inode</code>)，用户应该自定义自己的规则来监视系统中特定的资源消耗。</p>
 </li>
 <li><p>Improving current isolation design</p>
-<p>对于现有的<code>namespace</code>，如qPID namespaceq，由于映射到根qnamespaceq的设计，无法防御资源耗尽攻击。如§3.2.2所述，Linux内核在根<code>PID namespace</code>中为在其他<code>PID namespace</code>中分配的任何idr分配一个额外的idr。因此，根PID namespace仍然是全局共享的。攻击者仍然可以很容易地耗尽根<code>PID namespace</code>中的PID，从而导致DoS攻击。出于类似的原因，即使被<code>NET namespace</code>隔离，<code>nf-conntrack</code> 数 <code>netns_ct-&gt;count</code>也可能被攻击。因此，Linux社区需要重新审视<code>namespace</code>的设计，消除<code>namespace</code>依赖关系以提高隔离性。</p>
+<p>对于现有的<code>namespace</code>，如<code>PID namespace</code>，由于映射到根<code>namespace</code>的设计，无法防御资源耗尽攻击。如§3.2.2所述，Linux内核在根<code>PID namespace</code>中为在其他<code>PID namespace</code>中分配的任何idr分配一个额外的idr。因此，根PID namespace仍然是全局共享的。攻击者仍然可以很容易地耗尽根<code>PID namespace</code>中的PID，从而导致DoS攻击。出于类似的原因，即使被<code>NET namespace</code>隔离，<code>nf-conntrack</code> 数 <code>netns_ct-&gt;count</code>也可能被攻击。因此，Linux社区需要重新审视<code>namespace</code>的设计，消除<code>namespace</code>依赖关系以提高隔离性。</p>
 </li>
 <li><p>New kernel containment mechanisms</p>
 <p>Linux内核社区和容器社区需要投入更多精力来保护抽象资源。实际上，我们已经向Docker安全团队报告了这个问题。反馈是“Linux容器只能使用可用的内核隔离机制。如果没有内核机制来控制限制，容器就不能做任何事情来限制它”。因此，我们首先需要对所有容器共享的抽象资源进行彻底的分析，以便我们能够理解，更重要的是，清除它们的数据依赖关系。这需要全面的内核领域知识和大量的内核代码更改。而且，Linux内核最初并不是为支持操作系统级虚拟化而设计的。它的资源隔离和遏制是不完整的。因此，需要新的<code>namespace</code>和<code>cgroup</code>。</p>
@@ -968,7 +968,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-count">21</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1026,12 +1026,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">295k</span>
+    <span title="Symbols count total">297k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">8:57</span>
+    <span title="Reading time total">9:01</span>
 </div>
 
 <!--

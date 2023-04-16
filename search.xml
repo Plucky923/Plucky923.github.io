@@ -2198,7 +2198,7 @@
 <p>我们建议使用Kubernetes集群的监控工具，如Falco，来监控容器的资源消耗。对于敏感的抽象资源(如<code>nr_files</code>和<code>inode</code>)，用户应该自定义自己的规则来监视系统中特定的资源消耗。</p>
 </li>
 <li><p>Improving current isolation design</p>
-<p>对于现有的<code>namespace</code>，如qPID namespaceq，由于映射到根qnamespaceq的设计，无法防御资源耗尽攻击。如§3.2.2所述，Linux内核在根<code>PID namespace</code>中为在其他<code>PID namespace</code>中分配的任何idr分配一个额外的idr。因此，根PID namespace仍然是全局共享的。攻击者仍然可以很容易地耗尽根<code>PID namespace</code>中的PID，从而导致DoS攻击。出于类似的原因，即使被<code>NET namespace</code>隔离，<code>nf-conntrack</code> 数 <code>netns_ct-&gt;count</code>也可能被攻击。因此，Linux社区需要重新审视<code>namespace</code>的设计，消除<code>namespace</code>依赖关系以提高隔离性。</p>
+<p>对于现有的<code>namespace</code>，如<code>PID namespace</code>，由于映射到根<code>namespace</code>的设计，无法防御资源耗尽攻击。如§3.2.2所述，Linux内核在根<code>PID namespace</code>中为在其他<code>PID namespace</code>中分配的任何idr分配一个额外的idr。因此，根PID namespace仍然是全局共享的。攻击者仍然可以很容易地耗尽根<code>PID namespace</code>中的PID，从而导致DoS攻击。出于类似的原因，即使被<code>NET namespace</code>隔离，<code>nf-conntrack</code> 数 <code>netns_ct-&gt;count</code>也可能被攻击。因此，Linux社区需要重新审视<code>namespace</code>的设计，消除<code>namespace</code>依赖关系以提高隔离性。</p>
 </li>
 <li><p>New kernel containment mechanisms</p>
 <p>Linux内核社区和容器社区需要投入更多精力来保护抽象资源。实际上，我们已经向Docker安全团队报告了这个问题。反馈是“Linux容器只能使用可用的内核隔离机制。如果没有内核机制来控制限制，容器就不能做任何事情来限制它”。因此，我们首先需要对所有容器共享的抽象资源进行彻底的分析，以便我们能够理解，更重要的是，清除它们的数据依赖关系。这需要全面的内核领域知识和大量的内核代码更改。而且，Linux内核最初并不是为支持操作系统级虚拟化而设计的。它的资源隔离和遏制是不完整的。因此，需要新的<code>namespace</code>和<code>cgroup</code>。</p>
@@ -2469,6 +2469,62 @@
       <tags>
         <tag>操作系统</tag>
         <tag>云安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C++学习 类与对象</title>
+    <url>/2023/04/16/C++-%E5%AD%A6%E4%B9%A0-%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1/</url>
+    <content><![CDATA[<p>C++面向对象三大特性：封装、继承、多态</p>
+<p>C++认为万事万物都皆为对象，对象上有其属性和行为</p>
+<p>例如：</p>
+<p>人可以作为对象，属性有姓名、年龄、身高、体重…..，行为有走、跑、跳……</p>
+<p>具有相同性质的对象，我们可以抽象称为类，人属于人类，车属于车类</p>
+<h1 id="封装"><a href="#封装" class="headerlink" title="封装"></a>封装</h1><h2 id="封装的意义"><a href="#封装的意义" class="headerlink" title="封装的意义"></a>封装的意义</h2><p>封装是C++面向对象三大特性之一</p>
+<p>封装的意义：</p>
+<ul>
+<li><p>将属性和行为作为一个整体，表现生活中的事物</p>
+</li>
+<li><p>将属性和行为加以权限控制</p>
+</li>
+</ul>
+<h3 id="封装的意义一"><a href="#封装的意义一" class="headerlink" title="封装的意义一"></a>封装的意义一</h3><p>在设计类的时候，属性和行为写在一起，表现事物</p>
+<p>语法：<code>class 类名 &#123; 访问权限 : 属性 / 行为 &#125;;</code></p>
+<p>示例一：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="type">const</span> <span class="type">double</span> PI = <span class="number">3.14</span>;</span><br><span class="line"><span class="comment">//设计一个圆类，求圆的周长</span></span><br><span class="line"><span class="comment">//圆求周长的公式：2*PI*半径</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//class代表设计一个类，类后面紧跟着的就是类名称</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Circle</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//访问权限</span></span><br><span class="line">	<span class="comment">//公共权限</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">//属性</span></span><br><span class="line">	<span class="comment">//半径</span></span><br><span class="line">	<span class="type">int</span> m_r;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//行为</span></span><br><span class="line">	<span class="comment">//获取圆的周长</span></span><br><span class="line">	<span class="function"><span class="type">double</span> <span class="title">calculateZC</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">2</span> * PI * m_r;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//通过圆类 创建具体的圆 （对象）</span></span><br><span class="line">	Circle c1;</span><br><span class="line">	<span class="comment">//给圆对象的属性进行赋值</span></span><br><span class="line">	c1.m_r = <span class="number">10</span>;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;圆的周长为：&quot;</span> &lt;&lt; c1.<span class="built_in">calculateZC</span>() &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>圆的周长为：62.8</p>
+</blockquote>
+<p>示例二：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="type">const</span> <span class="type">double</span> PI = <span class="number">3.14</span>;</span><br><span class="line"><span class="comment">//设计一个学生类，属性具有姓名和学号</span></span><br><span class="line"><span class="comment">//可以给姓名和学号赋值，可以显示学生的姓名和学号</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//设计学生类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Student</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//访问权限</span></span><br><span class="line">	<span class="comment">//公共权限</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">//属性</span></span><br><span class="line">	<span class="comment">//姓名和学号</span></span><br><span class="line">	string m_Name;<span class="comment">//姓名</span></span><br><span class="line">	<span class="type">int</span> m_id;<span class="comment">//学号</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">//行为</span></span><br><span class="line">	<span class="comment">//显示姓名和学号</span></span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">showStudent</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;姓名： &quot;</span> &lt;&lt; m_Name &lt;&lt; <span class="string">&quot; 学号：&quot;</span> &lt;&lt; m_id &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//给姓名赋值</span></span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">setName</span><span class="params">(string name)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		m_Name = name;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">setId</span><span class="params">(<span class="type">int</span> id)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		m_id = id;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//创建一个具体学生 实例化对象</span></span><br><span class="line">	Student s1;</span><br><span class="line">	Student s2;</span><br><span class="line">	<span class="comment">//给S1对象 进行属性复制操作</span></span><br><span class="line">	s1.<span class="built_in">setName</span>(<span class="string">&quot;张三&quot;</span>);</span><br><span class="line">	s1.<span class="built_in">setId</span>(<span class="number">1</span>);</span><br><span class="line">	s2.m_Name = <span class="string">&quot;李四&quot;</span>;</span><br><span class="line">	s2.m_id = <span class="number">2</span>;</span><br><span class="line">	s1.<span class="built_in">showStudent</span>();</span><br><span class="line">	s2.<span class="built_in">showStudent</span>();</span><br><span class="line"></span><br><span class="line">&#125;<span class="built_in">showStudent</span>();</span><br><span class="line">	s2.<span class="built_in">showStudent</span>();</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>姓名： 张三 学号：1<br>姓名： 李四 学号：2</p>
+</blockquote>
+<h3 id="封装的意义二"><a href="#封装的意义二" class="headerlink" title="封装的意义二"></a>封装的意义二</h3><p>类在设计时，可以把属性和行为放在不同的权限下，加以控制</p>
+<p>访问权限有三种：</p>
+<ul>
+<li><p>public    公共权限</p>
+</li>
+<li><p>protected    保护权限</p>
+</li>
+<li><p>private    私有权限</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//访问权限</span></span><br><span class="line"><span class="comment">//三种</span></span><br><span class="line"><span class="comment">//公共权限 public		成员 类内可以访问	类外可以访问	</span></span><br><span class="line"><span class="comment">//保护权限 protected	成员 类内可以访问	类外不可以访问	儿子也可以访问父亲中的保护内容</span></span><br><span class="line"><span class="comment">//私有权限 private		成员 类内可以访问	类外不可以访问	儿子不可以访问父亲中的私有内容</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//公共权限</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	string m_Name;<span class="comment">//姓名</span></span><br><span class="line">	</span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">	<span class="comment">//保护权限</span></span><br><span class="line">	string m_Car;<span class="comment">//汽车</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="comment">//私有权限</span></span><br><span class="line">	<span class="type">int</span> m_Password;<span class="comment">//银行卡密码</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">func</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		m_Name = <span class="string">&quot;张三&quot;</span>;</span><br><span class="line">		m_Car = <span class="string">&quot;拖拉机&quot;</span>;</span><br><span class="line">		m_Password = <span class="number">123456</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//实例化具体对象</span></span><br><span class="line">	Person p1;</span><br><span class="line">	p1.m_Name = <span class="string">&quot;李四&quot;</span>;</span><br><span class="line">	p1.m_Car = <span class="string">&quot;奔驰&quot;</span>;</span><br><span class="line">	p1.m_Password = <span class="number">654321</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/04/16/C++-%E5%AD%A6%E4%B9%A0-%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1/Error1.png" title alt data-align="center">
+
+<p><img src="/2023/04/16/C++-%E5%AD%A6%E4%B9%A0-%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1/Error2.png"></p>
+]]></content>
+      <categories>
+        <category>编程语言</category>
+        <category>C++</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
       </tags>
   </entry>
 </search>
