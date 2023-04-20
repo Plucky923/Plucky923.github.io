@@ -1355,7 +1355,7 @@
 <p>容器依赖于cgroup进行资源管理和控制，以防止一个容器耗尽主机的系统资源。cgroups机制将一组进程及其子进程划分为分层的组，并应用不同的控制器来管理和限制各种系统资源，例如CPU时间、计算机内存、块I&#x2F;O等。通过合理的限制策略，cgroups可以缓解许多已知的拒绝服务漏洞。</p>
 <p>容器技术已广泛应用于各种计算场景，包括边缘计算、微服务架构、无服务器计算和商业云供应商。与虚拟机相比，消除额外的抽象层可以更好地利用资源并提高效率。因此，容器可以实现接近本机的性能。</p>
 <p>尽管容器技术具有性能优势，但最近也引起了一些安全和隐私问题，特别是资源隔离、特权升级、混淆代理攻击和隐蔽通道。</p>
-<p>在Linux内核中，启用容器资源隔离和管理的两个关键构建块是Linux命名空间(即命名空间)和Linux控制组(即cgroups1)。此外，还采用或建议了一组安全机制(例如，Capabilities、SELinux、AppArmor、seccomp和安全命名空间[16])来进一步增强部署中的容器安全性。</p>
+<p>在Linux内核中，启用容器资源隔离和管理的两个关键构建块是Linux命名空间(即命名空间)和Linux控制组(即cgroups1)。此外，还采用或建议了一组安全机制(例如，Capabilities、SELinux、AppArmor、seccomp和安全命名空间)来进一步增强部署中的容器安全性。</p>
 <p>容器依赖于cgroup进行资源管理和控制，以防止一个容器耗尽主机的系统资源。cgroups机制将一组进程及其子进程划分为分层的组，并应用不同的控制器来管理和限制各种系统资源，例如CPU时间、计算机内存、块I&#x2F;O等。通过合理的限制策略，cgroups可以缓解许多已知的拒绝服务漏洞</p>
 <p>在本文中，我们打算系统地探讨一下来摆脱现有的cgroups机制的资源控制、<br>并了解其对容器的安全影响。新创建的子进程会自动继承其父进程的cgroups属性。这种机制保证了它们将被限制在相同的cgroups策略下。为了打破cgroups的资源约束，我们设计了一套利用策略，通过将进程与其原始cgroups分离，生成了一些带外工作负载。这意味着这些进程不再受到原始cgroups的资源限制，从而可能绕过原本的资源管理策略。这些进程可以从头开始创建，以处理在一个cgroup内发起的系统事件。在其他情况下，这些进程可以是休眠的内核线程或系统服务进程。在整个系统中共享，并将在需要时被激活。因此，相应的消耗的资源将被收取到其他 “受害者 “cgroups中。</p>
 <p>为了进一步揭示现有cgroup机制不足的安全风险，我们使用Docker容器进行了五个案例研究，展示了在现实系统设置中逃脱cgroup资源控制的步骤。在这些案例研究中，我们分别利用了异常、文件系统和I&#x2F;O设备、Linux日志系统、容器引擎和softirqs处理的内核处理机制。我们在亚马逊EC2云中的本地测试平台和专用服务器上进行实验。我们的实验表明，即使执行了多个cgroup控制器，一个对抗性去特权容器仍然可以显著耗尽CPU资源或产生大量的I&#x2F;O活动，而不需要任何cgroup控制器。</p>
@@ -2560,6 +2560,73 @@
 <blockquote>
 <p>点在圆上</p>
 </blockquote>
+<h1 id="对象的初始化和清理"><a href="#对象的初始化和清理" class="headerlink" title="对象的初始化和清理"></a>对象的初始化和清理</h1><ul>
+<li><p>生活中我们买的电子产品基本都会有出厂设置，在某一天我们不用的时候也会删除一些自己的信息数据保证安全</p>
+</li>
+<li><p>C++中的面向对象来自于生活，每个对象也都会有初始设置以及对象销毁前的清理数据的设置</p>
+</li>
+</ul>
+<h2 id="构造函数和析构函数"><a href="#构造函数和析构函数" class="headerlink" title="构造函数和析构函数"></a>构造函数和析构函数</h2><p>对象的初始化和清理也是两个非常重要的安全问题</p>
+<p>一个对象或者变量没有初始状态，对其使用后果是未知</p>
+<p>同样的使用完一个对象或变量，没有及时清理，也会造成一定的问题</p>
+<p>C++利用了构造函数和析构函数解决上述问题，这两个函数将会被编译器自动调用，完成对象初始化和清理工作。</p>
+<p>对象的初始化和清理工作是编译器强制要我们做的事情，因此如果我们不提供构造和析构，编译器会提供编译器提供的构造函数和析构函数是空实现</p>
+<ul>
+<li><p>构造函数：主要作用在于创建对象时为对象的成员属性赋值，构造函数由编译器自动调用，无须手动调用。</p>
+</li>
+<li><p>析构函数：主要作用在于对象销毁前系统自动调用，执行一些清理工作</p>
+</li>
+</ul>
+<p>构造函数语法：<code>类名（）&#123;&#125;</code></p>
+<p>1、构造函数：没有返回值也不写void</p>
+<p>2、函数名称与类名相同</p>
+<p>3、构造函数可以有参数，因此可以发生重载</p>
+<p>4、程序在调用对象时会自动调用构造，无须手动调用，而且只会调用一次</p>
+<p>析构函数语法：<code>~类名（）&#123;&#125;</code></p>
+<p>1、析构函数：没有返回值也不写void</p>
+<p>2、函数名称与类名相同，在名称前加上符号~</p>
+<p>3、析构函数不可以有参数，因此不可以发生重载</p>
+<p>4、程序在对象销毁前会自动调用析构，无须手动调用，而且只会调用一次</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//对象的初始化和清理</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//1 构造函数</span></span><br><span class="line">	<span class="comment">//没有返回值 不用写void</span></span><br><span class="line">	<span class="comment">//函数名与类名相同</span></span><br><span class="line">	<span class="comment">//构造函数可以有参数可以发生重载</span></span><br><span class="line">	<span class="comment">//创建对象的时候，构造函数会自动调用，而且只调用一次</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">	<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person构造函数的调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//2 析构函数</span></span><br><span class="line">	<span class="comment">//没有返回值 不写void</span></span><br><span class="line">	<span class="comment">//函数名和类名相同 在名称前加~</span></span><br><span class="line">	<span class="comment">//析构函数不可以有参数，不可以发生重载</span></span><br><span class="line">	<span class="comment">//对象在销毁前，会自动调用析构函数</span></span><br><span class="line">	~<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person析构函数的调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//构造和析构都是必须有的实现，如果我们自己不提供，编译器会提供一个空实现的构造和析构</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Person p;<span class="comment">//在栈上的数据，test01执行完毕之后，释放这个对象</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>Person构造函数的调用<br>Person析构函数的调用</p>
+</blockquote>
+<h2 id="构造函数的分类及调用"><a href="#构造函数的分类及调用" class="headerlink" title="构造函数的分类及调用"></a>构造函数的分类及调用</h2><p>两种分类方式：</p>
+<ul>
+<li><p>按参数分为：有参数构造和无参数构造</p>
+</li>
+<li><p>按类型分为：普通构造和拷贝构造</p>
+</li>
+</ul>
+<p>三种调用方式：</p>
+<ul>
+<li><p>括号法</p>
+</li>
+<li><p>显式法</p>
+</li>
+<li><p>隐式转换法</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//分类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">//构造函数</span></span><br><span class="line">	<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的无参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">int</span> a)</span><br><span class="line">	&#123;</span><br><span class="line">		age = a;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的有参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//拷贝构造函数</span></span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">const</span> Person&amp; p)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//将传入的人的身上的所有属性，拷贝到我身上</span></span><br><span class="line">		age = p.age;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的拷贝函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	~<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的析构函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">int</span> age;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//调用</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//1、括号法</span></span><br><span class="line">	Person p1  ;<span class="comment">//默认构造函数的调用</span></span><br><span class="line">	<span class="function">Person <span class="title">p2</span><span class="params">(<span class="number">10</span>)</span></span>;<span class="comment">//有参构造函数</span></span><br><span class="line">	<span class="comment">//拷贝构造函数调用</span></span><br><span class="line">	<span class="function">Person <span class="title">p3</span><span class="params">(p2)</span></span>;</span><br><span class="line">	<span class="comment">//注意事项</span></span><br><span class="line">	<span class="comment">//调用默认构造函数的时候，不要加（）</span></span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;p2的年龄为：&quot;</span> &lt;&lt; p2.age &lt;&lt; endl;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;p3的年龄为：&quot;</span> &lt;&lt; p3.age &lt;&lt; endl;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>Person的无参构造函数调用<br>Person的有参构造函数调用<br>Person的拷贝函数调用<br>p2的年龄为：10<br>p3的年龄为：10<br>Person的析构函数调用<br>Person的析构函数调用<br>Person的析构函数调用</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//分类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">//构造函数</span></span><br><span class="line">	<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的无参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">int</span> a)</span><br><span class="line">	&#123;</span><br><span class="line">		age = a;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的有参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//拷贝构造函数</span></span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">const</span> Person&amp; p)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//将传入的人的身上的所有属性，拷贝到我身上</span></span><br><span class="line">		age = p.age;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的拷贝函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	~<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的析构函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">int</span> age;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//调用</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//2、显示法</span></span><br><span class="line">	Person p1;</span><br><span class="line">	Person p2 = <span class="built_in">Person</span>(<span class="number">10</span>);<span class="comment">//有参构造</span></span><br><span class="line">	Person p3 = <span class="built_in">Person</span>(p2);<span class="comment">//拷贝构造</span></span><br><span class="line">	<span class="built_in">Person</span>(<span class="number">10</span>);<span class="comment">//匿名对象 特点：当前行执行结束后，系统会立即回收掉匿名对象</span></span><br><span class="line"><span class="comment">//注意事项：不要利用拷贝构造函数 初始化匿名对象 编译器会认为是对象声明</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>Person的无参构造函数调用<br>Person的有参构造函数调用<br>Person的拷贝函数调用<br>Person的有参构造函数调用<br>Person的析构函数调用<br>Person的析构函数调用<br>Person的析构函数调用<br>Person的析构函数调用</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//分类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">//构造函数</span></span><br><span class="line">	<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的无参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">int</span> a)</span><br><span class="line">	&#123;</span><br><span class="line">		age = a;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的有参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//拷贝构造函数</span></span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">const</span> Person&amp; p)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//将传入的人的身上的所有属性，拷贝到我身上</span></span><br><span class="line">		age = p.age;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的拷贝函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	~<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的析构函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">int</span> age;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//调用</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//3、隐式转换法</span></span><br><span class="line">	Person p4 = <span class="number">10</span>;</span><br><span class="line">	Person p5 = p4;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>Person的有参构造函数调用<br>Person的拷贝函数调用<br>Person的析构函数调用<br>Person的析构函数调用</p>
+</blockquote>
 ]]></content>
       <categories>
         <category>编程语言</category>
@@ -2567,6 +2634,129 @@
       </categories>
       <tags>
         <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux开发环境搭建</title>
+    <url>/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</url>
+    <content><![CDATA[<h1 id="安装相关工具"><a href="#安装相关工具" class="headerlink" title="安装相关工具"></a>安装相关工具</h1><ul>
+<li><p><a href="https://www.vmware.com/cn/products/workstation-pro.html">Windows 虚拟机 | Workstation Pro | VMware | CN</a></p>
+</li>
+<li><p><a href="https://code.visualstudio.com/docs/?dv=win">Visual Studio Code</a></p>
+</li>
+<li><p><a href="https://www.xshell.com/zh/free-for-home-school/">Xshell和Xftp</a></p>
+</li>
+<li><p><a href="https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/">清华大学Ubuntu镜像</a></p>
+</li>
+</ul>
+<h1 id="配置过程"><a href="#配置过程" class="headerlink" title="配置过程"></a>配置过程</h1><p>首先打开ubuntu，安装ssh服务端，输入指令</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt install openssh-server</span><br></pre></td></tr></table></figure>
+
+<p>之后打开Xshell</p>
+<img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/Xshell新建.png" title alt data-align="center">
+
+<p>点击新建，如下图:</p>
+<img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/Xshell配置.png" title alt data-align="center">
+
+<p>在名称处填写连接的名称，在主机处填写Ubuntu的ip地址</p>
+<p>打开Ubuntu，输入命令</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ifconfig</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/ifconfig.png" title alt data-align="center">
+
+<p>得到ip地址为192.168.194.129</p>
+<p>之后我们使用Xshell连接，此时会让我们填写用户名和密码，我们填写Ubuntu的用户名和它的密码即可</p>
+<p>然后我们打开VScode，安装拓展</p>
+<img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/VScoderemote.png" title alt data-align="center">
+
+<img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/VScodeconfig.png" title alt data-align="center">
+
+<p>之后会发现vscode多出一个远程资源管理器，我们点击远程资源管理器，然后打开SSH，配置文件，C:\Users\zc\ssh\config</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Read more about SSH config files: https://linux.die.net/man/5/ssh_config</span><br><span class="line">Host Ubuntu-plucky       填写主机名，随便起</span><br><span class="line">    HostName 192.168.194.129   Ubuntu的IP地址</span><br><span class="line">    User plucky    Ubuntu的用户名</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/vscode连接.png" title alt data-align="center">
+
+<p>之后就可以连接主机和打开文件夹</p>
+<p><img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/vscode%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6%E5%A4%B9.png"></p>
+<h1 id="配置SSH公私钥免密登录"><a href="#配置SSH公私钥免密登录" class="headerlink" title="配置SSH公私钥免密登录"></a>配置SSH公私钥免密登录</h1><p>首先在windows主机输入命令</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line">ssh<span class="literal">-keygen</span> <span class="literal">-t</span> rsa</span><br></pre></td></tr></table></figure>
+
+<p>随后所有设置都按回车</p>
+<p>我们可以看到用户目录下</p>
+<img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/windows.ssh.png" title alt data-align="center">
+
+<p>id_rsa为私钥，id_rsa.pub为公钥</p>
+<p>之后我们打开Ubuntu，输入命令</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ssh-keygen -t rsa</span><br></pre></td></tr></table></figure>
+
+<p>随后所有设置都按回车</p>
+<p>之后</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd ./ssh</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim authorized_keys</span><br></pre></td></tr></table></figure>
+
+<p>将windows中的id_rsa.pub复制进authorized_keys中。</p>
+<p>之后就可以实现无密登录了</p>
+]]></content>
+      <categories>
+        <category>Linux开发</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MIT6 S081 Operating System Engineering Lecture06 Isolation and system call entry/exit</title>
+    <url>/2023/04/20/MIT6-S081-Operating-System-Engineering-Lecture06-Isolation-and-system-call-entry-exit/</url>
+    <content><![CDATA[<h1 id="Trap机制"><a href="#Trap机制" class="headerlink" title="Trap机制"></a>Trap机制</h1><h2 id="程序完成用户空间和内核空间切换的时机"><a href="#程序完成用户空间和内核空间切换的时机" class="headerlink" title="程序完成用户空间和内核空间切换的时机"></a>程序完成用户空间和内核空间切换的时机</h2><ul>
+<li><p>程序执行系统调用</p>
+</li>
+<li><p>程序出现了类似<code>page fault</code>，运算时除以0的错误</p>
+</li>
+<li><p>一个设备触发了中断使得当前程序运行需要相应内核设备驱动</p>
+</li>
+</ul>
+<h2 id="Trap"><a href="#Trap" class="headerlink" title="Trap"></a>Trap</h2><p>用户空间和内核空间的切换通常被称为<code>trap</code></p>
+<p><code>trap</code>涉及了许多小心的设计和重要的细节，这些细节对于实现安全隔离和性能来说非常重要。因为很多应用程序，要么因为系统调用，要么因为<code>page fault</code>，都会频繁的切换到内核中。所以，<code>trap</code>机制要尽可能的简单，这一点非常重要。</p>
+<p>我们有一些用户应用程序，例如Shell，它运行在用户空间，同时我们还有内核空间。Shell可能会执行系统调用，将程序运行切换到内核。比如XV6启动之后Shell输出的一些提示信息，就是通过执行write系统调用来输出的。</p>
+<h2 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h2><p>我们需要清楚如何让程序的运行，从只拥有user权限并且位于用户空间的Shell，切换到拥有supervisor权限的内核。在这个过程中，硬件的状态将会非常重要，因为我们很多的工作都是将硬件从适合运行用户应用程序的状态，改变到适合运行内核代码的状态。</p>
+<p>每个 RISC-V CPU都有一组控制寄存器，内核会写入这些寄存器以告诉 CPU 如何处理<code>trap</code>，并且内核可以读取这些寄存器以了解发生的陷阱。RISC-V 文档包含完整的信息。riscv.h（kernel&#x2F;riscv.h:1）包含 xv6 使用的定义。以下是最重要的几个寄存器概述：</p>
+<ul>
+<li><p>Program Counter Register:程序计数器</p>
+</li>
+<li><p>表明当前mode的标志位：这个标志位表明了当前是supervisor mode还是user mode。当我们在运行shell的时候，自然是在user mode。</p>
+</li>
+<li><p>SATP（Supervisor Address Translation and Protection）：包含了指向page table的物理地址</p>
+</li>
+<li><p>STVEC（Supervisor Trap Vector Base Address Register）：指向内核中处理<code>trap</code>指令的起始地址</p>
+</li>
+<li><p>SEPC（Supervisor Exception Program Counter），在<code>trap</code>的过程中保存程序计数器的值</p>
+</li>
+<li><p>SSRATCH（Supervisor Scratch Register）内核在此处放置一个值，在处理程序开始时非常方便</p>
+</li>
+</ul>
+<h2 id="trap处理过程中的一些操作"><a href="#trap处理过程中的一些操作" class="headerlink" title="trap处理过程中的一些操作"></a>trap处理过程中的一些操作</h2><p>在<code>trap</code>的最开始，CPU的所有状态都设置成运行用户代码而不是内核代码。在<code>trap</code>处理的过程中，我们实际上需要更改一些这里的状态，或者对状态做一些操作。这样我们才可以运行系统内核中普通的C程序。接下来我们先来预览一下需要做的操作：</p>
+<ul>
+<li><p>首先，我们需要保存32个用户寄存器。因为很显然我们需要恢复用户应用程序的执行，尤其是当用户程序随机的被设备中断所打断时。我们希望内核能够响应中断，之后在用户程序完全无感知的情况下再恢复用户代码的执行。所以这意味着32个用户寄存器不能被内核弄乱。但是这些寄存器又要被内核代码所使用，所以在<code>trap</code>之前，你必须先在某处保存这32个用户寄存器。</p>
+</li>
+<li><p>PC(程序计数器)也需要在某个地方保存，我们需要能够在用户程序运行中断的位置继续执行用户程序</p>
+</li>
+<li><p>我们需要将mode改为supervisor mode，因为我们想要使用内核中各种各样的指令</p>
+</li>
+<li><p>SATP寄存器现在正指向user page table，而user page table只包含了用户程序所需要的内存映射和一两个其他的映射，它并没有包含整个内核数据的内存映射，所以在运行内核代码之前，我们需要将SATP指向kernel page table。</p>
+</li>
+<li><p>我们需要将堆栈寄存器指向位于内核的一个地址，因此我们需要一个堆栈来调用内核的C函数</p>
+</li>
+<li><p>一旦我们都设置好了，并且所有的硬件状态都适合在内核中使用，我们需要跳入内核的C代码</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>课程学习</category>
+        <category>MIT6.S081 Operating System Engineering</category>
+      </categories>
+      <tags>
+        <tag>操作系统</tag>
       </tags>
   </entry>
 </search>

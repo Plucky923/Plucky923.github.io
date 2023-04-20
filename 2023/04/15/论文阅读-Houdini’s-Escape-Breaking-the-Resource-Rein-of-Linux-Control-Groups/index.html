@@ -42,7 +42,7 @@
 <meta property="og:image" content="http://example.com/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/DoSattackResult.png">
 <meta property="og:image" content="http://example.com/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/iptable.png">
 <meta property="article:published_time" content="2023-04-15T05:08:53.000Z">
-<meta property="article:modified_time" content="2023-04-16T04:11:44.894Z">
+<meta property="article:modified_time" content="2023-04-18T02:23:53.309Z">
 <meta property="article:author" content="Plucky">
 <meta property="article:tag" content="操作系统">
 <meta property="article:tag" content="内核安全">
@@ -244,7 +244,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-16 12:11:44" itemprop="dateModified" datetime="2023-04-16T12:11:44+08:00">2023-04-16</time>
+                <time title="Modified: 2023-04-18 10:23:53" itemprop="dateModified" datetime="2023-04-18T10:23:53+08:00">2023-04-18</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -307,7 +307,7 @@
 <p>容器依赖于cgroup进行资源管理和控制，以防止一个容器耗尽主机的系统资源。cgroups机制将一组进程及其子进程划分为分层的组，并应用不同的控制器来管理和限制各种系统资源，例如CPU时间、计算机内存、块I&#x2F;O等。通过合理的限制策略，cgroups可以缓解许多已知的拒绝服务漏洞。</p>
 <p>容器技术已广泛应用于各种计算场景，包括边缘计算、微服务架构、无服务器计算和商业云供应商。与虚拟机相比，消除额外的抽象层可以更好地利用资源并提高效率。因此，容器可以实现接近本机的性能。</p>
 <p>尽管容器技术具有性能优势，但最近也引起了一些安全和隐私问题，特别是资源隔离、特权升级、混淆代理攻击和隐蔽通道。</p>
-<p>在Linux内核中，启用容器资源隔离和管理的两个关键构建块是Linux命名空间(即命名空间)和Linux控制组(即cgroups1)。此外，还采用或建议了一组安全机制(例如，Capabilities、SELinux、AppArmor、seccomp和安全命名空间[16])来进一步增强部署中的容器安全性。</p>
+<p>在Linux内核中，启用容器资源隔离和管理的两个关键构建块是Linux命名空间(即命名空间)和Linux控制组(即cgroups1)。此外，还采用或建议了一组安全机制(例如，Capabilities、SELinux、AppArmor、seccomp和安全命名空间)来进一步增强部署中的容器安全性。</p>
 <p>容器依赖于cgroup进行资源管理和控制，以防止一个容器耗尽主机的系统资源。cgroups机制将一组进程及其子进程划分为分层的组，并应用不同的控制器来管理和限制各种系统资源，例如CPU时间、计算机内存、块I&#x2F;O等。通过合理的限制策略，cgroups可以缓解许多已知的拒绝服务漏洞</p>
 <p>在本文中，我们打算系统地探讨一下来摆脱现有的cgroups机制的资源控制、<br>并了解其对容器的安全影响。新创建的子进程会自动继承其父进程的cgroups属性。这种机制保证了它们将被限制在相同的cgroups策略下。为了打破cgroups的资源约束，我们设计了一套利用策略，通过将进程与其原始cgroups分离，生成了一些带外工作负载。这意味着这些进程不再受到原始cgroups的资源限制，从而可能绕过原本的资源管理策略。这些进程可以从头开始创建，以处理在一个cgroup内发起的系统事件。在其他情况下，这些进程可以是休眠的内核线程或系统服务进程。在整个系统中共享，并将在需要时被激活。因此，相应的消耗的资源将被收取到其他 “受害者 “cgroups中。</p>
 <p>为了进一步揭示现有cgroup机制不足的安全风险，我们使用Docker容器进行了五个案例研究，展示了在现实系统设置中逃脱cgroup资源控制的步骤。在这些案例研究中，我们分别利用了异常、文件系统和I&#x2F;O设备、Linux日志系统、容器引擎和softirqs处理的内核处理机制。我们在亚马逊EC2云中的本地测试平台和专用服务器上进行实验。我们的实验表明，即使执行了多个cgroup控制器，一个对抗性去特权容器仍然可以显著耗尽CPU资源或产生大量的I&#x2F;O活动，而不需要任何cgroup控制器。</p>
@@ -609,14 +609,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -667,12 +667,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">303k</span>
+    <span title="Symbols count total">309k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">9:11</span>
+    <span title="Reading time total">9:22</span>
 </div>
 
 <!--
