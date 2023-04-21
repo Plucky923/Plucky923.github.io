@@ -42,7 +42,7 @@
 <meta property="og:image" content="http://example.com/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/DoSattackResult.png">
 <meta property="og:image" content="http://example.com/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/iptable.png">
 <meta property="article:published_time" content="2023-04-15T05:08:53.000Z">
-<meta property="article:modified_time" content="2023-04-18T02:23:53.309Z">
+<meta property="article:modified_time" content="2023-04-20T13:24:59.105Z">
 <meta property="article:author" content="Plucky">
 <meta property="article:tag" content="操作系统">
 <meta property="article:tag" content="内核安全">
@@ -244,7 +244,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-18 10:23:53" itemprop="dateModified" datetime="2023-04-18T10:23:53+08:00">2023-04-18</time>
+                <time title="Modified: 2023-04-20 21:24:59" itemprop="dateModified" datetime="2023-04-20T21:24:59+08:00">2023-04-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -273,14 +273,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>22k</span>
+              <span>24k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>40 mins.</span>
+              <span>44 mins.</span>
             </span>
 
         </div>
@@ -509,6 +509,42 @@
 <h3 id="Denial-of-Service-attacks"><a href="#Denial-of-Service-attacks" class="headerlink" title="Denial-of-Service attacks"></a>Denial-of-Service attacks</h3><p>由于底层计算资源在不同的租户之间共享，因此争用是不可避免的。Varadarajan等人提出了资源释放攻击来释放受害者使用的资源，这样攻击者的实例就可以获得额外的利用。Zhang等人调查了内存DoS攻击的影响，并表明恶意云客户可以对电子商务网站造成38倍的延迟。对于针对I&#x2F;O性能的DoS攻击，Huang等提出了级联性能攻击，以耗尽hypervisor的I&#x2F;O处理能力。此外，多种攻击试图耗尽共享的基础设施资源，如电力设施，从而迫使数据中心的服务器关闭。与之前的工作不同，我们的工作表明，cgroups中的不足也可以被利用来在多租户容器环境中发起多次攻击。</p>
 <h1 id="CONCLUSION"><a href="#CONCLUSION" class="headerlink" title="CONCLUSION"></a>CONCLUSION</h1><p>在本文中，我们开发了一套策略来打破Linux控制组的资源控制。我们证明了通过进程创建继承的cgroups限制并不总是保证一致和公平的资源核算。我们可以通过与原始cgroup解关联的进程来生成带外工作负载。</p>
 <p>我们进一步提出了五个案例研究，表明在Docker容器环境中实现这些攻击是可行的。恶意容器利用多租户容器环境中cgroups的这些不足，可以极大地耗尽主机的资源，并发起多种攻击，包括拒绝服务攻击、资源释放攻击和秘密通道攻击。我们在亚马逊EC2云中的本地测试平台和专用服务器上进行了实验，并证明了一个容器可以将其工作负载放大200倍以上，并将其他容器的性能降低95%。</p>
+<h1 id="My"><a href="#My" class="headerlink" title="My"></a>My</h1><h2 id="Case-1"><a href="#Case-1" class="headerlink" title="Case 1"></a>Case 1</h2><p>Linux 内核为各种异常提供了专用的异常处理程序。这些异常处理程序分为两类：错误和陷阱。错误是指程序在运行过程中遇到的问题，如分段错误。陷阱是指程序主动触发的事件，如溢出检测。</p>
+<p>在处理这些异常时，内核维护了一个名为中断描述符表（IDT）的数据结构。IDT 包含每个异常处理程序的地址。当 CPU 在用户模式下引发异常时，相应的处理程序将在内核模式下运行。</p>
+<ol>
+<li><p><strong>寄存器保存和上下文切换</strong>：当异常发生时，处理器首先将当前的寄存器状态保存到内核堆栈中。这样，在异常处理完成后，处理器可以恢复原始状态并返回到用户模式。</p>
+</li>
+<li><p><strong>异常处理</strong>：在内核模式下，处理器会根据异常类型调用相应的处理程序。异常处理程序通常会执行一些特定的操作，如清理资源、记录错误信息等。在处理异常时，整个过程将在内核空间和触发异常的进程上下文中运行。因此，异常处理期间消耗的资源将被计入相应的 cgroups。</p>
+</li>
+<li><p><strong>信号处理和内核转储</strong>：异常处理程序可能会终止初始进程，并向其发送一个信号。这些信号会触发内核转储功能，生成一个用于调试的内核转储文件。在 Linux 内核中，核心转储代码通过 usermode 辅助 API 调用一个用户空间的应用程序来完成这个任务。</p>
+</li>
+<li><p><strong>用户空间核心转储程序</strong>：在 Ubuntu 中，默认的用户空间核心转储程序是 Apport，它会在每个异常情况下被触发。Apport 的资源消耗不会由容器承担，因为它是由内核线程创建的，而不是由容器化的进程创建的。</p>
+</li>
+<li><p><strong>负载平衡和资源放大</strong>：内核会将新生成的 Apport 实例调度到所有可用的 CPU 核心上，以实现负载平衡。这会导致打破 cpusets cgroup 的约束。同时，由于 Apport 进程比轻量级的异常处理（即内核控制路径）消耗更多资源，如果容器不断触发异常，整个 CPU 可能会被 Apport 进程占满。这种情况导致了分配给容器的系统资源的放大。</p>
+</li>
+</ol>
+<p>总结一下，当用户程序触发异常时，Linux 内核会通过 IDT 找到相应的处理程序，并在内核模式下运行。处理程序可能会终止进程并触发内核转储功能。在 Ubuntu 中，这会调用用户空间的 Apport 程序来生成内核转储文件。Apport 的资源消耗不会由容器承担，但可能导致资源放大和 cpusets cgroup 的约束被打破。</p>
+<p>当你在使用电脑时，有时会遇到一些问题，比如程序出错或者意外停止运行。这些问题通常是由于程序中的异常引起的。在 Linux 系统中，有一套专门处理这些异常的机制。</p>
+<p>想象一下，当程序遇到异常时，就像一个球员在比赛中受伤了。这时，教练（内核）会派上另一个球员（异常处理程序）来处理这个问题。这个过程发生在球场内（内核空间），并且会记录下这个问题发生的原因。</p>
+<p>在处理异常时，教练需要确保其他球员不受影响。因此，教练会将受伤球员的状态保存起来，等问题处理完后再恢复。这个过程就像是在现场给受伤球员做紧急处理。</p>
+<p>有时，这个问题严重到需要告知其他人（发送信号）。在这种情况下，教练会通知医疗团队（Apport 程序）来处理。医疗团队会把受伤球员的情况记录下来（生成内核转储文件），以便在之后分析和处理。</p>
+<p>需要注意的是，医疗团队（Apport）处理问题时所消耗的资源不会影响球队（容器），但有时他们的处理可能会让整个比赛（系统资源）受到影响，导致其他球员的表现受到一定程度的影响。</p>
+<p>总之，当电脑遇到问题时，Linux 系统会通过一套内核机制来处理这些异常。在处理过程中，可能会涉及到一些额外的程序，如 Apport，在确保不影响其他程序运行的前提下，记录和处理异常。  </p>
+<h2 id="Case-2"><a href="#Case-2" class="headerlink" title="Case 2"></a>Case 2</h2><ol>
+<li><p><strong>磁盘数据同步回写机制</strong>：这是一种性能优化策略，使CPU只将更新后的数据写入缓存，而不是直接写入磁盘。当缓存被清除时，数据才会写入磁盘。这种机制通过将启动I&#x2F;O进程与同步磁盘写入进程解耦来提高性能。</p>
+</li>
+<li><p><strong>同步</strong>：同步是将缓存中的数据写回磁盘的过程。这可以通过多种方法触发，例如定期回写、内存不足，或者通过用户进程故意调用系统调用（如sync、syncfs和fsync）。这些系统调用对Linux容器是可用的。</p>
+</li>
+<li><p><strong>利用同步的攻击</strong>：由于同步允许进程将所有脏缓冲区写回磁盘，因此在同步期间，任何I&#x2F;O操作都必须等待。这可以被恶意进程利用，通过重复调用sync，以减慢整个系统的I&#x2F;O性能、发起无资源攻击，甚至建立秘密通道。</p>
+</li>
+<li><p><strong>绕过cgroup</strong>：cgroup是一种用于限制资源使用的机制，但由于同步操作是在内核线程中进行的，并且调用sync的容器没有I&#x2F;O工作负载，因此cgroup无法限制同步操作。在这种情况下，即使使用blkio cgroup子系统对运行同步的容器应用I&#x2F;O控制，仍然无法减少同步的影响。这是因为blkio控制器仅限制相对I&#x2F;O吞吐量，而不是绝对值。此外，Docker的统计工具显示，调用sync的容器的I&#x2F;O吞吐量为零，这意味着blkio限制不起作用。</p>
+</li>
+</ol>
+<p>这个案例讲述了一个关于磁盘数据同步的技术，它叫做懒惰回写（lazy write-back）。这种技术的主要优点是提高电脑的性能。当我们在电脑上做一些改动时，这些改动首先会被保存在缓存中，而不是直接写入磁盘。只有当缓存被清空时，改动才会真正地被保存到磁盘里。这样的操作可以节省时间，因为写入磁盘的速度往往比写入缓存慢。</p>
+<p>这种技术可以让一个攻击者绕过cgroups的限制。cgroups是一种用于限制程序在电脑上使用的资源的技术。简单来说，攻击者可以通过触发数据同步，让电脑的整体性能下降。这就像是在公路上开车，突然有人打开了所有的红绿灯，导致所有的车辆都必须停下来等待。</p>
+<p>懒惰回写的关键在于同步（sync）。同步是一个过程，它会把缓存里的数据写入磁盘。当一个程序调用同步时，它会让电脑暂停其他操作，等待数据写入磁盘。如果一个攻击者不断地调用同步，那么电脑的性能就会受到影响，因为其他程序需要不断地等待同步完成。</p>
+<p>现在我们来谈谈cgroups。cgroups是一种技术，可以用来限制程序使用电脑上的资源，比如CPU、内存和磁盘等。但是，在这个案例中，攻击者利用同步绕过了cgroups的限制。原因是，攻击者调用同步时，并没有直接进行磁盘读写操作，而是让内核（电脑的核心部分）进行了这些操作。因此，cgroups无法检测到攻击者的行为，也就无法限制它。</p>
+<p>总之，这个案例向我们展示了一个攻击者可以利用懒惰回写的同步机制来绕过cgroups的限制。这可能会导致电脑的整体性能下降，给其他用户带来麻烦。</p>
 
     </div>
 
@@ -595,7 +631,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#INTRODUCTION"><span class="nav-number">1.</span> <span class="nav-text">INTRODUCTION</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BACKGROUND"><span class="nav-number">2.</span> <span class="nav-text">BACKGROUND</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#cgroups-Hierarchy-and-Controllers"><span class="nav-number">2.1.</span> <span class="nav-text">cgroups Hierarchy and Controllers</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#The-cpu-controller"><span class="nav-number">2.1.1.</span> <span class="nav-text">The cpu controller</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-cpusets-controller"><span class="nav-number">2.1.2.</span> <span class="nav-text">The cpusets controller</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-blkio-controller"><span class="nav-number">2.1.3.</span> <span class="nav-text">The blkio controller</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-pid-controller"><span class="nav-number">2.1.4.</span> <span class="nav-text">The pid controller</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cgroups-Inheritance"><span class="nav-number">2.2.</span> <span class="nav-text">cgroups Inheritance</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EXPLOITING-STRATEGIES"><span class="nav-number">3.</span> <span class="nav-text">EXPLOITING STRATEGIES</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploiting-Upcalls-from-Kernel"><span class="nav-number">3.1.</span> <span class="nav-text">Exploiting Upcalls from Kernel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Delegating-Workloads-to-Kernel-Threads"><span class="nav-number">3.2.</span> <span class="nav-text">Delegating Workloads to Kernel Threads</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploiting-Service-Processes"><span class="nav-number">3.3.</span> <span class="nav-text">Exploiting Service Processes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploiting-Interrupt-Context"><span class="nav-number">3.4.</span> <span class="nav-text">Exploiting Interrupt Context</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CASE-STUDIES-ON-CONTAINERS"><span class="nav-number">4.</span> <span class="nav-text">CASE STUDIES ON CONTAINERS</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Case-1-Exception-Handling"><span class="nav-number">4.1.</span> <span class="nav-text">Case 1:Exception Handling</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Case-2-Data-Synchronization"><span class="nav-number">4.2.</span> <span class="nav-text">Case 2:Data Synchronization</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Case-3-System-Process-Journald"><span class="nav-number">4.3.</span> <span class="nav-text">Case 3:System Process - Journald</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Case-4-Container-Engine"><span class="nav-number">4.4.</span> <span class="nav-text">Case 4:Container Engine</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Case-5-Softirq-Handling"><span class="nav-number">4.5.</span> <span class="nav-text">Case 5:Softirq Handling</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MITIGATION-DISCUSSION"><span class="nav-number">5.</span> <span class="nav-text">MITIGATION DISCUSSION</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RELATED-WORK"><span class="nav-number">6.</span> <span class="nav-text">RELATED WORK</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Virtual-Machine-and-Container"><span class="nav-number">6.1.</span> <span class="nav-text">Virtual Machine and Container</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Container-security"><span class="nav-number">6.1.1.</span> <span class="nav-text">Container security</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cloud-Security"><span class="nav-number">6.2.</span> <span class="nav-text">Cloud Security</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Co-residence"><span class="nav-number">6.2.1.</span> <span class="nav-text">Co-residence</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Denial-of-Service-attacks"><span class="nav-number">6.2.2.</span> <span class="nav-text">Denial-of-Service attacks</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CONCLUSION"><span class="nav-number">7.</span> <span class="nav-text">CONCLUSION</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#INTRODUCTION"><span class="nav-number">1.</span> <span class="nav-text">INTRODUCTION</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BACKGROUND"><span class="nav-number">2.</span> <span class="nav-text">BACKGROUND</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#cgroups-Hierarchy-and-Controllers"><span class="nav-number">2.1.</span> <span class="nav-text">cgroups Hierarchy and Controllers</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#The-cpu-controller"><span class="nav-number">2.1.1.</span> <span class="nav-text">The cpu controller</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-cpusets-controller"><span class="nav-number">2.1.2.</span> <span class="nav-text">The cpusets controller</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-blkio-controller"><span class="nav-number">2.1.3.</span> <span class="nav-text">The blkio controller</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-pid-controller"><span class="nav-number">2.1.4.</span> <span class="nav-text">The pid controller</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cgroups-Inheritance"><span class="nav-number">2.2.</span> <span class="nav-text">cgroups Inheritance</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EXPLOITING-STRATEGIES"><span class="nav-number">3.</span> <span class="nav-text">EXPLOITING STRATEGIES</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploiting-Upcalls-from-Kernel"><span class="nav-number">3.1.</span> <span class="nav-text">Exploiting Upcalls from Kernel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Delegating-Workloads-to-Kernel-Threads"><span class="nav-number">3.2.</span> <span class="nav-text">Delegating Workloads to Kernel Threads</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploiting-Service-Processes"><span class="nav-number">3.3.</span> <span class="nav-text">Exploiting Service Processes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploiting-Interrupt-Context"><span class="nav-number">3.4.</span> <span class="nav-text">Exploiting Interrupt Context</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CASE-STUDIES-ON-CONTAINERS"><span class="nav-number">4.</span> <span class="nav-text">CASE STUDIES ON CONTAINERS</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Case-1-Exception-Handling"><span class="nav-number">4.1.</span> <span class="nav-text">Case 1:Exception Handling</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Case-2-Data-Synchronization"><span class="nav-number">4.2.</span> <span class="nav-text">Case 2:Data Synchronization</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Case-3-System-Process-Journald"><span class="nav-number">4.3.</span> <span class="nav-text">Case 3:System Process - Journald</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Case-4-Container-Engine"><span class="nav-number">4.4.</span> <span class="nav-text">Case 4:Container Engine</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Case-5-Softirq-Handling"><span class="nav-number">4.5.</span> <span class="nav-text">Case 5:Softirq Handling</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MITIGATION-DISCUSSION"><span class="nav-number">5.</span> <span class="nav-text">MITIGATION DISCUSSION</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RELATED-WORK"><span class="nav-number">6.</span> <span class="nav-text">RELATED WORK</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Virtual-Machine-and-Container"><span class="nav-number">6.1.</span> <span class="nav-text">Virtual Machine and Container</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Container-security"><span class="nav-number">6.1.1.</span> <span class="nav-text">Container security</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cloud-Security"><span class="nav-number">6.2.</span> <span class="nav-text">Cloud Security</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Co-residence"><span class="nav-number">6.2.1.</span> <span class="nav-text">Co-residence</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Denial-of-Service-attacks"><span class="nav-number">6.2.2.</span> <span class="nav-text">Denial-of-Service attacks</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CONCLUSION"><span class="nav-number">7.</span> <span class="nav-text">CONCLUSION</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#My"><span class="nav-number">8.</span> <span class="nav-text">My</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Case-1"><span class="nav-number">8.1.</span> <span class="nav-text">Case 1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Case-2"><span class="nav-number">8.2.</span> <span class="nav-text">Case 2</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -609,20 +645,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-count">24</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -667,12 +703,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">309k</span>
+    <span title="Symbols count total">313k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">9:22</span>
+    <span title="Reading time total">9:30</span>
 </div>
 
 <!--

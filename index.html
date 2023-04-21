@@ -197,6 +197,204 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="随便记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">GCC配置及使用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-04-21 10:22:47 / Modified: 14:38:05" itemprop="dateCreated datePublished" datetime="2023-04-21T10:22:47+08:00">2023-04-21</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li><p>GCC原名为GUN C语言编译器（GUN C Compiler）</p>
+</li>
+<li><p>GCC（GUN Compiler Collection,GUN编译器套件）是由GUN开发的编程语言编译器。GUN编译器套件包括C、C++、Objective-C，Java，Ada和Go语言前端，也包括了这些语言的库（如libstdc++、libgcj等）</p>
+</li>
+<li><p>GCC不仅支持C的许多“方言”，也可以区别不同的C语言标准；可以使用命令行选项来控制编译器在翻译源代码时应该遵循哪个标准，例如，当使用命令行参数<code>-std = c99</code>，启动GCC时，编译器支持C99标准</p>
+</li>
+</ul>
+<h1 id="GCC安装"><a href="#GCC安装" class="headerlink" title="GCC安装"></a>GCC安装</h1><p>安装命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install gcc g++</span><br></pre></td></tr></table></figure>
+
+<p>查看版本：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc/g++ -v/--version</span><br></pre></td></tr></table></figure>
+
+<h1 id="GCC编译过程"><a href="#GCC编译过程" class="headerlink" title="GCC编译过程"></a>GCC编译过程</h1><p>首先创建一个c代码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">touch test.c</span><br></pre></td></tr></table></figure>
+
+<p>在vscode中打开test.c,输入代码</p>
+<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/test.c.png" title alt data-align="left">
+
+<p>输入指令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.c -E -o test.i</span><br></pre></td></tr></table></figure>
+
+<p>生成预处理文件：</p>
+<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/test.i.png" title alt data-align="center">
+
+<p>之后输入命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.i -S -o test.s</span><br></pre></td></tr></table></figure>
+
+<p>生成汇编文件：</p>
+<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/test.s.png" title alt data-align="center">
+
+<p>输入命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.s -c -o test.o</span><br></pre></td></tr></table></figure>
+
+<p>生成目标代码文件：</p>
+<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/test.o.png" title alt data-align="center">
+
+<p>输入命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.o -o test.out</span><br></pre></td></tr></table></figure>
+
+<p>生成可执行文件：</p>
+<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/test.out.png" title alt data-align="center">
+
+<p>运行可执行文件，移动到目录下，运行命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./test.out</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/runtest.out.png" title alt data-align="center">
+
+<h1 id="g"><a href="#g" class="headerlink" title="g++"></a>g++</h1><p>使用g++也可以对C程序进行编译</p>
+<h2 id="g-和gcc的区别"><a href="#g-和gcc的区别" class="headerlink" title="g++和gcc的区别"></a>g++和gcc的区别</h2><ul>
+<li><p>误区一：gcc只能编译c代码，g++只能编译C++代码</p>
+<ul>
+<li><p>后缀为.c的文件，gcc把它当作是c程序，而g++把它当作是C++程序</p>
+</li>
+<li><p>后缀为.cpp的文件，两者都会认为是C++程序，C++的语法规则更加严谨一点</p>
+</li>
+<li><p>编译阶段g++会调用gcc，对于C++代码，两者是等价的，但是因为gcc命令不能自动和C++程序使用的库连接，所以通常用g++来完成连接，为了同一期间，干脆编译&#x2F;连接都用g++。</p>
+</li>
+</ul>
+</li>
+<li><p>误区二：gcc不会定义__cplusplus,而g++会</p>
+<ul>
+<li><p>实际上，这个宏只是标志着编译器将会把代码按C还是C++语法来解释</p>
+</li>
+<li><p>如上所述，如果后缀为.c,并且采用gcc编译器，则该宏就是未定义的，否则就是已定义</p>
+</li>
+</ul>
+</li>
+<li><p>误区三：编译只能用gcc，连接只能用g++</p>
+<ul>
+<li><p>严格来说，这句话不算错误，但是它混淆了概念，应该这样说：编译可以用gcc&#x2F;g++，而连接可以用g++或者gcc -lstdc++</p>
+</li>
+<li><p>gcc命令不能自动和C++程序使用的库连接，所以通常使用g++来完成连接，但在编译阶段，g++会自动调用gcc，二者等价</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="编译选项-D"><a href="#编译选项-D" class="headerlink" title="编译选项 -D"></a>编译选项 -D</h1><p>我们编译运行如下程序：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> DEBUG</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Hello world\n&quot;</span>);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Hello GCC\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc test.c -o <span class="built_in">test</span></span><br><span class="line">./test</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/runtest2.png" title alt data-align="center">
+
+<p>运行结果没有输出Hello world</p>
+<p>我们使用命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc test.c -o <span class="built_in">test</span> -DDEBUG</span><br><span class="line">./test</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/runtest3.png" title alt data-align="center">
+
+<p>-D表示在编译的时候，指定一个宏，相当于程序</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DEBUG</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> DEBUG</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Hello world\n&quot;</span>);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Hello GCC\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="编译选项-Wall"><a href="#编译选项-Wall" class="headerlink" title="编译选项 -Wall"></a>编译选项 -Wall</h1><p>运行命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.c -o <span class="built_in">test</span> -Wall</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/-Wall.png" title alt data-align="center">
+
+<h1 id="其他的一些编译选项"><a href="#其他的一些编译选项" class="headerlink" title="其他的一些编译选项"></a>其他的一些编译选项</h1><ul>
+<li><p>-On：编译优化</p>
+</li>
+<li><p>-l：程序编译的时候，指定使用的库</p>
+</li>
+<li><p>-L：指定编译的时候，搜索的库的路径</p>
+</li>
+<li><p>-fPIC&#x2F;fpic：生成与位置无关的代码</p>
+</li>
+<li><p>-shared：生成共享目标文件，通常用在建立共享库时</p>
+</li>
+<li><p>-std：指定c方言，如-std&#x3D;c99</p>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -494,7 +692,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-19 12:58:43" itemprop="dateModified" datetime="2023-04-19T12:58:43+08:00">2023-04-19</time>
+                <time title="Modified: 2023-04-20 23:05:55" itemprop="dateModified" datetime="2023-04-20T23:05:55+08:00">2023-04-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -648,7 +846,7 @@
 <p>2、函数名称与类名相同，在名称前加上符号~</p>
 <p>3、析构函数不可以有参数，因此不可以发生重载</p>
 <p>4、程序在对象销毁前会自动调用析构，无须手动调用，而且只会调用一次</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//对象的初始化和清理</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//1 构造函数</span></span><br><span class="line">	<span class="comment">//没有返回值 不用写void</span></span><br><span class="line">	<span class="comment">//函数名与类名相同</span></span><br><span class="line">	<span class="comment">//构造函数可以有参数可以发生重载</span></span><br><span class="line">	<span class="comment">//创建对象的时候，构造函数会自动调用，而且只调用一次</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">	<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person构造函数的调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//2 析构函数</span></span><br><span class="line">	<span class="comment">//没有返回值 不写void</span></span><br><span class="line">	<span class="comment">//函数名和类名相同 在名称前加~</span></span><br><span class="line">	<span class="comment">//析构函数不可以有参数，不可以发生重载</span></span><br><span class="line">	<span class="comment">//对象在销毁前，会自动调用析构函数</span></span><br><span class="line">	~<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person析构函数的调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//构造和析构都是必须有的实现，如果我们自己不提供，编译器会提供一个空实现的构造和析构</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Person p;<span class="comment">//在栈上的数据，test01执行完毕之后，释放这个对象</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//对象的初始化和清理</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//1 构造函数</span></span><br><span class="line">    <span class="comment">//没有返回值 不用写void</span></span><br><span class="line">    <span class="comment">//函数名与类名相同</span></span><br><span class="line">    <span class="comment">//构造函数可以有参数可以发生重载</span></span><br><span class="line">    <span class="comment">//创建对象的时候，构造函数会自动调用，而且只调用一次</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">    <span class="built_in">Person</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Person构造函数的调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//2 析构函数</span></span><br><span class="line">    <span class="comment">//没有返回值 不写void</span></span><br><span class="line">    <span class="comment">//函数名和类名相同 在名称前加~</span></span><br><span class="line">    <span class="comment">//析构函数不可以有参数，不可以发生重载</span></span><br><span class="line">    <span class="comment">//对象在销毁前，会自动调用析构函数</span></span><br><span class="line">    ~<span class="built_in">Person</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Person析构函数的调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//构造和析构都是必须有的实现，如果我们自己不提供，编译器会提供一个空实现的构造和析构</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Person p;<span class="comment">//在栈上的数据，test01执行完毕之后，释放这个对象</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>运行结果为：</p>
 <blockquote>
@@ -670,24 +868,33 @@
 <li><p>隐式转换法</p>
 </li>
 </ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//分类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">//构造函数</span></span><br><span class="line">	<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的无参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">int</span> a)</span><br><span class="line">	&#123;</span><br><span class="line">		age = a;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的有参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//拷贝构造函数</span></span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">const</span> Person&amp; p)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//将传入的人的身上的所有属性，拷贝到我身上</span></span><br><span class="line">		age = p.age;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的拷贝函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	~<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的析构函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">int</span> age;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//调用</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//1、括号法</span></span><br><span class="line">	Person p1  ;<span class="comment">//默认构造函数的调用</span></span><br><span class="line">	<span class="function">Person <span class="title">p2</span><span class="params">(<span class="number">10</span>)</span></span>;<span class="comment">//有参构造函数</span></span><br><span class="line">	<span class="comment">//拷贝构造函数调用</span></span><br><span class="line">	<span class="function">Person <span class="title">p3</span><span class="params">(p2)</span></span>;</span><br><span class="line">	<span class="comment">//注意事项</span></span><br><span class="line">	<span class="comment">//调用默认构造函数的时候，不要加（）</span></span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;p2的年龄为：&quot;</span> &lt;&lt; p2.age &lt;&lt; endl;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;p3的年龄为：&quot;</span> &lt;&lt; p3.age &lt;&lt; endl;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//分类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">//构造函数</span></span><br><span class="line">    <span class="built_in">Person</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Person的无参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">Person</span>(<span class="type">int</span> a)</span><br><span class="line">    &#123;</span><br><span class="line">        age = a;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Person的有参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//拷贝构造函数</span></span><br><span class="line">    <span class="built_in">Person</span>(<span class="type">const</span> Person&amp; p)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//将传入的人的身上的所有属性，拷贝到我身上</span></span><br><span class="line">        age = p.age;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Person的拷贝函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    ~<span class="built_in">Person</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Person的析构函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//调用</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//1、括号法</span></span><br><span class="line">    Person p1  ;<span class="comment">//默认构造函数的调用</span></span><br><span class="line">    <span class="function">Person <span class="title">p2</span><span class="params">(<span class="number">10</span>)</span></span>;<span class="comment">//有参构造函数</span></span><br><span class="line">    <span class="comment">//拷贝构造函数调用</span></span><br><span class="line">    <span class="function">Person <span class="title">p3</span><span class="params">(p2)</span></span>;</span><br><span class="line">    <span class="comment">//注意事项</span></span><br><span class="line">    <span class="comment">//调用默认构造函数的时候，不要加（）</span></span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;p2的年龄为：&quot;</span> &lt;&lt; p2.age &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;p3的年龄为：&quot;</span> &lt;&lt; p3.age &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>运行结果为：</p>
 <blockquote>
 <p>Person的无参构造函数调用<br>Person的有参构造函数调用<br>Person的拷贝函数调用<br>p2的年龄为：10<br>p3的年龄为：10<br>Person的析构函数调用<br>Person的析构函数调用<br>Person的析构函数调用</p>
 </blockquote>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//分类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">//构造函数</span></span><br><span class="line">	<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的无参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">int</span> a)</span><br><span class="line">	&#123;</span><br><span class="line">		age = a;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的有参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//拷贝构造函数</span></span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">const</span> Person&amp; p)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//将传入的人的身上的所有属性，拷贝到我身上</span></span><br><span class="line">		age = p.age;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的拷贝函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	~<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的析构函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">int</span> age;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//调用</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//2、显示法</span></span><br><span class="line">	Person p1;</span><br><span class="line">	Person p2 = <span class="built_in">Person</span>(<span class="number">10</span>);<span class="comment">//有参构造</span></span><br><span class="line">	Person p3 = <span class="built_in">Person</span>(p2);<span class="comment">//拷贝构造</span></span><br><span class="line">	<span class="built_in">Person</span>(<span class="number">10</span>);<span class="comment">//匿名对象 特点：当前行执行结束后，系统会立即回收掉匿名对象</span></span><br><span class="line"><span class="comment">//注意事项：不要利用拷贝构造函数 初始化匿名对象 编译器会认为是对象声明</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//分类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">//构造函数</span></span><br><span class="line">    <span class="built_in">Person</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Person的无参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">Person</span>(<span class="type">int</span> a)</span><br><span class="line">    &#123;</span><br><span class="line">        age = a;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Person的有参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//拷贝构造函数</span></span><br><span class="line">    <span class="built_in">Person</span>(<span class="type">const</span> Person&amp; p)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//将传入的人的身上的所有属性，拷贝到我身上</span></span><br><span class="line">        age = p.age;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Person的拷贝函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    ~<span class="built_in">Person</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Person的析构函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//调用</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//2、显示法</span></span><br><span class="line">    Person p1;</span><br><span class="line">    Person p2 = <span class="built_in">Person</span>(<span class="number">10</span>);<span class="comment">//有参构造</span></span><br><span class="line">    Person p3 = <span class="built_in">Person</span>(p2);<span class="comment">//拷贝构造</span></span><br><span class="line">    <span class="built_in">Person</span>(<span class="number">10</span>);<span class="comment">//匿名对象 特点：当前行执行结束后，系统会立即回收掉匿名对象</span></span><br><span class="line"><span class="comment">//注意事项：不要利用拷贝构造函数 初始化匿名对象 编译器会认为是对象声明</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>运行结果为：</p>
 <blockquote>
 <p>Person的无参构造函数调用<br>Person的有参构造函数调用<br>Person的拷贝函数调用<br>Person的有参构造函数调用<br>Person的析构函数调用<br>Person的析构函数调用<br>Person的析构函数调用<br>Person的析构函数调用</p>
 </blockquote>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//分类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">//构造函数</span></span><br><span class="line">	<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的无参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">int</span> a)</span><br><span class="line">	&#123;</span><br><span class="line">		age = a;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的有参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//拷贝构造函数</span></span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">const</span> Person&amp; p)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//将传入的人的身上的所有属性，拷贝到我身上</span></span><br><span class="line">		age = p.age;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的拷贝函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	~<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的析构函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">int</span> age;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//调用</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//3、隐式转换法</span></span><br><span class="line">	Person p4 = <span class="number">10</span>;</span><br><span class="line">	Person p5 = p4;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//分类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">//构造函数</span></span><br><span class="line">    <span class="built_in">Person</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Person的无参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">Person</span>(<span class="type">int</span> a)</span><br><span class="line">    &#123;</span><br><span class="line">        age = a;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Person的有参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//拷贝构造函数</span></span><br><span class="line">    <span class="built_in">Person</span>(<span class="type">const</span> Person&amp; p)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//将传入的人的身上的所有属性，拷贝到我身上</span></span><br><span class="line">        age = p.age;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Person的拷贝函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    ~<span class="built_in">Person</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Person的析构函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//调用</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//3、隐式转换法</span></span><br><span class="line">    Person p4 = <span class="number">10</span>;</span><br><span class="line">    Person p5 = p4;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>运行结果为：</p>
 <blockquote>
 <p>Person的有参构造函数调用<br>Person的拷贝函数调用<br>Person的析构函数调用<br>Person的析构函数调用</p>
 </blockquote>
+<h2 id="拷贝构造函数的调用时机"><a href="#拷贝构造函数的调用时机" class="headerlink" title="拷贝构造函数的调用时机"></a>拷贝构造函数的调用时机</h2><p>C++中拷贝构造函数调用时机通常有三种情况</p>
+<ul>
+<li><p>使用一个以及创建完毕的对象来初始化一个新对象</p>
+</li>
+<li><p>值传递的方式给函数参数传值</p>
+</li>
+<li><p>以值方式返回局部对象</p>
+</li>
+</ul>
 
       
     </div>
@@ -738,7 +945,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-18 10:23:53" itemprop="dateModified" datetime="2023-04-18T10:23:53+08:00">2023-04-18</time>
+                <time title="Modified: 2023-04-20 21:24:59" itemprop="dateModified" datetime="2023-04-20T21:24:59+08:00">2023-04-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -760,14 +967,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>22k</span>
+              <span>24k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>40 mins.</span>
+              <span>44 mins.</span>
             </span>
 
         </div>
@@ -996,6 +1203,42 @@
 <h3 id="Denial-of-Service-attacks"><a href="#Denial-of-Service-attacks" class="headerlink" title="Denial-of-Service attacks"></a>Denial-of-Service attacks</h3><p>由于底层计算资源在不同的租户之间共享，因此争用是不可避免的。Varadarajan等人提出了资源释放攻击来释放受害者使用的资源，这样攻击者的实例就可以获得额外的利用。Zhang等人调查了内存DoS攻击的影响，并表明恶意云客户可以对电子商务网站造成38倍的延迟。对于针对I&#x2F;O性能的DoS攻击，Huang等提出了级联性能攻击，以耗尽hypervisor的I&#x2F;O处理能力。此外，多种攻击试图耗尽共享的基础设施资源，如电力设施，从而迫使数据中心的服务器关闭。与之前的工作不同，我们的工作表明，cgroups中的不足也可以被利用来在多租户容器环境中发起多次攻击。</p>
 <h1 id="CONCLUSION"><a href="#CONCLUSION" class="headerlink" title="CONCLUSION"></a>CONCLUSION</h1><p>在本文中，我们开发了一套策略来打破Linux控制组的资源控制。我们证明了通过进程创建继承的cgroups限制并不总是保证一致和公平的资源核算。我们可以通过与原始cgroup解关联的进程来生成带外工作负载。</p>
 <p>我们进一步提出了五个案例研究，表明在Docker容器环境中实现这些攻击是可行的。恶意容器利用多租户容器环境中cgroups的这些不足，可以极大地耗尽主机的资源，并发起多种攻击，包括拒绝服务攻击、资源释放攻击和秘密通道攻击。我们在亚马逊EC2云中的本地测试平台和专用服务器上进行了实验，并证明了一个容器可以将其工作负载放大200倍以上，并将其他容器的性能降低95%。</p>
+<h1 id="My"><a href="#My" class="headerlink" title="My"></a>My</h1><h2 id="Case-1"><a href="#Case-1" class="headerlink" title="Case 1"></a>Case 1</h2><p>Linux 内核为各种异常提供了专用的异常处理程序。这些异常处理程序分为两类：错误和陷阱。错误是指程序在运行过程中遇到的问题，如分段错误。陷阱是指程序主动触发的事件，如溢出检测。</p>
+<p>在处理这些异常时，内核维护了一个名为中断描述符表（IDT）的数据结构。IDT 包含每个异常处理程序的地址。当 CPU 在用户模式下引发异常时，相应的处理程序将在内核模式下运行。</p>
+<ol>
+<li><p><strong>寄存器保存和上下文切换</strong>：当异常发生时，处理器首先将当前的寄存器状态保存到内核堆栈中。这样，在异常处理完成后，处理器可以恢复原始状态并返回到用户模式。</p>
+</li>
+<li><p><strong>异常处理</strong>：在内核模式下，处理器会根据异常类型调用相应的处理程序。异常处理程序通常会执行一些特定的操作，如清理资源、记录错误信息等。在处理异常时，整个过程将在内核空间和触发异常的进程上下文中运行。因此，异常处理期间消耗的资源将被计入相应的 cgroups。</p>
+</li>
+<li><p><strong>信号处理和内核转储</strong>：异常处理程序可能会终止初始进程，并向其发送一个信号。这些信号会触发内核转储功能，生成一个用于调试的内核转储文件。在 Linux 内核中，核心转储代码通过 usermode 辅助 API 调用一个用户空间的应用程序来完成这个任务。</p>
+</li>
+<li><p><strong>用户空间核心转储程序</strong>：在 Ubuntu 中，默认的用户空间核心转储程序是 Apport，它会在每个异常情况下被触发。Apport 的资源消耗不会由容器承担，因为它是由内核线程创建的，而不是由容器化的进程创建的。</p>
+</li>
+<li><p><strong>负载平衡和资源放大</strong>：内核会将新生成的 Apport 实例调度到所有可用的 CPU 核心上，以实现负载平衡。这会导致打破 cpusets cgroup 的约束。同时，由于 Apport 进程比轻量级的异常处理（即内核控制路径）消耗更多资源，如果容器不断触发异常，整个 CPU 可能会被 Apport 进程占满。这种情况导致了分配给容器的系统资源的放大。</p>
+</li>
+</ol>
+<p>总结一下，当用户程序触发异常时，Linux 内核会通过 IDT 找到相应的处理程序，并在内核模式下运行。处理程序可能会终止进程并触发内核转储功能。在 Ubuntu 中，这会调用用户空间的 Apport 程序来生成内核转储文件。Apport 的资源消耗不会由容器承担，但可能导致资源放大和 cpusets cgroup 的约束被打破。</p>
+<p>当你在使用电脑时，有时会遇到一些问题，比如程序出错或者意外停止运行。这些问题通常是由于程序中的异常引起的。在 Linux 系统中，有一套专门处理这些异常的机制。</p>
+<p>想象一下，当程序遇到异常时，就像一个球员在比赛中受伤了。这时，教练（内核）会派上另一个球员（异常处理程序）来处理这个问题。这个过程发生在球场内（内核空间），并且会记录下这个问题发生的原因。</p>
+<p>在处理异常时，教练需要确保其他球员不受影响。因此，教练会将受伤球员的状态保存起来，等问题处理完后再恢复。这个过程就像是在现场给受伤球员做紧急处理。</p>
+<p>有时，这个问题严重到需要告知其他人（发送信号）。在这种情况下，教练会通知医疗团队（Apport 程序）来处理。医疗团队会把受伤球员的情况记录下来（生成内核转储文件），以便在之后分析和处理。</p>
+<p>需要注意的是，医疗团队（Apport）处理问题时所消耗的资源不会影响球队（容器），但有时他们的处理可能会让整个比赛（系统资源）受到影响，导致其他球员的表现受到一定程度的影响。</p>
+<p>总之，当电脑遇到问题时，Linux 系统会通过一套内核机制来处理这些异常。在处理过程中，可能会涉及到一些额外的程序，如 Apport，在确保不影响其他程序运行的前提下，记录和处理异常。  </p>
+<h2 id="Case-2"><a href="#Case-2" class="headerlink" title="Case 2"></a>Case 2</h2><ol>
+<li><p><strong>磁盘数据同步回写机制</strong>：这是一种性能优化策略，使CPU只将更新后的数据写入缓存，而不是直接写入磁盘。当缓存被清除时，数据才会写入磁盘。这种机制通过将启动I&#x2F;O进程与同步磁盘写入进程解耦来提高性能。</p>
+</li>
+<li><p><strong>同步</strong>：同步是将缓存中的数据写回磁盘的过程。这可以通过多种方法触发，例如定期回写、内存不足，或者通过用户进程故意调用系统调用（如sync、syncfs和fsync）。这些系统调用对Linux容器是可用的。</p>
+</li>
+<li><p><strong>利用同步的攻击</strong>：由于同步允许进程将所有脏缓冲区写回磁盘，因此在同步期间，任何I&#x2F;O操作都必须等待。这可以被恶意进程利用，通过重复调用sync，以减慢整个系统的I&#x2F;O性能、发起无资源攻击，甚至建立秘密通道。</p>
+</li>
+<li><p><strong>绕过cgroup</strong>：cgroup是一种用于限制资源使用的机制，但由于同步操作是在内核线程中进行的，并且调用sync的容器没有I&#x2F;O工作负载，因此cgroup无法限制同步操作。在这种情况下，即使使用blkio cgroup子系统对运行同步的容器应用I&#x2F;O控制，仍然无法减少同步的影响。这是因为blkio控制器仅限制相对I&#x2F;O吞吐量，而不是绝对值。此外，Docker的统计工具显示，调用sync的容器的I&#x2F;O吞吐量为零，这意味着blkio限制不起作用。</p>
+</li>
+</ol>
+<p>这个案例讲述了一个关于磁盘数据同步的技术，它叫做懒惰回写（lazy write-back）。这种技术的主要优点是提高电脑的性能。当我们在电脑上做一些改动时，这些改动首先会被保存在缓存中，而不是直接写入磁盘。只有当缓存被清空时，改动才会真正地被保存到磁盘里。这样的操作可以节省时间，因为写入磁盘的速度往往比写入缓存慢。</p>
+<p>这种技术可以让一个攻击者绕过cgroups的限制。cgroups是一种用于限制程序在电脑上使用的资源的技术。简单来说，攻击者可以通过触发数据同步，让电脑的整体性能下降。这就像是在公路上开车，突然有人打开了所有的红绿灯，导致所有的车辆都必须停下来等待。</p>
+<p>懒惰回写的关键在于同步（sync）。同步是一个过程，它会把缓存里的数据写入磁盘。当一个程序调用同步时，它会让电脑暂停其他操作，等待数据写入磁盘。如果一个攻击者不断地调用同步，那么电脑的性能就会受到影响，因为其他程序需要不断地等待同步完成。</p>
+<p>现在我们来谈谈cgroups。cgroups是一种技术，可以用来限制程序使用电脑上的资源，比如CPU、内存和磁盘等。但是，在这个案例中，攻击者利用同步绕过了cgroups的限制。原因是，攻击者调用同步时，并没有直接进行磁盘读写操作，而是让内核（电脑的核心部分）进行了这些操作。因此，cgroups无法检测到攻击者的行为，也就无法限制它。</p>
+<p>总之，这个案例向我们展示了一个攻击者可以利用懒惰回写的同步机制来绕过cgroups的限制。这可能会导致电脑的整体性能下降，给其他用户带来麻烦。</p>
 
       
     </div>
@@ -1588,136 +1831,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/12/%E3%80%8A%E5%BA%84%E5%AD%90-%E7%A7%8B%E6%B0%B4%E3%80%8B-%E9%98%85%E8%AF%BB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="随便记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/04/12/%E3%80%8A%E5%BA%84%E5%AD%90-%E7%A7%8B%E6%B0%B4%E3%80%8B-%E9%98%85%E8%AF%BB/" class="post-title-link" itemprop="url">《庄子 秋水》 阅读</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2023-04-12 19:43:59 / Modified: 22:23:41" itemprop="dateCreated datePublished" datetime="2023-04-12T19:43:59+08:00">2023-04-12</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E5%93%B2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">哲学</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>8.6k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>16 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>         秋水时至，百川灌河。泾流之大，两涘渚崖之间，不辩牛马。于是焉河伯欣然自喜，以天下之美为尽在己。顺流而东行，至于北海，东面而视，不见水端。于是焉河伯始旋其面目，望洋向若而叹曰：“野语有之曰：‘闻道百，以为莫己若者。’我之谓也。且夫我尝闻少仲尼之闻而轻伯夷之义者，始吾弗信。今我睹子之难穷也，吾非至于子之门则殆矣，吾长见笑于大方之家。”北海若曰：“井蛙不可以语于海者，拘于虚也；夏虫不可以语于冰者，笃于时也；曲士不可以语于道者，束于教也。今尔出于崖涘，观于大海，乃知尔丑，尔将可与语大理矣。天下之水，莫大于海：万川归之，不知何时止而不盈；尾闾泄之，不知何时已而不虚；春秋不变，水旱不知。此其过江河之流， 不可为量数。而吾未尝以此自多者，自以比形于天地，而受气于阴阳， 吾在于天地之间，犹小石小木之在大山也。方存乎见少，又奚以自多！ 计四海之在天地之间也，不似礨空之在大泽乎？计中国之在海内不似稊米之在太仓乎？号物之数谓之万，人处一焉；人卒九州，谷食之所生，舟车之所通，人处一焉。此其比万物也，不似豪末之在于马体乎？ 五帝之所连，三王之所争，仁人之所忧，任士之所劳，尽此矣！伯夷辞之以为名，仲尼语之以为博。此其自多也，不似尔向之自多于水乎？”</p>
-<blockquote>
-<p>        秋汛时节，大大小小的河流都灌入黄河之中，河流水势浩大，两岸之间一片苍茫，分不清是牛是马在那里活动。于是河伯沾沾自喜，认为天下美景都掌握在自己手中。但河伯顺着水流往东走，到达了北海，面朝大海，望着无边无际的海面，他收起了得意的神情，他仰着头向北海若感叹道：听闻许多道理，认为谁都不如自己，说的就是我这种人。而且我曾听说有人小看仲尼的见识，轻视伯夷的义气，如今我终于是相信了，今天我看到这无边无际的大海，如果没有到您这来，我大概要永远贻笑大方了。北海若说：井底之蛙不可以跟他谈论大海，因为他受空间的限制；夏天的虫不可以跟他谈论冰雪，因为他受时间的限制；浅陋的书生不可以跟他谈论大道，以为他受礼教的限制。如今你从河边来到大海，见识到了大海的无边无际，明白了自己的浅陋，那我就可以跟你讲讲大道理了。天下的水域，没有比海洋更辽阔的了，千万条江河不停的汇聚到海洋，但是海洋永远不会满，海洋从尾闾泄水，但是不知道何时才能够流尽，不论是春天还是秋天，干旱还是洪涝，海洋都丝毫不受影响。海洋的容量，比江河不知道大了多少，但是我从来不认为自己了不起。我从天地那里获得了形体，从阴阳那里获得了生气，我在天地间，就像一颗小石头在泰山之上，只会自以为小，又怎么会自满呢。想象一下，四海在天地之间，不就像一个蚁穴在大泽之中吗？一个国家在四海之间，不就像一粒米在粮仓中吗？世间物种千千万万，人只是其中一种。人聚集在九州之内，播种谷物粮食，舟车四通八达，一个人只不过是其一小部分而已。拿人和万物相比，不就像拿马身上的一根毫毛和马相比吗？五帝所继承的，三王所争夺的，仁人所忧虑的，以天下为己任的人所操劳的，其实不过如此。伯夷辞让王位来获得名声，仲尼谈论天下大事以显示知识渊博，他们自以为了不起，不就像你一样吗？</p>
-</blockquote>
-<p>　　河伯曰：“然则吾大天地而小豪末，可乎？”北海若曰：“否。夫物，量无穷，时无止，分无常，终始无故。是故大知观于远近，故小而不寡，大而不多：知量无穷。证向今故，故遥而不闷，掇而不跂： 知时无止。察乎盈虚，故得而不喜，失而不忧：知分之无常也。明乎坦涂，故生而不说，死而不祸：知终始之不可故也。计人之所知，不若其所不知；其生之时，不若未生之时；以其至小，求穷其至大之域， 是故迷乱而不能自得也。由此观之，又何以知毫末之足以定至细之倪， 又何以知天地之足以穷至大之域！”</p>
-<blockquote>
-<p>        河伯说：那么我以天地为大，以毫毛为小，这也可以吗？北海若说：不行，世间万物，在空间上是无法穷尽的，在时间上是没有止境的，不存在固定的区分，也不存在真正意义上的开始和结束。所以， 拥有大智慧的人，不以小为小，不以大为大，对于遥远的过去和将来，不会感到苦闷，对于切身体会的当下也不会刻意强求，有所得到也不会欣喜，有所失去也不会感到忧愁，因为变化是无常的。不会因为或者而雀跃，也不会因为死亡而悲恐，因为生死是无法解释的。一个人所知道的东西，远远比不上不知道的东西。一个人存活的时间，远远比不上未存活的时间。由试图用极小的事物来探究极大的范围，人们会变得迷惑不解，无法找到自己。从这个角度来看，我们怎么能知道一粒细微的尘埃足以决定最微妙的差别，又怎么能知道天地足以穷尽最大的范围呢？”</p>
-</blockquote>
-<p>　　河伯曰：“世之议者皆曰：‘至精无形，至大不可围。’是信情乎 ？”北海若曰：“夫自细视大者不尽，自大视细者不明。夫精，小之微也；郛，大之殷也：故异便。此势之有也。夫精粗者，期于有形者也；无形者，数之所不能分也；不可围者，数之所不能穷也。可以言论者，物之粗也；可以意致者，物之精也；言之所不能论，意之所不能察致者，不期精粗焉。是故大人之行：不出乎害人，不多仁恩；动不为利，不贱门隶；货财弗争，不多辞让；事焉不借人，不多食乎力 ，不贱贪污；行殊乎俗，不多辟异；为在从众，不贱佞谄；世之爵禄 不足以为劝，戮耻不足以为辱；知是非之不可为分，细大之不可为倪 。闻曰：‘道人不闻，至德不得，大人无己。’约分之至也。”</p>
-<blockquote>
-<p>        河伯问：世上的人都说，最精细的东西没有形体，最宏大的东西没有外围，这是真的吗？北海若说：以小的视角去看大的东西是看不全面的，以大的视角去看小的东西是看不清楚的，所以各有所偏，精是指小而微妙的事物；郛是指大而深远的事物：所以它们是不同的。这是因为事物的规模和形态是有差异的。所谓精和粗是对于有形的东西来说的，无形的东西就是小到无法分辨了，没有外围的东西就是大到无法计算了。可以用语言表达的是粗大的事物，可以想象的是精微的食物。无法用语言表达也不能想象的，则根本不适用于精粗的概念。因此，大人的行为：不伤害他人，不过分施恩；行动不是为了利益，不轻视门下之人；不争夺财物，不过分言辞谦让；做事不依赖他人，不过分依赖自己的力量，不轻视贪污；行为不同于俗人，不过分追求与众不同；处在大众之中，不轻视奉承谄媚；世俗的荣誉和地位不足以激发他的兴趣，屈辱和耻辱不足以使他感到羞耻；懂得是非无法明确区分，大小无法确定边界。有句话说：‘道之人不可闻，至德不可得，大人无己。’这就是对事物极限的了解。”</p>
-</blockquote>
-<p>　　河伯曰：“若物之外，若物之内，恶至而倪贵贱？恶至而倪小大？ ”北海若曰：“以道观之，物无贵贱；以物观之，自贵而相贱；以俗观之，贵贱不在己。以差观之，因其所大而大之，则万物莫不大；因其所小而小之，则万物莫不小。知天地之为稊米也，知毫末之为丘山也，则差数睹矣。以功观之，因其所有而有之，则万物莫不有； 因其所无而无之，则万物莫不无。知东西之相反而不可以相无，则功分定矣。以趣观之，因其所然而然之，则万物莫不然；因其所非而非 之，则万物莫不非。知尧、桀之自然而相非，则趣操睹矣。昔者尧、 舜让而帝，之、哙让而绝；汤、武争而王，白公争而灭。由此观之， 争让之礼，尧、桀之行，贵贱有时，未可以为常也。梁丽可以冲城而不可以窒穴，言殊器也；骐骥骅骝一日而驰千里，捕鼠不如狸狌，言殊技也；鸱鸺夜撮蚤，察毫末，昼出瞋目而不见丘山，言殊性也。故曰：盖师是而无非，师治而无乱乎？是未明天地之理，万物之情也。 是犹师天而无地，师阴而无阳，其不可行明矣！然且语而不舍，非愚则诬也！帝王殊禅，三代殊继。差其时，逆其俗者，谓之篡夫；当其时，顺其俗者，谓之义之徒。默默乎河伯，女恶知贵贱之门，小大之家！”</p>
-<blockquote>
-<p>        河伯问：在万物之外和万物之内，如何判断一件事物的贵贱和大小呢？北海若说：从大道的角度看，万物本无贵贱，从他物的角度看，都是自以为贵而以他物为贱，以世俗的角度看，贵贱不在自己，而在他人眼中，以差别的角度看，顺着大的一面来判断，则万物都是大的，顺着小的一面来判断，则万物都是小的。天地可以像一粒米一样小，毫毛也可以像一座山那么大。如果从万物的功能的角度看，如果以它们具有的功能来衡量，那么万物都有用，如果以它们没有的功能来衡量，那么万物都没有用。没有东就没有西，有和无相反相成，知道这一点，功能的区分也就明白了。如果从取向的一面去判断，如果顺着对的一面去判断，那么万物都是对的，如果顺着错的一面去判断，那么万物都是错的。就像尧、夏桀都认为自己是对的。尧、舜的禅让成为帝王，而燕王姬哙和燕相子之却因为禅让遭到灭顶之灾。商汤和周武王因为争夺而称王，白公胜却因为争斗而灭亡。从这些例子来看，争斗与禅让，尧和夏桀的行为，不能作为永恒的标准来衡量贵贱。攻城的利器不适用于堵塞小洞，这是因为器用不同。千里马可以一日千里，但捉老鼠不如狸狌，这是因为技能不同。猫头鹰虽然能在夜间捕捉跳蚤，看见秋毫之末，但是一到白天就会眼瞎，连山岳都看不到，这是因为秉性不同。人们总是说为什么不学习对的而抛弃错的，效法治世而抛弃乱世呢？这是不明白天地的道理、万物的实情才会说出的话。就像只接受天而不接受地，只接受阴而不接受阳，这显然是行不通的。帝王禅让还是继承，这是因时事而异。顺应时事和世俗，会被称为仁人义士，违背时事和世俗，会被称为大逆不道。沉默吧河伯，你哪知道怎么区分贵贱和大小。</p>
-</blockquote>
-<p>　　河伯曰：“然则我何为乎？何不为乎？吾辞受趣舍，吾终奈何？” 北海若曰：“以道观之，何贵何贱，是谓反衍；无拘而志，与道大蹇 。何少何多，是谓谢施；无一而行，与道参差。严乎若国之有君，其无私德；繇繇乎若祭之有社，其无私福；泛泛乎其若四方之无穷，其无所畛域。兼怀万物，其孰承翼？是谓无方。万物一齐，孰短孰长？ 道无终始，物有死生，不恃其成。一虚一满，不位乎其形。年不可举 ，时不可止。消息盈虚，终则有始。是所以语大义之方，论万物之理也。物之生也，若骤若驰。无动而不变，无时而不移。何为乎，何不为乎？夫固将自化。”</p>
-<blockquote>
-<p>        河伯说：那么我应该做什么，不应该做什么呢？我应该接受什么，不应该接受什么呢？北海若说：从道的角度看，没有贵贱之分，要回归道的本源。要做到无拘无束，心怀大道，顺应大道。不要计较物质的多少，学会舍弃得失。要做到无私，无所谓长短，与道同在。要像国家有君王一样严肃，但要无私地行德。要像祭祀有社稷一样庄重，但要追求无私的福报。要像四方一样无边无际，没有界限。要包容万物，没有固定的方向，这就是无方。不要计较万物的短长，道是无始无终的，万物则有生有死，不依赖于成就。一切的虚实、盈虚都不受形态所限。时间不可挽留，此虚彼赢，此消彼长，这里结束那里就开始，事物产生后，如快马奔驰般急速变化，一刻也不会停止。所以应该做什么不应该做什么？事物本身就在不断变化着啊。</p>
-</blockquote>
-<p>　　河伯曰：“然则何贵于道邪？”北海若曰：“知道者必达于理，达 于理者必明于权，明于权者不以物害己。至德者，火弗能热，水弗能溺，寒暑弗能害，禽兽弗能贼。非谓其薄之也，言察乎安危，宁于祸福，谨于去就，莫之能害也。故曰：‘天在内，人在外，德在乎天。 ’知天人之行，本乎天，位乎得，踯躅而屈伸，反要而语极。”曰： “何谓天？何谓人？”北海若曰：“牛马四足，是谓天；落马首，穿牛鼻，是谓人。故曰：‘无以人灭天，无以故灭命，无以得殉名。谨守而勿失，是谓反其真。‘“</p>
-<blockquote>
-<p>        河伯说：那么大道有什么用呢？北海若说：知晓大道，就能通达事物的道理，通达事物的道理，就能懂得随机应变，懂得随机应变，也就不会让外物侵害自己。得到之人，火不能烧，水不能淹，寒暑不能侵扰，禽兽不能伤害。并不是说他能够对抗这些东西，而是说他懂得观察安慰，并能在福祸之中保持安稳的心态，能够谨慎的进退，也就没有什么能够伤害他们了。所以说：天道是内在的根源，人为是外在的表象，真正的德在于遵循天道，明白一切人事，本源是天道。了解天与人的规律，要遵循自然法则，找到恰当的位置，灵活适应各种情况，回归根本，探究极致。河伯问：什么是天？什么是人？北海若说：牛和马长了四条腿，这就是天道，把辔头装在马头，把牛鼻子穿孔，这就是认为。所以说：不能让人为破坏自然法则，不能让造作毁灭性命，不以贪欲追求虚名，守住自然的天性，这就叫做返回最初的本真。</p>
-</blockquote>
-<p>　　夔怜蚿，蚿怜蛇，蛇怜风，风怜目，目怜心。夔谓蚿曰：“吾以一 足趻踔而不行，予无如矣。今子之使万足，独奈何？”蚿曰：“不然。 子不见夫唾者乎？喷则大者如珠，小者如雾，杂而下者不可胜数也。 今予动吾天机，而不知其所以然。”蚿谓蛇曰：“吾以众足行，而不及子之无足，何也？”蛇曰：“夫天机之所动，何可易邪？吾安用足 哉！”蛇谓风曰：“予动吾脊胁而行，则有似也。今子蓬蓬然起于北海，蓬蓬然入于南海，而似无有，何也？”风曰：“然，予蓬蓬然起于北海而入于南海也，然而指我则胜我，鰌我亦胜我。虽然，夫折大木，蜚大屋者，唯我能也。”故以众小不胜为大胜也。为大胜者，唯圣人能之。</p>
-<blockquote>
-<p>        独脚兽羡慕多足虫，多足虫羡慕蛇，蛇羡慕风，风羡慕眼，眼羡慕心。独脚兽跟多足虫说：我用一条腿走路都困难，你是怎么用那么多条腿走路的呢？多足虫说：我也是自然行走，我也不知道为什么这样。多足虫问蛇：我用这么多条腿走路结果还不如你不用腿走路走得快，为什么呢？蛇说：这是天然的机制，改变不了的，我哪用得着脚呢？蛇对风说：我用身体走路还有形迹，你呼呼从北海吹到南海，一点形迹也没有，为什么呢？风说：是的，我能呼呼的从北海吹到南海，但是手指脚踢我做不到啊。但是，吹断大树，吹翻房子只有我能做到。所以，以做不成众多小事为代价，成就大事，只有圣人能做到。 </p>
-</blockquote>
-<p>　孔子游于匡，宋人围之数币，而弦歌不惙。子路入见，曰：“何夫子之娱也？”孔子曰：“来，吾语女！我讳穷久矣，而不免，命也；求通久矣，而不得，时也。当尧、舜而天下无穷人，非知得也；当桀、纣而天下无通人，非知失也。时势适然。夫水行不避蛟龙者，渔人之勇也。陆行不避兕虎者，猎夫之勇也。白刃交于前，视死若生者，烈士之勇也。知穷之有命，知通之有时，临大难而不惧者，圣人之勇也。由，处矣！吾命有所制矣！”  无几何，将甲者进，辞曰：“以为阳虎也，故围之；今非也，请辞而退。”</p>
-<blockquote>
-<p>        孔子周游到匡地，卫国人一层又一层地包围了他，可是孔子仍在不停地弹琴诵读。子路进去见孔子说：“先生如此快乐是为什么呢？”孔子说：“来，我告诉你！我不想让自己困苦已经很久很久了，可是始终不能免除，这是命运啊。我寻求通达也已经很久很久了，可是始终未能达到，这是时运啊。当尧、舜的时代，天下没有一个困顿潦倒的人，并非因为他们都才智超人；当桀、纣的时代，天下没有一个通达的人，并非因为他们都才智低下。这都是时运所造成的。在水里活动而不躲避蛟龙的，乃是渔夫的勇敢；在陆上活动而不躲避犀牛老虎的，乃是猎人的勇敢；刀剑交错地横于眼前，看待死亡犹如生还的，乃是壮烈之士的勇敢。懂得困厄潦倒乃是命中注定，知道顺利通达乃是时运造成，面临大难而不畏惧的，这就是圣人的勇敢。仲由啊，你还是休息去吧！我这是命中注定！”</p>
-</blockquote>
-<p>　　公孙龙问于魏牟曰：“龙少学先王之道，长而明仁义之行；合同异 ，离坚白；然不然，可不可；困百家之知，穷众口之辩：吾自以为至 达已。今吾闻庄子之言，茫然异之。不知论之不及与？知之弗若与？ 今吾无所开吾喙，敢问其方。”公子牟隐机大息，仰天而笑曰：“子 独不闻夫埳井之蛙乎？谓东海之鳖曰：‘吾乐与！出跳梁乎井干之上， 入休乎缺甃之崖。赴水则接腋持颐，蹶泥则没足灭跗。还虷蟹与科斗， 莫吾能若也。且夫擅一壑之水，而跨跱埳井之乐，此亦至矣。夫子奚不时来入观乎？’东海之鳖左足未入，而右膝已絷矣。于是逡巡而却， 告之海曰：‘夫千里之远，不足以举其大；千仞之高，不足以极其深。 禹之时，十年九潦，而水弗为加益；汤之时，八年七旱，而崖不为加损。夫不为顷久推移，不以多少进退者，此亦东海之大乐也。’于是 埳井之蛙闻之，适适然惊，规规然自失也。且夫知不知是非之竟，而 犹欲观于庄子之言，是犹使蚊负山，商蚷驰河也，必不胜任矣。且夫 知不知论极妙之言，而自适一时之利者，是非埳井之蛙与？且彼方跐 黄泉而登大皇，无南无北，爽然四解，沦于不测；无东无西，始于玄冥，反于大通。子乃规规然而求之以察，索之以辩，是直用管窥天， 用锥指地也，不亦小乎？子往矣！且子独不闻夫寿陵余子之学于邯郸 与？未得国能，又失其故行矣，直匍匐而归耳。今子不去，将忘子之故，失子之业。”公孙龙口呿而不合，舌举而不下，乃逸而走。</p>
-<blockquote>
-<p>        公孙龙向魏牟问道：“我年少的时候学习古代圣王的主张，长大以后懂得了仁义的行为；能够把事物的不同与相同合而为一，把一个物体的质地坚硬与颜色洁白分离开来；能够把不对的说成是对的，把不应认可的看作是合宜的；能够使百家智士困惑不解，能够使众多善辩之口理屈辞穷：我自以为是最为通达的了。如今我听了庄子的言谈，感到十分茫然。不知是我的论辩比不上他呢，还是我的知识不如他呢？现在我已经没有办法再开口了，冒昧地向你请教其中的道理。”<br>　　魏牟靠着几案深深地叹了口气，然后又仰头朝天笑着说：“你不曾听说过那浅井里的青蛙吗？井蛙对东海里的鳖说：‘我实在快乐啊！我跳跃玩耍于井口栏杆之上，进到井里便在井壁砖块破损之处休息。跳入水中井水漫入腋下并且托起我的下巴，踏入泥里泥水就盖住了我的脚背，回过头来看看水中的那些赤虫、小蟹和蝌蚪，没有谁能像我这样的快乐！再说我独占一坑之水、盘踞一口浅井的快乐，这也是极其称心如意的了。你怎么不随时来井里看看呢？’东海之鳖左脚还未能跨入浅井，右膝就已经被绊住。于是迟疑了一阵子之后又把脚退了出来，把大海的情况告诉给浅井的青蛙，说：‘千里的遥远，不足以称述它的大；千仞的高旷，不足于探究它的深。夏禹时代十年里有九年水涝，而海水不会因此增多；商汤的时代八年里有七年大旱，而岸边的水位不会因此下降。不因为时间的短暂与长久而有所改变，不因为雨量的多少而有所增减，这就是东海最大的快乐。’浅井之蛙听了这一席话，惊惶不安，茫然不知所措。再说你公孙龙的才智还不足以知晓是与非的境界，却还想去察悉庄子的言谈，这就像驱使蚊虫去背负大山，驱使马蚿虫到河水里去奔跑，必定是不能胜任的。而你的才智不足以通晓极其玄妙的言论，竟自去迎合那些一时的胜利，这不就像是浅井里的青蛙吗？况且庄子的思想主张正俯极黄泉登临苍天，不论南北，释然四散通达无阻，深幽沉寂不可探测；不论东西，起于幽深玄妙之境，返归广阔通达之域。你竟拘泥浅陋地用察视的办法去探寻它的奥妙，用论辩的言辞去索求它的真谛，这只不过是用竹管去窥视高远的苍天，用锥子去测量浑厚的大地，不是太渺小了吗！你还是走吧！而且你就不曾听说过那燕国寿陵的小子到赵国的邯郸去学习走步之事吗？未能学会赵国的本事，又丢掉了他原来的本领，最后只得爬着回去了。现在你还不尽快离开我这里，必将忘掉你原有的本领，而且也必将失去你原有的学业。”<br>　　公孙龙听了这一番话张大着口而不能合拢，舌头高高抬起而不能放下，于是快速地逃走了。</p>
-</blockquote>
-<p>　　庄子钓于濮水。楚王使大夫二人往先焉，曰：“愿以境内累矣！” 庄子持竿不顾，曰：“吾闻楚有神龟，死已三千岁矣。王巾笥而藏之庙堂之上。此龟者，宁其死为留骨而贵乎？宁其生而曳尾于涂中乎？ ”二大夫曰：“宁生而曳尾涂中。”庄子曰：“往矣！吾将曳尾于涂中。”</p>
-<p>　　惠子相梁，庄子往见之。或谓惠子曰：“庄子来，欲代子相。”于 是惠子恐，搜于国中三日三夜。庄子往见之，曰：“南方有鸟，其名 为鹓鹐，子知之乎？夫鹓鹐发于南海而飞于北海，非梧桐不止，非练 实不食，非醴泉不饮。于是鸱得腐鼠，鹓鹐过之，仰而视之曰：‘吓！’ 今子欲以子之梁国而吓我邪？”</p>
-<p>　　庄子与惠子游于濠梁之上。庄子曰：“儵鱼出游从容，是鱼之乐也。” 惠子曰∶“子非鱼，安知鱼之乐？”庄子曰：“子非我，安知我不知 鱼之乐？”惠子曰“我非子，固不知子矣；子固非鱼也，子之不知鱼 之乐，全矣！”庄子曰：“请循其本。子曰‘汝安知鱼乐’云者，既 已知吾知之而问我。我知之濠上也。”</p>
-<blockquote>
-<p>庄子在濮水边垂钓，楚王派遣两位大臣先行前往致意，说：“楚王愿将国内政事委托给你而劳累你了。”  </p>
-<p>        庄子手把钓竿头也不回地说：“我听说楚国有一神龟，已经死了三千年了，楚王用竹箱装着它，用巾饰覆盖着它，珍藏在宗庙里。这只神龟，是宁愿死去为了留下骨骸而显示尊贵呢，还是宁愿活着在泥水里拖着尾巴呢？”两位大臣说：“宁愿拖着尾巴活在泥水里。”庄子说：“你们走吧！我仍将拖着尾巴生活在泥水里。”  </p>
-<p>        惠子在梁国做宰相，庄子前往看望他。有人对惠子说：“庄子来梁国，是想取代你做宰相。”于是惠子恐慌起来，在都城内搜寻庄子，整整三天三夜。  </p>
-<p>        庄子前往看望惠子，说：“南方有一种鸟，它的名字叫鹓，你知道吗？鹓从南海出发飞到北海，不是梧桐树它不会停息，不是竹子的果实它不会进食，不是甘美的泉水它不会饮用。正在这时一只鹞鹰寻觅到一只腐烂了的老鼠，鹓刚巧从空中飞过，鹞鹰抬头看着鹓，发出一声怒气：‘嚇’！如今你也想用你的梁国来怒叱我吗？”   <br>        庄子和惠子一道在濠水的桥上游玩。庄子说：“儵鱼游得多么悠闲自在，这就是鱼儿的快乐。”惠子说：“你不是鱼，怎么知道鱼的快乐？”庄子说：“你不是我，怎么知道我不知道鱼儿的快乐？”惠子说：“我不是你，固然不知道你；你也不是鱼，你不知道鱼的快乐，也是完全可以肯定的。”庄子说：“还是让我们顺着先前的话来说。你刚才所说的‘你怎么知道鱼的快乐’的话，就是已经知道了我知道鱼儿的快乐而问我，而我则是在濠水的桥上知道鱼儿快乐的。”</p>
-</blockquote>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1787,20 +1900,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-count">24</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1845,12 +1958,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">309k</span>
+    <span title="Symbols count total">313k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">9:22</span>
+    <span title="Reading time total">9:30</span>
 </div>
 
 <!--
