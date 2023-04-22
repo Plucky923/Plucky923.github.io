@@ -197,6 +197,263 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/31/MIT6-S081-Operating-System-Engineering-Lecture01-Intrduction-and-Examples/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="随便记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/03/31/MIT6-S081-Operating-System-Engineering-Lecture01-Intrduction-and-Examples/" class="post-title-link" itemprop="url">MIT6.S081 Operating System Engineering Lecture01 Intrduction and Examples</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-03-31 14:19:09" itemprop="dateCreated datePublished" datetime="2023-03-31T14:19:09+08:00">2023-03-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-04-06 15:00:08" itemprop="dateModified" datetime="2023-04-06T15:00:08+08:00">2023-04-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">课程学习</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/MIT6-S081-Operating-System-Engineering/" itemprop="url" rel="index"><span itemprop="name">MIT6.S081 Operating System Engineering</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>9.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>18 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="课程目标"><a href="#课程目标" class="headerlink" title="课程目标"></a>课程目标</h2><ul>
+<li><p>理解操作系统的设计和实现。理解整体结构和具体代码。</p>
+</li>
+<li><p>通过XV6操作系统获得实际动手经验。扩展操作系统，修改并提升操作系统的相关经验，并且能够通过操作系统接口，编写系统软件</p>
+</li>
+</ul>
+<h2 id="OS的目标"><a href="#OS的目标" class="headerlink" title="OS的目标"></a>OS的目标</h2><ul>
+<li><p><strong>Abstract Hardware</strong></p>
+</li>
+<li><p><strong>Multiplex</strong></p>
+</li>
+<li><p><strong>Isolation</strong></p>
+</li>
+<li><p><strong>Sharing</strong></p>
+</li>
+<li><p><strong>Preformance</strong></p>
+</li>
+<li><p><strong>Access Control&#x2F;Security</strong></p>
+</li>
+<li><p><strong>Range Of Users</strong></p>
+</li>
+</ul>
+<h1 id="OS的结构"><a href="#OS的结构" class="headerlink" title="OS的结构"></a>OS的结构</h1><h2 id="分层思想"><a href="#分层思想" class="headerlink" title="分层思想"></a>分层思想</h2><p><img src="/2023/03/31/MIT6-S081-Operating-System-Engineering-Lecture01-Intrduction-and-Examples/OS.png" alt="OS-ORG"></p>
+<h3 id="Userspace"><a href="#Userspace" class="headerlink" title="Userspace"></a>Userspace</h3><p>在架构的最上层，运行各种各样的应用程序例如文本编辑器（VI），C编辑器（CC），作为CLI存在的shell。</p>
+<h3 id="Kernel"><a href="#Kernel" class="headerlink" title="Kernel"></a>Kernel</h3><p>区别于<code>userspace</code>，有一个特殊的程序总是会在运行。<code>Kernel</code>是计算机资源的守护者，当打开计算机时，<code>Kernel</code>总是第一个被启动。Kernel程序只有一个，维护数据来管理每一个用户空间进程。<code>Kernel</code>同时还维护了大量数据结构来帮助它管理各种各样的硬件资源，以供用户空间的程序使用。<code>Kernel</code>同时还会有大量内置的服务。例如，<code>Kernel</code>通常会有文件系统实现类似文件名，文件内容，目录的东西，并理解如何将文件存储在磁盘中。所以用户空间的程序会与<code>Kernel</code>中的文件系统交互，文件系统再与磁盘交互。</p>
+<p>我们主要关注在<strong>Kernel、连接Kernal和用户空间程序的接口、Kernel内软件的架构</strong> 。所以我们会关心Kernel内的服务。其中一个是文件系统，另一个就是进程管理系统。</p>
+<ul>
+<li><p><strong>Manage Process</strong>：每一个用户空间程序都被称为一个进程，它们有自己的内存和共享的CPU时间。</p>
+</li>
+<li><p><strong>Allocate Memory</strong>：Kernel会管理内存的分配，不同的进程需要不同数量的内存，Kernel会复用内存、划分内存，并为所有的进程分配内存。</p>
+</li>
+<li><p><strong>File System</strong>：文件系统通常有一些逻辑分区。目前而言，我们可以认为文件系统的作用是管理文件内容并找出文件具体在磁盘中的哪个位置。文件系统还维护了一个独立的命名空间，其中每个文件都有文件名，并且命名空间中有一个层级的目录，每个目录包含了一些文件。所有这些都被文件系统所管理。</p>
+</li>
+<li><p><strong>Security&#x2F;Access Control</strong>: 当一个进程想要使用某些资源时，比如读取磁盘中的数据，使用某些内存，Kernel中的Access Control机制会决定是否允许这样的操作。对于一个分时共享的计算机，例如Athena系统，这里可能会变得很复杂。因为在Athena系统中，每一个进程可能属于不同的用户，因此会有不同Access规则来约定哪些资源可以被访问。</p>
+</li>
+</ul>
+<p>在一个真实的完备的操作系统中，会有很多很多其他的服务，比如在不同进程之间通信的进程间通信服务，比如一大票与网络关联的软件（TCP&#x2F;IP协议栈），比如支持声卡的软件，比如支持数百种不同磁盘，不同网卡的驱动。所以在一个完备的系统中，Kernel会包含大量的内容，数百万行代码。</p>
+<h2 id="Kernel-API"><a href="#Kernel-API" class="headerlink" title="Kernel API"></a>Kernel API</h2><p><code>Kernel API</code>决定了应用程序如何访问Kernel。通常来说，这里通过系统调用<code>System Call</code>来完成。系统调用与程序中的函数调用看起来是一样的，但区别是系统调用会实际运行到系统内核中，并执行内核中对于系统调用的实现。</p>
+<p><code>Kernel</code>的代码总是有特殊的权限。当机器启动<code>Kernel</code>时，<code>Kernel</code>会有特殊的权限能直接访问各种各样的硬件，例如磁盘。而普通的用户程序是没有办法直接访问这些硬件的。所以，当你执行一个普通的函数调用时，你所调用的函数并没有对于硬件的特殊权限。然而，如果你触发系统调用到内核中，内核中的具体实现会具有这些特殊的权限，这样就能修改敏感的和被保护的硬件资源，比如访问硬件磁盘。</p>
+<h3 id="Example-1"><a href="#Example-1" class="headerlink" title="Example 1"></a>Example 1</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fd = open(<span class="string">&quot;out&quot;</span>,<span class="number">1</span>);</span><br><span class="line">write(fd,<span class="string">&quot;hello\n&quot;</span>,<span class="number">6</span>);</span><br></pre></td></tr></table></figure>
+
+<p>第一个系统调用<code>open</code>，它会跳到Kernel，Kernel会获取到open的参数，执行一些实现了open的Kernel代码，或许会与磁盘有一些交互，最后返回一个文件描述符对象。上图中的fd全称就是<code>file descriptor</code>。之后应用程序可以使用这个文件描述符作为handle，来表示相应打开的文件。</p>
+<p>第二个系统调用<code>write</code>，你需要向write传递一个由open返回的文件描述符作为参数。你还需要向write传递一个指向要写入数据的指针（数据通常是char型序列），在C语言中，可以简单传递一个双引号表示的字符串。第三个参数是你想要写入字符的数量。第二个参数的指针，实际上是内存中的地址。所以这里实际上告诉内核，将内存中这个地址起始的6个字节数据写入到fd对应的文件中。</p>
+<h3 id="Example-2"><a href="#Example-2" class="headerlink" title="Example 2"></a>Example 2</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pid = fork();</span><br></pre></td></tr></table></figure>
+
+<p><code>fork</code>是一个系统调用，它创建了一个与调用进程一模一样的新的进程，并返回新进程的<code>Process ID/PID</code>。</p>
+<p>这些系统调用看起来跟普通的函数调用一样，但是它最终会跳到系统内核中。</p>
+<h1 id="操作系统的难点"><a href="#操作系统的难点" class="headerlink" title="操作系统的难点"></a>操作系统的难点</h1><ul>
+<li><p>内核的编程环境比较困难。当你在编写、修改，扩展内核，或者写一个新的操作系统内核时，你实际上在提供一个基础设施让别人来运行他们的程序。当程序员在写普通的应用程序时，应用程序下面都是操作系统。而当我们在构建操作系统时，在操作系统下面就是硬件了，这些硬件通常会更难处理。</p>
+</li>
+<li><p>当你在设计一个操作系统时，你需要满足一些列矛盾的需求。</p>
+<ul>
+<li><p>你想要你的操作系统既高效又易用。高效通常意味着操作系统需要在离硬件近的low-level进行操作，而易用则要求操作系统为应用程序提供抽象的high-level可移植接口。所以，提供一个简单可移植，同时又高效的抽象接口需要一定的技巧。</p>
+</li>
+<li><p>我们想要提供一个非常强大的操作系统服务，这样操作系统才能分担运行应用程序的负担。同时，我们也想要有简单的接口。我们不想程序员看到数量巨多，复杂且难以理解的的内核接口。因为，如果他们不理解这些接口，他们就会很难使用这些接口。</p>
+</li>
+<li><p>你希望给与应用程序尽可能多的灵活性，你不会想要限制应用程序，所以你需要内核具备灵活的接口。但是另一方面，你的确需要在某种程度上限制应用程序，因为你会想要安全性。我们希望给程序员完全的自由，但是实际上又不能是真正的完全自由，因为我们不想要程序员能直接访问到硬件，干扰到其他的应用程序，或者干扰操作系统的行为。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="read，write，exit系统调用"><a href="#read，write，exit系统调用" class="headerlink" title="read，write，exit系统调用"></a>read，write，exit系统调用</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#inclued <span class="string">&quot;kernel/types.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;user/user.h&quot;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> buf[<span class="number">64</span>];</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">        <span class="type">int</span> n = read(<span class="number">0</span>,buf,<span class="keyword">sizeof</span>(buf));</span><br><span class="line">        <span class="keyword">if</span>(n &lt;= <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        write(<span class="number">1</span>,buf,n);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="read系统调用"><a href="#read系统调用" class="headerlink" title="read系统调用"></a>read系统调用</h2><ul>
+<li><p>第一个参数是文件描述符，实际上是对以前打开文件的引用。Shell会确保默认情况下，当一个程序启动时，文件描述符0为连接到console的输入，文件描述符1为连接到了console的输出。所以我们可以通过这个程序看到console打印我的输入。当然，这里的程序会预期文件描述符已经被Shell打开并设置好。</p>
+</li>
+<li><p>第二个参数是只想某段内存的指针，程序可以通过指针对应的地址读取内存中的数据，这里的指针就是代码中的buf参数。char buf[64]在栈中申请了64字节的内存，并将指针保存在buf中，这样read可以将数据保存在这64字节中。</p>
+</li>
+<li><p>第三个参数是代码想读取的最大长度。sizeof(buf)表示，最多读取64字节的数据，所以这里的read最多只能从连接到文件描述符0的设备，也就是console中，读取64字节的数据。</p>
+<p>如果第三个参数是65字节，操作系统会拷贝65个字节到你提供的内存中（第二个参数）。但是如果栈中的第65个字节有一些其他数据，那么这些数据会被覆盖，这里是个bug，或许会导致你的代码崩溃，或者一些异常的行为。</p>
+</li>
+<li><p>read的返回值</p>
+<ul>
+<li><p>可能是读到的字节数</p>
+</li>
+<li><p>如果从一个文件读数据，如果到达了文件的结尾没有更多的内容了，read会返回0。</p>
+</li>
+<li><p>如果出现了一些错误，比如文件描述符不存在，read或许会返回-1 。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="write系统调用"><a href="#write系统调用" class="headerlink" title="write系统调用"></a>write系统调用</h2><p>第一个参数为文件描述符，第二个参数是数据的指针，第三个参数是要写入的字节数   </p>
+<p>数据被写入到了文件描述符对应的文件中</p>
+<h1 id="open系统调用"><a href="#open系统调用" class="headerlink" title="open系统调用"></a>open系统调用</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/types.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;user/user.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/fcntl.h&quot;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="type">int</span> fd = open(<span class="string">&quot;output.txt&quot;</span>,O_WRONLY | O_CREATE);</span><br><span class="line">    write(fd, <span class="string">&quot;ooo\n&quot;</span>,<span class="number">4</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个程序会创建一个叫做<code>output.txt</code>的新文件，并向它写入一些数据，最后退出。我们看不到任何输出，因为它只是向打开的文件中写入数据，但是我们可以查看output.txt的内容，并看到<code>open</code>程序写入的“ooo”。</p>
+<p>所以执行<code>open</code>系统调用，将<code>out.txt</code>作为参数传入，第二个参数是一些标志位，用来告诉open系统调用在内核中的实现，用来告诉open系统调用在内核中的实现：我们将要创建并写入一个文件。open系统调用会返回一个新分配的文件描述符，这里的文件描述符是一个小的数字，可能是2，3，4或者其他的数字。然后将文件描述符传入write中。</p>
+<ul>
+<li><p>文件描述符本质上对应了内核中的一个表单数据。内核维护了每个运行进程的状态，内核会为每一个运行进程保存一个表单，表单的key是文件描述符。这个表单让内核知道，每个文件描述符对应的实际内容是什么。这里比较关键的点是，每个进程都有自己独立的文件描述符空间，所以如果运行了两个不同的程序，对应两个不同的进程，如果它们都打开一个文件，它们或许可以得到相同数字的文件描述符，但是因为内核为每个进程都维护了一个独立的文件描述符空间，这里相同数字的文件描述符可能会对应到不同的文件。</p>
+</li>
+<li><p>C语言与Python在文件描述符中的区别：Python提供了对与open调用的较好的封装，通常来说，Python提供的是更高级的函数，比如说Python不会使用指向内存的指针，并且Python会为你做更多的错误检查。当我们在Python中打开文件或者写入文件时，你在Python中的调用最终会走到跟我们例子中一样的系统调用。</p>
+</li>
+</ul>
+<h1 id="Shell"><a href="#Shell" class="headerlink" title="Shell"></a>Shell</h1><p><code>Shell</code>通常也是人们说的命令行接口。如果你还没有用过Shell，Shell是一种对于Unix系统管理来说非常有用的接口，它提供了很多工具来管理文件，编写程序，编写脚本。当你输入内容时，你是在告诉Shell运行相应的程序。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls</span><br></pre></td></tr></table></figure>
+
+<p>ls的实际工作就是输出当前目录的文件列表</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls &gt; out</span><br></pre></td></tr></table></figure>
+
+<p>Shell允许重定向IO，这里的实际意义是要求Shell允许ls命令，但是将输出重定向到一个叫做out的文件中。这里执行完成之后我们看不到任何的输出，因为输出都送到了out文件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat out</span><br></pre></td></tr></table></figure>
+
+<p>我们可以通过<code>cat</code>指令来读取一个文件，并显示文件的内容，之后我们可以看到ls指令相同的输出。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep x</span><br></pre></td></tr></table></figure>
+
+<p>你也可以运行一个名为<code>grep</code>的指令，并将x作为参数传给grep。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep  x &lt; out</span><br></pre></td></tr></table></figure>
+
+<p><code>grep x</code>会搜索输入中包含x的行，我可以告诉shell将输入重定向到文件out，这样我们就可以查看out中的x。因为out文件包含了ls的输出，所以我们可以看出有3个文件名包含了x。</p>
+<blockquote>
+<p>编译器如何处理系统调用？生成的汇编语言是不是会调用一些由操作系统定义的代码段？</p>
+<p>有一个特殊的RISC-V指令，程序可以调用这个指令，并将控制权交给内核。所以，实际上当你运行C语言并执行例如open或者write的系统调用时，从技术上来说，open是一个C函数，但是这个函数内的指令实际上是机器指令，也就是说我们调用的open函数并不是一个C语言函数，它是由汇编语言实现，组成这个系统调用的汇编语言实际上在RISC-V中被称为ecall。这个特殊的指令将控制权转给内核。之后内核检查进程的内存和寄存器，并确定相应的参数。</p>
+</blockquote>
+<h1 id="fork系统调用"><a href="#fork系统调用" class="headerlink" title="fork系统调用"></a>fork系统调用</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/types.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;user/user.h&quot;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="type">int</span> pid;</span><br><span class="line">    pid = fork();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;fork() returned %d\n&quot;</span>,pid);</span><br><span class="line">    <span class="keyword">if</span>(pid == <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;child\n&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;parent\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure>
+
+<p>fork会拷贝当前进程的内存，并创建一个新的进程，这里的内存包含了进程的指令和数据。之后我们就有了两个完全一样的内存的进程。fork系统调用在两个进程中都会返回，在原始的进程中，fork会返回大于0的整数，这个是新创建进程的ID。而在新创建的进程中，fork系统调用会返回0。所以即使两个进程的内存是完全一样的，我们还是可以通过fork的返回值区分旧进程和新进程。</p>
+<blockquote>
+<p>返回</p>
+<p>ffoorrkk(()) rreettuuttnende d 0</p>
+<p>lc9h</p>
+<p>ilpda</p>
+<p>rent</p>
+</blockquote>
+<p><code>if（pid == 0）</code>，你可以看到代码检查pid。如果pid &#x3D; 0，这必然是子进程。在我们的例子中，调用进程通常称为父进程，父进程看到的pid必然大于0.所以父进程会打印“parent”,子进程会打印”child”。之后两个进程都会退出。</p>
+<p>输出结果，实际发生二点是，<code>fork</code>系统调用之后，两个进程都在同时运行。它们会同时一个字节一个字节的输出，两个进程的输出交织在一起，所以你可以看到两个f，两个o等等。在第一行最后，你可以看到0，这是子进程的输出。</p>
+<p>我猜父进程返回了19，作为子进程的进程ID。通常来说，这意味着这是操作系统启动之后的第19个进程。之后一个进程输出了child，一个进程输出了parent，这两个输出交织在一起。虽然这只是对于<code>fork</code>的一个简单应用，但是我们可以清晰的从输出看到这里创建了两个运行的进程，其中一个进程打印了child，另一个打印了parent。所以，<code>fork</code>（在子父进程中）返回不同的值是比较重要的。</p>
+<p>父进程与子进程除了<code>fork</code>的返回值，两个进程是一样的。两个进程的指令是一样的，数据是一样的，栈是一样的，同时，两个进程又有各自独立的地址空间，它们都认为自己的内存从0开始增长，但这里是不同的内存。 在一个更加复杂的操作系统，有一些细节，我们现在并不关心，这些细节偶尔会导致父子进程不一致，但是在XV6中，父子进程除了fork的返回值，其他都是一样的。</p>
+<p>除了内存是一样的以外，文件描述符的表单也从父进程拷贝到子进程。所以如果父进程打开了一个文件，子进程可以看到同一个文件描述符，尽管子进程看到的是一个文件描述符的表单的拷贝。除了拷贝内存以外，<code>fork</code>还会拷贝文件描述符表单。</p>
+<h1 id="exec，wait系统调用"><a href="#exec，wait系统调用" class="headerlink" title="exec，wait系统调用"></a>exec，wait系统调用</h1><p>fork创建了一个新的进程。当我们在shell中运行东西的时候，shell实际上会创建一个新的进程来运行你输入的每一个指令。所以，当我输入ls时，我们需要shell通过fork创建一个进程来运行ls，这里需要某种方式来让这个新的进程来运行ls程序中的指令，加载名为ls的文件中的指令，也就是exec系统调用。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// exec.c:replace a process with an executable file</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel.types.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;user/user.h&quot;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> *argv[] = &#123; <span class="string">&quot;echo&quot;</span>, <span class="string">&quot;this&quot;</span>, <span class="string">&quot;is&quot;</span>, <span class="string">&quot;echo&quot;</span>, <span class="number">0</span> &#125;;</span><br><span class="line">    exec(<span class="string">&quot;echo&quot;</span>, argv);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;exec failed!\n&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码会执行exec系统调用，这个系统调用会从指定的文件中读取并加载指令，并替代当前调用进程的指令。从某种程度上来说，这样相当于丢弃了调用进程的内存，并开始执行新加载的指令。所以系统调用exec会有这样的效果：操作系统从名为echo的文件中加载指令到当前的进程中，并替换了当前进程的内存，之后开始执行这些新加载的指令。同时，你可以传入命令行参数，exec允许你传入一个命令行参数的数组，这里就是一个C语言中的指针数组，在上面代码设置好了一个字符指针的数组，这里的字符指针本质就是一个字符串（string）</p>
+<p><code>echo</code> 程序是一个常见的命令行实用程序，用于在 Unix、Linux 和类 Unix 系统（如 macOS）上显示文本。它将传递给它的命令行参数（字符串）输出到标准输出（通常是终端或控制台）。<code>echo</code> 命令通常用于编写脚本或在控制台显示消息。</p>
+<p>通过 <code>exec(&quot;echo&quot;, argv);</code> 系统调用执行。在这个例子中，<code>argv</code> 数组包含以下参数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">argv[<span class="number">0</span>] = <span class="string">&quot;echo&quot;</span></span><br><span class="line">argv[<span class="number">1</span>] = <span class="string">&quot;this&quot;</span></span><br><span class="line">argv[<span class="number">2</span>] = <span class="string">&quot;is&quot;</span></span><br><span class="line">argv[<span class="number">3</span>] = <span class="string">&quot;echo&quot;</span></span><br><span class="line">argv[<span class="number">4</span>] = <span class="literal">NULL</span> (空指针)</span><br></pre></td></tr></table></figure>
+
+<p>通常，<code>argv[0]</code> 是程序名称（在这里是 “echo”），后面是实际要传递的命令行参数（在这里是 “this”, “is”, “echo”）。<code>argv</code> 数组以空指针（<code>NULL</code>）结尾，表示参数列表的结束。</p>
+<p>当 <code>echo</code> 程序执行时，它会输出 <code>&quot;this is echo&quot;</code>。</p>
+<ul>
+<li><p><code>exec</code>系统调用会保留当前的文件描述符表单。所以任何在<code>exec</code>系统调用之前的文件描述符，例如0，1，2等。它们在新的程序中表示相同的东西。</p>
+</li>
+<li><p>通常来说<code>exec</code>系统调用不会返回，因为<code>exec</code>会完全替换当前进程的内存，相当于当前进程不复存在了，所以<code>exec</code>系统调用已经没有地方能返回了,在实例代码中，执行错误才会返回。</p>
+</li>
+</ul>
+<p>这就是一个程序如何用文件中的另一个程序来替代自己。实际上，当我们在Shell中运行类似于“echo a b c”的指令，或者ls，或者任何命令，我们不会想要代替Shell进程，所以我们不会希望Shell执行exec系统调用。如果我们这么做了，这里会用echo指令来替代Shell进程，当echo退出了，一切就结束了。所以我们不想要echo替代Shell。实际上，Shell会执行fork，之后fork出的子进程再调用exec系统调用，这是一个非常常见的Unix程序调用风格。对于那些想要运行程序，但是还希望能拿回控制权的场景，可以先执行fork系统调用，然后在子进程中调用exec。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// forkexec.c: fork then exec</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;user/user.h&quot;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> pid, status;</span><br><span class="line">    pid = fork();</span><br><span class="line">    <span class="keyword">if</span>(pid == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">char</span> *argv[] = &#123;<span class="string">&quot;echo&quot;</span> ,<span class="string">&quot;THIS&quot;</span> ,<span class="string">&quot;IS&quot;</span> ,<span class="string">&quot;ECHO&quot;</span>, <span class="number">0</span> &#125;;</span><br><span class="line">        exec(<span class="string">&quot;echo&quot;</span>, argv);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;exec failed!\n&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;parent waiting\n&quot;</span>);</span><br><span class="line">        wait(&amp;status);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;the child exited with status %d\n&quot;</span>,status);    </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>fork</code>系统调用会创建一个新的子进程，是当前进程的一个副本。</p>
+<p>如果<code>pid == 0</code>，即进程是子进程，则会调用<code>echo</code>程序，输出<code>&quot;THIS IS ECHO&quot;</code>，如果错误则返回1。并且子进程在<code>echo</code>程序执行结束之后就会退出。，之后继续进行父进程。</p>
+<p>父进程会先输出<code>“parent waiting\n”</code>，之后使用wait系统调用，等待子进程返回，将子进程返回的状态传入<code>status</code>，<code>&amp;status</code>，是将<code>status</code>对应的地址传递给内核，内核会向这个地址写入子进程向<code>exit</code>传入的参数。</p>
+<p>如果一个子进程退出成功了，那么<code>exit</code>的参数会是0，如果出现了错误，会向<code>exit</code>传入1。所以父进程读取的wait的参数取决于子进程是否成功的完成了。</p>
+<h1 id="I-x2F-O-Redirect"><a href="#I-x2F-O-Redirect" class="headerlink" title="I&#x2F;O Redirect"></a>I&#x2F;O Redirect</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo hello &gt; out</span><br></pre></td></tr></table></figure>
+
+<p><code>Shell</code>会将<code>echo</code>的输出送到文件out</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat &lt; out</span><br></pre></td></tr></table></figure>
+
+<p>之后可以运行cat指令，并将<code>out</code>指令作为输入，之后保存在<code>out</code>文件中的内容就是<code>echo</code>指令的输出</p>
+<p><code>Shell</code>首先会先<code>fork</code>然后在子进程中，<code>Shell</code>改变了文件描述符。文件描述符1用来console输出，<code>Shell</code>会将文件描述符1改为output文件，之后再运行你的指令。同时，父进程的文件描述符1并没有改变。所以这里先<code>fork</code>再改变子进程的文件描述符。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//redirect.c: run a command with output redirected</span></span><br><span class="line"><span class="type">int</span>  <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> pid;</span><br><span class="line">    pid = fork();</span><br><span class="line">    <span class="keyword">if</span>(pid == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        close(<span class="number">1</span>);</span><br><span class="line">        open(<span class="string">&quot;output.txt, O_WRONLY|O_CREATE&quot;</span>);</span><br><span class="line">        <span class="type">char</span> *argv[] = &#123;<span class="string">&quot;echo&quot;</span>, <span class="string">&quot;this&quot;</span> ,<span class="string">&quot;is&quot;</span> ,<span class="string">&quot;redirect&quot;</span>, <span class="string">&quot;echo&quot;</span>, <span class="number">0</span> &#125;;</span><br><span class="line">        exec(<span class="string">&quot;echo&quot;</span>,argv);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;exec failed!\n&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        wait((<span class="type">int</span> *) <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>if(pid == 0)</code>中，先检查pid的值，如果pid为0（在子进程中），则首先<code>close(1)</code>,<code>close(1)</code>的意义是，我们希望文件描述符1指向一个其他的位置。也就是说，在子进程中我们不想使用原本指向console输出的文件描述符1，即关闭标准输出。</p>
+<p>使用 <code>open(&quot;output.txt&quot;, O_WRONLY | O_CREAT, 0666);</code> 打开或创建名为 “output.txt” 的文件，以只写模式（<code>O_WRONLY</code>）打开，并设置创建模式（<code>0666</code>，表示所有用户都可以读写此文件）。这将使得新打开的文件描述符成为子进程的标准输出。</p>
+<p>使用 <code>exec(&quot;echo&quot;, argv);</code> 系统调用，替换子进程的映像为 <code>echo</code> 程序，并传递 <code>argv</code> 参数列表。 如果 <code>exec</code> 调用失败，输出 “exec failed!”。</p>
+<p>在父进程中，调用 <code>wait((int *)0);</code> 函数，等待子进程结束。</p>
+<p>当运行此程序时，它将执行 <code>echo</code> 命令，并将输出 “this is redirect echo” 重定向到 “output.txt” 文件。如果文件已存在，它将覆盖现有内容；如果文件不存在，它将创建一个新文件。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1557,14 +1814,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-count">25</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -1615,12 +1872,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">313k</span>
+    <span title="Symbols count total">319k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">9:30</span>
+    <span title="Reading time total">9:40</span>
 </div>
 
 <!--

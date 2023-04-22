@@ -2672,6 +2672,51 @@
 <li><p>以值方式返回局部对象</p>
 </li>
 </ul>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//拷贝构造函数调用时机</span></span><br><span class="line"><span class="comment">//1、使用一个已经创建完毕的对象来初始化一个对象</span></span><br><span class="line"><span class="comment">//2、值传递的方式给函数参数传值</span></span><br><span class="line"><span class="comment">//3、值方式返回局部对象</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person默认构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">int</span> age)</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person有参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">		m_Age = age;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">const</span> Person&amp; p)</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person拷贝构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">		m_Age = p.m_Age;</span><br><span class="line">	&#125;</span><br><span class="line">	~<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person析构函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="type">int</span> m_Age;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//1、使用一个已经创建完毕的对象来初始化一个对象</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="function">Person <span class="title">p1</span><span class="params">(<span class="number">20</span>)</span></span>;</span><br><span class="line">	<span class="function">Person <span class="title">p2</span><span class="params">(p1)</span></span>;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;p2的年龄为：&quot;</span> &lt;&lt; p2.m_Age &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//2、值传递的方式给函数参数传值</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">doWork1</span><span class="params">(Person p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test02</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Person p;</span><br><span class="line">	<span class="built_in">doWork1</span>(p);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//3、值方式返回局部对象</span></span><br><span class="line"><span class="function">Person <span class="title">doWork2</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Person p1;</span><br><span class="line">	<span class="keyword">return</span> p1;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test03</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Person p = <span class="built_in">doWork2</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;test01()&quot;</span> &lt;&lt; endl;</span><br><span class="line">	<span class="built_in">test01</span>();</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;test02()&quot;</span> &lt;&lt; endl;</span><br><span class="line">	<span class="built_in">test02</span>();</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;test03()&quot;</span> &lt;&lt; endl;</span><br><span class="line">	<span class="built_in">test03</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<blockquote>
+<p>test01()<br>Person有参构造函数调用<br>Person拷贝构造函数调用<br>p2的年龄为：20<br>Person析构函数调用<br>Person析构函数调用<br>test02()<br>Person默认构造函数调用<br>Person拷贝构造函数调用<br>Person析构函数调用<br>Person析构函数调用<br>test03()<br>Person默认构造函数调用<br>Person拷贝构造函数调用<br>Person析构函数调用<br>Person析构函数调用</p>
+</blockquote>
+<h2 id="构造函数的调用规则"><a href="#构造函数的调用规则" class="headerlink" title="构造函数的调用规则"></a>构造函数的调用规则</h2><p>  默认情况下，C++编译器至少给一个类添加3个函数</p>
+<p>1、默认构造函数（无参，函数体为空）</p>
+<p>2、默认析构函数（无参，函数体为空）</p>
+<p>3、默认拷贝函数，对属性进行值拷贝</p>
+<p>构造函数调用规则如下：</p>
+<ul>
+<li><p>如果用户定义有参构造函数，C++不在提供默认无参构造，但会提供默认拷贝构造</p>
+</li>
+<li><p>如果用户定义拷贝构造函数，C++不会在提供其他构造函数</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//构造函数调用规则</span></span><br><span class="line"><span class="comment">//1、创建一个类，C++编译器会给每个类都添加至少3个函数</span></span><br><span class="line"><span class="comment">//默认构造（空实现）</span></span><br><span class="line"><span class="comment">//析构函数（空实现）</span></span><br><span class="line"><span class="comment">//拷贝构造（值拷贝）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的默认构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">int</span> age)</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的有参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">/*Person(const Person&amp; p)</span></span><br><span class="line"><span class="comment">	&#123;</span></span><br><span class="line"><span class="comment">		cout &lt;&lt; &quot;Person的拷贝构造函数调用&quot; &lt;&lt; endl;   </span></span><br><span class="line"><span class="comment">		m_Age = p.m_Age;</span></span><br><span class="line"><span class="comment">	&#125;*/</span></span><br><span class="line">	~<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的析构函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">int</span> m_Age;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Person p;</span><br><span class="line">	p.m_Age = <span class="number">18</span>;</span><br><span class="line">	<span class="function">Person <span class="title">p2</span><span class="params">(p)</span></span>;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;p2的年龄为：&quot;</span> &lt;&lt; p2.m_Age &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<blockquote>
+<p>Person的默认构造函数调用<br>p2的年龄为：18<br>Person的析构函数调用<br>Person的析构函数调用</p>
+</blockquote>
+<h2 id="深拷贝与浅拷贝"><a href="#深拷贝与浅拷贝" class="headerlink" title="深拷贝与浅拷贝"></a>深拷贝与浅拷贝</h2><p>浅拷贝：简单的赋值拷贝操作</p>
+<p>深拷贝：在堆区重新申请空间，进行拷贝操作</p>
+<p>如果利用编译器提供的拷贝构造函数，会做浅拷贝操作</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//深拷贝与浅拷贝</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的默认构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">int</span> age, <span class="type">int</span> height)</span><br><span class="line">	&#123;</span><br><span class="line">		m_Age = age;</span><br><span class="line">		m_Height = <span class="keyword">new</span> <span class="built_in">int</span>(height);</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的有参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	~<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//析构代码，将堆区开辟的数据做释放操作</span></span><br><span class="line">		<span class="keyword">if</span> (m_Height != <span class="literal">NULL</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">delete</span> m_Height;</span><br><span class="line">			m_Height = <span class="literal">NULL</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的析构函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">int</span> m_Age;</span><br><span class="line">	<span class="type">int</span>* m_Height;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="function">Person <span class="title">p1</span><span class="params">(<span class="number">18</span> , <span class="number">160</span>)</span></span>;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;p1的年龄为：&quot;</span> &lt;&lt; p1.m_Age &lt;&lt; <span class="string">&quot; 身高为：&quot;</span> &lt;&lt; *p1.m_Height &lt;&lt; endl;</span><br><span class="line">	<span class="function">Person <span class="title">p2</span><span class="params">(p1)</span></span>;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;p2的年龄为：&quot;</span> &lt;&lt; p2.m_Age &lt;&lt; <span class="string">&quot; 身高为：&quot;</span> &lt;&lt; *p2.m_Height &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行发生错误</p>
+<p>浅拷贝会带来堆区的内存重复释放</p>
+<p>要自己实现拷贝构造函数，解决浅拷贝带来的问题</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//深拷贝与浅拷贝</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的默认构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">int</span> age, <span class="type">int</span> height)</span><br><span class="line">	&#123;</span><br><span class="line">		m_Age = age;</span><br><span class="line">		m_Height = <span class="keyword">new</span> <span class="built_in">int</span>(height);</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的有参构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">const</span> Person&amp; p)</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的拷贝构造函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">		m_Age = p.m_Age;</span><br><span class="line">		<span class="comment">//编译器默认实现m_Height = p.m_Height;</span></span><br><span class="line">		<span class="comment">//深拷贝操作</span></span><br><span class="line">		m_Height = <span class="keyword">new</span> <span class="built_in">int</span>(*p.m_Height);</span><br><span class="line">	&#125;</span><br><span class="line">	~<span class="built_in">Person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//析构代码，将堆区开辟的数据做释放操作</span></span><br><span class="line">		<span class="keyword">if</span> (m_Height != <span class="literal">NULL</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">delete</span> m_Height;</span><br><span class="line">			m_Height = <span class="literal">NULL</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		cout &lt;&lt; <span class="string">&quot;Person的析构函数调用&quot;</span> &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">int</span> m_Age;</span><br><span class="line">	<span class="type">int</span>* m_Height;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="function">Person <span class="title">p1</span><span class="params">(<span class="number">18</span> , <span class="number">160</span>)</span></span>;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;p1的年龄为：&quot;</span> &lt;&lt; p1.m_Age &lt;&lt; <span class="string">&quot; 身高为：&quot;</span> &lt;&lt; *p1.m_Height &lt;&lt; endl;</span><br><span class="line">	<span class="function">Person <span class="title">p2</span><span class="params">(p1)</span></span>;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;p2的年龄为：&quot;</span> &lt;&lt; p2.m_Age &lt;&lt; <span class="string">&quot; 身高为：&quot;</span> &lt;&lt; *p2.m_Height &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<blockquote>
+<p>Person的有参构造函数调用<br>p1的年龄为：18 身高为：160<br>Person的拷贝构造函数调用<br>p2的年龄为：18 身高为：160<br>Person的析构函数调用<br>Person的析构函数调用</p>
+</blockquote>
+<h2 id="初始化列表"><a href="#初始化列表" class="headerlink" title="初始化列表"></a>初始化列表</h2><p>作用：C++提供了初始化列表语法，用来初始化属性     </p>
+<p>语法：构造函数（）：属性1（值1），属性2（值2）…{}</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="comment">//初始化列表</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">////传统初始化操作</span></span><br><span class="line">	<span class="comment">//Person(int a, int b, int c)</span></span><br><span class="line">	<span class="comment">//&#123;</span></span><br><span class="line">	<span class="comment">//	m_A = a;</span></span><br><span class="line">	<span class="comment">//	m_B = b;</span></span><br><span class="line">	<span class="comment">//	m_C = c;</span></span><br><span class="line">	<span class="comment">//&#125;</span></span><br><span class="line">	<span class="comment">//初始化列表初始化属性</span></span><br><span class="line">	<span class="built_in">Person</span>(<span class="type">int</span> a, <span class="type">int</span> b, <span class="type">int</span> c) :<span class="built_in">m_A</span>(a), <span class="built_in">m_B</span>(a), <span class="built_in">m_C</span>(c)</span><br><span class="line">	&#123;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">int</span> m_A;</span><br><span class="line">	<span class="type">int</span> m_B;</span><br><span class="line">	<span class="type">int</span> m_C;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">test01</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="function">Person <span class="title">p</span><span class="params">(<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>)</span></span>;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;m_A = &quot;</span> &lt;&lt; p.m_A &lt;&lt; endl;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;m_B = &quot;</span> &lt;&lt; p.m_B &lt;&lt; endl;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;m_C = &quot;</span> &lt;&lt; p.m_C &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">test01</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>m_A &#x3D; 10<br>m_B &#x3D; 10<br>m_C &#x3D; 30</p>
+</blockquote>
 ]]></content>
       <categories>
         <category>编程语言</category>
@@ -2926,10 +2971,103 @@
 </ul>
 ]]></content>
       <categories>
-        <category>Linux</category>
+        <category>Linux开发</category>
       </categories>
       <tags>
+        <tag>C++</tag>
         <tag>GCC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>库</title>
+    <url>/2023/04/22/%E5%BA%93/</url>
+    <content><![CDATA[<h1 id="什么是库"><a href="#什么是库" class="headerlink" title="什么是库"></a>什么是库</h1><ul>
+<li><p>库文件是计算机上的一类文件，可以简单的把库文件看成一种代码仓库，它提供给使用者一些可以直接拿来用的变量。</p>
+</li>
+<li><p>库是一种特殊的程序，编写库的程序和编写一般的程序区别不大，只是库不能单独运行。</p>
+</li>
+<li><p>库文件有两种：静态库和动态库（共享库），区别是：静态库在程序的连接阶段被复制到了程序中；动态库在连接阶段没有被复制到程序，而是程序在运行时由系统动态加载到内存中供程序调用</p>
+</li>
+<li><p>库的好处：1、代码保密     2、方便部署和分发</p>
+</li>
+<li><p>命名规则</p>
+<ul>
+<li><p>Linux:<code>libXXX.a</code></p>
+<ul>
+<li><p>lib:前缀（固定）</p>
+</li>
+<li><p>XXX：库的名字，自己起</p>
+</li>
+<li><p>.a：后缀（固定）</p>
+</li>
+</ul>
+</li>
+<li><p>Windows：<code>libXXX.lib</code></p>
+</li>
+</ul>
+</li>
+<li><p>静态库的制作</p>
+<ul>
+<li><p>gcc获得.o文件</p>
+</li>
+<li><p>将.o文件打包，使用ar工具（archive）</p>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ar rcs libxxx.a xxx.o xxx.o</span><br></pre></td></tr></table></figure>
+
+<p>r 将文件插入备存文件中</p>
+<p>c 建立备存文件</p>
+<p>s 索引</p>
+<h1 id="静态库的制作"><a href="#静态库的制作" class="headerlink" title="静态库的制作"></a>静态库的制作</h1><p>我们现在有如下文件：</p>
+<img src="/2023/04/22/%E5%BA%93/tree.png" title alt data-align="center">
+
+<p>首先我们将其编译为.o文件，运行如下命令：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">gcc -c add.c div.c mult.c sub.c</span><br></pre></td></tr></table></figure>
+
+<p>结果如下：</p>
+<img src="/2023/04/22/%E5%BA%93/.o.png" title alt data-align="center">
+
+<p>输入命令制作静态库：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ar rcs libcalc.a add.o sub.o mult.o div.o</span><br></pre></td></tr></table></figure>
+
+<p>我们生成静态库文件如下：</p>
+<img src="/2023/04/22/%E5%BA%93/lib文件.png" title alt data-align="center">
+
+<h1 id="静态库的使用"><a href="#静态库的使用" class="headerlink" title="静态库的使用"></a>静态库的使用</h1><p>如图所示，在文件夹里我们有如下文件：</p>
+<p><img src="/2023/04/22/%E5%BA%93/tree1.png"></p>
+<p>我们从头编译静态库文件</p>
+<p>我们在.&#x2F;library文件夹下依次运行如下命令</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd src</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">gcc -c add.c div.c mult.c sub.c -I ../include/</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ar rcs libcalc.a add.o div.o mult.o sub.o</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mv libcalc.a ../lib/</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd ..</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">gcc main,c -o app -I ./include/ -L ./lib/ -l calc</span><br></pre></td></tr></table></figure>
+
+<p>执行完上述所有指令后我们运行：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">tree</span><br></pre></td></tr></table></figure>
+
+<p>如图所示：</p>
+<p><img src="/2023/04/22/%E5%BA%93/tree2.png"></p>
+<p>我们运行下列命令，运行app文件：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">./app</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/04/22/%E5%BA%93/运行app.png" title alt data-align="center">
+]]></content>
+      <categories>
+        <category>编程语言</category>
+        <category>C++</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+        <tag>Linux</tag>
       </tags>
   </entry>
 </search>
