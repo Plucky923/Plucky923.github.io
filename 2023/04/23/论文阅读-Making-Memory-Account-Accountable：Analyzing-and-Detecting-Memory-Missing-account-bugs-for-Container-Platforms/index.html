@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="摘要 Linux内核引入了memory control group(memcg)，用于在进程级对内存的使用进行记录和限制。memcg由于其灵活性和高效性，被容器平台广泛采用，成为一种基础技术。虽然内存记帐很重要，但由于内存记帐接口的多样性和大量的分配&#x2F;空闲路径，它很容易出现记账的错误。据我们所知，目前还没有针对内存帐户丢失问题的系统分析，包括其安全影响、检测等。 在本文中，我们首次系统地">
+<meta property="og:type" content="article">
+<meta property="og:title" content="论文阅读 Making Memory Account Accountable：Analyzing and Detecting Memory Missing account bugs for Container Platforms">
+<meta property="og:url" content="http://example.com/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="摘要 Linux内核引入了memory control group(memcg)，用于在进程级对内存的使用进行记录和限制。memcg由于其灵活性和高效性，被容器平台广泛采用，成为一种基础技术。虽然内存记帐很重要，但由于内存记帐接口的多样性和大量的分配&#x2F;空闲路径，它很容易出现记账的错误。据我们所知，目前还没有针对内存帐户丢失问题的系统分析，包括其安全影响、检测等。 在本文中，我们首次系统地">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/attackKatacontainers.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/challenge.png">
+<meta property="article:published_time" content="2023-04-23T11:09:13.000Z">
+<meta property="article:modified_time" content="2023-04-24T14:03:30.962Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/attackKatacontainers.png">
+
+<link rel="canonical" href="http://example.com/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>论文阅读 Making Memory Account Accountable：Analyzing and Detecting Memory Missing account bugs for Container Platforms | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="随便记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          论文阅读 Making Memory Account Accountable：Analyzing and Detecting Memory Missing account bugs for Container Platforms
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-04-23 19:09:13" itemprop="dateCreated datePublished" datetime="2023-04-23T19:09:13+08:00">2023-04-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-04-24 22:03:30" itemprop="dateModified" datetime="2023-04-24T22:03:30+08:00">2023-04-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文精读</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/%E5%86%85%E6%A0%B8%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">内核安全</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>16k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>29 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>摘要</strong></p>
+<p>Linux内核引入了memory control group(memcg)，用于在进程级对内存的使用进行记录和限制。memcg由于其灵活性和高效性，被容器平台广泛采用，成为一种基础技术。虽然内存记帐很重要，但由于内存记帐接口的多样性和大量的分配&#x2F;空闲路径，它很容易出现记账的错误。据我们所知，目前还没有针对内存帐户丢失问题的系统分析，包括其安全影响、检测等。</p>
+<p>在本文中，我们首次系统地研究了内存记账缺失问题。我们首先对其在容器平台上的可利用性和安全性影响进行了深入分析。然后我们开发了一个名为MANTA(Memory Accounting Analyzer)的工具，它结合了静态和动态分析技术来自动检测和验证内存丢失帐户错误。</p>
+<p>我们的分析表明，所有的容器运行时，包括runC和Kata容器，都容易受到基于内存记账缺失的攻击。此外，内存记账缺失可以被利用来攻击Docker、CaaS和FaaS平台，导致内存耗尽，从而使单个节点甚至整个集群崩溃。我们的工具报告了53个可利用的内存记账缺失漏洞，其中37个被内核开发者确认，并提交了相应的补丁，还有两个新的CVE被分配。通过深入分析、自动检测、报告的错误和提交的补丁，我们相信我们的研究提高了容器平台内存核算的正确性和安全性。</p>
+<p><strong>CCS CONCEPTS</strong></p>
+<ul>
+<li>Security and privacy → Operating systems security; Virtualization and security</li>
+</ul>
+<p><strong>KEYWORDS</strong></p>
+<p>Cloud infrastructure, Linux kernel, memory accounting, missingaccount, DoS attack</p>
+<h1 id="INTRODUCTION"><a href="#INTRODUCTION" class="headerlink" title="INTRODUCTION"></a>INTRODUCTION</h1><p>计算和限制内存使用是每个操作系统内核的核心功能。特别是，Linux内核引入了内存控制组(memcg)，它可以在进程级别解释和限制内存使用。因此，与基于虚拟机(VM)的内存分区技术相比，memcg具有更细粒度和轻量级的特点。</p>
+<p>由于其灵活性和高效性，memcg已经被容器平台广泛采用。众所周知，容器平台严重依赖资源共享来提高硬件资源的利用率。而memcg为容器在进程级别提供了唯一的内存使用记录和限制方法。因此，诸如Docker 、容器即服务平台（例如，OpenShift）和函数即服务平台（例如，OpenWhisk）等流行的容器平台，都采用memcg来控制其容器的内存使用。此外，基于虚拟机的容器运行时——Kata容器  也使用memcg来限制主机上的容器线程和其他服务线程的内存。此外，开放容器倡议（OCI）认证要求容器运行时必须使用memcg才能获得认证 。因此，memcg已经成为容器平台和云计算的基础技术。</p>
+<p>不幸的是，尽管memcg被广泛使用，但由于其复杂性，它容易出错。具体来说，Linux内核选择将内存记账接口插入到内存分配&#x2F;释放路径中以实现记账，这可能由于高度复杂的内存使用和大量与内存使用相关的接口和代码路径，容易引入内存记账丢失错误（分配的内存未计入账户）。此外，即使记账接口位置正确，它们的记账行为也是有条件的，并受到记账标志的控制，我们发现这些标志经常缺失。因此，我们发现内存记账丢失错误很常见。</p>
+<p>然而，尽管memcg已经被广泛使用，但其内存记账丢失错误从未被系统地分析过。memcg现状的原因有两个。首先，尚不清楚内存记账丢失错误会产生什么安全影响，或者它们是否可被利用。因此，内核开发人员忽略了控制jam活动i睡觉哦错误，并未付出特别的努力来消除这些问题。其次，没有自动检测内存记账丢失错误的方法。如前所述，内存记账设计和实现是复杂的，并深入整合到Linux内核的复杂内存管理子系统中。因此，即使对于经验丰富的用户，正确理解记账设计和策略也是困难的。例如，我们发现Docker官方网站错误地声称“内存费用在控制组之间分摊”对于页面缓存，并且“当一个cgroup被终止时，它可能会增加另一个cgroup的内存使用”。因此，在没有自动检测的情况下，几乎不可能手动推理内存记账的正确性。更糟糕的是，内存记账丢失错误是否可检测以及如何检测仍然是悬而未决的问题。</p>
+<p>本文首次对Linux内存记账丢失错误进行了系统分析和检测。我们首先进行了深入分析，以了解内存记账丢失错误在容器平台上的可利用性和安全影响。然后我们开发了一个名为MANTA（Memory AccouNTing Analyzer的简称）的工具，它结合了静态和动态分析技术来自动检测内存记账丢失错误。我们的分析显示，不仅普通容器运行时（如runC），而且安全容器运行时（如Kata容器）都容易受到由内存记账丢失错误引起的内存耗尽攻击。更糟糕的是，内存记账丢失错误可以被利用来攻击Docker、CaaS和FaaS平台，导致容器节点甚至整个集群崩溃。</p>
+<p>由于memcg的复杂性，内存记账丢失检测面临两个挑战。首先，没有文档或现有研究定义了memcg使用的内存记账接口。现有的工作采用自然语言处理或包装函数分析来识别内存分配接口。然而，由于不匹配的启发式规则，这些技术无法直接应用于记账接口。为解决这个问题，MANTA提出了基于计数器的接口识别方法，自动检测所有与内存记账相关的接口。关键的观察是，所有内存记账接口最终都会在实现中增加&#x2F;减少相应的页面计数器。识别从页面计数器修改开始，迭代整个调用图以精确识别记账接口。</p>
+<p>其次，分析内存分配和内存记账之间的映射具有挑战性。这种分析由于从内存分配位置到内存记账位置的深层和嵌套执行路径而变得复杂。它还需要跟踪分配的页面和计入账户的页面之间的数据流，以获得正确的别名集。此外，由于条件标志的控制，记账可能是有条件的。因此，MANTA提出了分配-消耗映射分析和记账标志分析来解决这个挑战。此外，为了验证检测到的内存记账丢失错误，MANTA进一步使用Linux测试项目来检查它们的可触发性和影响。</p>
+<p>通过MANTA，我们检测并报告了memcg中的53个可利用错误，其中37个已经被内核开发人员确认并有已合并或待合并的补丁。报告的错误获得了两个新的CVE（一个正在等待）。总之，这项工作进行了深入调查，不仅分析了可利用性和影响，还系统地检测了内存记账丢失错误。我们相信，这些发现将有助于内核memcg开发人员在未来改进内存记账。本文做出了以下贡献。</p>
+<ul>
+<li><p>In-depth analysis of exploitability and impacts</p>
+<p>我们设计了新的攻击来利用容器平台上的内存记账问题。我们的攻击表明，内存记账丢失漏洞可以很容易地被利用来攻击正常和安全的容器运行时(即runC和Kata容器)和流行的容器平台(即Docker, OpenShift和OpenWhisk)，导致容器节点甚至整个集群崩溃。</p>
+</li>
+<li><p>Automated detection with new techniques</p>
+<p>我们提出了多种分析技术来有效地检测内存记账丢失错误，集成了静态分析和动态验证。我们实现了基于LLVM的检测，并使用Linux内存记账对其进行评估。我们进一步使用Linux Test Project (LTP)来验证检测到的错误的可触发性。</p>
+</li>
+<li><p>Community impact</p>
+<p>我们在Linux v5.10中检测并报告了53个可利用的内存记账丢失错误，其中37个已被内核开发人员确认。分配了两个新的cve(一个正在等待)。我们的发现提高了内核社区对记账丢失的影响的认识，他们还邀请我们测试他们的下游内核。我们计划开源我们的检测工具，以进一步帮助社区提高内存计费的正确性和安全性。</p>
+</li>
+</ul>
+<p>道德考虑：本文中的所有实验和攻击都是在一台专用的物理机器上进行的，这台机器仅由我们使用。我们负责任地向Linux内核开发人员披露了所有检测到的错误，并为所有经确认的错误提交了补丁。此外，我们还向Docker团队报告了关于内存记账的错误声明。</p>
+<h1 id="BACKGROUD"><a href="#BACKGROUD" class="headerlink" title="BACKGROUD"></a>BACKGROUD</h1><h2 id="Linux-Memory-Accounting"><a href="#Linux-Memory-Accounting" class="headerlink" title="Linux Memory Accounting"></a>Linux Memory Accounting</h2><p>内存记帐是每个现代操作系统内核的核心功能。目前Linux内核采用内存控制组(memory control group, memcg)来实现内存计费。Memcg包含4种类型的内存:user、kernel、swap，and socket。</p>
+<ul>
+<li><p>user 记录所有用户空间内存页</p>
+</li>
+<li><p>kernel 记录内核空间内存页和对象</p>
+</li>
+<li><p>swap 记录交换区页面</p>
+</li>
+<li><p>socket 记录socket内存</p>
+</li>
+</ul>
+<p>Memcg仅对用户空间进程的内存进行记账，并跳过对内核守护程序或内部内存使用的记账。需要注意的是，Linux内核v5.9引入了对象cgroup，它会对子页面内核内存使用（如内核对象）进行记账。对象cgroup可以将对象分配到不同的cgroups中，从而消除每个memcg的slab（内存分配池），节省大量的slab内存。</p>
+<ul>
+<li><p>Accounting：Linux内核针对不同类型的内存使用不同的记账接口。具体来说，Linux内核使用<code>mem_cgroup_charge</code>对用户和交换内存进行记账，使用<code>__memcg_kmem_charge</code>对内核内存进行记账。对于内核内存，Linux内核还要求在内存分配过程中设置<code>__GFP_ACCOUNT</code>标志以对内核页面进行记账。用户可以通过文件接口与memcg进行交互。例如，用户可以从<code>memory.usage_in_bytes</code>检查总内存使用情况。</p>
+<p>一个memcg实例可能包含多个内存使用情况在其中进行记账的进程。memcg以树形层次结构组织，因此父节点上的内存限制也会影响所有子节点。memcg有两个版本：v1和v2。它们的主要区别在于层次结构和用户接口，而在记账方面的实现大致相同。目前两者都在使用。本文提到的是cgroups v1，大多数结论也适用于cgroups v2。</p>
+</li>
+<li><p>数据结构：memcg的核心数据结构是<code>mem_cgroup</code>，它代表一个memcg实例。memcg包含4个页面计数器，对应于之前讨论的4种类型的已记账内存。每个页面计数器使用<code>usage</code>（第14行）来计算分配的页面数量。同时，总内存限制（以页面为单位）设置在<code>max</code>（第16行）。在内存充电时，Linux内核调用消耗接口，依次调用<code>page_counter_try_charge</code>，这是一个计算总使用量（第24行）并将其与最大限制（第25行）进行检查的函数。</p>
+</li>
+<li><p>Accounting challenges：由于Linux内核中众多的内存分配接口和庞大的分配路径，正确地对Linux内核中的内存使用情况进行记账非常具有挑战性。很难调解所有内存分配路径，因此当前的记账机制容易出错。</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mem_cgroup</span>&#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">page_counter</span> <span class="title">memory</span>;</span><span class="comment">/*Both v1 &amp; v2*/</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span>&#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">page_counter</span> <span class="title">swap</span>;</span><span class="comment">/*v2 only */</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">page_counter</span> <span class="title">memsw</span>;</span><span class="comment">/*v1 only*/</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="comment">/*Legacy consumer-oriented counters*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">page_counter</span> <span class="title">kmem</span>;</span><span class="comment">/*v1 only*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">page_counter</span> <span class="title">tcpmem</span>;</span><span class="comment">/*v1 only*/</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">page_counter</span>&#123;</span></span><br><span class="line">    <span class="type">atomic_long_t</span> usage;</span><br><span class="line">    ...</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> max;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> <span class="title function_">page_counter_try_charge</span><span class="params">(<span class="keyword">struct</span> page_counter *counter,<span class="type">unsigned</span> <span class="type">long</span> nr pages,...)</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">page_counter</span> *<span class="title">c</span>;</span></span><br><span class="line">    ...</span><br><span class="line">    new = atomic_long_add_return(nr_pages, &amp;c-&gt;usage);</span><br><span class="line"><span class="keyword">if</span>(new&gt;c-&gt;max)</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">goto</span> failed;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Container-Runtimes-and-Platforms"><a href="#Container-Runtimes-and-Platforms" class="headerlink" title="Container Runtimes and Platforms"></a>Container Runtimes and Platforms</h2><p>Memcg可以记录和限制每个进程级别的内存使用情况。与基于虚拟机(VM)的内存控制技术相比，memcg粒度更细、更轻、更灵活。因此，memcg已经被Docker、CaaS (container -as- service)和FaaS (function -as- service)平台广泛采用。具体来说，CaaS平台为用户提供了已配置的容器实例。CaaS平台上的用户可以使用自定义的容器映像创建&#x2F;启动&#x2F;停止&#x2F;删除容器。另一方面，FaaS平台不向用户提供容器实例，而是允许用户输入函数和触发规则，并自动创建容器实例来执行输入函数。</p>
+<p>Docker和CaaS&#x2F;FaaS平台通常为容器实例使用本地容器运行时(即runC)。为了提高容器之间的隔离性，人们提出了安全容器运行时，如gVisor和Kata容器。gVisor是谷歌开发的沙盒容器运行时。它在一个名为Sentry的用户空间内核上运行每个容器。Sentry拦截并处理来自容器的大多数系统调用。因此，Sentry减少了从容器在主机内核上调用的系统调用。除了沙盒运行时，容器社区还建议使用虚拟化来隔离容器实例。其中一个这样的虚拟化容器运行时是Kata容器，其中每个容器实例都在微型虚拟机中运行，以实现强隔离。</p>
+<p>我们的实验表明，正常和安全的容器运行时(包括runC和Kata容器)都容易受到由记账丢失错误引起的内存耗尽攻击。此外，内存记账丢失漏洞可以被利用来攻击Docker、CaaS和FaaS平台，导致内存耗尽，从而导致单个节点甚至整个集群崩溃。</p>
+<h1 id="A-STUDY-OF-EXPLOITABLITY-AND-IMPACT"><a href="#A-STUDY-OF-EXPLOITABLITY-AND-IMPACT" class="headerlink" title="A STUDY OF EXPLOITABLITY AND IMPACT"></a>A STUDY OF EXPLOITABLITY AND IMPACT</h1><p>生产环境中内存未记录错误的影响从未被系统地研究过。它们通常被视为一个较小的正确性问题，而不是安全问题。在这一部分中，我们展示了内存未记录错误可以被利用来导致容器主机甚至整个云平台的内存耗尽。特别是，我们分析了内存记账问题的可利用性，以了解其对容器平台的实际影响。我们设计了新的攻击方法来利用未记录错误。这些攻击表明，这些错误可用于攻击普通和安全的容器运行时。因此，它们可被利用在热门的CaaS和FaaS容器平台上造成DoS（主机机器崩溃）和财务费用问题。在以下内容中，我们首先讨论威胁模型和假设。接下来，我们详细介绍如何利用内存未记录问题。</p>
+<h2 id="Threat-Model-and-Assumptions"><a href="#Threat-Model-and-Assumptions" class="headerlink" title="Threat Model and Assumptions"></a>Threat Model and Assumptions</h2><p>在我们的实验中，我们研究了三个容器平台 - Docker、容器即服务（CaaS）平台和函数即服务（FaaS）平台。我们使用广泛部署的CaaS平台 - OpenShift作为我们的CaaS平台，以及流行的OpenWhisk作为我们的FaaS平台。这三个平台使用本地运行时（即runC）作为它们的容器运行时。这三个平台上的所有容器都以非特权方式设置为具有默认功能和seccomp配置。对于Docker和CaaS平台，用户可以通过云提供的接口创建和启动带有自定义映像的容器。这是合理的，因为包括AWS、Google Cloud和Azure在内的所有云供应商都为用户提供了一个控制台来管理容器实例。对于FaaS平台，用户可以定义、部署和触发函数，其中每个函数实例都在一个容器中运行。</p>
+<p>攻击者是使用Docker、CaaS和FaaS平台的恶意用户。他&#x2F;她可以在非特权容器内执行任意代码。然而，容器的功能受到默认功能的限制。为了进一步限制攻击者，我们假设攻击者无法从容器中逃逸，也无法提升他们的权限。攻击者的目标是破坏内存计算的限制，并耗尽主机上的所有内存，以使其他容器、函数或主机崩溃。</p>
+<p>对于攻击环境，我们在本地机器上设置Docker，同时在Google Cloud上设置OpenShift和OpenWhisk集群。出于道德考虑，该集群构建在一个由Google Cloud提供的专用裸金属服务器上，仅供我们使用，因此不会影响其他用户。</p>
+<h2 id="Exploit-Missing-Account-Problem"><a href="#Exploit-Missing-Account-Problem" class="headerlink" title="Exploit Missing-Account Problem"></a>Exploit Missing-Account Problem</h2><p>在本节中，我们将设计新的攻击来利用内存记帐中的记账问题，以了解其影响。如前所述，Linux内核中的当前内存记帐将内存记帐接口放在内存分配路径上，将内存取消记帐接口放在内存空闲路径上。然而，Linux内存管理是复杂的，包含数千个内存分配和自由路径。很难用正确的接口来调解所有这些问题。特别是，很容易遗漏一个内存分配路径，从而导致丢失帐户问题。</p>
+<p>显示了内核中信号量对象和信号量数组上的帐户丢失错误，由MANTA检测并由Linux开发人员确认。函数<code>sem_alloc</code>分配一组信号量，并使用<code>sem_array</code>对它们进行索引。第8行的分配站点调用<code>kvzalloc</code>为<code>sem_array</code>和信号量分配内存。当在<code>kvzalloc</code>的第三个参数中设置了<code>__GFP_ACCOUNT</code>标志时，内核只会考虑分配的内存。然而，在第8行对<code>kvzalloc</code>的调用没有指定<code>__GFP_ACCOUNT</code>标志，导致在分配的信号量和<code>sem_array</code>上丢失帐户。此外，<code>sem_alloc</code>由<code>semget</code>系统调用调用来分配信号量。因此，这个记账丢失的错误很容易从用户空间触发。我们进一步设计了新的攻击，以表明上述漏洞可以被利用来打破容器内存限制并耗尽所有主机内存。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">struct</span> sem_array *<span class="title function_">sem_alloc</span><span class="params">(<span class="type">size_t</span> nsems)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sem_array</span> *<span class="title">sma</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(nsems &gt; (INT_MAX - <span class="keyword">sizeof</span>(*sma)) / <span class="keyword">sizeof</span>(sma-&gt;sems[<span class="number">0</span>]))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    sma = kvzalloc(struct_size(sma, sems, nsems),GFP_KERNEL);</span><br><span class="line">    <span class="keyword">if</span>(unlikerly(!sma))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> sma;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Attacking-Docker"><a href="#Attacking-Docker" class="headerlink" title="Attacking Docker"></a>Attacking Docker</h3><p>我们用默认的功能和seccomp配置来设置Docker。semget系统调用不需要任何功能，也不会被容器seccomp配置文件阻塞。因此，在我们的实验中，攻击程序在非特权容器中可以反复触发semget系统调用，从而打破内存记帐限制，耗尽所有主机内存。主机甚至会因为内存不足错误而崩溃。我们向Linux社区报告了上述错误并提交了补丁。补丁已经被合并到Linux主线上，一个新的CVE已经分配给我们了。</p>
+<h3 id="Attacking-the-CaaS-Platform"><a href="#Attacking-the-CaaS-Platform" class="headerlink" title="Attacking the CaaS Platform"></a>Attacking the CaaS Platform</h3><p>我们在Google Cloud上搭建了一个自管理的OpenShift集群，运行所有的GCP虚拟机实例。该集群允许用户在一个具有15GB内存和Linux内核v5.14.14的节点上创建容器。我们将容器的内存限制设置为128MB，这是公共云中常用的内存大小。</p>
+<p>为了发起攻击，恶意用户以普通用户权限创建一个容器，并在容器内分配大量信号量。恶意容器的内存使用量迅速增加，大约在20秒内达到节点的极限。相比之下，攻击者的计费内存使用量非常低，不到1.4MB。结果，恶意容器打破了128MB的内存限制，消耗了主机上的全部15GB内存。同一节点上的受害者容器由于内存不足无法执行任何操作。</p>
+<h3 id="Attacking-the-FaaS-Platform"><a href="#Attacking-the-FaaS-Platform" class="headerlink" title="Attacking the FaaS Platform"></a>Attacking the FaaS Platform</h3><p>我们评估了对OpenWhisk的攻击，OpenWhisk是一个流行的开源FaaS平台，作为IBM Cloud Functions的基础设施。集群节点内存为15GB，运行Linux内核v5.11.0-1021-gcp。每个功能的内存限制设置为128MB。</p>
+<p>为了发起攻击，恶意用户创建了一个反复消耗信号量的函数。然后，恶意用户反复触发恶意功能。导致节点上的内存很快耗尽。注意，当一个节点的内存耗尽时，连续的恶意函数将被分派到其他节点。导致集群内所有节点的内存被恶意用户耗尽，导致集群级DoS。</p>
+<h3 id="Attacking-the-Secure-Runtime"><a href="#Attacking-the-Secure-Runtime" class="headerlink" title="Attacking the Secure Runtime"></a>Attacking the Secure Runtime</h3><p>我们进一步设计新的攻击来评估内存记账丢失对安全运行时- Kata容器的影响。我们的实验表明，内存记账丢失漏洞允许攻击者打破Kata容器的隔离并攻击主机和其他容器实例。</p>
+<p>Kata容器是一种虚拟容器运行时，其中每个容器实例在微虚拟机中运行，以实现强隔离。但是，Kata micro-VM将文件操作转发给主机，这使得它容易受到基于内存记账丢失的攻击。更具体地说，通过利用内存记账丢失错误，攻击者可以耗尽微型虚拟机中Kata容器的主机内存。如图所示，恶意用户是容器中的普通用户，并发出fcntl系统调用，为一组文件分配大量POSIX锁。但是，客户机内核将请求转发给运行在主机上的virtio-fsd守护进程。</p>
+<img src="/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/attackKatacontainers.png" title alt data-align="center">
+
+<p>因此，守护进程在主机内核中分配了 POSIX 锁。尽管 virtio-fsd 守护进程的内存使用受到 memcg（内存控制组）的限制，但锁对象所使用的内存没有被纳入统计。因此，恶意容器可以耗尽主机上的所有物理内存。我们向 Kata 容器社区报告了这种攻击。他们确认了这个问题，并为我们申请了一个新的 CVE（公开披露的计算机安全漏洞和漏洞）。</p>
+<p>用通俗的语言来说，这段话描述了一个安全问题，其中，虚拟文件系统管理的守护程序在主机操作系统上分配了一种名为 POSIX 锁的资源。虽然这个守护程序的内存使用受到限制，但锁对象占用的内存没有被计算在内。这意味着一个恶意的容器（一种轻量级的虚拟化技术）可以利用这个问题耗尽主机的物理内存。作者报告了这个问题，并且 Kata 容器社区已经确认该问题，并正申请一个新的安全漏洞编号（CVE）。</p>
+<h2 id="Discussion"><a href="#Discussion" class="headerlink" title="Discussion"></a>Discussion</h2><p>正如上述攻击所证明的那样，可以利用记账丢失漏洞攻击正常和安全的容器运行时、Docker和CaaS&#x2F;FaaS平台。攻击者可以利用这些漏洞耗尽所有内存，使容器节点甚至整个集群崩溃。更糟糕的是，攻击只需要普通用户权限，因此很容易启动。虽然内存丢失帐户漏洞可以被利用来攻击容器平台，但目前还没有系统的研究来检测和消除这些漏洞。因此，本文提出了第一个内存记账分析工具MANTA，来系统地检测这些问题。</p>
+<h1 id="MISSING-ACCOUNT-BUG-DETECTION"><a href="#MISSING-ACCOUNT-BUG-DETECTION" class="headerlink" title="MISSING-ACCOUNT BUG DETECTION"></a>MISSING-ACCOUNT BUG DETECTION</h1><p>考虑到内存记账丢失错误的严重性，在操作系统内核实际在生产场景中运行之前的早期阶段检测这些问题非常重要。不幸的是，没有一种工具可以同时检测高代码覆盖率和高精度的遗漏帐户错误。因此，我们提出了MANTA(Memory AccouNTing Analyzer的缩写)来自动检测内存记账丢失错误。</p>
+<ul>
+<li><p>Design goals</p>
+<p>MANTA旨在通过分析记帐接口放置的正确性来自动、系统地检测内存记账丢失错误。具体来说，MANTA需要检测具有高代码覆盖率的内存记账丢失错误。</p>
+<p>为了实现这一点，MANTA利用静态分析来遍历Linux内核中的所有内存分配&#x2F;自由路径。此外，MANTA需要高精度地检测漏洞。因此，MANTA使用动态验证来测试检测到的错误的动态触发性。</p>
+</li>
+<li><p>Challenges</p>
+<p>为了实现这两个目标，MANTA需要克服以下挑战。</p>
+<ul>
+<li><p>C1. MANTA需要识别内存记帐接口，这些接口在内核文档中没有描述，以前的工作也没有研究过。现有的用于内存分配的接口识别方法不能应用，因为它们的启发式方法不适用于内存计费接口</p>
+</li>
+<li><p>C2. MANTA需要决定每个内存分配是否被考虑并且只考虑一次。然而，在Linux内核中，从内存分配站点到内存记帐站点的执行路径往往是深的、嵌套的和交错的。此外，即使存在这样的路径，记帐也可能受到条件标志的影响，因为记帐同时需要记帐接口和记帐标志§2</p>
+</li>
+</ul>
+</li>
+<li><p>Analysis techniques and workflow</p>
+<p>MANTA的体系结构如图所示。以整个内核IR作为输入，MANTA首先生成内核调用图。然后，它使用基于页面计数器的方法来识别所有会计接口以地址C1(§4.1)。基于记帐接口，MANTA建立了内存分配&#x2F;释放和内存记帐之间的映射(§4.2)。</p>
+<p>之后，MANTA使用记帐标志分析来进一步分析内核内存记帐(§4.3)。这两种技术处理C2。随着检测到的内存记账错误，MANTA进一步评估每个错误与我们的动态触发性分析基于数千个测试用例从Linux测试项目(§4.4)。MANTA目前是为Linux内存记账实现的。下面，我们将详细介绍每种分析技术。</p>
+</li>
+</ul>
+<img src="/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/challenge.png" title alt data-align="center">
+
+<h2 id="Counter-based-Interface-Identification"><a href="#Counter-based-Interface-Identification" class="headerlink" title="Counter-based Interface Identification"></a>Counter-based Interface Identification</h2><p>MANTA首先需要识别内存记账接口。</p>
+<p>这些接口是多种多样的，并且可以自定义。使用自然语言处理(NLP)或包装函数分析的现有技术存在精度问题。我们注意到内存记帐必须维护内存使用计数器(即<code>page_counter</code>)，这些计数器是通过特定的原子函数操作的。使用类型匹配可以很容易地找到内存使用计数器。因此，通过识别用于增加&#x2F;减少这些计数器的基本函数，MANTA可以自动找出对会计计数器执行增加&#x2F;减少操作的所有函数。</p>
+<p>具体来说，MANTA遍历每个内核IR指令并检查它是否增加&#x2F;减少<code>page_counter</code>。如果是这样，则MANTA将直接包含该指令的函数标记为基本会计函数。由于在Linux内核中，<code>page_counter</code>仅由<code>memcg</code>使用，因此我们的方法可以达到较高的精度。</p>
+<p>然后，MANTA根据基本的记账功能识别会计接口。MANTA使用DFS从基本记账函数向后遍历，并在内核调用图上标记所有访问过的函数。每当它到达<code>memcg</code>子系统之外的函数时，MANTA就会停止遍历，因为它不能是<code>memcg</code>接口。在这些记录内存使用情况的标记函数中，如果一个函数是从<code>memcg</code>子系统外部调用的，即，定义<code>memcg</code>功能的源文件，MANTA将其标记为一个记录接口。这样，MANTA就可以识别所有的计费接口。</p>
+<p>让我们使用图中的示例来说明基于计数器的接口标识中的步骤。首先，MANTA遍历所有核函数的所有基本块。在<code>__memcg_kmem_charge</code>中，它标识<code>page_counter</code>函数(第6行)并双重确认第一个参数来自<code>memcg</code>。之后，MANTA进入<code>page_counter_try_charge</code>，发现它增加了<code>page_counter</code>的一个字段。由于<code>__memcg_kmem_charge</code>直接调用<code>page_counter</code>函数并增加<code>page_counter</code>的值，因此MANTA认为<code>__memcg_kmem_charge</code>是一个基本的计费接口。</p>
+<p>类似地，对于减少<code>page_counter</code>值的接口，MANTA将其标记为未收费接口。此外，MANTA可以区分不同内存类型的接口，因为<code>memcg</code>对每种内存类型使用不同的<code>page_counters(§2)</code>。在第6行，<code>page_counter_try_charge</code>使用了<code>&amp;memcg-&gt; kmemm</code>，因此MANTA知道<code>__memcg_kmem_charge</code>用于内核内存记帐。</p>
+<p>从基本的收费接口开始，MANTA然后沿着调用链逐步识别所有的收费接口包装器。如果一个函数调用基本的计费接口，并且计费量来自于它的参数，MANTA将把它标记为一个计费接口包装器。使用图中的相同示例，<code>__memcg_kmem_charge_page</code>调用基本收费接口<code>__memcg_kmem_charge</code>(第29行)，而收费金额<code>1&lt;&lt;order</code>由<code>__memcg_kmem_charge_page</code>的参数控制。</p>
+<p>因此，MANTA认为<code>__memcg_kmem_charge_page</code>是一个收费包装器，因为它只是将收费数量传递给基本收费接口，并且对收费数量没有控制。</p>
+<p>MANTA使用相同的方法来检测未充电的包装器。</p>
+<p>对于充电&#x2F;不充电接口，MANTA还需要识别内存分配&#x2F;空闲接口。MANTA采用现有技术来产生初步结果。此外，通过观察内存分配&#x2F;释放接口增加&#x2F;减少<code>struct free_area</code>的<code>nr_free</code>计数器，MANTA使用类似的基于计数器的方法来提高结果的精度。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> __memcg_kmem_charge(<span class="keyword">struct</span> mem_cgroup *memcg, <span class="type">gfp_t</span> gfp,<span class="type">unsigned</span> <span class="type">int</span> nr_pages)&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">page_counter</span> *<span class="title">counter</span>;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span>(!cgroup_subsys_on_dfl(memory_cgrp_subsys)&amp;&amp;!page_counter_try_charge(&amp;memcg-&gt;kmem,nr_pages,&amp;counter))</span><br><span class="line">    </span><br><span class="line">    &#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> <span class="title function_">page_counter_try_charge</span><span class="params">(<span class="keyword">struct</span> page_counter *counter,<span class="type">unsigned</span> <span class="type">long</span> nr_pages,<span class="keyword">struct</span> page_counter **fail)</span></span><br><span class="line">&#123;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">page_counter</span> *<span class="title">c</span>;</span></span><br><span class="line">    <span class="keyword">for</span>(c = counter; c;c = c-&gt;parent)&#123;</span><br><span class="line">        <span class="type">long</span> new;</span><br><span class="line">        new = atomic_long_add_return(nr_pages,&amp;c-&gt;usage);</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> __memcg_kmem_charge_page(<span class="keyword">struct</span> page *page, <span class="type">gtp_t</span> gtp,<span class="type">int</span> order)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mem_cgroup</span> *<span class="title">memcg</span>;</span></span><br><span class="line">    <span class="type">int</span> ret = <span class="number">0</span>;</span><br><span class="line">    memcg = get_mem_cgroup_from_current();</span><br><span class="line">    ...</span><br><span class="line">    ret = __memcg_kmem_charge(memcg,gfp,<span class="number">1</span>&lt;&lt;order);</span><br><span class="line">    <span class="keyword">if</span>(!ret)&#123;</span><br><span class="line">        page-&gt;mem_cgroup = memcg;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Alloc-Charging-Mapping-Analysis"><a href="#Alloc-Charging-Mapping-Analysis" class="headerlink" title="Alloc-Charging Mapping Analysis"></a>Alloc-Charging Mapping Analysis</h2><p>直观地说，每个分配的对象应该只被计算一次。否则，对象可能会被漏记。因此，MANTA 的下一步是建立内存分配&#x2F;释放和计费&#x2F;取消计费之间的关系。基于这种关系，MANTA 可以识别比分配&#x2F;释放的内存少收费或多退费的情况，将其视为漏记错误。简洁起见，我们关注分配和计费。同样的技术可以应用于分析免费的取消计费映射。</p>
+<p>由于深层次的调用关系和复杂的内存指针传播，从源代码分析分配和计费之间的映射并非易事。为了解决这些问题，我们开发了分配计费映射分析。基本思路是首先将函数内的内存分配和计费总结为函数摘要，然后基于函数摘要构建内存分配-计费映射，以检测漏记错误。更具体地说，我们使用基于访问路径的分析来生成每个函数的摘要。访问路径的概念首次用于 SATURN 框架，用于表示转义对象的每个函数摘要（即对象指针泄漏到当前函数之外）。</p>
+<p>如图 7 左侧算法所示，MANTA 首先为所有函数生成函数摘要（第 2 行）。接下来，对于一个函数𝑓，通过收集其被调用者的函数摘要并分析内存分配位置（IsAlloc），MANTA 可以构建 𝑓 内所有非转义对象的分配-计费映射（第 4-9 行）。具体而言，MANTA 用传递给被调用者的参数替换被调用者摘要中的变量，以计算 𝑓 中分配的页面，这被称为源敏感跟踪。然后，MANTA 通过调用 CheckPage 来分析 𝑓 内的分配-计费映射。在 CheckPage 中，MANTA 能够报告非转义对象的漏记错误（第 19 行）。对于从 𝑓 转义的对象（第 14-18 行），它们最终将在一个函数中（例如 𝑓 的调用者）处理，因为内核中的所有函数都被遍历（第 3-10 行）。此外，IsCharged（第 13 行）和 IsDupCharged 函数（第 21 行）都进行数据流分析，将局部对象连接到被调用函数的返回值或参数。这样，他们可以使用被调用者的函数摘要跟踪内核对象的计费状态。</p>
+<p>我们使用图7右侧的具体示例来演示算法。MANTA首先为底层内存分配函数__alloc_pages_nodemask生成摘要。 MANTA识别到页面由较低级别的函数get_page_from_freelist返回、充电，并返回。因此，页面既逸出又充电，函数摘要应为（__alloc_pages_nodemask，retval，retval）。当MANTA分析do_anonymous_page时，它会获取alloc_zeroed_user_highpage_movable的函数摘要，该函数是__alloc_pages_nodemask的包装器，具有相同的摘要。根据函数摘要，MANTA确定do_anonymous_page中的页面已经充电。在分析do_anonymous_page内部的分配-充电映射时，MANTA发现内存核算位于第18行可从第14行到达，页面可能在第18行再次被充电。因此，MANTA在这种情况下报告了一个冗余帐户警告。另一方面，如果当前函数中的页面未被充电且不会逸出，MANTA会报告一个未记录错误。</p>
+<p>直观地说，每个分配的对象应该只计算一次。</p>
+<p>否则，该对象可能会丢失。因此，MANTA的下一步是建立内存分配&#x2F;释放与充电&#x2F;不充电之间的关系。基于这种关系，MANTA可以将占用的内存少于或未占用的内存多于已分配&#x2F;释放内存的情况识别为丢失帐户错误。为简洁起见，我们主要讨论分配和收费。同样的技术可以应用于分析自由不充电映射。</p>
+<p>由于调用关系的深度嵌套和内存指针传播的复杂性，从源代码分析分配和计费之间的映射关系是非常困难的。为了解决这些问题，我们开发了分配计费映射分析。</p>
+<p>其基本思想是首先将函数内的内存分配和计费汇总为函数摘要，然后根据函数摘要构建内存分配-计费映射，以检测丢失帐户的错误。更具体地说，我们使用基于访问路径的分析来生成每个功能的摘要。访问路径的概念首先在SATURN框架[40]中使用，用于表示转义对象的每个函数摘要(即，对象指针泄露出当前函数)。</p>
+<p>如图7左侧算法所示，MANTA首先为所有函数(第2行)生成函数摘要。接下来，对于函数𝑓，通过收集其调用者的函数摘要并分析内存分配位置(IsAlloc)， MANTA可以为𝑓中所有未转义的对象构建分配分配映射(第4-9行)。具体来说，MANTA用传递给被调用方的参数来替代被调用方摘要中的变量，以计算𝑓- 9中分配的页面，这被称为源感知跟踪。然后，MANTA通过调用CheckPage，分析𝑓内部的alloc-charge映射。</p>
+<p>在CheckPage中，MANTA能够报告非转义对象的丢失帐户错误(第19行)。对于来自𝑓(第14-18行)的转义对象，它们将最终在遍历内核中的所有函数(第3-10行)时在函数(例如𝑓的调用者)中处理。此外，ischarge(第13行)和isdupcharge函数(第21行)都进行数据流分析，将局部对象连接到被调用函数的返回值或参数。通过这种方式，它们可以使用调用者的函数摘要在程序间跟踪内核对象的充电状态。</p>
+<p>我们使用图7右侧的具体示例来演示该算法。MANTA首先为底层内存分配函数__alloc_pages_nodemask生成summary。MANTA识别出页面由较低的函数get_page_from_freelist(第4行)返回，收费(第6行)和返回(第8行)。因此，页面既转义又收费，函数摘要应该是(__alloc_pages_nodemask, retval, retval)。当MANTA在步骤9中分析do_anonymous_page时，它会获取alloc_zeroed_user_highpage_mo vable的函数摘要，它是__alloc_pages_nodemask的包装，并且具有相同的摘要。MANTA根据函数摘要(第14行)确定do_anonymous_page中的页面已经被收费。</p>
+<p>当分析do_anonymous_page内部的分配-收费映射时，MANTA发现第18行的内存记帐可以从第14行访问，并且该页面可以在第18行再次收费。因此，在这种情况下，MANTA会报告冗余帐户警告。</p>
+<p>另一方面，如果一个页面在当前函数中没有被收费并且没有转义，MANTA就会报告一个丢失帐户的错误。直观地说，每个分配的对象应该只计算一次。</p>
+<p>否则，该对象可能会丢失。因此，MANTA的下一步是建立内存分配&#x2F;释放与充电&#x2F;不充电之间的关系。基于这种关系，MANTA可以将占用的内存少于或未占用的内存多于已分配&#x2F;释放内存的情况识别为丢失帐户错误。为简洁起见，我们主要讨论分配和收费。同样的技术可以应用于分析自由不充电映射。</p>
+<p>由于调用关系的深度嵌套和内存指针传播的复杂性，从源代码分析分配和计费之间的映射关系是非常困难的。为了解决这些问题，我们开发了分配计费映射分析。</p>
+<p>其基本思想是首先将函数内的内存分配和计费汇总为函数摘要，然后根据函数摘要构建内存分配-计费映射，以检测丢失帐户的错误。更具体地说，我们使用基于访问路径的分析来生成每个功能的摘要。访问路径的概念首先在SATURN框架[40]中使用，用于表示转义对象的每个函数摘要(即，对象指针泄露出当前函数)。</p>
+<p>如图7左侧算法所示，MANTA首先为所有函数(第2行)生成函数摘要。接下来，对于函数𝑓，通过收集其调用者的函数摘要并分析内存分配位置(IsAlloc)， MANTA可以为𝑓中所有未转义的对象构建分配分配映射(第4-9行)。具体来说，MANTA用传递给被调用方的参数来替代被调用方摘要中的变量，以计算𝑓- 9中分配的页面，这被称为源感知跟踪。然后，MANTA通过调用CheckPage，分析𝑓内部的alloc-charge映射。</p>
+<p>在CheckPage中，MANTA能够报告非转义对象的丢失帐户错误(第19行)。对于来自𝑓(第14-18行)的转义对象，它们将最终在遍历内核中的所有函数(第3-10行)时在函数(例如𝑓的调用者)中处理。此外，ischarge(第13行)和isdupcharge函数(第21行)都进行数据流分析，将局部对象连接到被调用函数的返回值或参数。通过这种方式，它们可以使用调用者的函数摘要在程序间跟踪内核对象的充电状态。</p>
+<p>我们使用图7右侧的具体示例来演示该算法。MANTA首先为底层内存分配函数__alloc_pages_nodemask生成summary。MANTA识别出页面由较低的函数get_page_from_freelist(第4行)返回，收费(第6行)和返回(第8行)。因此，页面既转义又收费，函数摘要应该是(__alloc_pages_nodemask, retval, retval)。当MANTA在步骤9中分析do_anonymous_page时，它会获取alloc_zeroed_user_highpage_mo vable的函数摘要，它是__alloc_pages_nodemask的包装，并且具有相同的摘要。MANTA根据函数摘要(第14行)确定do_anonymous_page中的页面已经被收费。</p>
+<p>当分析do_anonymous_page内部的分配-收费映射时，MANTA发现第18行的内存记帐可以从第14行访问，并且该页面可以在第18行再次收费。因此，在这种情况下，MANTA会报告冗余帐户警告。</p>
+<p>另一方面，如果一个页面在当前函数中没有被收费并且没有转义，MANTA就会报告一个丢失帐户的错误。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/04/22/%E5%BA%93/" rel="prev" title="库">
+      <i class="fa fa-chevron-left"></i> 库
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/04/24/Makefile/" rel="next" title="Makefile">
+      Makefile <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#INTRODUCTION"><span class="nav-number">1.</span> <span class="nav-text">INTRODUCTION</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BACKGROUD"><span class="nav-number">2.</span> <span class="nav-text">BACKGROUD</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux-Memory-Accounting"><span class="nav-number">2.1.</span> <span class="nav-text">Linux Memory Accounting</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Container-Runtimes-and-Platforms"><span class="nav-number">2.2.</span> <span class="nav-text">Container Runtimes and Platforms</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#A-STUDY-OF-EXPLOITABLITY-AND-IMPACT"><span class="nav-number">3.</span> <span class="nav-text">A STUDY OF EXPLOITABLITY AND IMPACT</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Threat-Model-and-Assumptions"><span class="nav-number">3.1.</span> <span class="nav-text">Threat Model and Assumptions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploit-Missing-Account-Problem"><span class="nav-number">3.2.</span> <span class="nav-text">Exploit Missing-Account Problem</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Attacking-Docker"><span class="nav-number">3.2.1.</span> <span class="nav-text">Attacking Docker</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Attacking-the-CaaS-Platform"><span class="nav-number">3.2.2.</span> <span class="nav-text">Attacking the CaaS Platform</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Attacking-the-FaaS-Platform"><span class="nav-number">3.2.3.</span> <span class="nav-text">Attacking the FaaS Platform</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Attacking-the-Secure-Runtime"><span class="nav-number">3.2.4.</span> <span class="nav-text">Attacking the Secure Runtime</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Discussion"><span class="nav-number">3.3.</span> <span class="nav-text">Discussion</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MISSING-ACCOUNT-BUG-DETECTION"><span class="nav-number">4.</span> <span class="nav-text">MISSING-ACCOUNT BUG DETECTION</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Counter-based-Interface-Identification"><span class="nav-number">4.1.</span> <span class="nav-text">Counter-based Interface Identification</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Alloc-Charging-Mapping-Analysis"><span class="nav-number">4.2.</span> <span class="nav-text">Alloc-Charging Mapping Analysis</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">随便记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">340k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">10:17</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : 'd87605ef5853be4186f53899d3200b0b',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>

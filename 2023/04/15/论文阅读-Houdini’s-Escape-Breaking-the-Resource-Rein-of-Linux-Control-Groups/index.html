@@ -42,7 +42,7 @@
 <meta property="og:image" content="http://example.com/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/DoSattackResult.png">
 <meta property="og:image" content="http://example.com/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/iptable.png">
 <meta property="article:published_time" content="2023-04-15T05:08:53.000Z">
-<meta property="article:modified_time" content="2023-04-20T13:24:59.105Z">
+<meta property="article:modified_time" content="2023-04-22T11:50:35.932Z">
 <meta property="article:author" content="Plucky">
 <meta property="article:tag" content="操作系统">
 <meta property="article:tag" content="内核安全">
@@ -244,7 +244,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-20 21:24:59" itemprop="dateModified" datetime="2023-04-20T21:24:59+08:00">2023-04-20</time>
+                <time title="Modified: 2023-04-22 19:50:35" itemprop="dateModified" datetime="2023-04-22T19:50:35+08:00">2023-04-22</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -413,7 +413,7 @@
 </li>
 <li><p>I&#x2F;O-based DoS attacks</p>
 <p>不管发出I&#x2F;O操作的进程是否在容器内，在容器内调用系统调用同步将继续调用系统范围的回写。在某些情况下，回写会降低系统性能，因为特定的工作负载需要等待回写完成。为了测试有效性，我们运行两个固定在两个不同核心上的容器。恶意容器所做的唯一任务是调用系统调用sync，因此本身不会招致I&#x2F;O操作。</p>
-<p>为了测量受害容器的性能，我们在受害容器内运行FIO基准测试[25]来测量I&#x2F;O性能。特别地，我们进行了四种不同的FIO工作负载，包括序列&#x2F;随机写和序列&#x2F;随机读。我们还运行UnixBenchmark来测试除I&#x2F;O以外对性能的影响。我们通过将结果除以恶意容器中运行空闲循环的基线情况来计算性能下降。结果如图所示。对于UnixBenchmark，我们列出了性能显著下降的工作负载。总的来说，我们可以看到在受害者中运行的FIO基准测试的性能受到了很大的影响。通过在恶意容器中不断调用sync，所有四种类型I&#x2F;O操作的性能都会受到显著影响。对于顺序写入，在我们的本地测试床上性能下降到2%，在EC2服务器上下降到13%。</p>
+<p>为了测量受害容器的性能，我们在受害容器内运行FIO基准测试来测量I&#x2F;O性能。特别地，我们进行了四种不同的FIO工作负载，包括序列&#x2F;随机写和序列&#x2F;随机读。我们还运行UnixBenchmark来测试除I&#x2F;O以外对性能的影响。我们通过将结果除以恶意容器中运行空闲循环的基线情况来计算性能下降。结果如图所示。对于UnixBenchmark，我们列出了性能显著下降的工作负载。总的来说，我们可以看到在受害者中运行的FIO基准测试的性能受到了很大的影响。通过在恶意容器中不断调用sync，所有四种类型I&#x2F;O操作的性能都会受到显著影响。对于顺序写入，在我们的本地测试床上性能下降到2%，在EC2服务器上下降到13%。</p>
 <p>对于UnixBenchmark，运行shell脚本的性能也严重降低到不到一半。对于其他基准测试，退化约为5%到10%。</p>
 </li>
 </ul>
@@ -645,7 +645,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-count">28</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -703,12 +703,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">319k</span>
+    <span title="Symbols count total">340k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">9:40</span>
+    <span title="Reading time total">10:17</span>
 </div>
 
 <!--
