@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/bug.png">
 <meta property="og:image" content="http://example.com/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/bugs.png">
 <meta property="article:published_time" content="2023-04-23T11:09:13.000Z">
-<meta property="article:modified_time" content="2023-04-26T04:27:57.059Z">
+<meta property="article:modified_time" content="2023-04-29T13:58:34.190Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/attackKatacontainers.png">
@@ -237,7 +237,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-26 12:27:57" itemprop="dateModified" datetime="2023-04-26T12:27:57+08:00">2023-04-26</time>
+                <time title="Modified: 2023-04-29 21:58:34" itemprop="dateModified" datetime="2023-04-29T21:58:34+08:00">2023-04-29</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -298,7 +298,7 @@
 <h1 id="INTRODUCTION"><a href="#INTRODUCTION" class="headerlink" title="INTRODUCTION"></a>INTRODUCTION</h1><p>计算和限制内存使用是每个操作系统内核的核心功能。特别是，Linux内核引入了内存控制组(memcg)，它可以在进程级别解释和限制内存使用。因此，与基于虚拟机(VM)的内存分区技术相比，memcg具有更细粒度和轻量级的特点。</p>
 <p>由于其灵活性和高效性，memcg已经被容器平台广泛采用。众所周知，容器平台严重依赖资源共享来提高硬件资源的利用率。而memcg为容器在进程级别提供了唯一的内存使用记录和限制方法。因此，诸如Docker 、容器即服务平台（例如，OpenShift）和函数即服务平台（例如，OpenWhisk）等流行的容器平台，都采用memcg来控制其容器的内存使用。此外，基于虚拟机的容器运行时——Kata容器  也使用memcg来限制主机上的容器线程和其他服务线程的内存。此外，开放容器倡议（OCI）认证要求容器运行时必须使用memcg才能获得认证 。因此，memcg已经成为容器平台和云计算的基础技术。</p>
 <p>不幸的是，尽管memcg被广泛使用，但由于其复杂性，它容易出错。具体来说，Linux内核选择将内存记账接口插入到内存分配&#x2F;释放路径中以实现记账，这可能由于高度复杂的内存使用和大量与内存使用相关的接口和代码路径，容易引入内存记账丢失错误（分配的内存未计入账户）。此外，即使记账接口位置正确，它们的记账行为也是有条件的，并受到记账标志的控制，我们发现这些标志经常缺失。因此，我们发现内存记账丢失错误很常见。</p>
-<p>然而，尽管memcg已经被广泛使用，但其内存记账丢失错误从未被系统地分析过。memcg现状的原因有两个。首先，尚不清楚内存记账丢失错误会产生什么安全影响，或者它们是否可被利用。因此，内核开发人员忽略了控制jam活动i睡觉哦错误，并未付出特别的努力来消除这些问题。其次，没有自动检测内存记账丢失错误的方法。如前所述，内存记账设计和实现是复杂的，并深入整合到Linux内核的复杂内存管理子系统中。因此，即使对于经验丰富的用户，正确理解记账设计和策略也是困难的。例如，我们发现Docker官方网站错误地声称“内存费用在控制组之间分摊”对于页面缓存，并且“当一个cgroup被终止时，它可能会增加另一个cgroup的内存使用”。因此，在没有自动检测的情况下，几乎不可能手动推理内存记账的正确性。更糟糕的是，内存记账丢失错误是否可检测以及如何检测仍然是悬而未决的问题。</p>
+<p>然而，即使memcg已经被广泛使用，其内存记账丢失漏洞从未得到系统分析。 memcg的现状是由两个原因造成的。首先，从来没有清楚地知道内存记账丢失漏洞会产生什么安全影响或者它们是否可利用。结果，记账丢失错误被内核开发人员忽略，并且没有特别努力消除这些问题。其次，没有自动检测内存记账丢失漏洞。正如之前讨论的那样，内存记帐设计和实现非常复杂，并深度集成到Linux kernel的复杂内存管理子系统中。因此，即使对于有经验的用户来说也很难正确理解记帐设计和策略。例如，我们发现Docker官方网站错误地声称“页面高速缓存的记忆费用在控制组之间分配”，并且“当一个cgroup终止时，它可能会增加另一个cgroup 的内存使用量“。因此，在没有自动检测的情况下手动推断记帐正确性几乎是不可能的更糟糕的是, 内存记账丢失是否可检测以及如何进行检测仍然是开放性问题。</p>
 <p>本文首次对Linux内存记账丢失错误进行了系统分析和检测。我们首先进行了深入分析，以了解内存记账丢失错误在容器平台上的可利用性和安全影响。然后我们开发了一个名为MANTA（Memory AccouNTing Analyzer的简称）的工具，它结合了静态和动态分析技术来自动检测内存记账丢失错误。我们的分析显示，不仅普通容器运行时（如runC），而且安全容器运行时（如Kata容器）都容易受到由内存记账丢失错误引起的内存耗尽攻击。更糟糕的是，内存记账丢失错误可以被利用来攻击Docker、CaaS和FaaS平台，导致容器节点甚至整个集群崩溃。</p>
 <p>由于memcg的复杂性，内存记账丢失检测面临两个挑战。首先，没有文档或现有研究定义了memcg使用的内存记账接口。现有的工作采用自然语言处理或包装函数分析来识别内存分配接口。然而，由于不匹配的启发式规则，这些技术无法直接应用于记账接口。为解决这个问题，MANTA提出了基于计数器的接口识别方法，自动检测所有与内存记账相关的接口。关键的观察是，所有内存记账接口最终都会在实现中增加&#x2F;减少相应的页面计数器。识别从页面计数器修改开始，迭代整个调用图以精确识别记账接口。</p>
 <p>其次，分析内存分配和内存记账之间的映射具有挑战性。这种分析由于从内存分配位置到内存记账位置的深层和嵌套执行路径而变得复杂。它还需要跟踪分配的页面和计入账户的页面之间的数据流，以获得正确的别名集。此外，由于条件标志的控制，记账可能是有条件的。因此，MANTA提出了分配-消耗映射分析和记账标志分析来解决这个挑战。此外，为了验证检测到的内存记账丢失错误，MANTA进一步使用Linux测试项目来检查它们的可触发性和影响。</p>
@@ -546,7 +546,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-count">32</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -604,12 +604,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">363k</span>
+    <span title="Symbols count total">365k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">11:01</span>
+    <span title="Reading time total">11:04</span>
 </div>
 
 <!--
