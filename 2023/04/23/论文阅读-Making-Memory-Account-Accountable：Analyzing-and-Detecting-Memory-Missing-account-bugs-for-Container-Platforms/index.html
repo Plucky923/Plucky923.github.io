@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/bug.png">
 <meta property="og:image" content="http://example.com/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/bugs.png">
 <meta property="article:published_time" content="2023-04-23T11:09:13.000Z">
-<meta property="article:modified_time" content="2023-04-29T13:58:34.190Z">
+<meta property="article:modified_time" content="2023-05-03T10:12:16.789Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/attackKatacontainers.png">
@@ -237,7 +237,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-29 21:58:34" itemprop="dateModified" datetime="2023-04-29T21:58:34+08:00">2023-04-29</time>
+                <time title="Modified: 2023-05-03 18:12:16" itemprop="dateModified" datetime="2023-05-03T18:12:16+08:00">2023-05-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -266,14 +266,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>18k</span>
+              <span>19k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>34 mins.</span>
+              <span>35 mins.</span>
             </span>
 
         </div>
@@ -346,7 +346,7 @@
 <p>攻击者是使用Docker、CaaS和FaaS平台的恶意用户。他&#x2F;她可以在非特权容器内执行任意代码。然而，容器的功能受到默认功能的限制。为了进一步限制攻击者，我们假设攻击者无法从容器中逃逸，也无法提升他们的权限。攻击者的目标是破坏内存计算的限制，并耗尽主机上的所有内存，以使其他容器、函数或主机崩溃。</p>
 <p>对于攻击环境，我们在本地机器上设置Docker，同时在Google Cloud上设置OpenShift和OpenWhisk集群。出于道德考虑，该集群构建在一个由Google Cloud提供的专用裸金属服务器上，仅供我们使用，因此不会影响其他用户。</p>
 <h2 id="Exploit-Missing-Account-Problem"><a href="#Exploit-Missing-Account-Problem" class="headerlink" title="Exploit Missing-Account Problem"></a>Exploit Missing-Account Problem</h2><p>在本节中，我们将设计新的攻击来利用内存记帐中的记账问题，以了解其影响。如前所述，Linux内核中的当前内存记帐将内存记帐接口放在内存分配路径上，将内存取消记帐接口放在内存空闲路径上。然而，Linux内存管理是复杂的，包含数千个内存分配和自由路径。很难用正确的接口来调解所有这些问题。特别是，很容易遗漏一个内存分配路径，从而导致丢失帐户问题。</p>
-<p>显示了内核中信号量对象和信号量数组上的帐户丢失错误，由MANTA检测并由Linux开发人员确认。函数<code>sem_alloc</code>分配一组信号量，并使用<code>sem_array</code>对它们进行索引。第8行的分配站点调用<code>kvzalloc</code>为<code>sem_array</code>和信号量分配内存。当在<code>kvzalloc</code>的第三个参数中设置了<code>__GFP_ACCOUNT</code>标志时，内核只会考虑分配的内存。然而，在第8行对<code>kvzalloc</code>的调用没有指定<code>__GFP_ACCOUNT</code>标志，导致在分配的信号量和<code>sem_array</code>上丢失帐户。此外，<code>sem_alloc</code>由<code>semget</code>系统调用调用来分配信号量。因此，这个记账丢失的错误很容易从用户空间触发。我们进一步设计了新的攻击，以表明上述漏洞可以被利用来打破容器内存限制并耗尽所有主机内存。</p>
+<p>显示了内核中信号量对象和信号量数组上的记账丢失错误，由MANTA检测并由Linux开发人员确认。函数<code>sem_alloc</code>分配一组信号量，并使用<code>sem_array</code>对它们进行索引。第8行的分配站点调用<code>kvzalloc</code>为<code>sem_array</code>和信号量分配内存。当在<code>kvzalloc</code>的第三个参数中设置了<code>__GFP_ACCOUNT</code>标志时，内核只会考虑分配的内存。然而，在第8行对<code>kvzalloc</code>的调用没有指定<code>__GFP_ACCOUNT</code>标志，导致在分配的信号量和<code>sem_array</code>上丢失帐户。此外，<code>sem_alloc</code>由<code>semget</code>系统调用调用来分配信号量。因此，这个记账丢失的错误很容易从用户空间触发。我们进一步设计了新的攻击，以表明上述漏洞可以被利用来打破容器内存限制并耗尽所有主机内存。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">struct</span> sem_array *<span class="title function_">sem_alloc</span><span class="params">(<span class="type">size_t</span> nsems)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sem_array</span> *<span class="title">sma</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(nsems &gt; (INT_MAX - <span class="keyword">sizeof</span>(*sma)) / <span class="keyword">sizeof</span>(sma-&gt;sems[<span class="number">0</span>]))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    sma = kvzalloc(struct_size(sma, sems, nsems),GFP_KERNEL);</span><br><span class="line">    <span class="keyword">if</span>(unlikerly(!sma))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> sma;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="Attacking-Docker"><a href="#Attacking-Docker" class="headerlink" title="Attacking Docker"></a>Attacking Docker</h3><p>我们用默认的功能和seccomp配置来设置Docker。semget系统调用不需要任何功能，也不会被容器seccomp配置文件阻塞。因此，在我们的实验中，攻击程序在非特权容器中可以反复触发semget系统调用，从而打破内存记帐限制，耗尽所有主机内存。主机甚至会因为内存不足错误而崩溃。我们向Linux社区报告了上述错误并提交了补丁。补丁已经被合并到Linux主线上，一个新的CVE已经分配给我们了。</p>
@@ -392,7 +392,7 @@
 <p>从基本的收费接口开始，MANTA然后沿着调用链逐步识别所有的收费接口包装器。如果一个函数调用基本的计费接口，并且计费量来自于它的参数，MANTA将把它标记为一个计费接口包装器。使用图中的相同示例，<code>__memcg_kmem_charge_page</code>调用基本收费接口<code>__memcg_kmem_charge</code>(第29行)，而收费金额<code>1&lt;&lt;order</code>由<code>__memcg_kmem_charge_page</code>的参数控制。</p>
 <p>因此，MANTA认为<code>__memcg_kmem_charge_page</code>是一个收费包装器，因为它只是将收费数量传递给基本收费接口，并且对收费数量没有控制。</p>
 <p>MANTA使用相同的方法来检测未充电的包装器。</p>
-<p>对于充电&#x2F;不充电接口，MANTA还需要识别内存分配&#x2F;空闲接口。MANTA采用现有技术来产生初步结果。此外，通过观察内存分配&#x2F;释放接口增加&#x2F;减少<code>struct free_area</code>的<code>nr_free</code>计数器，MANTA使用类似的基于计数器的方法来提高结果的精度。</p>
+<p>对于charge&#x2F;uncharge接口，MANTA还需要识别内存分配&#x2F;空闲接口。MANTA采用现有技术来产生初步结果。此外，通过观察内存分配&#x2F;释放接口增加&#x2F;减少<code>struct free_area</code>的<code>nr_free</code>计数器，MANTA使用类似的基于计数器的方法来提高结果的精度。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> __memcg_kmem_charge(<span class="keyword">struct</span> mem_cgroup *memcg, <span class="type">gfp_t</span> gfp,<span class="type">unsigned</span> <span class="type">int</span> nr_pages)&#123;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">page_counter</span> *<span class="title">counter</span>;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span>(!cgroup_subsys_on_dfl(memory_cgrp_subsys)&amp;&amp;!page_counter_try_charge(&amp;memcg-&gt;kmem,nr_pages,&amp;counter))</span><br><span class="line"></span><br><span class="line">    &#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> <span class="title function_">page_counter_try_charge</span><span class="params">(<span class="keyword">struct</span> page_counter *counter,<span class="type">unsigned</span> <span class="type">long</span> nr_pages,<span class="keyword">struct</span> page_counter **fail)</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">page_counter</span> *<span class="title">c</span>;</span></span><br><span class="line">    <span class="keyword">for</span>(c = counter; c;c = c-&gt;parent)&#123;</span><br><span class="line">        <span class="type">long</span> new;</span><br><span class="line">        new = atomic_long_add_return(nr_pages,&amp;c-&gt;usage);</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> __memcg_kmem_charge_page(<span class="keyword">struct</span> page *page, <span class="type">gtp_t</span> gtp,<span class="type">int</span> order)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mem_cgroup</span> *<span class="title">memcg</span>;</span></span><br><span class="line">    <span class="type">int</span> ret = <span class="number">0</span>;</span><br><span class="line">    memcg = get_mem_cgroup_from_current();</span><br><span class="line">    ...</span><br><span class="line">    ret = __memcg_kmem_charge(memcg,gfp,<span class="number">1</span>&lt;&lt;order);</span><br><span class="line">    <span class="keyword">if</span>(!ret)&#123;</span><br><span class="line">        page-&gt;mem_cgroup = memcg;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="Alloc-Charging-Mapping-Analysis"><a href="#Alloc-Charging-Mapping-Analysis" class="headerlink" title="Alloc-Charging Mapping Analysis"></a>Alloc-Charging Mapping Analysis</h2><p>直观地说，每个分配的对象应该只被计算一次。否则，对象可能会被漏记。因此，MANTA 的下一步是建立内存分配&#x2F;释放和计费&#x2F;取消计费之间的关系。基于这种关系，MANTA 可以识别比分配&#x2F;释放的内存少收费或多退费的情况，将其视为漏记错误。简洁起见，我们关注分配和计费。同样的技术可以应用于分析free-uncharging映射。</p>
@@ -401,9 +401,11 @@
 <p>我们使用图右侧的具体示例来演示算法。MANTA首先为底层内存分配函数<code>__alloc_pages_nodemask</code>生成摘要。 MANTA识别到页面由较低级别的函数<code>get_page_from_freelist</code>返回、充电，并返回。因此，页面既逸出又充电，函数摘要应为（<code>__alloc_pages_nodemask，retval，retval</code>）。当MANTA分析<code>do_anonymous_page</code>时，它会获取<code>alloc_zeroed_user_highpage_movable</code>的函数摘要，该函数是<code>__alloc_pages_nodemask</code>的包装器，具有相同的摘要。根据函数摘要，MANTA确定<code>do_anonymous_page</code>中的页面已经充电。在分析<code>do_anonymous_page</code>内部的分配-计费映射时，MANTA发现内存核算位于第18行可从第14行到达，页面可能在第18行再次被计费。因此，MANTA在这种情况下报告了一个冗余帐户警告。另一方面，如果当前函数中的页面未被计费且不会逸出，MANTA会报告一个未记录错误。</p>
 <img src="/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/algorithm.png" title alt data-align="center">
 
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">page</span> * __alloc_pages_nodemask(...)</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    page = <span class="built_in">get_page_from_freelist</span>(alloc_mask, order, alloc_flags, &amp;ac);</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">memcg_kmem_enabled</span>()&amp;&amp;(gtp_mask&amp;__GFP_ACCOUNT)&amp;&amp;page&amp;&amp;<span class="built_in">unlikely</span>(__memcg_kmem_charge_page(page,gfp_mask,order)!=<span class="number">0</span>))</span><br><span class="line">    &#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">return</span> page;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">vm_fault_t</span> <span class="title">do_anonymous_page</span><span class="params">(<span class="keyword">struct</span> vm_fault *vmf)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    page = <span class="built_in">alloc_zeroed_user_highpage_movable</span>(vma, vmf-&gt;address);</span><br><span class="line">    <span class="keyword">if</span>(!page)</span><br><span class="line">        <span class="keyword">goto</span> oom;</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">mem_cgroup_charge</span>(page, vma-&gt;vm_mm, GFP_KERNEL)</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h2 id="Accounting-Flag-Analysis"><a href="#Accounting-Flag-Analysis" class="headerlink" title="Accounting Flag Analysis"></a>Accounting Flag Analysis</h2><p>发现仅依靠分配和记账站点的映射来检测记账丢失错误是不够的，因为内存记账通常是有条件的。特别是在 Linux 内核中，只有当将 <code>__GFP_ACCOUNT</code>标志传递给记账接口时，才会对内核对象内存进行记账。因此，如果没有提供<code> __GFP_ACCOUNT</code> 标志，记账接口仍然不会对内存进行记账。因此，分析记账标志的值对于检测记账丢失至关重要。因此，MANTA 对记账标志进行分析，以确定是否将记账标志 <code>__GFP_ACCOUNT</code> 传递给记账接口。</p>
 <p><strong>Bit-wise and inter-procedural analysis</strong></p>
-<p>MANTA采用程序间逐位数据流跟踪方法来实现会计标志分析。首先，在计费点，MANTA检查<code>GFP</code>标志本身是否为常数。如果是，MANTA直接检查<code>__GFP_ACCOUNT</code>的位。否则，MANTA将递归地跟踪标志的use-def chain，直到确认其记帐标志位。虽然LLVM提供了一个可以跟踪位值传播的值跟踪分析通道，但该分析仅限于过程内。为了跟踪程序间记帐位，MANTA用两个分析规则扩展了通道。具体来说，当MANTA跟踪函数的参数时，它跟踪所有调用函数以跟踪传递给参数的值;当MANTA跟踪调用站点的返回值时，它也跟踪被调用函数并跟踪所有可能的返回值。如果设置了<code>__GFP_ACCOUNT</code>, MANTA将内核内存标记为在分配点被占用。否则，即使有充电接口，MANTA也会将内存视为未充电。</p>
+<p>MANTA采用程序间逐位数据流跟踪方法来实现会计标志分析。首先，在计费点，MANTA检查<code>GFP</code>标志本身是否为常数。如果是，MANTA直接检查<code>__GFP_ACCOUNT</code>的位。否则，MANTA将递归地跟踪标志的use-def chain，直到确认其记帐标志位。虽然LLVM提供了一个可以跟踪位值传播的值跟踪分析通道，但该分析仅限于过程内。为了跟踪程序间记帐位，MANTA用两个分析规则扩展了通道。具体来说，当MANTA跟踪函数的参数时，它跟踪所有调用函数以跟踪传递给参数的值;当MANTA跟踪调用站点的返回值时，它也跟踪被调用函数并跟踪所有可能的返回值。如果设置了<code>__GFP_ACCOUNT</code>, MANTA将内核内存标记为在分配点被占用。否则，即使有charging接口，MANTA也会将内存视为not-charged。</p>
 <p>对<code>kmem_cache</code>分配的分析略有不同，因为分配也受到<code>kmem_cache</code>的创建标志的影响。</p>
 <p>如果<code>kmem_cache</code>是用<code>SLAB_ACCOUNT</code>标志创建的，那么来自<code>kmem_cache</code>的所有分配都会被计算在内。因此，对于与<code>kmem_cache</code>相关的分配，MANTA也会找到<code>kmem_cache</code>的初始化位置，并采用相同的记帐标志分析技术来计算<code>SLAB_ACCOUNT</code>标志。</p>
 <h2 id="Dynamic-Validation"><a href="#Dynamic-Validation" class="headerlink" title="Dynamic Validation"></a>Dynamic Validation</h2><p>静态分析可能有误报。MANTA检查每个记账丢失分配的系统调用的静态可达性，并过滤掉不可达的。然而，静态可达的bug不一定在运行时触发。因此，MANTA通过动态验证进一步分析静态检测错误的触发性。观察到Linux测试项目(LTP)包含所有300个系统调用的测试用例，我们利用这些测试用例来检查检测到的错误的动态触发性。更具体地说，我们首先检测代码以拦截每个丢失的记账分配，这样我们就可以确认是否确实达到了它。</p>
@@ -546,20 +548,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-count">36</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -604,12 +606,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">387k</span>
+    <span title="Symbols count total">411k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">11:45</span>
+    <span title="Reading time total">12:27</span>
 </div>
 
 <!--

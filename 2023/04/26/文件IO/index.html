@@ -47,7 +47,7 @@
 <meta property="og:image" content="http://example.com/2023/04/26/%E6%96%87%E4%BB%B6IO/list.png">
 <meta property="og:image" content="http://example.com/2023/04/26/%E6%96%87%E4%BB%B6IO/readfilenum.png">
 <meta property="article:published_time" content="2023-04-26T08:01:56.000Z">
-<meta property="article:modified_time" content="2023-05-01T15:28:04.032Z">
+<meta property="article:modified_time" content="2023-05-02T13:53:52.869Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2023/04/26/%E6%96%87%E4%BB%B6IO/%E6%A0%87%E5%87%86C%E5%BA%93IO%E5%87%BD%E6%95%B0.png">
@@ -247,7 +247,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-05-01 23:28:04" itemprop="dateModified" datetime="2023-05-01T23:28:04+08:00">2023-05-01</time>
+                <time title="Modified: 2023-05-02 21:53:52" itemprop="dateModified" datetime="2023-05-02T21:53:52+08:00">2023-05-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -414,7 +414,7 @@
 <h1 id="fcntl函数"><a href="#fcntl函数" class="headerlink" title="fcntl函数"></a>fcntl函数</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">fcntl</span><span class="params">(<span class="type">int</span> fd, <span class="type">int</span> cmd, ... <span class="comment">/*argv*/</span>)</span></span>;</span><br><span class="line"><span class="comment">//参数</span></span><br><span class="line"><span class="comment">//- fd：表示需要操作的文件描述符</span></span><br><span class="line"><span class="comment">//- cmd：表示对文件描述符进行如何操作</span></span><br><span class="line"><span class="comment">//  F_DUPFD复制文件描述符，复制的是第一个参数fd，得到一个新的文件描述符</span></span><br><span class="line"><span class="comment">//      int ret = fcntl(fd,F_DUPFD);</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  F_GETFL获取指定的文件描述符文件状态flag</span></span><br><span class="line"><span class="comment">//      获取的flag和我们通过open函数传递的flag是一个东西</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  F_SETFL：设置文件描述符文件状态flag</span></span><br><span class="line"><span class="comment">//      必选项：O_RDONLY,O_WRONLY,O_RDWR不可以被修改</span></span><br><span class="line"><span class="comment">//      可选项：O_APPEND,NONBLOCK</span></span><br><span class="line"><span class="comment">//      O_APPEND表示追加数据</span></span><br><span class="line"><span class="comment">//      NONBLOCK设置成非阻塞</span></span><br><span class="line"><span class="comment">//      阻塞和非阻塞：描述的是函数调用的行为。</span></span><br></pre></td></tr></table></figure>
 
 <p>例子：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 复制文件描述符</span></span><br><span class="line">    <span class="comment">// int fd = open(&quot;1.txt&quot;, O_RDONLY);</span></span><br><span class="line">    <span class="comment">// int ret = fcntl(fd, F_DUPFD);</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//修改或者获取文件状态flag</span></span><br><span class="line">    <span class="type">int</span> fd = <span class="built_in">open</span>(<span class="string">&quot;1.txt&quot;</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (fd == <span class="number">-1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">perror</span>(<span class="string">&quot;open&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//获取文件描述符的状态flag</span></span><br><span class="line">    <span class="type">int</span> flag = <span class="built_in">fcntl</span>(fd, F_GETFL);</span><br><span class="line">    flag |= O_APPEND;</span><br><span class="line">    <span class="comment">//修改文件描述符状态的flag，给flag加入O_APPEND标记</span></span><br><span class="line">    <span class="type">int</span> ret = <span class="built_in">fcntl</span>(fd, F_SETFL, flag);</span><br><span class="line"></span><br><span class="line">    <span class="type">char</span>* str = <span class="string">&quot;hi&quot;</span>;</span><br><span class="line">    <span class="built_in">write</span>(fd, str, <span class="built_in">strlen</span>(str));</span><br><span class="line">    <span class="built_in">close</span>(fd);</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 复制文件描述符</span></span><br><span class="line">    <span class="comment">// int fd = open(&quot;1.txt&quot;, O_RDONLY);</span></span><br><span class="line">    <span class="comment">// int ret = fcntl(fd, F_DUPFD);</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//修改或者获取文件状态flag</span></span><br><span class="line">    <span class="type">int</span> fd = <span class="built_in">open</span>(<span class="string">&quot;1.txt&quot;</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (fd == <span class="number">-1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">perror</span>(<span class="string">&quot;open&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//获取文件描述符的状态flag</span></span><br><span class="line">    <span class="type">int</span> flag = <span class="built_in">fcntl</span>(fd, F_GETFL);</span><br><span class="line">    flag |= O_APPEND;</span><br><span class="line">    <span class="comment">//修改文件描述符状态的flag，给flag加入O_APPEND标记</span></span><br><span class="line">    <span class="type">int</span> ret = <span class="built_in">fcntl</span>(fd, F_SETFL, flag);</span><br><span class="line"></span><br><span class="line">    <span class="type">char</span>* str = <span class="string">&quot;hi&quot;</span>;</span><br><span class="line">    <span class="built_in">write</span>(fd, str, <span class="built_in">strlen</span>(str));</span><br><span class="line">    <span class="built_in">close</span>(fd);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -510,20 +510,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-count">36</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -568,12 +568,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">387k</span>
+    <span title="Symbols count total">411k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">11:45</span>
+    <span title="Reading time total">12:27</span>
 </div>
 
 <!--
