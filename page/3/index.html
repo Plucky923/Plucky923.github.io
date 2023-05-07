@@ -197,6 +197,144 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/14/C++-%E5%AD%A6%E4%B9%A0-%E5%BC%95%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="随便记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/04/14/C++-%E5%AD%A6%E4%B9%A0-%E5%BC%95%E7%94%A8/" class="post-title-link" itemprop="url">C++学习 引用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-04-14 09:25:57" itemprop="dateCreated datePublished" datetime="2023-04-14T09:25:57+08:00">2023-04-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-04-30 15:59:29" itemprop="dateModified" datetime="2023-04-30T15:59:29+08:00">2023-04-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="引用的基本使用"><a href="#引用的基本使用" class="headerlink" title="引用的基本使用"></a>引用的基本使用</h1><p>作用：给变量起别名</p>
+<p>语法：数据类型 &amp;别名 &#x3D; 原名</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span>&amp; b = a;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a = &quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;b = &quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">    b = <span class="number">100</span>;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a = &quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;b = &quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>a &#x3D; 10<br>b &#x3D; 10<br>a &#x3D; 100<br>b &#x3D; 100</p>
+</blockquote>
+<h1 id="引用的注意事项"><a href="#引用的注意事项" class="headerlink" title="引用的注意事项"></a>引用的注意事项</h1><ul>
+<li><p>引用必须初始化 </p>
+</li>
+<li><p>引用在初始化后，不可以改变</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span>&amp; b = a;</span><br><span class="line">    <span class="type">int</span> c = <span class="number">20</span>;</span><br><span class="line">    b = c;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a = &quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;b = &quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;c = &quot;</span> &lt;&lt; c &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>a &#x3D; 20<br>b &#x3D; 20<br>c &#x3D; 20</p>
+</blockquote>
+<h1 id="引用做函数参数"><a href="#引用做函数参数" class="headerlink" title="引用做函数参数"></a>引用做函数参数</h1><p>作用：函数传参时，可以利用引用的技术让形参修饰实参</p>
+<p>优点：可以简化指针修改实参</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">swap</span><span class="params">(<span class="type">int</span>&amp; a, <span class="type">int</span>&amp; b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> temp = a;</span><br><span class="line">    a = b;</span><br><span class="line">    b = temp;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;swap a = &quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;swap b = &quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span> b = <span class="number">20</span>;</span><br><span class="line">    <span class="built_in">swap</span>(a, b);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a = &quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;b = &quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<blockquote>
+<p>swap a &#x3D; 20<br>swap b &#x3D; 10<br>a &#x3D; 20<br>b &#x3D; 10</p>
+</blockquote>
+<p>引用传递，形参会修饰实参</p>
+<p>地址传递，形参会修饰实参</p>
+<p>值传递，形参不会修饰实参</p>
+<h1 id="引用做函数返回值"><a href="#引用做函数返回值" class="headerlink" title="引用做函数返回值"></a>引用做函数返回值</h1><p>作用：引用是可以作为函数的返回值存在的</p>
+<p>注意：不要返回局部变量引用</p>
+<p>用法：函数调用作为左值</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span>&amp; <span class="title">test</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">static</span> <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">return</span> a;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span>&amp; ref = <span class="built_in">test</span>();</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;ref = &quot;</span> &lt;&lt; ref &lt;&lt; endl;</span><br><span class="line">    <span class="built_in">test</span>() = <span class="number">1000</span>;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;ref = &quot;</span> &lt;&lt; ref &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<blockquote>
+<p>ref &#x3D; 10<br>ref &#x3D; 1000</p>
+</blockquote>
+<h1 id="引用的本质"><a href="#引用的本质" class="headerlink" title="引用的本质"></a>引用的本质</h1><p>本质：引用的本质是在C++内部实现一个指针常量</p>
+<p><code>int&amp; ref = a;</code>等价于<code>int* const ref = a;</code></p>
+<p><code>ref = 20</code>当编译器发现ref是引用，会自动帮我们解引用转换为<code>*ref = 20</code></p>
+<h1 id="常量引用"><a href="#常量引用" class="headerlink" title="常量引用"></a>常量引用</h1><p>作用：常量引用主要用来修饰形参，防止误操作。</p>
+<p>在函数形参列表中，可以加const 修饰形参，防止形参改变实参</p>
+<p><img src="/2023/04/14/C++-%E5%AD%A6%E4%B9%A0-%E5%BC%95%E7%94%A8/ERROR.png"></p>
+<p><img src="/2023/04/14/C++-%E5%AD%A6%E4%B9%A0-%E5%BC%95%E7%94%A8/ERROR1.png"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/13/Linux-v5-3-1-fs-inode-c/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1411,243 +1549,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/05/MIT6-S081-Operating-System-Engineering-Lecture04-Page-Tables/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="随便记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/04/05/MIT6-S081-Operating-System-Engineering-Lecture04-Page-Tables/" class="post-title-link" itemprop="url">MIT6 S081 Operating System Engineering Lecture04 Page Tables</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-04-05 17:03:11" itemprop="dateCreated datePublished" datetime="2023-04-05T17:03:11+08:00">2023-04-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-14 19:30:30" itemprop="dateModified" datetime="2023-04-14T19:30:30+08:00">2023-04-14</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">课程学习</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/MIT6-S081-Operating-System-Engineering/" itemprop="url" rel="index"><span itemprop="name">MIT6.S081 Operating System Engineering</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>13k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>24 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Topic"><a href="#Topic" class="headerlink" title="Topic"></a>Topic</h1><ul>
-<li><p><strong>Address Spaces</strong></p>
-</li>
-<li><p><strong>支持虚拟内存的硬件</strong></p>
-</li>
-<li><p><strong>XV中的虚拟内存代码</strong></p>
-</li>
-</ul>
-<h1 id="Address-Spaces"><a href="#Address-Spaces" class="headerlink" title="Address Spaces"></a>Address Spaces</h1><h2 id="为什么需要隔离性"><a href="#为什么需要隔离性" class="headerlink" title="为什么需要隔离性"></a>为什么需要隔离性</h2><p>创造虚拟内存的一个出发点是你可以通过它实现隔离性。如果你正确的设置了<code>page table</code>，并且通过代码对它进行正确的管理，那么原则上你可以实现强隔离。</p>
-<p>我们期望的是，每个用户程序都被装进一个盒子里，这样它们就不会彼此影响了。类似的，我们也想让它们与内核操作系统相互独立，这样如果某个应用程序无意或者故意做了一些坏事，也不会影响到操作系统。</p>
-<p>如果我们不做任何工作，默认情况下我们是没有内存隔离性的。</p>
-<p>RISC-V主板上，内存是由一些DRAM芯片组成。在这些DRAM芯片中保存了程序的数据和代码。例如内存中的某一个部分是内核，包括了文本，数据，栈等等；如果运行了<code>Shell</code>，内存中的某个部分就是<code>Shell</code>；如果运行了<code>cat</code>程序，内存中的某个部分是<code>cat</code>程序。这里说的都是物理内存，它的地址从0开始到某个大的地址结束。结束地址取决于我们的机器现在究竟有多少物理内存。所有程序都必须存在于物理内存中，否则处理器甚至都不能处理程序的指令。</p>
-<p>这里的风险很明显。我们简单化一下场景，假设Shell存在于内存地址1000-2000之间。</p>
-<p>如果<code>cat</code>出现了程序错误，将内存地址<code>1000</code>，也就是<code>Shell</code>的起始地址加载到寄存器a0中。之后执行<code>sd $7, (a0)</code>，这里等效于将7写入内存地址<code>1000</code>。</p>
-<p>现在<code>cat</code>程序弄乱了<code>Shell</code>程序的内存镜像，所以隔离性被破坏了，这是我们不想看到的现象。所以，我们想要某种机制，能够将不同程序之间的内存隔离开来，这样类似的事情就不会发生。一种实现方式是地址空间（Address Spaces）。</p>
-<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>这里的基本概念也很简单直观，我们给包括内核在内的所有程序专属的地址空间。所以，当我们运行<code>cat</code>时，它的地址空间从0到某个地址结束。当我们运行<code>Shell</code>时，它的地址也从0开始到某个地址结束。内核的地址空间也从0开始到某个地址结束。</p>
-<p>如果<code>cat</code>程序想要向地址<code>1000</code>写入数据，那么<code>cat</code>只会向它自己的地址<code>1000</code>，而不是<code>Shell</code>的地址<code>1000</code>写入数据。所以，基本上来说，每个程序都运行在自己的地址空间，并且这些地址空间彼此之间相互独立。在这种不同地址空间的概念中，<code>cat</code>程序甚至都不具备引用属于<code>Shell</code>的内存地址的能力。这是我们想要达成的终极目标，因为这种方式为我们提供了强隔离性，<code>cat</code>现在不能引用任何不属于自己的内存。</p>
-<p>所以现在我们的问题是如何在一个物理内存上，创建不同的地址空间，因为归根到底，我们使用的还是一堆存放了内存信息的DRAM芯片。</p>
-<ul>
-<li><p>虚拟内存可以比物理内存更大，物理内存也可以比虚拟内存更大</p>
-</li>
-<li><p>如果太多的进程使用了虚拟内存，有可能使物理内存耗尽</p>
-</li>
-<li><p><code>kalloc</code>保存了空余的<code>page</code>的列表，如果这个列表为空或者耗尽了，那么<code>kalloc</code>会返回一个空指针，内核会妥善处理并将结果返回给用户应用程序。并告诉用户应用程序，要么是对这个应用程序没有额外的内存了，要么整个机器都没有内存了。</p>
-</li>
-</ul>
-<h1 id="Page页表"><a href="#Page页表" class="headerlink" title="Page页表"></a>Page页表</h1><h2 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h2><p>页表是在硬件中通过处理器和内存管理单元（Memory Management Unit）实现。</p>
-<p>CPU正在执行指令，例如<code>sd $7, (a0)</code>。</p>
-<p>对于任何一条带有地址的指令，其中的地址应该认为是虚拟内存地址而不是物理地址。假设<code>寄存器a0</code>中是地址<code>0x1000</code>，那么这是一个虚拟内存地址。虚拟内存地址会被转到内存管理单元（MMU，Memory Management Unit）</p>
-<p>内存管理单元会将虚拟地址翻译成物理地址。之后这个物理地址会被用来索引物理内存，并从物理内存加载，或者向物理内存存储数据。</p>
-<p>从CPU的角度来说，一旦<code>MMU</code>打开了，它执行的每条指令中的地址都是虚拟内存地址。</p>
-<p>为了能够完成虚拟内存地址到物理内存地址的翻译，<code>MMU</code>会有一个表单，表单中，一边是虚拟内存地址，另一边是物理内存地址。举个例子，虚拟内存地址<code>0x1000</code>对应了一个我随口说的物理内存地址<code>0xFFF0</code>。这样的表单可以非常灵活。</p>
-<p>通常来说，内存地址对应关系的表单也保存在内存中。所以CPU中需要有一些寄存器用来存放表单在物理内存中的地址。现在，在内存的某个位置保存了地址关系表单，我们假设这个位置的物理内存地址是<code>0x10</code>。那么在RISC-V上一个叫做<code>SATP</code>的寄存器会保存地址<code>0x10</code>。</p>
-<p>这样，CPU就可以告诉<code>MMU</code>，可以从哪找到将虚拟内存地址翻译成物理内存地址的表单。</p>
-<p><code>page table</code>存储在内存中，<code>MMU</code>只是会去查看<code>page table</code>。</p>
-<p>每个应用程序都有自己独立的表单，并且这个表单定义了应用程序的地址空间。所以当操作系统将CPU从一个应用程序切换到另一个应用程序时，同时也需要切换<code>SATP</code>寄存器中的内容，从而指向新的进程保存在物理内存中的地址对应表单。这样的话，<code>cat</code>程序和<code>Shell</code>程序中相同的虚拟内存地址，就可以翻译到不同的物理内存地址，因为每个应用程序都有属于自己的不同的地址对应表单。</p>
-<p>内核会写<code>SATP</code>寄存器，写<code>SATP</code>寄存器是一条特殊权限指令。所以，用户应用程序不能通过更新这个寄存器来更换一个地址对应表单，否则的话就会破坏隔离性。所以，只有运行在kernel mode的代码可以更新这个寄存器。</p>
-<h2 id="虚拟地址到物理地址"><a href="#虚拟地址到物理地址" class="headerlink" title="虚拟地址到物理地址"></a>虚拟地址到物理地址</h2><p><img src="/2023/04/05/MIT6-S081-Operating-System-Engineering-Lecture04-Page-Tables/P18.png"></p>
-<p>虚拟内存地址分为两个部分</p>
-<ul>
-<li><p><code>index</code>：用来查找<code>page</code></p>
-</li>
-<li><p><code>offset</code>：对应一个<code>page</code>中的字节</p>
-</li>
-</ul>
-<p>当<code>MMU</code>在做地址翻译的时候，通过读取虚拟内存地址中的<code>index</code>可以知道物理内存中的<code>page</code>号，这个<code>page</code>号对应了物理内存中的4096个字节。之后虚拟内存地址中的<code>offset</code>指向了<code>page</code>中的4096个字节中的某一个，假设<code>offset</code>是12，那么<code>page</code>中的第12个字节被使用了。将<code>offset</code>加上<code>page</code>的起始地址，就可以得到物理内存地址。</p>
-<h3 id="RSIC-V处理器"><a href="#RSIC-V处理器" class="headerlink" title="RSIC-V处理器"></a>RSIC-V处理器</h3><p>RISC-V的寄存器是64bit，但是并不是所有的64bit都被使用了，高25bit未被使用。</p>
-<p>这样的结果是限制了虚拟内存地址的数量，虚拟内存地址的数量现在只有2^39个，大概是512GB。</p>
-<p>当然如果有必要的话，最新的处理器或许可以支持更大的地址空间，只需要将未使用的25bit拿出来作为虚拟内存地址的一部分即可。</p>
-<p>在剩下的39bit中，有27bit被用来当作<code>index</code>，12bit被用来当作<code>offset</code>。<code>offset</code>必须是12bit，因为对应了一个<code>page</code>的4096个字节。</p>
-<p>在RISC-V中，物理内存地址是56bit。所以物理内存地址可以大于单个内存地址空间，但是也最多到2^56。大多数主板还不支持2^56这么大的物理内存，但是原则上，如果你能造出这样的主板，那么最多可以支持2^56字节的物理内存。</p>
-<p>物理内存地址是56bit，其中44bit是物理<code>page</code>号（<code>PPN,Physical Page Number</code>)，剩下的12bit是<code>offset</code>完全继承自虚拟内存地址（也就是地址转换时，只需要将虚拟内存中的27bit翻译成物理内存中的44bit的<code>page</code>号，剩下的12bit<code>offset</code>直接拷贝过来即可。</p>
-<h2 id="多级page-table"><a href="#多级page-table" class="headerlink" title="多级page table"></a>多级page table</h2><p><img src="/2023/04/05/MIT6-S081-Operating-System-Engineering-Lecture04-Page-Tables/Addresstransition.png"></p>
-<p>我们之前提到的虚拟内存地址中的27bit的<code>index</code>，实际上是由3个9bit的数字组成（<code>L2</code>，<code>L1</code>，<code>L0</code>）。前9个bit被用来索引最高级的<code>page directory</code>（注：通常<code>page directory</code>是用来索引<code>page table</code>或者其他<code>page directory</code>物理地址的表单)</p>
-<p>一个<code>directory</code>是4096Bytes，就跟<code>page</code>的大小是一样的。<code>Directory</code>中的一个条目被称为<code>PTE（Page Table Entry）</code>是64bits，就像寄存器的大小一样，也就是8Bytes。所以一个<code>Directory page</code>有512个条目。</p>
-<p>所以实际上，<code>SATP</code>寄存器会指向最高一级的<code>page directory</code>的物理内存地址，之后我们用虚拟内存中<code>index</code>的高9bit用来索引最高一级的<code>page directory</code>，这样我们就能得到一个<code>PPN</code>，也就是物理<code>page</code>号。这个<code>PPN</code>指向了中间级的<code>page directory</code>。</p>
-<p>当我们在使用中间级的<code>page directory</code>时，我们通过虚拟内存地址中的<code>L1</code>部分完成索引。接下来会走到最低级的<code>page directory</code>，我们通过虚拟内存地址中的<code>L0</code>部分完成索引。在最低级的<code>page directory</code>中，我们可以得到对应于虚拟内存地址的物理内存地址。</p>
-<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>如果地址空间中大部分地址都没有使用，你不必为每一个<code>index</code>准备一个条目。举个例子，如果你的地址空间只使用了一个<code>page</code>，4096Bytes。除此之外，你没有使用任何其他的地址。现在，你需要多少个<code>page table entry</code>，或者<code>page table directory</code>来映射这一个<code>page</code>？</p>
-<p>在最高级，你需要一个<code>page directory</code>。在这个<code>page directory</code>中，你需要一个数字是0的<code>PTE</code>，指向中间级<code>page directory</code>。所以在中间级，你也需要一个<code>page directory</code>，里面也是一个数字0的<code>PTE</code>，指向最低级<code>page directory</code>。所以这里总共需要3个<code>page directory</code>（也就是3 * 512个条目）。</p>
-<p>而在单级<code>page table</code>中，虽然我们只使用了一个<code>page</code>，还是需要2^27个<code>PTE</code>。这个方案中，我们只需要3 * 512个<code>PTE</code>。所需的空间大大减少了。这是实际上硬件采用这种层次化的3级<code>page directory</code>结构的主要原因。</p>
-<h3 id="PTE"><a href="#PTE" class="headerlink" title="PTE"></a>PTE</h3><ol>
-<li><p><strong>物理页号（Physical Page Number，PPN）</strong>: 与物理地址字段类似，PPN存储与虚拟地址关联的物理内存地址。在RISC-V中，PTE的高位部分存储PPN。</p>
-</li>
-<li><p><strong>有效位（Valid，V）</strong>: 有效位表示此PTE中存储的映射是否有效。如果有效位设置为1，表示此PTE的虚拟地址已映射到物理内存中。如果设置为0，则表示该虚拟地址尚未映射。</p>
-</li>
-<li><p><strong>读（Read，R）</strong>: 读权限位表示允许对该页面进行读访问。</p>
-</li>
-<li><p><strong>写（Write，W）</strong>: 写权限位表示允许对该页面进行写访问。</p>
-</li>
-<li><p><strong>执行（Execute，X）</strong>: 执行权限位表示允许对该页面进行执行访问。</p>
-</li>
-<li><p><strong>用户（User，U）</strong>: 用户权限位表示该页面是否允许在用户模式下访问。如果设置为1，则允许用户模式访问；如果设置为0，则仅允许特权模式访问。</p>
-</li>
-<li><p><strong>全局（Global，G）</strong>: 全局位表示该页面是否对所有地址空间可见。如果设置为1，则表示该页面在地址空间切换时不会从转换查找缓冲器（Translation Lookaside Buffer，TLB）中清除。这对于操作系统内核和共享库等全局数据结构特别有用。</p>
-</li>
-<li><p><strong>访问（Accessed，A）</strong>: 访问位表示自上次清零以来该页面是否被访问过。当发生内存访问时，硬件会自动设置访问位。</p>
-</li>
-<li><p><strong>脏（Dirty，D）</strong>: 脏位表示自上次清零以来该页面是否被修改过。当某个页面的内容被修改时，硬件会自动设置脏位。</p>
-</li>
-<li><p><strong>软件可用位（Software Use，SW）</strong>: 这些位是为操作系统软件保留的，可以在页表遍历过程中用于自定义用途。</p>
-</li>
-</ol>
-<h1 id="页表缓存（Translation-Lookaside-Buffer）"><a href="#页表缓存（Translation-Lookaside-Buffer）" class="headerlink" title="页表缓存（Translation Lookaside Buffer）"></a>页表缓存（Translation Lookaside Buffer）</h1><p>观察<code>page table</code>的结构，可以发现，当处理器从内存加载或者存储数据时，基本上都要做3次内存查找，第一次在最高级的<code>page directory</code>，第二次在中间级的<code>page directory</code>，最后一次在最低级的<code>page directory</code>。所以对于一个虚拟内存地址的寻址，需要读三次内存，这里代价有点高。所以实际中，几乎所有的处理器都会对于最近使用过的虚拟地址的翻译结果有缓存。这个缓存被称为：<code>Translation Lookside Buffer</code>（通常翻译成页表缓存）。你会经常看到它的缩写<code>TLB</code>。基本上来说，这就是<code>Page Table Entry</code>的缓存，也就是<code>PTE</code>的缓存。</p>
-<p>当处理器第一次查找一个虚拟地址时，硬件通过3级<code>page table</code>得到最终的<code>PPN</code>，<code>TLB</code>会保存虚拟地址到物理地址的映射关系。这样下一次当你访问同一个虚拟地址时，处理器可以查看<code>TLB</code>，<code>TLB</code>会直接返回物理地址，而不需要通过<code>page table</code>得到结果。</p>
-<p><code>TLB</code>实现的具体细节不是我们要深入讨论的内容。这是处理器中的一些逻辑，对于操作系统来说是不可见的，操作系统也不需要知道<code>TLB</code>是如何工作的。你们需要知道TLB存在的唯一原因是，如果你切换了<code>page table</code>，操作系统需要告诉处理器当前正在切换<code>page table</code>，处理器会清空<code>TLB</code>。因为本质上来说，如果你切换了<code>page table</code>，<code>TLB</code>中的缓存将不再有用，它们需要被清空，否则地址翻译可能会出错。所以操作系统知道<code>TLB</code>是存在的，但只会时不时的告诉操作系统，现在的TLB不能用了，因为要切换<code>page table</code>了。在RISC-V中，清空<code>TLB</code>的指令是<code>sfence_vma</code>。</p>
-<p>整个CPU和<code>MMU</code>都在处理器芯片中，所以在一个RISC-V芯片中，有多个CPU核，<code>MMU</code>和<code>TLB</code>存在于每一个CPU核里面。RISC-V处理器有<code>L1 cache</code>，<code>L2 Cache</code>，有些<code>cache</code>是根据物理地址索引的，有些cache是根据虚拟地址索引的，由虚拟地址索引的<code>cache</code>位于<code>MMU</code>之前，由物理地址索引的<code>cache</code>位于<code>MMU</code>之后。</p>
-<h1 id="Kernel-Page-Table"><a href="#Kernel-Page-Table" class="headerlink" title="Kernel Page Table"></a>Kernel Page Table</h1><p><img src="/2023/04/05/MIT6-S081-Operating-System-Engineering-Lecture04-Page-Tables/KernelPage.png"></p>
-<p>在XV6中，<code>page table</code>是如何工作的?</p>
-<p>当操作系统启动时，会从地址<code>0x80000000</code>开始运行，这个地址其实也是由硬件设计者决定的。</p>
-<p>主板的设计人员决定了，在完成了虚拟到物理地址的翻译之后，如果得到的物理地址大于<code>0x80000000</code>会走向DRAM芯片，如果得到的物理地址低于<code>0x80000000</code>会走向不同的I&#x2F;O设备。这是由这个主板的设计人员决定的物理结构。</p>
-<p>首先，地址<code>0</code>是保留的，地址<code>0x10090000</code>对应以太网，地址<code>0x80000000</code>对应DDR内存，处理器外的易失存储（Off-Chip Volatile Memory），也就是主板上的DRAM芯片。</p>
-<p>所有的事情都是由硬件，即主板决定的，CPU只是主板的一小部分，DRAM芯片位于处理器之外。是主板设计者将处理器，DRAM和许多I&#x2F;O设备汇总在一起。对于一个操作系统来说，CPU只是一个部分，I&#x2F;O设备同样也很重要。所以当你在写一个操作系统时，你需要同时处理CPU和I&#x2F;O设备，比如你需要向互联网发送一个报文，操作系统需要调用网卡驱动和网卡来实际完成这个工作。</p>
-<p>地址<code>0x1000</code>是<code>boot ROM</code>的物理地址，当你对主板上电，主板做的第一件事情就是运行存储在<code>boot ROM</code>中的代码，当<code>boot</code>完成之后，会跳转到地址<code>0x80000000</code>，操作系统需要确保那个地址有一些数据能够接着启动操作系统。</p>
-<p>物理地址还有一些其他的I&#x2F;O设备</p>
-<ul>
-<li><p>PLIC是中断控制器（Platform-Level Interrupt Controller）</p>
-</li>
-<li><p>CLINT（Core Local Interruptor）也是中断的一部分。所以多个设备都能产生中断，需要中断控制器来将这些中断路由到合适的处理函数。</p>
-</li>
-<li><p>UART0（Universal Asynchronous Receiver&#x2F;Transmitter）负责与Console和显示器交互。</p>
-</li>
-<li><p>VIRTIO disk，与磁盘进行交互。</p>
-</li>
-</ul>
-<p>高于<code>0x80000000</code>的物理地址对应DRAM芯片，但是对于例如以太网接口，也有一个特定的低于<code>0x80000000</code>的物理地址，我们可以对这个叫做内存映射I&#x2F;O（Memory-mapped I&#x2F;O）的地址执行读写指令，来完成设备的操作。</p>
-<p>地址<code>0x02000000</code>对应CLINT，当你向这个地址执行读写指令，你是向实现了CLINT的芯片执行读写。这里你可以认为你直接在与设备交互，而不是读写物理内存。</p>
-<p>物理地址总共有2^56那么多，但是你不用在主板上接入那么多的内存。所以不论主板上有多少DRAM芯片，总是会有一部分物理地址没有被用到。实际上在XV6中，我们限制了内存的大小是128MB。</p>
-<p>在RISC-V中有一个多路输出选择器（demultiplexer）可以帮助CPU将指令送到正确的I&#x2F;O设备。</p>
-<p>两件重要的事情：</p>
-<ul>
-<li><p>有一些<code>page</code>在虚拟内存中的地址很靠后，比如<code>kernel stack</code>在虚拟内存中的地址就很靠后。这是因为在它之下有一个未被映射的<code>Guard page</code>，这个<code>Guard page</code>对应的<code>PTE</code>的<code>Valid</code> 标志位没有设置，这样，如果<code>kernel stack</code>耗尽了，它会溢出到<code>Guard page</code>，但是因为<code>Guard page</code>的<code>PTE</code>中<code>Valid</code>标志位未设置，会导致立即触发<code>page fault</code>，这样的结果好过内存越界之后造成的数据混乱。立即触发一个<code>panic</code>（也就是<code>page fault</code>），你就知道<code>kernel stack</code>出错了。同时我们也又不想浪费物理内存给<code>Guard page</code>，所以<code>Guard page</code>不会映射到任何物理内存，它只是占据了虚拟地址空间的一段靠后的地址。&#96;</p>
-<p>同时，<code>kernel stack</code>被映射了两次，在靠后的虚拟地址映射了一次，在<code>PHYSTOP</code>下的<code>Kernel data</code>中又映射了一次，但是实际使用的时候用的是上面的部分，因为有<code>Guard page</code>会更加安全。</p>
-</li>
-<li><p>权限：例如<code>Kernel text page</code>被标位<code>R-X</code>，意味着你可以读它，也可以在这个地址段执行指令，但是你不能向<code>Kernel text</code>写数据。通过设置权限我们可以尽早的发现Bug从而避免Bug。对于<code>Kernel data</code>需要能被写入，所以它的标志位是<code>RW-</code>，但是你不能在这个地址段运行指令，所以它的<code>X</code>标志位未被设置。（注，所以，<code>kernel text</code>用来存代码，代码可以读，可以运行，但是不能篡改，<code>kernel data</code>用来存数据，数据可以读写，但是不能通过数据伪装代码在kernel中运行）</p>
-</li>
-</ul>
-<p>每一个用户进程都有一个对应的<code>kernel stack</code>。</p>
-<p>在<code>kernel page table</code>中，有一段<code>Free Memory</code>，它对应了物理内存中的一段地址。XV6使用这段<code>free memory</code>来存放用户进程的<code>page table</code>，<code>text</code>和<code>data</code>。如果我们运行了非常多的用户进程，某个时间点我们会耗尽这段内存，这个时候<code>fork</code>或者<code>exec</code>会返回错误。</p>
-<p>当kernel创建了一个进程，针对这个进程的<code>page table</code>也会从<code>Free memory</code>中分配出来。内核会为用户进程的<code>page table</code>分配几个<code>page</code>，并填入<code>PTE</code>。在某个时间点，当内核运行了这个进程，内核会将进程的根<code>page table</code>的地址加载到<code>SATP</code>中。从那个时间点开始，处理器会使用内核为那个进程构建的虚拟地址空间。</p>
-<h1 id="Code-Creating-an-address-space"><a href="#Code-Creating-an-address-space" class="headerlink" title="Code:Creating an address space"></a>Code:Creating an address space</h1><p>大部分用于操作地址空间和页表的xv6代码位于vm.c（kernel&#x2F;vm.c）中。主要数据结构是<code>pagetable_t</code>，它实际上是指向RISC-V 35根页表页面的指针；<code>pagetable_t</code>可以是内核页表，也可以是每个进程的页表之一。主要函数为<code>walk</code>，该函数查找虚拟地址的<code>PTE</code>，并且<code>mappages</code>安装新映射的PTE。以<code>kvm</code>开头的函数操作内核页表；以<code>uvm</code>开头的函数操作用户页表；其他功能同时用于两者。<code>copyout</code>和<code>copyin</code>将数据复制和从作为系统调用参数提供的用户虚拟地址复制出来；它们在vm.c中因为需要明确翻译这些地址才能找到相应物理存储器。</p>
-<p>在引导序列早期，<code>main</code>调用<code>kvminit</code>（kernel&#x2F;vm.c:54）使用<code>kvmmake</code>（kernel&#x2F;vm.c:20）创建内核页面表格。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">kvminit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  kernel_pagetable = kvmmake();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">pagetable_t</span></span><br><span class="line"><span class="title function_">kvmmake</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">pagetable_t</span> kpgtbl;</span><br><span class="line"></span><br><span class="line">  kpgtbl = (<span class="type">pagetable_t</span>) kalloc();</span><br><span class="line">  <span class="built_in">memset</span>(kpgtbl, <span class="number">0</span>, PGSIZE);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// uart registers</span></span><br><span class="line">  kvmmap(kpgtbl, UART0, UART0, PGSIZE, PTE_R | PTE_W);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// virtio mmio disk interface</span></span><br><span class="line">  kvmmap(kpgtbl, VIRTIO0, VIRTIO0, PGSIZE, PTE_R | PTE_W);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// PLIC</span></span><br><span class="line">  kvmmap(kpgtbl, PLIC, PLIC, <span class="number">0x400000</span>, PTE_R | PTE_W);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// map kernel text executable and read-only.</span></span><br><span class="line">  kvmmap(kpgtbl, KERNBASE, KERNBASE, (uint64)etext-KERNBASE, PTE_R | PTE_X);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// map kernel data and the physical RAM we&#x27;ll make use of.</span></span><br><span class="line">  kvmmap(kpgtbl, (uint64)etext, (uint64)etext, PHYSTOP-(uint64)etext, PTE_R | PTE_W);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// map the trampoline for trap entry/exit to</span></span><br><span class="line">  <span class="comment">// the highest virtual address in the kernel.</span></span><br><span class="line">  kvmmap(kpgtbl, TRAMPOLINE, (uint64)trampoline, PGSIZE, PTE_R | PTE_X);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// allocate and map a kernel stack for each process.</span></span><br><span class="line">  proc_mapstacks(kpgtbl);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> kpgtbl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>此调用发生在xv6启动RISC-V分页之前，因此地址直接引用物理存储器。<code>kvmmake</code>首先分配一个物理存储器页面来保存根页面- 表示页面; 然后它调用<code>kvmmap</code>来安装内核所需的转换。这些转换包括内核指令和数据、<code>PHYSTOP</code>以下 的物理存储器以及实际上是设备的内存范围。</p>
-<p><code>proc_mapstacks</code>（kernel&#x2F;proc.c:33）为每个进程分配一个内核堆栈。它调用<code>kvmmap</code>将每个堆栈映射到由<code>KSTACK</code>生成的虚拟地址，这样可以留出无效的堆栈保护页。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Allocate a page for each process&#x27;s kernel stack.</span></span><br><span class="line"><span class="comment">// Map it high in memory, followed by an invalid</span></span><br><span class="line"><span class="comment">// guard page.</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">proc_mapstacks</span><span class="params">(<span class="type">pagetable_t</span> kpgtbl)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">p</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span>(p = proc; p &lt; &amp;proc[NPROC]; p++) &#123;</span><br><span class="line">    <span class="type">char</span> *pa = kalloc();</span><br><span class="line">    <span class="keyword">if</span>(pa == <span class="number">0</span>)</span><br><span class="line">      panic(<span class="string">&quot;kalloc&quot;</span>);</span><br><span class="line">    uint64 va = KSTACK((<span class="type">int</span>) (p - proc));</span><br><span class="line">    kvmmap(kpgtbl, va, (uint64)pa, PGSIZE, PTE_R | PTE_W);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>kvmmap</code>（kernel&#x2F;vm.c:127）调用<code>mappages</code>（kernel&#x2F;vm.c:138），该函数为一系列虚拟地址范围安装映射到相应物理地址的页面表格中。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// add a mapping to the kernel page table.</span></span><br><span class="line"><span class="comment">// only used when booting.</span></span><br><span class="line"><span class="comment">// does not flush TLB or enable paging.</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">kvmmap</span><span class="params">(<span class="type">pagetable_t</span> kpgtbl, uint64 va, uint64 pa, uint64 sz, <span class="type">int</span> perm)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">if</span>(mappages(kpgtbl, va, sz, pa, perm) != <span class="number">0</span>)</span><br><span class="line">    panic(<span class="string">&quot;kvmmap&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Create PTEs for virtual addresses starting at va that refer to</span></span><br><span class="line"><span class="comment">// physical addresses starting at pa. va and size might not</span></span><br><span class="line"><span class="comment">// be page-aligned. Returns 0 on success, -1 if walk() couldn&#x27;t</span></span><br><span class="line"><span class="comment">// allocate a needed page-table page.</span></span><br><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">mappages</span><span class="params">(<span class="type">pagetable_t</span> pagetable, uint64 va, uint64 size, uint64 pa, <span class="type">int</span> perm)</span></span><br><span class="line">&#123;</span><br><span class="line">  uint64 a, last;</span><br><span class="line">  <span class="type">pte_t</span> *pte;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(size == <span class="number">0</span>)</span><br><span class="line">    panic(<span class="string">&quot;mappages: size&quot;</span>);</span><br><span class="line"></span><br><span class="line">  a = PGROUNDDOWN(va);</span><br><span class="line">  last = PGROUNDDOWN(va + size - <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">for</span>(;;)&#123;</span><br><span class="line">    <span class="keyword">if</span>((pte = walk(pagetable, a, <span class="number">1</span>)) == <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">if</span>(*pte &amp; PTE_V)</span><br><span class="line">      panic(<span class="string">&quot;mappages: remap&quot;</span>);</span><br><span class="line">    *pte = PA2PTE(pa) | perm | PTE_V;</span><br><span class="line">    <span class="keyword">if</span>(a == last)</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    a += PGSIZE;</span><br><span class="line">    pa += PGSIZE;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>它对于范围中的每个虚拟地址单独执行此操作，在页面间隔处执行此操作。对于要映射的每个虚拟地址，<code>mappages</code>都会调用<code>walk</code>来查找该地址<code>PTE</code>的位置。然后，它初始化<code>PTE</code>以保存相关物理页号、所需权限（<code>PTE_W</code>、<code>PTE_X</code>和&#x2F;或 <code>PTE_R</code>）和标记<code>PTE_V</code>作为有效(kernel&#x2F;vm.c:153)。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Create PTEs for virtual addresses starting at va that refer to</span></span><br><span class="line"><span class="comment">// physical addresses starting at pa. va and size might not</span></span><br><span class="line"><span class="comment">// be page-aligned. Returns 0 on success, -1 if walk() couldn&#x27;t</span></span><br><span class="line"><span class="comment">// allocate a needed page-table page.</span></span><br><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">mappages</span><span class="params">(<span class="type">pagetable_t</span> pagetable, uint64 va, uint64 size, uint64 pa, <span class="type">int</span> perm)</span></span><br><span class="line">&#123;</span><br><span class="line">  uint64 a, last;</span><br><span class="line">  <span class="type">pte_t</span> *pte;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(size == <span class="number">0</span>)</span><br><span class="line">    panic(<span class="string">&quot;mappages: size&quot;</span>);</span><br><span class="line"></span><br><span class="line">  a = PGROUNDDOWN(va);</span><br><span class="line">  last = PGROUNDDOWN(va + size - <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">for</span>(;;)&#123;</span><br><span class="line">    <span class="keyword">if</span>((pte = walk(pagetable, a, <span class="number">1</span>)) == <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">if</span>(*pte &amp; PTE_V)</span><br><span class="line">      panic(<span class="string">&quot;mappages: remap&quot;</span>);</span><br><span class="line">    *pte = PA2PTE(pa) | perm | PTE_V;</span><br><span class="line">    <span class="keyword">if</span>(a == last)</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    a += PGSIZE;</span><br><span class="line">    pa += PGSIZE;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>walk</code>（kernel&#x2F;vm.c:81）模仿RISC-V分页硬件，查找虚拟地址的<code>PTE</code>。<code>walk</code>每次下降3级页面表9位。它使用每个级别的9位虚拟地址来查找下一级页面表或最终页面的<code>PTE</code>（kernel&#x2F;vm.c:87）。如果PTE无效，则尚未分配所需页面；如果设置了alloc参数，则walk将分配新的页表页并将其物理地址放入PTE中。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Return the address of the PTE in page table pagetable</span></span><br><span class="line"><span class="comment">// that corresponds to virtual address va.  If alloc!=0,</span></span><br><span class="line"><span class="comment">// create any required page-table pages.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// The risc-v Sv39 scheme has three levels of page-table</span></span><br><span class="line"><span class="comment">// pages. A page-table page contains 512 64-bit PTEs.</span></span><br><span class="line"><span class="comment">// A 64-bit virtual address is split into five fields:</span></span><br><span class="line"><span class="comment">//   39..63 -- must be zero.</span></span><br><span class="line"><span class="comment">//   30..38 -- 9 bits of level-2 index.</span></span><br><span class="line"><span class="comment">//   21..29 -- 9 bits of level-1 index.</span></span><br><span class="line"><span class="comment">//   12..20 -- 9 bits of level-0 index.</span></span><br><span class="line"><span class="comment">//    0..11 -- 12 bits of byte offset within the page.</span></span><br><span class="line"><span class="type">pte_t</span> *</span><br><span class="line"><span class="title function_">walk</span><span class="params">(<span class="type">pagetable_t</span> pagetable, uint64 va, <span class="type">int</span> alloc)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">if</span>(va &gt;= MAXVA)</span><br><span class="line">    panic(<span class="string">&quot;walk&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span>(<span class="type">int</span> level = <span class="number">2</span>; level &gt; <span class="number">0</span>; level--) &#123;</span><br><span class="line">    <span class="type">pte_t</span> *pte = &amp;pagetable[PX(level, va)];</span><br><span class="line">    <span class="keyword">if</span>(*pte &amp; PTE_V) &#123;</span><br><span class="line">      pagetable = (<span class="type">pagetable_t</span>)PTE2PA(*pte);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">if</span>(!alloc || (pagetable = (<span class="type">pde_t</span>*)kalloc()) == <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">      <span class="built_in">memset</span>(pagetable, <span class="number">0</span>, PGSIZE);</span><br><span class="line">      *pte = PA2PTE(pagetable) | PTE_V;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> &amp;pagetable[PX(<span class="number">0</span>, va)];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>它返回树中最低层的<code>PTE</code>地址。以上代码依赖于物理内存被直接映射到内核虚拟地址空间中。例如，当<code>walk</code>下降页面表级别时，它从<code>PTE</code>获取下一个向下级别页面表(物理)地址，并使用该地址作为虚拟地址获取下一个向下级别的 <code>PTE </code>。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">/ Switch h/w page table <span class="keyword">register</span> to the kernel<span class="number">&#x27;</span>s page table,</span><br><span class="line"><span class="comment">// and enable paging.</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">kvminithart</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// wait for any previous writes to the page table memory to finish.</span></span><br><span class="line">  sfence_vma();</span><br><span class="line"></span><br><span class="line">  w_satp(MAKE_SATP(kernel_pagetable));</span><br><span class="line"></span><br><span class="line">  <span class="comment">// flush stale entries from the TLB.</span></span><br><span class="line">  sfence_vma();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>主函数调用<code>kvminithart</code>(kernel &#x2F; vm.c：62)安装内核页表。 它将根页表页的物理地址写入<code>satp</code>寄存器。之后CPU将使用内核页表翻译地址。由于内核使用身份映射，现在指令集合上一条指令对应正确的物理内存位置。</p>
-<p>每个RISC-V CPU都会在转换前缓存TLB中相应信息，在xv6更改某一页时必须告诉CPU使相应的缓存TLB条目失效。如果没有这样做，那么在以后的某个时候，TLB可能会使用旧的缓存映射，指向此时已分配给另一个进程的物理页面，并且结果是进程可能能够涂写其他进程的内存。RISC-V有一种指令<code>sfence.vma</code>可以刷新当前CPU的<code>TLB</code>。Xv6在重新加载<code>satp</code>寄存器之后，在<code>kvminithart</code>中执行<code>sfence.vma</code>，并在跳板代码(kernel&#x2F;trampoline.S:79)中切换到36用户页表并返回用户空间前执行。</p>
-<p>为了避免刷新完整的TLB，RISC-V CPU可以支持地址空间标识符（ASIDs）。然后内核只需清除特定地址空间的TLB条目即可</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1717,7 +1618,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1775,12 +1676,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">411k</span>
+    <span title="Symbols count total">419k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">12:27</span>
+    <span title="Reading time total">12:41</span>
 </div>
 
 <!--

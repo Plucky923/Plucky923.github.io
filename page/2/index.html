@@ -197,6 +197,217 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/24/Makefile/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="随便记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/04/24/Makefile/" class="post-title-link" itemprop="url">Makefile</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-04-24 13:30:29 / Modified: 21:02:29" itemprop="dateCreated datePublished" datetime="2023-04-24T13:30:29+08:00">2023-04-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Linux开发</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="什么是Makefile"><a href="#什么是Makefile" class="headerlink" title="什么是Makefile"></a>什么是Makefile</h1><p>一个工程中源文件不计其数，其按类型、功能、模块分别放在若干个目录中，Makefile文件定义了一系列的规则来指定哪些文件需要先编译，哪些文件需要后编译，哪些文件需要重新编译，甚至于进行更复杂的功能操作，因为Makefile文件就像一个Shell脚本一样，也可以执行操作系统的命令。</p>
+<p>Makefile带来的好处就是“自动化编译”，一旦写好，只需要一个make命令，整个工程完全自动编译，极大的提高了软件开发效率。make是一个命令工具，是一个工程完全编译，极大的提高了软件开发的效率。make是一个命令工具，是一个解释Makefile文件中指令的命令工具，一般来说，大多数的IDE都有这个命令，比如Delphi的make，Visual C++的make，Linux下GUN的make</p>
+<h1 id="Makefile文件命名和规则"><a href="#Makefile文件命名和规则" class="headerlink" title="Makefile文件命名和规则"></a>Makefile文件命名和规则</h1><ul>
+<li><p>文件命名</p>
+<p>makefile或者Makefile</p>
+</li>
+<li><p>Makefile规则</p>
+<p>一个Makefile文件中可以有一个或多个规则</p>
+<blockquote>
+<p>目标 …: 依赖 …</p>
+<p>       命令（shell命令）</p>
+<p>        …</p>
+</blockquote>
+<ul>
+<li><p>目标：最终要生成的文件（伪目标除外）</p>
+</li>
+<li><p>依赖：生成目标文件所需要的文件或是目标</p>
+</li>
+<li><p>命令：通过执行命令对依赖操作生成目标（命令前必须Tab缩进）</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p>我们现在有文件：</p>
+<img src="/2023/04/24/Makefile/nowfile.png" title alt data-align="center">
+
+<p>编辑Makefile文件</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">app:sub.c add.c mult.c div.c main.c</span></span><br><span class="line">    gcc sub.c add.c mult.c div.c main.c -o app</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<img src="/2023/04/24/Makefile/makefile.png" title alt data-align="center">
+
+<h1 id="Makefile的工作原理"><a href="#Makefile的工作原理" class="headerlink" title="Makefile的工作原理"></a>Makefile的工作原理</h1><ul>
+<li><p>命令在执行之前，需要先检查规则中的依赖是否存在</p>
+<ul>
+<li><p>如果存在，执行命令</p>
+</li>
+<li><p>如果不存在，向下检查其它的规则，检查有没有一个规则是用来生成这个依赖的，如果找到了，则执行该规则中的命令</p>
+</li>
+</ul>
+</li>
+<li><p>检测更新，在执行规则中的命令时，会比较目标和依赖文件的时间</p>
+<ul>
+<li><p>如果依赖的时间比目标的时间晚，需要重新生成目标</p>
+</li>
+<li><p>如果依赖的时间比目标的时间早，目标不需要更新，对应规则中的命令不需要被执行</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>我们修改Makefile文件内容为：   </p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">app:sub.o add.o mult.o div.o main.o</span></span><br><span class="line">    gcc sub.o add.o mult.o div.o main.o -o app</span><br><span class="line"></span><br><span class="line"><span class="section">sub.o:sub.c</span></span><br><span class="line">    gcc -c sub.c -o sub.o</span><br><span class="line"></span><br><span class="line"><span class="section">add.o:add.c</span></span><br><span class="line">    gcc -c add.c -o add.o</span><br><span class="line"></span><br><span class="line"><span class="section">div.o:div.c</span></span><br><span class="line">    gcc -c div.c -o div.o</span><br><span class="line"></span><br><span class="line"><span class="section">main.o:main.c</span></span><br><span class="line">    gcc -c main.c -o main.o                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       </span><br></pre></td></tr></table></figure>
+
+<p>我们输入命令<code>make</code></p>
+<img src="/2023/04/24/Makefile/makefile2.png" title alt data-align="center">
+
+<h1 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h1><ul>
+<li><p>自定义变量</p>
+<p>变量名 &#x3D; 变量值  var &#x3D; hello</p>
+</li>
+<li><p>预定义变量</p>
+<ul>
+<li><p>AR：归档维护程序的名称，默认值为ar</p>
+</li>
+<li><p>CC：C编译器的名称，默认值为cc</p>
+</li>
+<li><p>CXX：C++编译器的名称，默认值为g++</p>
+</li>
+<li><p>$@：目标的完整名称</p>
+</li>
+<li><p>$&lt;：第一个依赖文件的名称</p>
+</li>
+<li><p>$^：所有的依赖文件</p>
+</li>
+</ul>
+</li>
+<li><p>获取变量的值</p>
+<ul>
+<li>$(变量名)</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">app:main.c a.c b.c</span></span><br><span class="line">    gcc -c main.c a.c b.c</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">app:main.c a.c b.c</span></span><br><span class="line">    <span class="variable">$(CC)</span> -c <span class="variable">$^</span> -o <span class="variable">$@</span></span><br></pre></td></tr></table></figure>
+
+<p>上两段代码等价</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">%.o:%.o</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>% 为通配符，匹配一个字符串</p>
+</li>
+<li><p>两个%匹配的是同一个字符串</p>
+</li>
+</ul>
+<p>我们上述的Makefile文件也可改为</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">src = sub.o add.o mult.o div.o main.o</span><br><span class="line">target = app</span><br><span class="line"><span class="variable">$(target)</span>:<span class="variable">$(src)</span></span><br><span class="line">    <span class="variable">$(CC)</span> &amp;(src) -o <span class="variable">$(target)</span></span><br><span class="line"></span><br><span class="line"><span class="section">%.o:%.c</span></span><br><span class="line">    <span class="variable">$(CC)</span> -c <span class="variable">$&lt;</span> -o <span class="variable">$@</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h1><h2 id="wildcard-PATTERN-…"><a href="#wildcard-PATTERN-…" class="headerlink" title="$(wildcard PATTERN …)"></a>$(wildcard PATTERN …)</h2><ul>
+<li><p>功能：获取指定目录下指定类型的文件列表</p>
+</li>
+<li><p>参数：PATTERN指的是某个或多个目录下的对应的某种类型的文件，如果有多个目录，一般使用空格间隔</p>
+</li>
+<li><p>返回：得到的若干个文件的文件列表，文件名之间使用空格间隔</p>
+</li>
+<li><p>示例：</p>
+</li>
+</ul>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$(<span class="built_in">wildcard</span> *.c ./sub/*c)</span></span><br></pre></td></tr></table></figure>
+
+<p>返回值格式：a.c b.c c.c d.c e.c f.c</p>
+<h2 id="patsubst-lt-pattern-gt-lt-replacement-gt-lt-text-gt"><a href="#patsubst-lt-pattern-gt-lt-replacement-gt-lt-text-gt" class="headerlink" title="$(patsubst &lt;pattern&gt;,&lt;replacement&gt;,&lt;text&gt;)"></a>$(patsubst &lt;pattern&gt;,&lt;replacement&gt;,&lt;text&gt;)</h2><ul>
+<li><p>功能：查找<text>中的单词（单词以“空格”、“Tab”或“回车”“换行”分隔）是否符合模式<pattern>,如果匹配的话，则以<replacement>替换。</replacement></pattern></text></p>
+</li>
+<li><p><pattern>可以包括通配符<code>%</code>,表示任意长度的字符串。如果<replacement>中也包含<code>%</code>，那么，<replacement>中的这个<code>%</code>将是<pattern>中的那个<code>%</code>所代表的字符串。（可以用<code>\</code>来转义，以<code>\%</code>来表示真实含义的<code>%</code>字符）</pattern></replacement></replacement></pattern></p>
+</li>
+<li><p>返回：函数返回被替换过后的字符串</p>
+</li>
+<li><p>示例</p>
+</li>
+</ul>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$(<span class="built_in">patsubst</span> %.c, %.o, x.c bar.c)</span></span><br></pre></td></tr></table></figure>
+
+<p>返回值格式：x.o bar.o</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">src=<span class="variable">$(<span class="built_in">wildcard</span> ./*.c)</span></span><br><span class="line">objs=<span class="variable">$(<span class="built_in">patsubst</span> %.c, %.o, <span class="variable">$(src)</span>)</span></span><br><span class="line">target=app</span><br><span class="line"><span class="variable">$(target)</span>:<span class="variable">$(objs)</span></span><br><span class="line">    <span class="variable">$(CC)</span> <span class="variable">$(objs)</span> -o <span class="variable">$(target)</span></span><br><span class="line"></span><br><span class="line"><span class="section">%.o:%.c</span></span><br><span class="line">    <span class="variable">$(CC)</span> -c <span class="variable">$&lt;</span> -o <span class="variable">$@</span></span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm <span class="variable">$(objs)</span> -f</span><br></pre></td></tr></table></figure>
+
+<p>之后运行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make clean</span><br></pre></td></tr></table></figure>
+
+<p>就会自动删除<code>rm</code>指令</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2249,144 +2460,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/14/C++-%E5%AD%A6%E4%B9%A0-%E5%BC%95%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="随便记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/04/14/C++-%E5%AD%A6%E4%B9%A0-%E5%BC%95%E7%94%A8/" class="post-title-link" itemprop="url">C++学习 引用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-04-14 09:25:57" itemprop="dateCreated datePublished" datetime="2023-04-14T09:25:57+08:00">2023-04-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-30 15:59:29" itemprop="dateModified" datetime="2023-04-30T15:59:29+08:00">2023-04-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.7k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>3 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="引用的基本使用"><a href="#引用的基本使用" class="headerlink" title="引用的基本使用"></a>引用的基本使用</h1><p>作用：给变量起别名</p>
-<p>语法：数据类型 &amp;别名 &#x3D; 原名</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span>&amp; b = a;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a = &quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;b = &quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">    b = <span class="number">100</span>;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a = &quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;b = &quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行结果为：</p>
-<blockquote>
-<p>a &#x3D; 10<br>b &#x3D; 10<br>a &#x3D; 100<br>b &#x3D; 100</p>
-</blockquote>
-<h1 id="引用的注意事项"><a href="#引用的注意事项" class="headerlink" title="引用的注意事项"></a>引用的注意事项</h1><ul>
-<li><p>引用必须初始化 </p>
-</li>
-<li><p>引用在初始化后，不可以改变</p>
-</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span>&amp; b = a;</span><br><span class="line">    <span class="type">int</span> c = <span class="number">20</span>;</span><br><span class="line">    b = c;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a = &quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;b = &quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;c = &quot;</span> &lt;&lt; c &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行结果为：</p>
-<blockquote>
-<p>a &#x3D; 20<br>b &#x3D; 20<br>c &#x3D; 20</p>
-</blockquote>
-<h1 id="引用做函数参数"><a href="#引用做函数参数" class="headerlink" title="引用做函数参数"></a>引用做函数参数</h1><p>作用：函数传参时，可以利用引用的技术让形参修饰实参</p>
-<p>优点：可以简化指针修改实参</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">swap</span><span class="params">(<span class="type">int</span>&amp; a, <span class="type">int</span>&amp; b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> temp = a;</span><br><span class="line">    a = b;</span><br><span class="line">    b = temp;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;swap a = &quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;swap b = &quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span> b = <span class="number">20</span>;</span><br><span class="line">    <span class="built_in">swap</span>(a, b);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a = &quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;b = &quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行结果为：</p>
-<blockquote>
-<p>swap a &#x3D; 20<br>swap b &#x3D; 10<br>a &#x3D; 20<br>b &#x3D; 10</p>
-</blockquote>
-<p>引用传递，形参会修饰实参</p>
-<p>地址传递，形参会修饰实参</p>
-<p>值传递，形参不会修饰实参</p>
-<h1 id="引用做函数返回值"><a href="#引用做函数返回值" class="headerlink" title="引用做函数返回值"></a>引用做函数返回值</h1><p>作用：引用是可以作为函数的返回值存在的</p>
-<p>注意：不要返回局部变量引用</p>
-<p>用法：函数调用作为左值</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span>&amp; <span class="title">test</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">static</span> <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">return</span> a;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span>&amp; ref = <span class="built_in">test</span>();</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;ref = &quot;</span> &lt;&lt; ref &lt;&lt; endl;</span><br><span class="line">    <span class="built_in">test</span>() = <span class="number">1000</span>;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;ref = &quot;</span> &lt;&lt; ref &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行结果如下：</p>
-<blockquote>
-<p>ref &#x3D; 10<br>ref &#x3D; 1000</p>
-</blockquote>
-<h1 id="引用的本质"><a href="#引用的本质" class="headerlink" title="引用的本质"></a>引用的本质</h1><p>本质：引用的本质是在C++内部实现一个指针常量</p>
-<p><code>int&amp; ref = a;</code>等价于<code>int* const ref = a;</code></p>
-<p><code>ref = 20</code>当编译器发现ref是引用，会自动帮我们解引用转换为<code>*ref = 20</code></p>
-<h1 id="常量引用"><a href="#常量引用" class="headerlink" title="常量引用"></a>常量引用</h1><p>作用：常量引用主要用来修饰形参，防止误操作。</p>
-<p>在函数形参列表中，可以加const 修饰形参，防止形参改变实参</p>
-<p><img src="/2023/04/14/C++-%E5%AD%A6%E4%B9%A0-%E5%BC%95%E7%94%A8/ERROR.png"></p>
-<p><img src="/2023/04/14/C++-%E5%AD%A6%E4%B9%A0-%E5%BC%95%E7%94%A8/ERROR1.png"></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2456,7 +2529,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -2514,12 +2587,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">411k</span>
+    <span title="Symbols count total">419k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">12:27</span>
+    <span title="Reading time total">12:41</span>
 </div>
 
 <!--
