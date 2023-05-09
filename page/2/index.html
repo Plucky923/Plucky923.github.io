@@ -197,6 +197,245 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="随便记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/04/25/GDB%E8%B0%83%E8%AF%95/" class="post-title-link" itemprop="url">GDB调试</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-04-25 08:02:33 / Modified: 15:01:12" itemprop="dateCreated datePublished" datetime="2023-04-25T08:02:33+08:00">2023-04-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Linux开发</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="什么是GDB"><a href="#什么是GDB" class="headerlink" title="什么是GDB"></a>什么是GDB</h1><p>GDB是由GUN软件系统社区提供的调试工具，同GCC配套组成了一套完整的开发环境，GDB是Linux和许多类Unix系统中的标准开发环境</p>
+<p>一般来说，GDB主要帮助你完成下面四个方面的功能：</p>
+<p>1、启动程序，可以按照自定义的要求随心所欲的运行程序</p>
+<p>2、可让被调试的程序在所指定的调置的断点处停住（断点可以是条件表达式）</p>
+<p>3、当程序被停住时，可以检查此时程序中所发生的事</p>
+<p>4、可以改变程序，将一个BUG产生的影响修正从而测试其他的BUG</p>
+<h1 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h1><p>通常在为调试而编译时，我们会关掉编译器的优化选项（-o），并打开调试选项（-g）。另外，-Wall在尽量不影响程序的情况下选项打开所有warning，也可以发现许多问题，避免一些不必要的BUG。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -g -Wall program.c -o program</span><br></pre></td></tr></table></figure>
+
+<p>-g选项的作用是在可执行文件中加入源代码的信息，比如可执行文件中第几条机器指令对应源代码的第几行，但并不是把整个源文件嵌入到可执行文件中，所以在调试时必须保证gdb能找到源文件。 </p>
+<h1 id="GDB命令"><a href="#GDB命令" class="headerlink" title="GDB命令"></a>GDB命令</h1><img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb1.png" title alt data-align="center">
+
+<p>现有上述文件，我们编译test.c，运行如下命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.c -o test -g</span><br></pre></td></tr></table></figure>
+
+<p>之后运行如下命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb test</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb2.png" title alt data-align="center">
+
+<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><ul>
+<li>启动和退出</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">quit</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>给程序设置参数&#x2F;获取设置参数</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set args 10 20</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show args</span><br></pre></td></tr></table></figure>
+
+<img title src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb3.png" alt data-align="center">
+
+<ul>
+<li>GDB使用帮助</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">help</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>查看当前文件代码</p>
+<p>从默认位置显示</p>
+<p>从指定的行显示</p>
+<p>从指定函数显示</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">list/l</span><br><span class="line">list/l 行号</span><br><span class="line">list/l 函数名</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb4.png" title alt data-align="center">
+
+<ul>
+<li>查看非当前文件代码</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">list/l 文件名：行号</span><br><span class="line">list/l 文件名：函数名</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb5.png" title alt data-align="center">
+
+<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb6.png" title alt data-align="center">
+
+<ul>
+<li>设置显示的行数</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">show list/listsize</span><br><span class="line">set list/listsize 行数</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>设置断点</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">b/break 行号</span><br><span class="line">b/break 函数名</span><br><span class="line">b/break 文件名：行号</span><br><span class="line">b/break 文件名：函数</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看断点</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">info/i break/b</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb7.png" title alt data-align="center">
+
+<ul>
+<li>删除断点</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">d/del/delte 断点编号</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>设置断点无效</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dis/disable 断点编号</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>设置断点生效</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ena/enable 断点编号</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>设置断点条件（一般用在循环的位置）</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">b/break 10 if i==5</span><br></pre></td></tr></table></figure>
+
+<h1 id="GDB命令-调试命令"><a href="#GDB命令-调试命令" class="headerlink" title="GDB命令-调试命令"></a>GDB命令-调试命令</h1><ul>
+<li>运行GDB程序</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">start(程序停在第一行)</span><br><span class="line">run(遇到断点才停)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>继续运行，到下一个断点停</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">c/continue</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>向下执行一行代码</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">n/next</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb8.png" title alt data-align="center">
+
+<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb9.png" title alt data-align="center">
+
+<ul>
+<li>变量操作</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">p/print 变量名(打印变量值)</span><br><span class="line">ptype 变量名(打印变量类型) </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>向下单步调试（遇到函数进入函数体）</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s/step</span><br><span class="line">finish(跳出函数体)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>自动变量操作</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">display num(自动打印指定变量的值)</span><br><span class="line">i/info display</span><br><span class="line">undisplay 编号</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>其他操作</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">set var 变量名 = 变量值</span><br><span class="line">until (跳出循环)</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb11.png" title alt data-align="center">
+
+<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb12.png" title alt data-align="center">
+
+<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb13.png" title alt data-align="center">
+
+<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb14.png" title alt data-align="center">
+
+<ul>
+<li>next和step的区别</li>
+</ul>
+<p>next是一步步往下运行代码，不会进入函数体中中</p>
+<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb15.png" title alt data-align="center">
+
+<p>step是一步步往下运行代码，会进入函数体中</p>
+<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb16.png" title alt data-align="center">
+
+<ul>
+<li>自动设置变量例子</li>
+</ul>
+<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb17.png" title alt data-align="center">
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/24/Makefile/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -943,210 +1182,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="随便记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">GCC配置及使用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-04-21 10:22:47" itemprop="dateCreated datePublished" datetime="2023-04-21T10:22:47+08:00">2023-04-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-22 15:49:49" itemprop="dateModified" datetime="2023-04-22T15:49:49+08:00">2023-04-22</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Linux开发</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.7k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>3 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li><p>GCC原名为GUN C语言编译器（GUN C Compiler）</p>
-</li>
-<li><p>GCC（GUN Compiler Collection,GUN编译器套件）是由GUN开发的编程语言编译器。GUN编译器套件包括C、C++、Objective-C，Java，Ada和Go语言前端，也包括了这些语言的库（如libstdc++、libgcj等）</p>
-</li>
-<li><p>GCC不仅支持C的许多“方言”，也可以区别不同的C语言标准；可以使用命令行选项来控制编译器在翻译源代码时应该遵循哪个标准，例如，当使用命令行参数<code>-std = c99</code>，启动GCC时，编译器支持C99标准</p>
-</li>
-</ul>
-<h1 id="GCC安装"><a href="#GCC安装" class="headerlink" title="GCC安装"></a>GCC安装</h1><p>安装命令：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install gcc g++</span><br></pre></td></tr></table></figure>
-
-<p>查看版本：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc/g++ -v/--version</span><br></pre></td></tr></table></figure>
-
-<h1 id="GCC编译过程"><a href="#GCC编译过程" class="headerlink" title="GCC编译过程"></a>GCC编译过程</h1><p>首先创建一个c代码</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">touch test.c</span><br></pre></td></tr></table></figure>
-
-<p>在vscode中打开test.c,输入代码</p>
-<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/test.c.png" title alt data-align="left">
-
-<p>输入指令：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.c -E -o test.i</span><br></pre></td></tr></table></figure>
-
-<p>生成预处理文件：</p>
-<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/test.i.png" title alt data-align="center">
-
-<p>之后输入命令：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.i -S -o test.s</span><br></pre></td></tr></table></figure>
-
-<p>生成汇编文件：</p>
-<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/test.s.png" title alt data-align="center">
-
-<p>输入命令：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.s -c -o test.o</span><br></pre></td></tr></table></figure>
-
-<p>生成目标代码文件：</p>
-<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/test.o.png" title alt data-align="center">
-
-<p>输入命令：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.o -o test.out</span><br></pre></td></tr></table></figure>
-
-<p>生成可执行文件：</p>
-<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/test.out.png" title alt data-align="center">
-
-<p>运行可执行文件，移动到目录下，运行命令：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./test.out</span><br></pre></td></tr></table></figure>
-
-<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/runtest.out.png" title alt data-align="center">
-
-<h1 id="g"><a href="#g" class="headerlink" title="g++"></a>g++</h1><p>使用g++也可以对C程序进行编译</p>
-<h2 id="g-和gcc的区别"><a href="#g-和gcc的区别" class="headerlink" title="g++和gcc的区别"></a>g++和gcc的区别</h2><ul>
-<li><p>误区一：gcc只能编译c代码，g++只能编译C++代码</p>
-<ul>
-<li><p>后缀为.c的文件，gcc把它当作是c程序，而g++把它当作是C++程序</p>
-</li>
-<li><p>后缀为.cpp的文件，两者都会认为是C++程序，C++的语法规则更加严谨一点</p>
-</li>
-<li><p>编译阶段g++会调用gcc，对于C++代码，两者是等价的，但是因为gcc命令不能自动和C++程序使用的库连接，所以通常用g++来完成连接，为了同一期间，干脆编译&#x2F;连接都用g++。</p>
-</li>
-</ul>
-</li>
-<li><p>误区二：gcc不会定义__cplusplus,而g++会</p>
-<ul>
-<li><p>实际上，这个宏只是标志着编译器将会把代码按C还是C++语法来解释</p>
-</li>
-<li><p>如上所述，如果后缀为.c,并且采用gcc编译器，则该宏就是未定义的，否则就是已定义</p>
-</li>
-</ul>
-</li>
-<li><p>误区三：编译只能用gcc，连接只能用g++</p>
-<ul>
-<li><p>严格来说，这句话不算错误，但是它混淆了概念，应该这样说：编译可以用gcc&#x2F;g++，而连接可以用g++或者gcc -lstdc++</p>
-</li>
-<li><p>gcc命令不能自动和C++程序使用的库连接，所以通常使用g++来完成连接，但在编译阶段，g++会自动调用gcc，二者等价</p>
-</li>
-</ul>
-</li>
-</ul>
-<h1 id="编译选项-D"><a href="#编译选项-D" class="headerlink" title="编译选项 -D"></a>编译选项 -D</h1><p>我们编译运行如下程序：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> DEBUG</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Hello world\n&quot;</span>);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Hello GCC\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc test.c -o <span class="built_in">test</span></span><br><span class="line">./test</span><br></pre></td></tr></table></figure>
-
-<p>运行结果如下：</p>
-<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/runtest2.png" title alt data-align="center">
-
-<p>运行结果没有输出Hello world</p>
-<p>我们使用命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc test.c -o <span class="built_in">test</span> -DDEBUG</span><br><span class="line">./test</span><br></pre></td></tr></table></figure>
-
-<p>运行结果如下：</p>
-<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/runtest3.png" title alt data-align="center">
-
-<p>-D表示在编译的时候，指定一个宏，相当于程序</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DEBUG</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> DEBUG</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Hello world\n&quot;</span>);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Hello GCC\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="编译选项-Wall"><a href="#编译选项-Wall" class="headerlink" title="编译选项 -Wall"></a>编译选项 -Wall</h1><p>运行命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.c -o <span class="built_in">test</span> -Wall</span><br></pre></td></tr></table></figure>
-
-<p>运行结果如下：</p>
-<img src="/2023/04/21/GCC%E9%85%8D%E7%BD%AE%E5%8F%8A%E4%BD%BF%E7%94%A8/-Wall.png" title alt data-align="center">
-
-<h1 id="其他的一些编译选项"><a href="#其他的一些编译选项" class="headerlink" title="其他的一些编译选项"></a>其他的一些编译选项</h1><ul>
-<li><p>-On：编译优化</p>
-</li>
-<li><p>-l：程序编译的时候，指定使用的库</p>
-</li>
-<li><p>-L：指定编译的时候，搜索的库的路径</p>
-</li>
-<li><p>-fPIC&#x2F;fpic：生成与位置无关的代码</p>
-</li>
-<li><p>-shared：生成共享目标文件，通常用在建立共享库时</p>
-</li>
-<li><p>-std：指定c方言，如-std&#x3D;c99</p>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1444,7 +1479,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-30 16:00:55" itemprop="dateModified" datetime="2023-04-30T16:00:55+08:00">2023-04-30</time>
+                <time title="Modified: 2023-05-09 16:11:27" itemprop="dateModified" datetime="2023-05-09T16:11:27+08:00">2023-05-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1457,6 +1492,10 @@
                   , 
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/%E8%AF%AD%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">语法</span></a>
                 </span>
             </span>
 
@@ -2214,7 +2253,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-17 10:03:44" itemprop="dateModified" datetime="2023-04-17T10:03:44+08:00">2023-04-17</time>
+                <time title="Modified: 2023-05-09 16:10:51" itemprop="dateModified" datetime="2023-05-09T16:10:51+08:00">2023-05-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -2227,6 +2266,10 @@
                   , 
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/%E8%AF%AD%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">语法</span></a>
                 </span>
             </span>
 
@@ -2536,13 +2579,13 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -2587,12 +2630,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">419k</span>
+    <span title="Symbols count total">436k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">12:41</span>
+    <span title="Reading time total">13:13</span>
 </div>
 
 <!--
