@@ -43,8 +43,14 @@
 <meta property="og:image" content="http://example.com/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/mkfifo%E5%91%BD%E4%BB%A4.png">
 <meta property="og:image" content="http://example.com/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/%E6%9C%89%E5%90%8D%E7%AE%A1%E9%81%93%E9%80%9A%E4%BF%A1%E6%A1%88%E4%BE%8B.png">
 <meta property="og:image" content="http://example.com/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/%E6%9C%89%E5%90%8D%E7%AE%A1%E9%81%93%E8%81%8A%E5%A4%A9.png">
+<meta property="og:image" content="http://example.com/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84.png">
+<meta property="og:image" content="http://example.com/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/mmap.png">
+<meta property="og:image" content="http://example.com/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/kill-l.png">
+<meta property="og:image" content="http://example.com/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/corefillsize.png">
+<meta property="og:image" content="http://example.com/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/%E6%A0%B8%E5%BF%83%E5%B7%B2%E8%BD%AC%E5%82%A8.png">
+<meta property="og:image" content="http://example.com/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/core%E6%96%87%E4%BB%B6%E9%94%99%E8%AF%AF%E4%BF%A1%E6%81%AF.png">
 <meta property="article:published_time" content="2023-05-08T06:24:26.000Z">
-<meta property="article:modified_time" content="2023-05-10T14:39:16.571Z">
+<meta property="article:modified_time" content="2023-05-12T13:02:33.191Z">
 <meta property="article:author" content="Plucky">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="进程">
@@ -246,7 +252,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-05-10 22:39:16" itemprop="dateModified" datetime="2023-05-10T22:39:16+08:00">2023-05-10</time>
+                <time title="Modified: 2023-05-12 21:02:33" itemprop="dateModified" datetime="2023-05-12T21:02:33+08:00">2023-05-12</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -275,14 +281,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>11k</span>
+              <span>17k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>21 mins.</span>
+              <span>32 mins.</span>
             </span>
 
         </div>
@@ -543,6 +549,230 @@
 <p>运行结果为：</p>
 <img src="/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/有名管道聊天.png" title alt data-align="center">
 
+<h1 id="内存映射"><a href="#内存映射" class="headerlink" title="内存映射"></a>内存映射</h1><img src="/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/内存映射.png" title alt data-align="center">
+
+<h2 id="内存映射相关系统调用"><a href="#内存映射相关系统调用" class="headerlink" title="内存映射相关系统调用"></a>内存映射相关系统调用</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">void</span> *<span class="title">mmap</span><span class="params">(<span class="type">void</span> *addr, <span class="type">size_t</span> length, <span class="type">int</span> prot, <span class="type">int</span> flags, </span></span></span><br><span class="line"><span class="params"><span class="function"><span class="type">int</span> fd, <span class="type">off_t</span> offset)</span></span>;</span><br><span class="line"><span class="comment">//功能：</span></span><br><span class="line"><span class="comment">//映射或解除映射一个设备到内存中</span></span><br><span class="line"><span class="comment">//参数：</span></span><br><span class="line"><span class="comment">//- void *addr：NULL，由内核指定</span></span><br><span class="line"><span class="comment">//- length：要映射的数据的长度，不能为0，建议使用文件的长度</span></span><br><span class="line"><span class="comment">//- int prot：对申请的内存映射区的操作权限</span></span><br><span class="line"><span class="comment">//    PROT_EXEC：可执行的权限</span></span><br><span class="line"><span class="comment">//    PROT_WRITE：读权限</span></span><br><span class="line"><span class="comment">//    PROT_WRITE：写权限</span></span><br><span class="line"><span class="comment">//    PROT_NONE：没有权限</span></span><br><span class="line"><span class="comment">//    要操作映射区内存，必须要有读权限</span></span><br><span class="line"><span class="comment">//- flags：</span></span><br><span class="line"><span class="comment">//    MAP_SHEARED：映射区数据会自动和磁盘文件同步，进程间通信必须要设置这个选项</span></span><br><span class="line"><span class="comment">//    MAP_PRIVATE：不同步，内存映射区的数据变了，对原来的数据不会修改，会重新创建一个新的文件。（copy on write）</span></span><br><span class="line"><span class="comment">//- fd：需要映射的那个文件的文件描述符</span></span><br><span class="line"><span class="comment">//    通过open得到，open的是一个磁盘文件</span></span><br><span class="line"><span class="comment">//    注意文件大小不能为0，open指定的权限不能和prot参数有冲突</span></span><br><span class="line"><span class="comment">//    open：只读/读写    prot：PROT_READ</span></span><br><span class="line"><span class="comment">//    open：读写    prot:PROT_READ | PROT_WRITE</span></span><br><span class="line"><span class="comment">//- offset：偏移量，一般不用，必须指定为4K的整数倍，0表示不偏移</span></span><br><span class="line"><span class="comment">//- 返回值：返回创建的内存首地址，失败返回MAP_FAILED:(void*)-1 -1int munmap(void *addr, size_t length);</span></span><br><span class="line"> <span class="function"><span class="type">int</span> <span class="title">munmap</span><span class="params">(<span class="type">void</span> *addr, <span class="type">size_t</span> length)</span></span>;</span><br><span class="line"><span class="comment">//功能：释放内存映射</span></span><br><span class="line"><span class="comment">//参数：</span></span><br><span class="line"><span class="comment">//- addr：要释放的内存首地址</span></span><br><span class="line"><span class="comment">//- length：要释放的内存大小，要和mmap函数中的length参数的值一样</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="案例：父子进程使用内存映射通信"><a href="#案例：父子进程使用内存映射通信" class="headerlink" title="案例：父子进程使用内存映射通信"></a>案例：父子进程使用内存映射通信</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//使用内存映射实现进程间通信</span></span><br><span class="line"><span class="comment">//1、父子进程</span></span><br><span class="line"><span class="comment">//  - 还没有子进程的时候</span></span><br><span class="line"><span class="comment">//  - 通过唯一的父进程创建内存映射区</span></span><br><span class="line"><span class="comment">//  - 有了内存映射区以后再创建子进程</span></span><br><span class="line"><span class="comment">//  - 父子进程之间共享创建的内存映射区</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//2、没有关系的进程间通信</span></span><br><span class="line"><span class="comment">//  - 准备一个大小不为0的磁盘文件 </span></span><br><span class="line"><span class="comment">//  - 进程1通过磁盘文件创建内存映射区</span></span><br><span class="line"><span class="comment">//  - 得到一个操作这块内存的指针</span></span><br><span class="line"><span class="comment">//  - 进程2通过磁盘文件创建内存映射区</span></span><br><span class="line"><span class="comment">//  - 得到一个操作这块内存的指针</span></span><br><span class="line"><span class="comment">//  - 使用内存映射区进行通信</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//注意内存映射区通信不会阻塞</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;wait.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//1、打开一个文件</span></span><br><span class="line">    <span class="type">int</span> fd = <span class="built_in">open</span>(<span class="string">&quot;test.txt&quot;</span>, O_RDWR);</span><br><span class="line">    <span class="type">int</span> size = <span class="built_in">lseek</span>(fd, <span class="number">0</span>, SEEK_END);<span class="comment">//获取文件的大小</span></span><br><span class="line">    <span class="comment">//2、创建内存映射区</span></span><br><span class="line">    <span class="type">void</span>* ptr = <span class="built_in">mmap</span>(<span class="literal">NULL</span>, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (ptr == MAP_FAILED)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">perror</span>(<span class="string">&quot;mmap&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//3、创建子进程</span></span><br><span class="line">    <span class="type">pid_t</span> pid = fork();</span><br><span class="line">    <span class="keyword">if</span> (pid &gt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">wait</span>(<span class="literal">NULL</span>);</span><br><span class="line">        <span class="comment">//父进程</span></span><br><span class="line">        <span class="built_in">strcpy</span>((<span class="type">char</span>*)ptr, <span class="string">&quot;hello,child&quot;</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (pid == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//子进程</span></span><br><span class="line">        <span class="type">char</span> buf[<span class="number">64</span>];</span><br><span class="line">        <span class="built_in">strcpy</span>(buf, (<span class="type">char</span>*)ptr);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;read data : %s\n&quot;</span>, buf);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//关闭内存映射区</span></span><br><span class="line">    <span class="built_in">munmap</span>(ptr, size);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<img src="/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/mmap.png" title alt data-align="center">
+
+<h2 id="思考问题"><a href="#思考问题" class="headerlink" title="思考问题"></a>思考问题</h2><ul>
+<li><p>如果对mmap的返回值(ptr)做++操作(ptr++), munmap是否能够成功?</p>
+<blockquote>
+<p>void* ptr &#x3D; mmap(…);</p>
+<p>ptr++;  可以对其进行++操作</p>
+<p>munmap(ptr,len);  错误</p>
+</blockquote>
+</li>
+<li><p>如果open时O_RDONLY, mmap时prot参数指定PROT_READ | PROT_WRITE会怎样?</p>
+<blockquote>
+<p>错误，会返回MAP_FAILED</p>
+<p>open()函数中的权限建议prot参数的权限保持一致</p>
+</blockquote>
+</li>
+<li><p>如果文件偏移量为1000会怎样?</p>
+<blockquote>
+<p>偏移量必须是4K的整数倍，一般会返回MAP_FAILED</p>
+</blockquote>
+</li>
+<li><p>mmap什么情况下会调用失败?</p>
+<blockquote>
+<p>第二个参数：length &#x3D; 0</p>
+<p>第三个参数： prot</p>
+<p>    - 只指定了写权限</p>
+<p>    - prot PROT_READ | PROT_WRITE</p>
+<p>        第五个参数fd通过open函数时指定的O_RDONLY &#x2F; O_WRONLY</p>
+</blockquote>
+</li>
+<li><p>可以open的时候O_CREAT一个新文件来创建映射区吗？</p>
+<blockquote>
+<p>可以，但是如果创建的文件的大小不能为0</p>
+<p>可以对新的文件进行拓展</p>
+<p>    - lseek()</p>
+<p>    - truncate()</p>
+</blockquote>
+</li>
+<li><p>mmap后关闭文件描述符，对mmap映射有没有影响？</p>
+<blockquote>
+<p>int fd &#x3D; open(“XXX”);</p>
+<p>mmap(,,,,fd,0);</p>
+<p>close(fd);</p>
+<p>映射区还是存在的，创建映射区的fd被关闭，没有任何影响</p>
+</blockquote>
+</li>
+<li><p>对ptr越界操作会怎样？</p>
+<blockquote>
+<p>void* ptr &#x3D; mmap(NULL,100,,,);</p>
+<p>4K</p>
+<p>越界操作，操作的是非法内存-&gt;段错误</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="案例：使用内存映射进行文件拷贝"><a href="#案例：使用内存映射进行文件拷贝" class="headerlink" title="案例：使用内存映射进行文件拷贝"></a>案例：使用内存映射进行文件拷贝</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//使用内存映射实现文件拷贝功能</span></span><br><span class="line"><span class="comment">//1、对原始文件进行内存映射</span></span><br><span class="line"><span class="comment">//2、创建一个新文件（拓展该文件）</span></span><br><span class="line"><span class="comment">//3、把新文件的数据映射到内存中</span></span><br><span class="line"><span class="comment">//4、通过内存拷贝将第一个文件的内存数据拷贝到新的文件内存中</span></span><br><span class="line"><span class="comment">//5、释放资源</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//1、对原始文件进行内存映射</span></span><br><span class="line">    <span class="type">int</span> fd = <span class="built_in">open</span>(<span class="string">&quot;english.txt&quot;</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (fd == <span class="number">-1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">perror</span>(<span class="string">&quot;open&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//获取原始文件的大小</span></span><br><span class="line">    <span class="type">int</span> len = <span class="built_in">lseek</span>(fd, <span class="number">0</span>, SEEK_END);</span><br><span class="line">    <span class="comment">//2、创建一个新文件 （拓展该文件）</span></span><br><span class="line">    <span class="type">int</span> fd1 = <span class="built_in">open</span>(<span class="string">&quot;cpy.txt&quot;</span>, O_RDWR | O_CREAT,<span class="number">0664</span>);</span><br><span class="line">    <span class="keyword">if</span> (fd1 == <span class="number">-1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">perror</span>(<span class="string">&quot;open&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//对新创建的文件进行拓展 </span></span><br><span class="line">    <span class="built_in">truncate</span>(<span class="string">&quot;cpy.txt&quot;</span>, len);</span><br><span class="line">    <span class="built_in">write</span>(fd1, <span class="string">&quot; &quot;</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//3、分别做内存映射</span></span><br><span class="line">    <span class="type">void</span>* ptr1 = <span class="built_in">mmap</span>(<span class="literal">NULL</span>, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, <span class="number">0</span>);</span><br><span class="line">    <span class="type">void</span>* ptr2 = <span class="built_in">mmap</span>(<span class="literal">NULL</span>, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd1, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (ptr1 == MAP_FAILED)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">perror</span>(<span class="string">&quot;mmap&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (ptr2 == MAP_FAILED)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">perror</span>(<span class="string">&quot;mmap&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//内存拷贝</span></span><br><span class="line">    <span class="built_in">memcpy</span>(ptr2, ptr1, len);</span><br><span class="line">    <span class="comment">//释放资源</span></span><br><span class="line">    <span class="built_in">munmap</span>(ptr1, len);</span><br><span class="line">    <span class="built_in">munmap</span>(ptr2, len);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">close</span>(fd);</span><br><span class="line">    <span class="built_in">close</span>(fd1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="案例：父子进程使用匿名映射通信"><a href="#案例：父子进程使用匿名映射通信" class="headerlink" title="案例：父子进程使用匿名映射通信"></a>案例：父子进程使用匿名映射通信</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//匿名映射：不需要文件实体</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;wait.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//1、创建匿名内存映射区</span></span><br><span class="line">    <span class="type">int</span> len = <span class="number">4096</span>;</span><br><span class="line">    <span class="type">void</span>* ptr = <span class="built_in">mmap</span>(<span class="literal">NULL</span>, len, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (ptr == MAP_FAILED)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">perror</span>(<span class="string">&quot;mmap&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//父子间进程通信</span></span><br><span class="line">    <span class="type">pid_t</span> pid = fork();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (pid &gt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//父进程</span></span><br><span class="line">        <span class="built_in">strcpy</span>((<span class="type">char</span>*)ptr, <span class="string">&quot;hello,world&quot;</span>);</span><br><span class="line">        <span class="built_in">wait</span>(<span class="literal">NULL</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (pid == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//子进程</span></span><br><span class="line">        <span class="built_in">sleep</span>(<span class="number">1</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, (<span class="type">char</span>*)ptr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//释放内存映射区</span></span><br><span class="line">    <span class="type">int</span> ret = <span class="built_in">munmap</span>(ptr, len);</span><br><span class="line">    <span class="keyword">if</span> (ret == <span class="number">-1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">perror</span>(<span class="string">&quot;munmap&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="信号概述"><a href="#信号概述" class="headerlink" title="信号概述"></a>信号概述</h1><h2 id="信号的概念"><a href="#信号的概念" class="headerlink" title="信号的概念"></a>信号的概念</h2><ul>
+<li><p>信号是 Linux 进程间通信的最古老的方式之一，是事件发生时对进程的通知机制，有时也称之为软件中断，它是在软件层次上对中断机制的一种模拟，是一种异步通信的方式。信号可以导致一个正在运行的进程被另一个正在运行的异步进程中断，转而处理某一个突发事件。</p>
+</li>
+<li><p>发往进程的诸多信号，通常都是源于内核。引发内核为进程产生信号的各类事件如下：</p>
+<ul>
+<li><p>对于前台进程，用户可以通过输入特殊的终端字符来给它发送信号。比如输入Ctrl+C通常会给进程发送一个中断信号。</p>
+</li>
+<li><p>硬件发生异常，即硬件检测到一个错误条件并通知内核，随即再由内核发送相应信号给相关进程。比如执行一条异常的机器语言指令，诸如被 0 除，或者引用了无法访问的内存区域。</p>
+</li>
+<li><p>系统状态变化，比如 alarm 定时器到期将引起 SIGALRM 信号，进程执行的 CPU<br>时间超限，或者该进程的某个子进程退出。</p>
+</li>
+<li><p>运行 kill 命令或调用 kill 函数。</p>
+</li>
+</ul>
+</li>
+<li><p>使用信号的两个主要目的是：</p>
+<ul>
+<li><p>让进程知道已经发生了一个特定的事情。</p>
+</li>
+<li><p>强迫进程执行它自己代码中的信号处理程序。</p>
+</li>
+</ul>
+</li>
+<li><p>信号的特点：</p>
+<ul>
+<li><p>简单</p>
+</li>
+<li><p>不能携带大量信息</p>
+</li>
+<li><p>满足某个特定条件才发送</p>
+</li>
+<li><p>优先级比较高</p>
+</li>
+</ul>
+</li>
+<li><p>查看系统定义的信号列表：<code>kill -l</code></p>
+<img src="/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/kill-l.png" title alt data-align="center">
+</li>
+<li><p>前 31 个信号为常规信号，其余为实时信号</p>
+</li>
+</ul>
+<h2 id="重点信号"><a href="#重点信号" class="headerlink" title="重点信号"></a>重点信号</h2><table>
+<thead>
+<tr>
+<th align="center">编号</th>
+<th>信号名称</th>
+<th align="center">对应事件</th>
+<th align="center">默认动作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">2</td>
+<td>SIGINT</td>
+<td align="center">当用户按下了&lt;Ctrl+C&gt;组合键时，用户终端向正</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">在运行中的由该终端启动的程序发出此信号</td>
+<td>终止进程</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td>SIGQUIT</td>
+<td align="center">用户按下&lt;Ctrl+&gt;组合键时产生该信号，用户终</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">端向正在运行中的由该终端启动的程序发出些信号</td>
+<td>终止进程</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">9</td>
+<td>SIGKILL</td>
+<td align="center">无条件终止进程。该信号不能被忽略，处理和阻塞</td>
+<td align="center">终止进程，可以杀死任何进程</td>
+</tr>
+<tr>
+<td align="center">11</td>
+<td>SIGSEGV</td>
+<td align="center">指示进程进行了无效内存访问(段错误)</td>
+<td align="center">终止进程并产生core文件</td>
+</tr>
+<tr>
+<td align="center">13</td>
+<td>SIGPIPE</td>
+<td align="center">Broken pipe向一个没有读端的管道写数据</td>
+<td align="center">终止进程</td>
+</tr>
+<tr>
+<td align="center">17</td>
+<td>SIGCHLD</td>
+<td align="center">子进程结束时，父进程会收到这个信号</td>
+<td align="center">忽略这个信号</td>
+</tr>
+<tr>
+<td align="center">18</td>
+<td>SIGCONT</td>
+<td align="center">如果进程已停止，则使其继续运行</td>
+<td align="center">继续&#x2F;忽略</td>
+</tr>
+<tr>
+<td align="center">19</td>
+<td>SIGSTOP</td>
+<td align="center">停止进程的执行。信号不能被忽略，处理和阻塞</td>
+<td align="center">为终止进程</td>
+</tr>
+</tbody></table>
+<h2 id="信号的5种默认处理动作"><a href="#信号的5种默认处理动作" class="headerlink" title="信号的5种默认处理动作"></a>信号的5种默认处理动作</h2><ul>
+<li><p>查看信号的详细信息：<code>man 7 signal</code></p>
+</li>
+<li><p>信号的5种默认处理动作</p>
+<ul>
+<li><p>Term    终止进程</p>
+</li>
+<li><p>Ign    当前进程忽略掉这个信号</p>
+</li>
+<li><p>Core    终止进程，并生成一个Core文件</p>
+</li>
+<li><p>Stop    暂停当前进程</p>
+</li>
+<li><p>Cont    继续执行当前被暂停的进程</p>
+</li>
+</ul>
+</li>
+<li><p>信号的几种状态：产生、未决、递达</p>
+</li>
+<li><p>SIGKILL和SIGSTOP信号不能被捕捉、阻塞或者阻塞，只能执行默认动作</p>
+</li>
+</ul>
+<h2 id="Core动作"><a href="#Core动作" class="headerlink" title="Core动作"></a>Core动作</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">char</span>* buf;</span><br><span class="line">    <span class="built_in">strcpy</span>(buf, <span class="string">&quot;hello&quot;</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们建立一个core.c文件，这个文件肯定是会运行错误的，char* buf是一个野内存，我们访问这个内存是进行了一个非法操作 </p>
+<p>我们运行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ulimit -a</span><br></pre></td></tr></table></figure>
+
+<p>查看core文件大小的限制</p>
+<img src="/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/corefillsize.png" title alt data-align="center">
+
+<p>大小限制为0表示不会生成core文件</p>
+<p>运行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ulimit -c 1024</span><br></pre></td></tr></table></figure>
+
+<p>修改core文件限制，此时我们编译运行core.c文件</p>
+<img src="/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/核心已转储.png" title alt data-align="center">
+
+<p>发现错误，并且生成了一个core文件，如果没有生成core文件，可能是由于ubuntu预装了apport错误收集系统，运行命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo service apport stop</span><br></pre></td></tr></table></figure>
+
+<p>再次运行，发现生成了一个core文件</p>
+<p>调试一下a.out程序</p>
+<img src="/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/core文件错误信息.png" title alt data-align="center">
+
+<p>可以看到core文件中的错误信息</p>
+<h2 id="信号相关函数"><a href="#信号相关函数" class="headerlink" title="信号相关函数"></a>信号相关函数</h2><h3 id="kill函数"><a href="#kill函数" class="headerlink" title="kill函数"></a>kill函数</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">kill</span><span class="params">(<span class="type">pid_t</span> pid,<span class="type">int</span> sig)</span></span>;</span><br><span class="line"><span class="comment">//功能：给某个进程pid发送某个信号sig</span></span><br><span class="line"><span class="comment">//参数：</span></span><br><span class="line"><span class="comment">//    - pid：需要发送给的进程的pid</span></span><br><span class="line"><span class="comment">//    - </span></span><br></pre></td></tr></table></figure>
+
     </div>
 
     
@@ -565,7 +795,10 @@
     <a href="/2023/05/07/C++-%E5%AD%A6%E4%B9%A0-%E6%A8%A1%E6%9D%BF/" rel="prev" title="C++学习 模板">
       <i class="fa fa-chevron-left"></i> C++学习 模板
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2023/05/11/C++-%E5%AD%A6%E4%B9%A0-QT%E7%AE%80%E4%BB%8B/" rel="next" title="C++学习 QT简介">
+      C++学习 QT简介 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -625,7 +858,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">进程间通信简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E8%AE%AF%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">进程间通讯的概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">Linux进程间通信方式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8C%BF%E5%90%8D%E7%AE%A1%E9%81%93%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">匿名管道概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%A1%E9%81%93%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-number">2.1.</span> <span class="nav-text">管道的特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%E7%AE%A1%E9%81%93%E8%BF%9B%E8%A1%8C%E9%80%9A%E4%BF%A1"><span class="nav-number">2.2.</span> <span class="nav-text">为什么可以使用管道进行通信</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%A1%E9%81%93%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.3.</span> <span class="nav-text">管道的数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pipe%E5%87%BD%E6%95%B0"><span class="nav-number">2.4.</span> <span class="nav-text">pipe函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BF%E5%90%8D%E7%AE%A1%E9%81%93%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">2.5.</span> <span class="nav-text">匿名管道的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%A1%E9%81%93%E7%9A%84%E8%AF%BB%E5%86%99%E7%89%B9%E7%82%B9%E5%92%8C%E7%AE%A1%E9%81%93%E8%AE%BE%E7%BD%AE%E4%B8%BA%E9%9D%9E%E9%98%BB%E5%A1%9E"><span class="nav-number">2.6.</span> <span class="nav-text">管道的读写特点和管道设置为非阻塞</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%89%E5%90%8D%E7%AE%A1%E9%81%93"><span class="nav-number">3.</span> <span class="nav-text">有名管道</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%89%E5%90%8D%E7%AE%A1%E9%81%93%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">3.1.</span> <span class="nav-text">有名管道的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mkfifo%E5%91%BD%E4%BB%A4"><span class="nav-number">3.1.1.</span> <span class="nav-text">mkfifo命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mkfifo%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.2.</span> <span class="nav-text">mkfifo函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E5%90%8D%E7%AE%A1%E9%81%93%E9%80%9A%E4%BF%A1%E6%A1%88%E4%BE%8B"><span class="nav-number">3.1.3.</span> <span class="nav-text">有名管道通信案例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E5%90%8D%E7%AE%A1%E9%81%93%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">3.1.4.</span> <span class="nav-text">有名管道注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E5%90%8D%E7%AE%A1%E9%81%93%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%89%88%E8%81%8A%E5%A4%A9%E5%8A%9F%E8%83%BD"><span class="nav-number">3.1.5.</span> <span class="nav-text">有名管道实现简单版聊天功能</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">进程间通信简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E8%AE%AF%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">进程间通讯的概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">Linux进程间通信方式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8C%BF%E5%90%8D%E7%AE%A1%E9%81%93%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">匿名管道概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%A1%E9%81%93%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-number">2.1.</span> <span class="nav-text">管道的特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%E7%AE%A1%E9%81%93%E8%BF%9B%E8%A1%8C%E9%80%9A%E4%BF%A1"><span class="nav-number">2.2.</span> <span class="nav-text">为什么可以使用管道进行通信</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%A1%E9%81%93%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.3.</span> <span class="nav-text">管道的数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pipe%E5%87%BD%E6%95%B0"><span class="nav-number">2.4.</span> <span class="nav-text">pipe函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BF%E5%90%8D%E7%AE%A1%E9%81%93%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">2.5.</span> <span class="nav-text">匿名管道的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%A1%E9%81%93%E7%9A%84%E8%AF%BB%E5%86%99%E7%89%B9%E7%82%B9%E5%92%8C%E7%AE%A1%E9%81%93%E8%AE%BE%E7%BD%AE%E4%B8%BA%E9%9D%9E%E9%98%BB%E5%A1%9E"><span class="nav-number">2.6.</span> <span class="nav-text">管道的读写特点和管道设置为非阻塞</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%89%E5%90%8D%E7%AE%A1%E9%81%93"><span class="nav-number">3.</span> <span class="nav-text">有名管道</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%89%E5%90%8D%E7%AE%A1%E9%81%93%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">3.1.</span> <span class="nav-text">有名管道的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mkfifo%E5%91%BD%E4%BB%A4"><span class="nav-number">3.1.1.</span> <span class="nav-text">mkfifo命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mkfifo%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.2.</span> <span class="nav-text">mkfifo函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E5%90%8D%E7%AE%A1%E9%81%93%E9%80%9A%E4%BF%A1%E6%A1%88%E4%BE%8B"><span class="nav-number">3.1.3.</span> <span class="nav-text">有名管道通信案例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E5%90%8D%E7%AE%A1%E9%81%93%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">3.1.4.</span> <span class="nav-text">有名管道注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E5%90%8D%E7%AE%A1%E9%81%93%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%89%88%E8%81%8A%E5%A4%A9%E5%8A%9F%E8%83%BD"><span class="nav-number">3.1.5.</span> <span class="nav-text">有名管道实现简单版聊天功能</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84"><span class="nav-number">4.</span> <span class="nav-text">内存映射</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84%E7%9B%B8%E5%85%B3%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">4.1.</span> <span class="nav-text">内存映射相关系统调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B%EF%BC%9A%E7%88%B6%E5%AD%90%E8%BF%9B%E7%A8%8B%E4%BD%BF%E7%94%A8%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84%E9%80%9A%E4%BF%A1"><span class="nav-number">4.2.</span> <span class="nav-text">案例：父子进程使用内存映射通信</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E9%97%AE%E9%A2%98"><span class="nav-number">4.3.</span> <span class="nav-text">思考问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B%EF%BC%9A%E4%BD%BF%E7%94%A8%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84%E8%BF%9B%E8%A1%8C%E6%96%87%E4%BB%B6%E6%8B%B7%E8%B4%9D"><span class="nav-number">4.4.</span> <span class="nav-text">案例：使用内存映射进行文件拷贝</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B%EF%BC%9A%E7%88%B6%E5%AD%90%E8%BF%9B%E7%A8%8B%E4%BD%BF%E7%94%A8%E5%8C%BF%E5%90%8D%E6%98%A0%E5%B0%84%E9%80%9A%E4%BF%A1"><span class="nav-number">4.5.</span> <span class="nav-text">案例：父子进程使用匿名映射通信</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E6%A6%82%E8%BF%B0"><span class="nav-number">5.</span> <span class="nav-text">信号概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-number">5.1.</span> <span class="nav-text">信号的概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E7%82%B9%E4%BF%A1%E5%8F%B7"><span class="nav-number">5.2.</span> <span class="nav-text">重点信号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E7%9A%845%E7%A7%8D%E9%BB%98%E8%AE%A4%E5%A4%84%E7%90%86%E5%8A%A8%E4%BD%9C"><span class="nav-number">5.3.</span> <span class="nav-text">信号的5种默认处理动作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Core%E5%8A%A8%E4%BD%9C"><span class="nav-number">5.4.</span> <span class="nav-text">Core动作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0"><span class="nav-number">5.5.</span> <span class="nav-text">信号相关函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#kill%E5%87%BD%E6%95%B0"><span class="nav-number">5.5.1.</span> <span class="nav-text">kill函数</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -639,20 +872,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-count">39</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -697,12 +930,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">445k</span>
+    <span title="Symbols count total">453k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:30</span>
+    <span title="Reading time total">13:44</span>
 </div>
 
 <!--
