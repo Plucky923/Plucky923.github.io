@@ -25,32 +25,32 @@
 
   <meta name="description" content="什么是库 库文件是计算机上的一类文件，可以简单的把库文件看成一种代码仓库，它提供给使用者一些可以直接拿来用的变量。  库是一种特殊的程序，编写库的程序和编写一般的程序区别不大，只是库不能单独运行。  库文件有两种：静态库和动态库（共享库），区别是：静态库在程序的连接阶段被复制到了程序中；动态库在连接阶段没有被复制到程序，而是程序在运行时由系统动态加载到内存中供程序调用  库的好处：1、代码保密">
 <meta property="og:type" content="article">
-<meta property="og:title" content="库">
-<meta property="og:url" content="http://example.com/2023/04/22/%E5%BA%93/index.html">
+<meta property="og:title" content="C++ 学习 Linux系统编程 库">
+<meta property="og:url" content="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/index.html">
 <meta property="og:site_name" content="Plucky">
 <meta property="og:description" content="什么是库 库文件是计算机上的一类文件，可以简单的把库文件看成一种代码仓库，它提供给使用者一些可以直接拿来用的变量。  库是一种特殊的程序，编写库的程序和编写一般的程序区别不大，只是库不能单独运行。  库文件有两种：静态库和动态库（共享库），区别是：静态库在程序的连接阶段被复制到了程序中；动态库在连接阶段没有被复制到程序，而是程序在运行时由系统动态加载到内存中供程序调用  库的好处：1、代码保密">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/2023/04/22/%E5%BA%93/tree.png">
-<meta property="og:image" content="http://example.com/2023/04/22/%E5%BA%93/.o.png">
-<meta property="og:image" content="http://example.com/2023/04/22/%E5%BA%93/lib%E6%96%87%E4%BB%B6.png">
-<meta property="og:image" content="http://example.com/2023/04/22/%E5%BA%93/tree1.png">
-<meta property="og:image" content="http://example.com/2023/04/22/%E5%BA%93/tree2.png">
-<meta property="og:image" content="http://example.com/2023/04/22/%E5%BA%93/%E8%BF%90%E8%A1%8Capp.png">
-<meta property="og:image" content="http://example.com/2023/04/22/%E5%BA%93/%E5%8A%A8%E6%80%81%E5%BA%93.png">
-<meta property="og:image" content="http://example.com/2023/04/22/%E5%BA%93/%E5%8A%A8%E6%80%81%E5%BA%932.png">
-<meta property="og:image" content="http://example.com/2023/04/22/%E5%BA%93/%E5%8A%A8%E6%80%81%E5%BA%933.png">
-<meta property="og:image" content="http://example.com/2023/04/22/%E5%BA%93/lddmain.png">
-<meta property="og:image" content="http://example.com/2023/04/22/%E5%BA%93/%E5%8A%A8%E6%80%81%E5%BA%934.png">
-<meta property="og:image" content="http://example.com/2023/04/22/%E5%BA%93/%E5%8A%A8%E6%80%81%E5%BA%936.png">
+<meta property="og:image" content="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/tree.png">
+<meta property="og:image" content="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/.o.png">
+<meta property="og:image" content="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/lib%E6%96%87%E4%BB%B6.png">
+<meta property="og:image" content="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/tree1.png">
+<meta property="og:image" content="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/tree2.png">
+<meta property="og:image" content="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/%E8%BF%90%E8%A1%8Capp.png">
+<meta property="og:image" content="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/%E5%8A%A8%E6%80%81%E5%BA%93.png">
+<meta property="og:image" content="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/%E5%8A%A8%E6%80%81%E5%BA%932.png">
+<meta property="og:image" content="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/%E5%8A%A8%E6%80%81%E5%BA%933.png">
+<meta property="og:image" content="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/lddmain.png">
+<meta property="og:image" content="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/%E5%8A%A8%E6%80%81%E5%BA%934.png">
+<meta property="og:image" content="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/%E5%8A%A8%E6%80%81%E5%BA%936.png">
 <meta property="article:published_time" content="2023-04-22T02:39:33.000Z">
-<meta property="article:modified_time" content="2023-04-23T09:06:05.466Z">
+<meta property="article:modified_time" content="2023-05-14T07:19:46.476Z">
 <meta property="article:author" content="Plucky">
 <meta property="article:tag" content="C++">
 <meta property="article:tag" content="Linux">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2023/04/22/%E5%BA%93/tree.png">
+<meta name="twitter:image" content="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/tree.png">
 
-<link rel="canonical" href="http://example.com/2023/04/22/%E5%BA%93/">
+<link rel="canonical" href="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/">
 
 
 <script id="page-configurations">
@@ -63,7 +63,7 @@
   };
 </script>
 
-  <title>库 | Plucky</title>
+  <title>C++ 学习 Linux系统编程 库 | Plucky</title>
   
 
 
@@ -215,7 +215,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/22/%E5%BA%93/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -228,7 +228,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          库
+          C++ 学习 Linux系统编程 库
         </h1>
 
         <div class="post-meta">
@@ -245,7 +245,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-23 17:06:05" itemprop="dateModified" datetime="2023-04-23T17:06:05+08:00">2023-04-23</time>
+                <time title="Modified: 2023-05-14 15:19:46" itemprop="dateModified" datetime="2023-05-14T15:19:46+08:00">2023-05-14</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -258,6 +258,10 @@
                   , 
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">Linux系统编程</span></a>
                 </span>
             </span>
 
@@ -333,22 +337,22 @@
 <p>c 建立备存文件</p>
 <p>s 索引</p>
 <h1 id="静态库的制作"><a href="#静态库的制作" class="headerlink" title="静态库的制作"></a>静态库的制作</h1><p>我们现在有如下文件：</p>
-<img src="/2023/04/22/%E5%BA%93/tree.png" title alt data-align="center">
+<img title src="/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/tree.png" alt data-align="center">
 
 <p>首先我们将其编译为.o文件，运行如下命令：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -c add.c div.c mult.c sub.c</span><br></pre></td></tr></table></figure>
 
 <p>结果如下：</p>
-<img src="/2023/04/22/%E5%BA%93/.o.png" title alt data-align="center">
+<img title src="/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/.o.png" alt data-align="center">
 
 <p>输入命令制作静态库：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ar rcs libcalc.a add.o sub.o mult.o div.o</span><br></pre></td></tr></table></figure>
 
 <p>我们生成静态库文件如下：</p>
-<img src="/2023/04/22/%E5%BA%93/lib文件.png" title alt data-align="center">
+<img title src="/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/lib文件.png" alt data-align="center">
 
 <h1 id="静态库的使用"><a href="#静态库的使用" class="headerlink" title="静态库的使用"></a>静态库的使用</h1><p>如图所示，在文件夹里我们有如下文件：</p>
-<p><img src="/2023/04/22/%E5%BA%93/tree1.png"></p>
+<p><img src="/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/tree1.png"></p>
 <p>我们从头编译静态库文件</p>
 <p>我们在.&#x2F;library文件夹下依次运行如下命令</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd src</span><br></pre></td></tr></table></figure>
@@ -367,11 +371,11 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tree</span><br></pre></td></tr></table></figure>
 
 <p>如图所示：</p>
-<p><img src="/2023/04/22/%E5%BA%93/tree2.png"></p>
+<p><img src="/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/tree2.png"></p>
 <p>我们运行下列命令，运行app文件：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./app</span><br></pre></td></tr></table></figure>
 
-<img src="/2023/04/22/%E5%BA%93/运行app.png" title alt data-align="center">
+<img title src="/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/运行app.png" alt data-align="center">
 
 <h1 id="动态库的制作与使用"><a href="#动态库的制作与使用" class="headerlink" title="动态库的制作与使用"></a>动态库的制作与使用</h1><p>命名规则：</p>
 <ul>
@@ -402,14 +406,14 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -shared a.o b.o -o libcalc.so</span><br></pre></td></tr></table></figure>
 
 <h2 id="制作"><a href="#制作" class="headerlink" title="制作"></a>制作</h2><p>如图所示我们有如下文件，我们按如下命令依次编译，并生成动态库文件，将库文件复制到lib文件夹内。</p>
-<img src="/2023/04/22/%E5%BA%93/动态库.png" title alt data-align="center">
+<img title src="/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/动态库.png" alt data-align="center">
 
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -c -fpic add.c div.c mult.c sub.c</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -shared *.o -o libcalc.so</span><br></pre></td></tr></table></figure>
 
 <p>将libcalc.so文件复制到lib文件夹中，我们有如下文件：</p>
-<img src="/2023/04/22/%E5%BA%93/动态库2.png" title alt data-align="center">
+<img title src="/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/动态库2.png" alt data-align="center">
 
 <h2 id="动态库的使用"><a href="#动态库的使用" class="headerlink" title="动态库的使用"></a>动态库的使用</h2><p>我们编译main.c文件</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc main.c -o main -I include/ -L lib/ -l calc</span><br></pre></td></tr></table></figure>
@@ -418,7 +422,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./main</span><br></pre></td></tr></table></figure>
 
 <p>报错，报错信息如下：</p>
-<img src="/2023/04/22/%E5%BA%93/动态库3.png" title alt data-align="center">
+<img title src="/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/动态库3.png" alt data-align="center">
 
 <h1 id="库工作原理"><a href="#库工作原理" class="headerlink" title="库工作原理"></a>库工作原理</h1><p>静态库：GCC进行连接时，会把静态库中代码打包到可执行程序中</p>
 <p>动态库：GCC进行连接时，动态库的代码不会被打包到可执行程序中</p>
@@ -427,7 +431,7 @@
 <h1 id="动态库加载失败的原因和解决方法"><a href="#动态库加载失败的原因和解决方法" class="headerlink" title="动态库加载失败的原因和解决方法"></a>动态库加载失败的原因和解决方法</h1><p>我们运行命令</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldd main</span><br></pre></td></tr></table></figure>
 
-<img src="/2023/04/22/%E5%BA%93/lddmain.png" title alt data-align="center">
+<img title src="/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/lddmain.png" alt data-align="center">
 
 <p>发现我们自己写的libcalc.so动态库找不到</p>
 <p>添加环境变量，输入命令：</p>
@@ -436,7 +440,7 @@
 <p>我们再运行命令：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldd main</span><br></pre></td></tr></table></figure>
 
-<img src="/2023/04/22/%E5%BA%93/动态库4.png" title alt data-align="center">
+<img title src="/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/动态库4.png" alt data-align="center">
 
 <p>我们手动设置了动态库的路径，但是这只是临时的，关闭之后再次打开就会失效</p>
 <p>我们进入到&#x2F;home目录下运行命令</p>
@@ -449,7 +453,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source .bashrc</span><br></pre></td></tr></table></figure>
 
 <p>只要手动设置了动态库的路径，就可以运行.&#x2F;main</p>
-<img src="/2023/04/22/%E5%BA%93/动态库6.png" title alt data-align="center">
+<img title src="/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/动态库6.png" alt data-align="center">
 
 <p>还可以通过修改&#x2F;etc&#x2F;ld.so.cache文件，将动态库文件放入&#x2F;lib&#x2F;，&#x2F;usr&#x2F;lib&#x2F;</p>
 <h1 id="静态库和动态库的对比"><a href="#静态库和动态库的对比" class="headerlink" title="静态库和动态库的对比"></a>静态库和动态库的对比</h1><h2 id="静态库的优缺点"><a href="#静态库的优缺点" class="headerlink" title="静态库的优缺点"></a>静态库的优缺点</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
@@ -498,8 +502,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" rel="prev" title="Linux开发环境搭建">
-      <i class="fa fa-chevron-left"></i> Linux开发环境搭建
+    <a href="/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" rel="prev" title="C++ 学习 Linux系统编程 开发环境搭建">
+      <i class="fa fa-chevron-left"></i> C++ 学习 Linux系统编程 开发环境搭建
     </a></div>
       <div class="post-nav-item">
     <a href="/2023/04/23/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Making-Memory-Account-Accountable%EF%BC%9AAnalyzing-and-Detecting-Memory-Missing-account-bugs-for-Container-Platforms/" rel="next" title="论文阅读 Making Memory Account Accountable：Analyzing and Detecting Memory Missing account bugs for Container Platforms">
@@ -585,7 +589,7 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -636,12 +640,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">453k</span>
+    <span title="Symbols count total">467k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:44</span>
+    <span title="Reading time total">14:10</span>
 </div>
 
 <!--
@@ -751,7 +755,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'Blog-talk',
       owner       : 'Plucky923',
       admin       : ['Plucky923'],
-      id          : 'c59e8419057bf1316489ba6fbb3cb278',
+      id          : 'ad01681d7111319bad719b584d917c4b',
         language: 'zh-CH',
       distractionFreeMode: true
     });

@@ -25,36 +25,39 @@
 
   <meta name="description" content="什么是GDBGDB是由GUN软件系统社区提供的调试工具，同GCC配套组成了一套完整的开发环境，GDB是Linux和许多类Unix系统中的标准开发环境 一般来说，GDB主要帮助你完成下面四个方面的功能： 1、启动程序，可以按照自定义的要求随心所欲的运行程序 2、可让被调试的程序在所指定的调置的断点处停住（断点可以是条件表达式） 3、当程序被停住时，可以检查此时程序中所发生的事 4、可以改变程序，将一">
 <meta property="og:type" content="article">
-<meta property="og:title" content="GDB调试">
-<meta property="og:url" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/index.html">
+<meta property="og:title" content="C++ 学习 Linux系统编程 GDB调试">
+<meta property="og:url" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/index.html">
 <meta property="og:site_name" content="Plucky">
 <meta property="og:description" content="什么是GDBGDB是由GUN软件系统社区提供的调试工具，同GCC配套组成了一套完整的开发环境，GDB是Linux和许多类Unix系统中的标准开发环境 一般来说，GDB主要帮助你完成下面四个方面的功能： 1、启动程序，可以按照自定义的要求随心所欲的运行程序 2、可让被调试的程序在所指定的调置的断点处停住（断点可以是条件表达式） 3、当程序被停住时，可以检查此时程序中所发生的事 4、可以改变程序，将一">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb1.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb2.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb3.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb4.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb5.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb6.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb7.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb8.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb9.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb11.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb12.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb13.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb14.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb15.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb16.png">
-<meta property="og:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb17.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb1.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb2.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb2.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb3.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb4.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb5.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb6.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb7.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb8.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb9.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb11.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb12.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb13.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb14.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb15.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb15.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb16.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb16.png">
+<meta property="og:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb17.png">
 <meta property="article:published_time" content="2023-04-25T00:02:33.000Z">
-<meta property="article:modified_time" content="2023-04-25T07:01:12.567Z">
+<meta property="article:modified_time" content="2023-05-14T07:16:09.632Z">
 <meta property="article:author" content="Plucky">
 <meta property="article:tag" content="C++">
 <meta property="article:tag" content="Linux">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb1.png">
+<meta name="twitter:image" content="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb1.png">
 
-<link rel="canonical" href="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/">
+<link rel="canonical" href="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/">
 
 
 <script id="page-configurations">
@@ -67,7 +70,7 @@
   };
 </script>
 
-  <title>GDB调试 | Plucky</title>
+  <title>C++ 学习 Linux系统编程 GDB调试 | Plucky</title>
   
 
 
@@ -219,7 +222,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/25/GDB%E8%B0%83%E8%AF%95/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -232,7 +235,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          GDB调试
+          C++ 学习 Linux系统编程 GDB调试
         </h1>
 
         <div class="post-meta">
@@ -241,17 +244,31 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2023-04-25 08:02:33 / Modified: 15:01:12" itemprop="dateCreated datePublished" datetime="2023-04-25T08:02:33+08:00">2023-04-25</time>
+              <time title="Created: 2023-04-25 08:02:33" itemprop="dateCreated datePublished" datetime="2023-04-25T08:02:33+08:00">2023-04-25</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-05-14 15:16:09" itemprop="dateModified" datetime="2023-05-14T15:16:09+08:00">2023-05-14</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Linux开发</span></a>
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">Linux系统编程</span></a>
                 </span>
             </span>
 
@@ -268,7 +285,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.2k</span>
+              <span>1.1k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -297,16 +314,14 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -g -Wall program.c -o program</span><br></pre></td></tr></table></figure>
 
 <p>-g选项的作用是在可执行文件中加入源代码的信息，比如可执行文件中第几条机器指令对应源代码的第几行，但并不是把整个源文件嵌入到可执行文件中，所以在调试时必须保证gdb能找到源文件。 </p>
-<h1 id="GDB命令"><a href="#GDB命令" class="headerlink" title="GDB命令"></a>GDB命令</h1><img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb1.png" title alt data-align="center">
+<h1 id="GDB命令"><a href="#GDB命令" class="headerlink" title="GDB命令"></a>GDB命令</h1><img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb1.png" alt data-align="center">
 
-<p>现有上述文件，我们编译test.c，运行如下命令</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.c -o test -g</span><br></pre></td></tr></table></figure>
 
 <p>之后运行如下命令</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb test</span><br></pre></td></tr></table></figure>
 
-<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb2.png" title alt data-align="center">
-
+<p><img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb2.png" alt data-align="center"><img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb2.png" alt data-align="center"></p>
 <h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><ul>
 <li>启动和退出</li>
 </ul>
@@ -321,7 +336,7 @@
 
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show args</span><br></pre></td></tr></table></figure>
 
-<img title src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb3.png" alt data-align="center">
+<img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb3.png" alt data-align="center">
 
 <ul>
 <li>GDB使用帮助</li>
@@ -337,16 +352,16 @@
 </ul>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">list/l</span><br><span class="line">list/l 行号</span><br><span class="line">list/l 函数名</span><br></pre></td></tr></table></figure>
 
-<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb4.png" title alt data-align="center">
+<img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb4.png" alt data-align="center">
 
 <ul>
 <li>查看非当前文件代码</li>
 </ul>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">list/l 文件名：行号</span><br><span class="line">list/l 文件名：函数名</span><br></pre></td></tr></table></figure>
 
-<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb5.png" title alt data-align="center">
+<img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb5.png" alt data-align="center">
 
-<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb6.png" title alt data-align="center">
+<img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb6.png" alt data-align="center">
 
 <ul>
 <li>设置显示的行数</li>
@@ -363,7 +378,7 @@
 </ul>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">info/i break/b</span><br></pre></td></tr></table></figure>
 
-<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb7.png" title alt data-align="center">
+<img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb7.png" alt data-align="center">
 
 <ul>
 <li>删除断点</li>
@@ -400,9 +415,9 @@
 </ul>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">n/next</span><br></pre></td></tr></table></figure>
 
-<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb8.png" title alt data-align="center">
+<img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb8.png" alt data-align="center">
 
-<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb9.png" title alt data-align="center">
+<img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb9.png" alt data-align="center">
 
 <ul>
 <li>变量操作</li>
@@ -424,27 +439,24 @@
 </ul>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">set var 变量名 = 变量值</span><br><span class="line">until (跳出循环)</span><br></pre></td></tr></table></figure>
 
-<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb11.png" title alt data-align="center">
+<img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb11.png" alt data-align="center">
 
-<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb12.png" title alt data-align="center">
+<img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb12.png" alt data-align="center">
 
-<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb13.png" title alt data-align="center">
+<img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb13.png" alt data-align="center">
 
-<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb14.png" title alt data-align="center">
+<img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb14.png" alt data-align="center">
 
 <ul>
 <li>next和step的区别</li>
 </ul>
 <p>next是一步步往下运行代码，不会进入函数体中中</p>
-<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb15.png" title alt data-align="center">
-
-<p>step是一步步往下运行代码，会进入函数体中</p>
-<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb16.png" title alt data-align="center">
-
+<p><img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb15.png" alt data-align="center"><img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb15.png" alt data-align="center"></p>
+<p><img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb16.png" alt data-align="center"><img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb16.png" alt data-align="center"></p>
 <ul>
 <li>自动设置变量例子</li>
 </ul>
-<img src="/2023/04/25/GDB%E8%B0%83%E8%AF%95/gdb17.png" title alt data-align="center">
+<img title src="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/gdb17.png" alt data-align="center">
 
     </div>
 
@@ -465,12 +477,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/04/24/Makefile/" rel="prev" title="Makefile">
-      <i class="fa fa-chevron-left"></i> Makefile
+    <a href="/2023/04/24/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-Makefile/" rel="prev" title="C++ 学习 Linux系统编程 Makefile">
+      <i class="fa fa-chevron-left"></i> C++ 学习 Linux系统编程 Makefile
     </a></div>
       <div class="post-nav-item">
-    <a href="/2023/04/26/%E6%96%87%E4%BB%B6IO/" rel="next" title="文件IO">
-      文件IO <i class="fa fa-chevron-right"></i>
+    <a href="/2023/04/26/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E6%96%87%E4%BB%B6IO/" rel="next" title="C++ 学习 Linux系统编程 文件IO">
+      C++ 学习 Linux系统编程 文件IO <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -552,7 +564,7 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -603,12 +615,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">453k</span>
+    <span title="Symbols count total">467k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:44</span>
+    <span title="Reading time total">14:10</span>
 </div>
 
 <!--
@@ -718,7 +730,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'Blog-talk',
       owner       : 'Plucky923',
       admin       : ['Plucky923'],
-      id          : '37fb058cc0350c1b8f16e123359a7ebe',
+      id          : '97b316e9630ed91c871e5c2ebc1eb8ed',
         language: 'zh-CH',
       distractionFreeMode: true
     });

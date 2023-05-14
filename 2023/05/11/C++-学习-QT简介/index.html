@@ -41,7 +41,7 @@
 <meta property="og:image" content="http://example.com/2023/05/11/C++-%E5%AD%A6%E4%B9%A0-QT%E7%AE%80%E4%BB%8B/QT7.png">
 <meta property="og:image" content="http://example.com/2023/05/11/C++-%E5%AD%A6%E4%B9%A0-QT%E7%AE%80%E4%BB%8B/QT8.png">
 <meta property="article:published_time" content="2023-05-11T05:39:45.000Z">
-<meta property="article:modified_time" content="2023-05-11T16:10:56.882Z">
+<meta property="article:modified_time" content="2023-05-12T13:22:43.223Z">
 <meta property="article:author" content="Plucky">
 <meta property="article:tag" content="C++">
 <meta property="article:tag" content="QT">
@@ -243,7 +243,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-05-12 00:10:56" itemprop="dateModified" datetime="2023-05-12T00:10:56+08:00">2023-05-12</time>
+                <time title="Modified: 2023-05-12 21:22:43" itemprop="dateModified" datetime="2023-05-12T21:22:43+08:00">2023-05-12</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -330,10 +330,10 @@
 </li>
 </ul>
 <h2 id="main文件和pro文件解析"><a href="#main文件和pro文件解析" class="headerlink" title="main文件和pro文件解析"></a>main文件和pro文件解析</h2><p><strong>main文件</strong></p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;mywidget.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QApplication&gt;</span><span class="comment">//应用程序类</span></span></span><br><span class="line"><span class="comment">//程序入口 argv 命令行变量数量 命令行变量数组</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//a 应用程序对象，在Qt中应用程序对象有且仅有一个</span></span><br><span class="line">    <span class="function">QApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</span><br><span class="line">    <span class="comment">//通过窗口类实例化对象 w</span></span><br><span class="line">    MyWidget w;</span><br><span class="line">    <span class="comment">//窗口是不会默认弹出的，需要调用show方法进行显示</span></span><br><span class="line">    w.<span class="built_in">show</span>();</span><br><span class="line">    <span class="comment">//a.exec();进入消息循环机制 阻塞功能</span></span><br><span class="line">    <span class="keyword">return</span> a.<span class="built_in">exec</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;mywidget.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QApplication&gt;</span><span class="comment">//应用程序类</span></span></span><br><span class="line"><span class="comment">//程序入口 argv 命令行变量数量 命令行变量数组</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//a 应用程序对象，在Qt中应用程序对象有且仅有一个</span></span><br><span class="line">    <span class="function">QApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</span><br><span class="line">    <span class="comment">//通过窗口类实例化对象 w</span></span><br><span class="line">    MyWidget w;</span><br><span class="line">    <span class="comment">//窗口是不会默认弹出的，需要调用show方法进行显示</span></span><br><span class="line">    w.<span class="built_in">show</span>();</span><br><span class="line">    <span class="comment">//a.exec();进入消息循环机制 阻塞功能</span></span><br><span class="line">    <span class="keyword">return</span> a.<span class="built_in">exec</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><strong>pro文件</strong></p>
-<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">QT</span>       += core gui     //<span class="symbol">Qt</span>包含的模块</span><br><span class="line"></span><br><span class="line">greaterThan(<span class="symbol">QT_MAJOR_VERSION</span>, <span class="number">4</span>): <span class="symbol">QT</span> += widgets       //大于<span class="number">4</span>版本 加入widget模块</span><br><span class="line"></span><br><span class="line"><span class="symbol">CONFIG</span> += c++<span class="number">17</span></span><br><span class="line"></span><br><span class="line"># <span class="symbol">You</span> can make your code fail to compile if it uses deprecated <span class="symbol">APIs</span>.</span><br><span class="line"># <span class="symbol">In</span> order to do so, uncomment the following line.</span><br><span class="line">#<span class="symbol">DEFINES</span> += <span class="symbol">QT_DISABLE_DEPRECATED_BEFORE</span>=<span class="number">0x060000</span>    # disables all the <span class="symbol">APIs</span> deprecated before <span class="symbol">Qt</span> <span class="number">6.0</span><span class="number">.0</span></span><br><span class="line"></span><br><span class="line"><span class="symbol">SOURCES</span> += \</span><br><span class="line">    main.cpp \</span><br><span class="line">    mywidget.cpp    //源文件</span><br><span class="line"></span><br><span class="line"><span class="symbol">HEADERS</span> += \</span><br><span class="line">    mywidget.h    //头文件</span><br><span class="line"></span><br><span class="line"># <span class="symbol">Default</span> rules for deployment.</span><br><span class="line">qnx: target.path = /tmp/$$&#123;<span class="symbol">TARGET</span>&#125;/bin</span><br><span class="line">else: unix:!android: target.path = /opt/$$&#123;<span class="symbol">TARGET</span>&#125;/bin</span><br><span class="line">!isEmpty(target.path): <span class="symbol">INSTALLS</span> += target</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">QT</span>       += core gui     //<span class="symbol">Qt</span>包含的模块</span><br><span class="line"></span><br><span class="line">greaterThan(<span class="symbol">QT_MAJOR_VERSION</span>, <span class="number">4</span>): <span class="symbol">QT</span> += widgets       //大于<span class="number">4</span>版本 加入widget模块</span><br><span class="line"></span><br><span class="line"><span class="symbol">CONFIG</span> += c++<span class="number">17</span></span><br><span class="line"></span><br><span class="line"># <span class="symbol">You</span> can make your code fail to compile if it uses deprecated <span class="symbol">APIs</span>.</span><br><span class="line"># <span class="symbol">In</span> order to do so, uncomment the following line.</span><br><span class="line">#<span class="symbol">DEFINES</span> += <span class="symbol">QT_DISABLE_DEPRECATED_BEFORE</span>=<span class="number">0x060000</span>    # disables all the <span class="symbol">APIs</span> deprecated before <span class="symbol">Qt</span> <span class="number">6.0</span><span class="number">.0</span></span><br><span class="line"></span><br><span class="line"><span class="symbol">SOURCES</span> += \</span><br><span class="line">    main.cpp \</span><br><span class="line">    mywidget.cpp    //源文件</span><br><span class="line"></span><br><span class="line"><span class="symbol">HEADERS</span> += \</span><br><span class="line">    mywidget.h    //头文件</span><br><span class="line"></span><br><span class="line"># <span class="symbol">Default</span> rules for deployment.</span><br><span class="line">qnx: target.path = /tmp/$$&#123;<span class="symbol">TARGET</span>&#125;/bin</span><br><span class="line">else: unix:!android: target.path = /opt/$$&#123;<span class="symbol">TARGET</span>&#125;/bin</span><br><span class="line">!isEmpty(target.path): <span class="symbol">INSTALLS</span> += target</span><br></pre></td></tr></table></figure>
 
 <h2 id="Qt6包含模块"><a href="#Qt6包含模块" class="headerlink" title="Qt6包含模块"></a>Qt6包含模块</h2><table>
 <thead>
@@ -380,19 +380,11 @@
 </tr>
 <tr>
 <td align="center">Qt Quick Test</td>
-<td align="center">QML 应用程序的单元测试框架，其中测试用例编写为 JavaScript 函数。</td>
-</tr>
-<tr>
-<td align="center"><br>Note: 二进制兼容性保证不适用于Qt快速测试。但是，它将保持源兼容。</td>
-<td align="center"></td>
+<td align="center">QML 应用程序的单元测试框架，其中测试用例编写为 JavaScript 函数。Note: 二进制兼容性保证不适用于Qt快速测试。但是，它将保持源兼容。</td>
 </tr>
 <tr>
 <td align="center">Qt Test</td>
-<td align="center">用于单元测试 Qt 应用程序和库的类。</td>
-</tr>
-<tr>
-<td align="center"><br>Note: 二进制兼容性保证不适用于 Qt 测试。但是，它将保持源兼容。</td>
-<td align="center"></td>
+<td align="center">用于单元测试 Qt 应用程序和库的类。Note: 二进制兼容性保证不适用于 Qt 测试。但是，它将保持源兼容。</td>
 </tr>
 <tr>
 <td align="center">Qt Widgets</td>
@@ -419,8 +411,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/05/08/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/" rel="prev" title="进程通信">
-      <i class="fa fa-chevron-left"></i> 进程通信
+    <a href="/2023/05/08/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/" rel="prev" title="C++学习 Linux系统编程 进程通信">
+      <i class="fa fa-chevron-left"></i> C++学习 Linux系统编程 进程通信
     </a></div>
       <div class="post-nav-item">
     <a href="/2023/05/11/C++-%E5%AD%A6%E4%B9%A0-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%96%E7%A8%8B/" rel="next" title="C++学习 数据库编程">
@@ -506,7 +498,7 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -557,12 +549,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">453k</span>
+    <span title="Symbols count total">467k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:44</span>
+    <span title="Reading time total">14:10</span>
 </div>
 
 <!--

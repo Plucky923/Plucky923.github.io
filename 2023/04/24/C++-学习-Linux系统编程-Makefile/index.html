@@ -25,21 +25,21 @@
 
   <meta name="description" content="什么是Makefile一个工程中源文件不计其数，其按类型、功能、模块分别放在若干个目录中，Makefile文件定义了一系列的规则来指定哪些文件需要先编译，哪些文件需要后编译，哪些文件需要重新编译，甚至于进行更复杂的功能操作，因为Makefile文件就像一个Shell脚本一样，也可以执行操作系统的命令。 Makefile带来的好处就是“自动化编译”，一旦写好，只需要一个make命令，整个工程完全自动">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Makefile">
-<meta property="og:url" content="http://example.com/2023/04/24/Makefile/index.html">
+<meta property="og:title" content="C++ 学习 Linux系统编程 Makefile">
+<meta property="og:url" content="http://example.com/2023/04/24/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-Makefile/index.html">
 <meta property="og:site_name" content="Plucky">
 <meta property="og:description" content="什么是Makefile一个工程中源文件不计其数，其按类型、功能、模块分别放在若干个目录中，Makefile文件定义了一系列的规则来指定哪些文件需要先编译，哪些文件需要后编译，哪些文件需要重新编译，甚至于进行更复杂的功能操作，因为Makefile文件就像一个Shell脚本一样，也可以执行操作系统的命令。 Makefile带来的好处就是“自动化编译”，一旦写好，只需要一个make命令，整个工程完全自动">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/2023/04/24/Makefile/nowfile.png">
-<meta property="og:image" content="http://example.com/2023/04/24/Makefile/makefile.png">
-<meta property="og:image" content="http://example.com/2023/04/24/Makefile/makefile2.png">
+<meta property="og:image" content="http://example.com/2023/04/24/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-Makefile/nowfile.png">
+<meta property="og:image" content="http://example.com/2023/04/24/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-Makefile/makefile.png">
+<meta property="og:image" content="http://example.com/2023/04/24/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-Makefile/makefile2.png">
 <meta property="article:published_time" content="2023-04-24T05:30:29.000Z">
-<meta property="article:modified_time" content="2023-04-24T13:02:29.620Z">
+<meta property="article:modified_time" content="2023-05-14T07:19:20.386Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2023/04/24/Makefile/nowfile.png">
+<meta name="twitter:image" content="http://example.com/2023/04/24/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-Makefile/nowfile.png">
 
-<link rel="canonical" href="http://example.com/2023/04/24/Makefile/">
+<link rel="canonical" href="http://example.com/2023/04/24/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-Makefile/">
 
 
 <script id="page-configurations">
@@ -52,7 +52,7 @@
   };
 </script>
 
-  <title>Makefile | Plucky</title>
+  <title>C++ 学习 Linux系统编程 Makefile | Plucky</title>
   
 
 
@@ -204,7 +204,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/24/Makefile/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/24/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-Makefile/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -217,7 +217,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Makefile
+          C++ 学习 Linux系统编程 Makefile
         </h1>
 
         <div class="post-meta">
@@ -226,17 +226,31 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2023-04-24 13:30:29 / Modified: 21:02:29" itemprop="dateCreated datePublished" datetime="2023-04-24T13:30:29+08:00">2023-04-24</time>
+              <time title="Created: 2023-04-24 13:30:29" itemprop="dateCreated datePublished" datetime="2023-04-24T13:30:29+08:00">2023-04-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-05-14 15:19:20" itemprop="dateModified" datetime="2023-05-14T15:19:20+08:00">2023-05-14</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Linux开发</span></a>
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">Linux系统编程</span></a>
                 </span>
             </span>
 
@@ -296,13 +310,13 @@
 </li>
 </ul>
 <h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p>我们现在有文件：</p>
-<img src="/2023/04/24/Makefile/nowfile.png" title alt data-align="center">
+<img title src="/2023/04/24/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-Makefile/nowfile.png" alt data-align="center">
 
 <p>编辑Makefile文件</p>
 <figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">app:sub.c add.c mult.c div.c main.c</span></span><br><span class="line">    gcc sub.c add.c mult.c div.c main.c -o app</span><br></pre></td></tr></table></figure>
 
 <p>运行结果如下：</p>
-<img src="/2023/04/24/Makefile/makefile.png" title alt data-align="center">
+<img title src="/2023/04/24/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-Makefile/makefile.png" alt data-align="center">
 
 <h1 id="Makefile的工作原理"><a href="#Makefile的工作原理" class="headerlink" title="Makefile的工作原理"></a>Makefile的工作原理</h1><ul>
 <li><p>命令在执行之前，需要先检查规则中的依赖是否存在</p>
@@ -326,7 +340,7 @@
 <figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">app:sub.o add.o mult.o div.o main.o</span></span><br><span class="line">    gcc sub.o add.o mult.o div.o main.o -o app</span><br><span class="line"></span><br><span class="line"><span class="section">sub.o:sub.c</span></span><br><span class="line">    gcc -c sub.c -o sub.o</span><br><span class="line"></span><br><span class="line"><span class="section">add.o:add.c</span></span><br><span class="line">    gcc -c add.c -o add.o</span><br><span class="line"></span><br><span class="line"><span class="section">div.o:div.c</span></span><br><span class="line">    gcc -c div.c -o div.o</span><br><span class="line"></span><br><span class="line"><span class="section">main.o:main.c</span></span><br><span class="line">    gcc -c main.c -o main.o                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       </span><br></pre></td></tr></table></figure>
 
 <p>我们输入命令<code>make</code></p>
-<img src="/2023/04/24/Makefile/makefile2.png" title alt data-align="center">
+<img title src="/2023/04/24/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-Makefile/makefile2.png" alt data-align="center">
 
 <h1 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h1><ul>
 <li><p>自定义变量</p>
@@ -421,8 +435,8 @@
       <i class="fa fa-chevron-left"></i> 论文阅读 Making Memory Account Accountable：Analyzing and Detecting Memory Missing account bugs for Container Platforms
     </a></div>
       <div class="post-nav-item">
-    <a href="/2023/04/25/GDB%E8%B0%83%E8%AF%95/" rel="next" title="GDB调试">
-      GDB调试 <i class="fa fa-chevron-right"></i>
+    <a href="/2023/04/25/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-GDB%E8%B0%83%E8%AF%95/" rel="next" title="C++ 学习 Linux系统编程 GDB调试">
+      C++ 学习 Linux系统编程 GDB调试 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -504,7 +518,7 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -555,12 +569,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">453k</span>
+    <span title="Symbols count total">467k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:44</span>
+    <span title="Reading time total">14:10</span>
 </div>
 
 <!--
@@ -670,7 +684,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'Blog-talk',
       owner       : 'Plucky923',
       admin       : ['Plucky923'],
-      id          : '5562e3a4cebf67ddfdb217d7178336ad',
+      id          : 'c8f586e06d8d9c60ebfc6e5ed748a0d5',
         language: 'zh-CH',
       distractionFreeMode: true
     });

@@ -25,27 +25,27 @@
 
   <meta name="description" content="安装相关工具 Windows 虚拟机 | Workstation Pro | VMware | CN  Visual Studio Code  Xshell和Xftp  清华大学Ubuntu镜像   配置过程首先打开ubuntu，安装ssh服务端，输入指令 1sudo apt install openssh-server  之后打开Xshell   点击新建，如下图:   在名称处填写连接的名称，">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux开发环境搭建">
-<meta property="og:url" content="http://example.com/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:title" content="C++ 学习 Linux系统编程 开发环境搭建">
+<meta property="og:url" content="http://example.com/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/index.html">
 <meta property="og:site_name" content="Plucky">
 <meta property="og:description" content="安装相关工具 Windows 虚拟机 | Workstation Pro | VMware | CN  Visual Studio Code  Xshell和Xftp  清华大学Ubuntu镜像   配置过程首先打开ubuntu，安装ssh服务端，输入指令 1sudo apt install openssh-server  之后打开Xshell   点击新建，如下图:   在名称处填写连接的名称，">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/Xshell%E6%96%B0%E5%BB%BA.png">
-<meta property="og:image" content="http://example.com/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/Xshell%E9%85%8D%E7%BD%AE.png">
-<meta property="og:image" content="http://example.com/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/ifconfig.png">
-<meta property="og:image" content="http://example.com/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/VScoderemote.png">
-<meta property="og:image" content="http://example.com/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/VScodeconfig.png">
-<meta property="og:image" content="http://example.com/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/vscode%E8%BF%9E%E6%8E%A5.png">
-<meta property="og:image" content="http://example.com/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/vscode%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6%E5%A4%B9.png">
-<meta property="og:image" content="http://example.com/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/windows.ssh.png">
+<meta property="og:image" content="http://example.com/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/Xshell%E6%96%B0%E5%BB%BA.png">
+<meta property="og:image" content="http://example.com/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/Xshell%E9%85%8D%E7%BD%AE.png">
+<meta property="og:image" content="http://example.com/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/ifconfig.png">
+<meta property="og:image" content="http://example.com/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/VScoderemote.png">
+<meta property="og:image" content="http://example.com/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/VScodeconfig.png">
+<meta property="og:image" content="http://example.com/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/vscode%E8%BF%9E%E6%8E%A5.png">
+<meta property="og:image" content="http://example.com/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/vscode%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6%E5%A4%B9.png">
+<meta property="og:image" content="http://example.com/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/windows.ssh.png">
 <meta property="article:published_time" content="2023-04-20T08:02:55.000Z">
-<meta property="article:modified_time" content="2023-04-20T08:33:18.081Z">
+<meta property="article:modified_time" content="2023-05-14T07:16:41.987Z">
 <meta property="article:author" content="Plucky">
 <meta property="article:tag" content="Linux">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/Xshell%E6%96%B0%E5%BB%BA.png">
+<meta name="twitter:image" content="http://example.com/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/Xshell%E6%96%B0%E5%BB%BA.png">
 
-<link rel="canonical" href="http://example.com/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
+<link rel="canonical" href="http://example.com/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
 
 
 <script id="page-configurations">
@@ -58,7 +58,7 @@
   };
 </script>
 
-  <title>Linux开发环境搭建 | Plucky</title>
+  <title>C++ 学习 Linux系统编程 开发环境搭建 | Plucky</title>
   
 
 
@@ -210,7 +210,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -223,7 +223,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Linux开发环境搭建
+          C++ 学习 Linux系统编程 开发环境搭建
         </h1>
 
         <div class="post-meta">
@@ -232,17 +232,31 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2023-04-20 16:02:55 / Modified: 16:33:18" itemprop="dateCreated datePublished" datetime="2023-04-20T16:02:55+08:00">2023-04-20</time>
+              <time title="Created: 2023-04-20 16:02:55" itemprop="dateCreated datePublished" datetime="2023-04-20T16:02:55+08:00">2023-04-20</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-05-14 15:16:41" itemprop="dateModified" datetime="2023-05-14T15:16:41+08:00">2023-05-14</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Linux开发</span></a>
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">Linux系统编程</span></a>
                 </span>
             </span>
 
@@ -292,37 +306,36 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install openssh-server</span><br></pre></td></tr></table></figure>
 
 <p>之后打开Xshell</p>
-<img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/Xshell新建.png" title alt data-align="center">
+<img title src="/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/Xshell新建.png" alt data-align="center">
 
 <p>点击新建，如下图:</p>
-<img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/Xshell配置.png" title alt data-align="center">
+<img title src="/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/Xshell配置.png" alt data-align="center">
 
-<p>在名称处填写连接的名称，在主机处填写Ubuntu的ip地址</p>
-<p>打开Ubuntu，输入命令</p>
+<p>在名称处填写连接的名称，在主机处填写Ubuntu的ip地址打开Ubuntu，输入命令</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ifconfig</span><br></pre></td></tr></table></figure>
 
-<img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/ifconfig.png" title alt data-align="center">
+<img title src="/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/ifconfig.png" alt data-align="center">
 
 <p>得到ip地址为192.168.194.129</p>
 <p>之后我们使用Xshell连接，此时会让我们填写用户名和密码，我们填写Ubuntu的用户名和它的密码即可</p>
 <p>然后我们打开VScode，安装拓展</p>
-<img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/VScoderemote.png" title alt data-align="center">
+<img title src="/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/VScoderemote.png" alt data-align="center">
 
-<img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/VScodeconfig.png" title alt data-align="center">
+<img title src="/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/VScodeconfig.png" alt data-align="center">
 
 <p>之后会发现vscode多出一个远程资源管理器，我们点击远程资源管理器，然后打开SSH，配置文件，C:\Users\zc\ssh\config</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># Read more about SSH config files: https://linux.die.net/man/5/ssh_config</span><br><span class="line">Host Ubuntu-plucky       填写主机名，随便起</span><br><span class="line">    HostName 192.168.194.129   Ubuntu的IP地址</span><br><span class="line">    User plucky    Ubuntu的用户名</span><br></pre></td></tr></table></figure>
 
-<img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/vscode连接.png" title alt data-align="center">
+<img title src="/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/vscode连接.png" alt data-align="center">
 
 <p>之后就可以连接主机和打开文件夹</p>
-<p><img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/vscode%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6%E5%A4%B9.png"></p>
+<p><img src="/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/vscode%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6%E5%A4%B9.png"></p>
 <h1 id="配置SSH公私钥免密登录"><a href="#配置SSH公私钥免密登录" class="headerlink" title="配置SSH公私钥免密登录"></a>配置SSH公私钥免密登录</h1><p>首先在windows主机输入命令</p>
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh<span class="literal">-keygen</span> <span class="literal">-t</span> rsa</span><br></pre></td></tr></table></figure>
 
 <p>随后所有设置都按回车</p>
 <p>我们可以看到用户目录下</p>
-<img src="/2023/04/20/Linux%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/windows.ssh.png" title alt data-align="center">
+<img title src="/2023/04/20/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/windows.ssh.png" alt data-align="center">
 
 <p>id_rsa为私钥，id_rsa.pub为公钥</p>
 <p>之后我们打开Ubuntu，输入命令</p>
@@ -359,8 +372,8 @@
       <i class="fa fa-chevron-left"></i> MIT6 S081 Operating System Engineering Lecture06 Isolation and system call entry/exit
     </a></div>
       <div class="post-nav-item">
-    <a href="/2023/04/22/%E5%BA%93/" rel="next" title="库">
-      库 <i class="fa fa-chevron-right"></i>
+    <a href="/2023/04/22/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E5%BA%93/" rel="next" title="C++ 学习 Linux系统编程 库">
+      C++ 学习 Linux系统编程 库 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -442,7 +455,7 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -493,12 +506,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">453k</span>
+    <span title="Symbols count total">467k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:44</span>
+    <span title="Reading time total">14:10</span>
 </div>
 
 <!--
@@ -608,7 +621,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'Blog-talk',
       owner       : 'Plucky923',
       admin       : ['Plucky923'],
-      id          : '3c95c8b1e1036eb7c5ac59c5997ac377',
+      id          : '2c7aabe9dd5774a59ee3d3214fd149b0',
         language: 'zh-CH',
       distractionFreeMode: true
     });
