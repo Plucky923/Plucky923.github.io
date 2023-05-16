@@ -197,6 +197,350 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="随便记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/" class="post-title-link" itemprop="url">论文阅读 Houdini’s Escape: Breaking the Resource Rein of Linux Control Groups</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-04-15 13:08:53" itemprop="dateCreated datePublished" datetime="2023-04-15T13:08:53+08:00">2023-04-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-04-22 19:50:35" itemprop="dateModified" datetime="2023-04-22T19:50:35+08:00">2023-04-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文精读</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/%E5%86%85%E6%A0%B8%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">内核安全</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>24k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>44 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><strong>摘要</strong></p>
+<p>Linux Control Groups，即cgroups，是启用操作系统级容器化的关键构建块。cgroups机制将进程划分为分层的组，并应用不同的控制器来管理系统资源，包括CPU、内存、块I&#x2F;O等。新生成的子进程自动从父进程中复制cgroups属性以加强资源控制。不幸的是，通过进程创建继承的cgroups限制并不总是保证一致和公平的资源核算。在本文中，我们设计了一套利用策略，通过将进程与原始进程组解关联来生成out-of-band工作负载。这样的工作负载所消耗的系统资源不会被计算到适当的cgroup中。</p>
+<p>为了进一步证明可行性，我们提供了Docker容器中的五个案例研究，以演示如何在现实场景中打破cgroup的资源限制。更糟糕的是，通过利用这些cgroups在多租户容器环境中的不足，攻击容器能够极大地扩大所消耗的资源数量，显著降低同一主机上的其他容器的速度，并在系统资源上获得额外的不公平优势。我们在本地测试平台和Amazon EC2云专用服务器上进行了大量的实验。实验结果表明，一个容器可以消耗系统资源(例如CPU)高达其极限的200倍，并使其他共存容器中特定工作负载的计算和I&#x2F;O性能降低95%。</p>
+<p> <strong>CCS CONCEPT</strong></p>
+<ul>
+<li>Security and privacy → Virtualization and security</li>
+</ul>
+<p><strong>KEYWORDS</strong></p>
+<p>Container；Control Group；Docker</p>
+<h1 id="INTRODUCTION"><a href="#INTRODUCTION" class="headerlink" title="INTRODUCTION"></a>INTRODUCTION</h1><p>容器技术已广泛应用于各种计算场景，包括边缘计算、微服务架构、无服务器计算和商业云供应商。与虚拟机相比，消除额外的抽象层可以更好地利用资源并提高效率。因此，容器可以实现接近本机的性能。</p>
+<p>尽管容器技术具有性能优势，但最近也引起了一些安全和隐私问题，特别是资源隔离、特权升级、混淆代理攻击和隐蔽通道。</p>
+<p>在Linux内核中，启用容器资源隔离和管理的两个关键构建块是Linux命名空间(即namespaces)和Linux控制组(即cgroups)。此外，还采用或建议了一组安全机制(例如，Capabilities、SELinux、AppArmor、seccomp和安全命名空间)来进一步增强部署中的容器安全性。</p>
+<p>容器依赖于cgroup进行资源管理和控制，以防止一个容器耗尽主机的系统资源。cgroups机制将一组进程及其子进程划分为分层的组，并应用不同的控制器来管理和限制各种系统资源，例如CPU时间、计算机内存、块I&#x2F;O等。通过合理的限制策略，cgroups可以缓解许多已知的拒绝服务漏洞。</p>
+<p>容器技术已广泛应用于各种计算场景，包括边缘计算、微服务架构、无服务器计算和商业云供应商。与虚拟机相比，消除额外的抽象层可以更好地利用资源并提高效率。因此，容器可以实现接近本机的性能。</p>
+<p>尽管容器技术具有性能优势，但最近也引起了一些安全和隐私问题，特别是资源隔离、特权升级、混淆代理攻击和隐蔽通道。</p>
+<p>在Linux内核中，启用容器资源隔离和管理的两个关键构建块是Linux命名空间(即命名空间)和Linux控制组(即cgroups1)。此外，还采用或建议了一组安全机制(例如，Capabilities、SELinux、AppArmor、seccomp和安全命名空间)来进一步增强部署中的容器安全性。</p>
+<p>容器依赖于cgroup进行资源管理和控制，以防止一个容器耗尽主机的系统资源。cgroups机制将一组进程及其子进程划分为分层的组，并应用不同的控制器来管理和限制各种系统资源，例如CPU时间、计算机内存、块I&#x2F;O等。通过合理的限制策略，cgroups可以缓解许多已知的拒绝服务漏洞</p>
+<p>在本文中，我们打算系统地探讨一下来摆脱现有的cgroups机制的资源控制、<br>并了解其对容器的安全影响。新创建的子进程会自动继承其父进程的cgroups属性。这种机制保证了它们将被限制在相同的cgroups策略下。为了打破cgroups的资源约束，我们设计了一套利用策略，通过将进程与其原始cgroups分离，生成了一些带外工作负载。这意味着这些进程不再受到原始cgroups的资源限制，从而可能绕过原本的资源管理策略。这些进程可以从头开始创建，以处理在一个cgroup内发起的系统事件。在其他情况下，这些进程可以是休眠的内核线程或系统服务进程。在整个系统中共享，并将在需要时被激活。因此，相应的消耗的资源将被收取到其他 “受害者 “cgroups中。</p>
+<p>为了进一步揭示现有cgroup机制不足的安全风险，我们使用Docker容器进行了五个案例研究，展示了在现实系统设置中逃脱cgroup资源控制的步骤。在这些案例研究中，我们分别利用了异常、文件系统和I&#x2F;O设备、Linux日志系统、容器引擎和softirqs处理的内核处理机制。我们在亚马逊EC2云中的本地测试平台和专用服务器上进行实验。我们的实验表明，即使执行了多个cgroup控制器，一个对抗性去特权容器仍然可以显著耗尽CPU资源或产生大量的I&#x2F;O活动，而不需要任何cgroup控制器。</p>
+<p>更糟糕的是，通过在多租户容器环境中利用这些机制，对抗性容器能够极大地扩大所消耗的资源量。由于对抗容器会发动多种攻击(如拒绝服务攻击和资源释放攻击)，可以显著降低同一主机上的其他容器的速度，并在系统资源上获得额外的不公平优势。我们的实验证明，对手仅通过控制少量资源就能显著影响共存容器的性能。例如，一个容器可能会消耗系统资源(例如CPU)，超过其极限200倍，并使其他容器的特定基准的计算和I&#x2F;O性能降低95%。总体而言，本工作的主要贡献总结如下:</p>
+<ul>
+<li><p>我们提出了四种可能导致系统资源错误计算的开发策略，因此我们可以逃避cgroup控制器强制执行的资源约束。</p>
+</li>
+<li><p>我们在Docker容器环境中进行了五个案例研究，并证明了在现实场景中打破cgroup限制并消耗大量资源是可能的。</p>
+</li>
+<li><p>我们在两个具有不同配置的试验台上评估了所提出的方法的影响。实验结果表明了安全影响的严重性。</p>
+</li>
+</ul>
+<p>本文的其余部分组织如下。第二节介绍了cgroup的背景。第3节介绍了逃脱cgroups机制控制的策略，并从内核的角度分析了其根本原因。第4节详细介绍了容器的几个案例研究，包括威胁模型、攻击向量以及对多租户容器环境的各种攻击的有效性。第5节从不同方面讨论了潜在的缓解措施。第6节对相关工作进行考察，并在第7节中进行总结。</p>
+<h1 id="BACKGROUND"><a href="#BACKGROUND" class="headerlink" title="BACKGROUND"></a>BACKGROUND</h1><p>在Linux内核中，cgroups是用于管理一组任务及其所有子任务的系统资源(例如CPU、内存、磁盘I&#x2F;O、网络等)的关键特性。它是实现集装箱化的构建块之一。cgroup机制将进程组划分为具有控制行为的分层组。所有的子进程也从它们的父进程继承某些属性(例如，limits)，并由该机制控制。cgroups依赖于不同的资源控制器(或子系统)来限制、解释和隔离各种类型的系统资源，包括CPU时间、系统内存、块I&#x2F;O、网络带宽等。Linux容器利用控制组对每个容器实例应用资源限制，并防止单个容器耗尽主机资源。对于云计算中的计费模型，还可以使用cgroups为每个容器分配相应的资源并测量它们的使用情况。下面我们简要介绍cgroup层次结构的背景知识，现有容器环境中通常应用的四种典型的cgroup控制器，以及新生成进程的cgroup继承过程。</p>
+<h2 id="cgroups-Hierarchy-and-Controllers"><a href="#cgroups-Hierarchy-and-Controllers" class="headerlink" title="cgroups Hierarchy and Controllers"></a>cgroups Hierarchy and Controllers</h2><p>在Linux中，cgroup是按层次结构组织的，其中一组cgroup被排列在树中。每个任务(例如，一个线程)只能与一个层次结构中的一个cgroup相关联，但可以是不同层次结构中的多个cgroup的成员。然后，每个层次结构都有一个或多个附加子系统，以便资源控制器可以对特定的系统资源应用每个cgroup限制。通过分层结构，cgroups机制能够限制一组进程(例如容器)的资源总量。</p>
+<h3 id="The-cpu-controller"><a href="#The-cpu-controller" class="headerlink" title="The cpu controller"></a>The cpu controller</h3><p>cpu controller通过利用CFS(完全公平的调度器，在Linux 2.6.23中引入)调度cpu，以两种方式使cpu成为可管理的资源。</p>
+<p>第一种方法是保证最少数量的CPU共享:每个组都提供相应的共享，以定义相对权重。该策略在CPU空闲时不限制cgroup的CPU使用率，当多个cgroup竞争相同的CPU资源时，按照权重的比例分配带宽。例如，如果共享为512的一个容器与共享为1024的另一个容器运行在同一个核心上。然后，第一个容器的CPU使用率大致为33.3%，而另一个容器的CPU使用率为66.7%。在Linux 3.2中进一步扩展了cpu控制器，通过指定配额和周期来提供额外的cpu带宽控制。</p>
+<p>每个组只能在每个给定的“时间段”(以微秒为单位)内消耗“配额”微秒。如果一个组的CPU带宽消耗(由运行时变量跟踪)超过了限制，控制器将限制该任务，直到下一个时间段，此时容器的运行时被重新充电到其配额。cpu控制器被广泛应用于多租户容器环境，以限制一个容器的cpu使用。如果容器设置的配额为50,000，周期为100,000，则该容器最多可以消耗一个CPU核心总CPU周期的一半。</p>
+<h3 id="The-cpusets-controller"><a href="#The-cpusets-controller" class="headerlink" title="The cpusets controller"></a>The cpusets controller</h3><p>cpusets控制器提供了一种机制，用于将一组任务约束到特定的cpu和内存节点。在多租户容器环境中，利用cpusets控制器来限制特定核心上容器的工作负载。容器的每个任务都附加到一个cpuset，其中包含一组允许使用的cpu和内存节点。对于CPU调度，任务的调度(通过系统调用sched_setaffinity)被过滤到任务的cpusset允许的那些CPU。任务的任何进一步的动态迁移也仅限于允许的cpuset。因此，cpusets控制器还可以用于将一个进程固定在特定的核心上。容器用户还可以利用用户空间应用程序(例如，taskset)在cpuset的限制范围内进一步设置亲和性。</p>
+<h3 id="The-blkio-controller"><a href="#The-blkio-controller" class="headerlink" title="The blkio controller"></a>The blkio controller</h3><p>blkio cgroup通过应用I&#x2F;O控制来控制和限制对指定块设备的访问。内核级有两个策略可用。第一个是基于比例权重的基于时间的磁盘策略划分。每个cgroup都被分配了一个blkio。权重值，表示该组占用磁盘时间的比例。第二个是节流策略，它指定I&#x2F;O设备上的上限。</p>
+<h3 id="The-pid-controller"><a href="#The-pid-controller" class="headerlink" title="The pid controller"></a>The pid controller</h3><p>pid cgroup子系统用于对容器的任务数量设置一定的限制。这可以通过在pid.max中设置最大任务数来实现。当前任务数保存在pid .current中。pid cgroup子系统将在达到限制(例如，pid.current&gt; pid .max)停止forking或克隆一个新任务(例如，返回错误信息)。因此，pid控制器可以有效防御多种耗尽攻击，如fork bomb。</p>
+<h2 id="cgroups-Inheritance"><a href="#cgroups-Inheritance" class="headerlink" title="cgroups Inheritance"></a>cgroups Inheritance</h2><p>cgroups的一个重要特性是子进程从父进程继承cgroups属性。每当一个进程创建一个子进程(例如，fork或clone)时，它都会触发内核中的fork函数来复制初始化进程。当新派生的进程在开始时附加到根cgroup时，在复制寄存器和进程环境的其他适当部分(例如，命名空间)后，调用cgroup复制函数来复制父进程的cgroup。特别是，该函数通过递归遍历所有cgroup子系统，将任务附加到其父cgroup。因此，在复制过程之后，子任务将继承与其父任务完全相同的cgroups成员。</p>
+<p>例如，如果cpusets资源控制器将父进程的the CPU affinity设置为第二个核心，那么新派生的子进程也将被固定在第二个核心上。同时，如果cpu子系统将父cgroup上的cpu配额限制为50,000，周期为100,000，那么在第二个核上，cgroup的总cpu利用率(包括新分叉的进程和它的父进程)不能超过50%。</p>
+<h1 id="EXPLOITING-STRATEGIES"><a href="#EXPLOITING-STRATEGIES" class="headerlink" title="EXPLOITING STRATEGIES"></a>EXPLOITING STRATEGIES</h1><p>在本节中，我们将描述四种逃避cgroups机制的资源控制的策略，并解释现有cgroup无法跟踪所消耗资源的根本原因。如上所述，使用层次结构，cgroups机制可以限制一组进程(例如容器)的资源总量。这是通过附加资源控制器对特定的系统资源应用每cgroup限制来实现的。此外，cgroup中的继承机制确保了同一个cgroup中的所有进程及其子进程都可以被cgroup子系统控制，而不消耗额外的系统资源。</p>
+<p>然而，由于Linux内核的复杂性和实现cgroups的难度，我们发现有几个机制没有考虑到，因此可以利用它们来逃避现有cgroups的约束。关键思想是生成工作负载，运行在没有直接从初始化cgroup派生出来的进程上，这导致了cgroup的去关联。特别是，如图所示，用户空间中没有根权限的普通进程可以利用四种策略逃脱cgroups的控制。</p>
+<img src="/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/strategies.png" title alt data-align="center">
+
+<h2 id="Exploiting-Upcalls-from-Kernel"><a href="#Exploiting-Upcalls-from-Kernel" class="headerlink" title="Exploiting Upcalls from Kernel"></a>Exploiting Upcalls from Kernel</h2><p>在cgroups机制中，所有内核线程都附加到根cgroup，因为内核线程是由内核创建的。因此，内核线程通过fork或clone创建的所有进程也都附加到与其父进程相同的cgroup(根cgroup)中。</p>
+<p>因此，一个cgroup中的进程可以利用内核线程作为代理来产生新的进程，从而逃脱cgroup的控制。特别地，如图❶所示，一个进程可以先触发内核来初始化一个内核线程。</p>
+<p>这个内核线程充当代理，进一步创建一个新进程。</p>
+<p>由于内核线程附加到根cgroup，因此新创建的进程也附加到根cgroup。在新创建的进程上运行的所有工作负载将不受cgroup子系统的限制，从而打破资源控制。</p>
+<p>但是，这种机制要求用户空间进程首先调用内核空间中的内核函数，然后从内核空间向上调用用户空间进程。虽然从用户空间调用特定的内核函数(例如系统调用)是很自然的，但相反的方向并不常见。一种可行的方法是通过usermode helper API，该API通过提供可执行变量和环境变量的名称，为在用户空间中创建流程提供了一个简单的接口。这个函数首先调用一个运行在内核线程中的工作队列(例如，kworker)。工作队列的处理函数进一步创建一个内核线程来启动用户进程。最后一步调用内核中的fork函数，将创建的用户进程附加到内核线程的cgroups。</p>
+<p>用户模式助手API可用于多种场景，如加载模块、重新启动计算机、生成安全密钥和传递内核事件。虽然在用户空间中触发这些活动通常需要root权限，但仍然可以在用户空间中调用API，这将在4.1节中讨论。</p>
+<h2 id="Delegating-Workloads-to-Kernel-Threads"><a href="#Delegating-Workloads-to-Kernel-Threads" class="headerlink" title="Delegating Workloads to Kernel Threads"></a>Delegating Workloads to Kernel Threads</h2><p>另一种利用内核线程来打破cgroup约束的方法是将工作负载委托给它们，如图❷所示。同样，由于所有内核线程都附加到根cgroup，因此这些工作负载所消耗的资源量将计入目标内核线程，而不是初始化用户空间进程。</p>
+<p>Linux内核运行多个内核线程，处理各种内核函数并在进程上下文中运行内核代码。例如，kthread是内核线程守护进程，用于创建其他内核线程;引入Kworker来处理工作队列任务;Ksoftirqd服务于softirqs;迁移执行迁移作业，将任务从一个核心移动到另一个核心;kswapd管理交换空间。对于这些内核线程，根据它们的功能，内核可能只在系统中运行一个线程(例如kthread)，或者每个内核运行一个线程(例如ksoftirqd)，或者每个内核运行多个线程(例如kworker)。一直有报道称，由于各种bug和问题，内核线程会消耗大量的资源。因此，如果一个进程可以强制内核线程运行委托的工作负载，相应消耗的资源将不受cgroup的限制。</p>
+<h2 id="Exploiting-Service-Processes"><a href="#Exploiting-Service-Processes" class="headerlink" title="Exploiting Service Processes"></a>Exploiting Service Processes</h2><p>除了由内核维护的内核线程外，Linux服务器还运行多个系统进程(例如systemd)，用于不同的目的，如进程管理、系统信息日志记录、调试等。这些流程监视其他流程，并在触发特定活动时生成工作负载。同时，许多用户空间进程作为其他进程的依赖关系，同时运行以支持其他进程的正常功能。如果一个用户进程能够在这些进程上生成内核工作负载(图中的策略❸ )，所消耗的资源就不会被分配给初始化进程，从而可以逃脱cgroups机制。</p>
+<h2 id="Exploiting-Interrupt-Context"><a href="#Exploiting-Interrupt-Context" class="headerlink" title="Exploiting Interrupt Context"></a>Exploiting Interrupt Context</h2><p>最后一种策略是利用中断上下文中所消耗的资源。cgroup机制只计算在进程上下文中消耗的资源。一旦内核运行在其他上下文(如中断上下文,如图所示的策略❹),所有消耗的资源都不会被计入任何cgroup</p>
+<p>特别地，Linux内核服务中断分为两部分:上半部分(即硬件中断)和下半部分(即软件中断)。由于硬件中断可能随时被引发，因此上半部分仅通过响应硬件中断来执行轻量级操作，然后安排(延迟)下半部分的执行。当在下半部分执行中断处理程序时，内核运行在软件中断上下文中，因此它不会为系统资源(例如CPU)收取任何进程的费用。</p>
+<p>从内核3.6开始，softirq的处理(硬件中断引发的除外)与生成它们的进程绑定。</p>
+<p>这意味着在softirq上下文中所消耗的所有资源都不会消耗所引发进程的任何配额。此外，softirqs的执行将抢占当前进程上的任何工作负载，所有进程将被延迟。</p>
+<p>此外，如果处理softirqs的工作负载过重，内核将把它们卸载到内核线程ksoftirqd，这是一个每个CPU(即每个CPU一个线程)的内核线程，并以默认的进程优先级运行。一旦卸载，对softirqs的处理将在ksoftirqd的进程上下文中运行，因此任何资源消耗都将在线程ksoftirqd上计算。在这种情况下，它属于内核线程策略(如图所示的策略❷ )。总之，如果一个进程(称为进程A)能够引发大量的软件中断，内核将不得不在中断上下文或ksoftirqd的进程上下文中花费资源来处理软中断，而不向进程A支付费用。</p>
+<h1 id="CASE-STUDIES-ON-CONTAINERS"><a href="#CASE-STUDIES-ON-CONTAINERS" class="headerlink" title="CASE STUDIES ON CONTAINERS"></a>CASE STUDIES ON CONTAINERS</h1><p>在前一节中，我们讨论了几种可能的策略来逃避cgroups的资源控制。然而，在现实的容器环境中，由于存在其他合作安全策略，开发更具挑战性。在本节中，我们将介绍在Docker容器环境中进行的五个案例研究，以演示利用cgroups弱点的详细步骤。</p>
+<ul>
+<li><p>Threat model</p>
+<p>我们考虑一个多租户容器环境，其中属于不同租户的多个Docker容器共享同一台物理机器。目前，边缘和云平台都广泛采用了多租户环境。系统管理员使用cgroups为每个容器设置资源限制。每个容器都是去特权的，设置有有限的CPU时间、系统内存、块I&#x2F;O带宽，并固定到特定的核心。我们假设攻击者控制了一个容器实例，并试图利用cgroups中的不足(1)降低其他容器的性能，(2)获得不公平的优势。</p>
+</li>
+<li><p>Configuration</p>
+<p>我们使用Docker容器通过提供的接口来设置cgroups的配置。此外，Docker还默认确保容器通过namespace隔离。特别是，启用USER namespace后，容器中的根用户将映射到主机上的非特权用户。</p>
+<p>因此，容器中的特权操作不会影响主机内核。我们的案例研究就是在这样一个没有特权的容器中进行的。</p>
+<p>为了演示每种利用的有效性，我们通过在空闲服务器上设置多个cgroup配置来初始化容器，并测量主机上系统资源的利用率。为了模拟边缘和云环境，我们选择了两个测试平台来进行实验:(1)我们实验室的本地机器;(2) Amazon EC2中的专用主机。特别是，虽然我们的本地测试台配备了7200 rpm的SATA硬盘驱动器，但我们在EC2服务器上选择了更好的I&#x2F;O配置。专用试验台的存储配置了1000iops的SSD(默认为400)，吞吐量比我们本地试验台提高20倍左右。因此，本地测试平台表示可能部署在边缘环境中的性能较低的节点，而强大的专用服务器可以模拟多租户容器云环境。</p>
+</li>
+<li><p>Ethical hacking concerns</p>
+<p>使用cgroup将不可避免地产生主机级的影响，这可能会影响主机服务器上所有容器的性能。因此，对于我们在Amazon EC2上的实验，我们选择使用专用服务器，该服务器仅供我们使用，不与其他租户共享。</p>
+<p>此外，它还允许我们模拟多租户容器环境并度量系统范围的影响。</p>
+</li>
+<li><p>Result summary</p>
+<p>表给出了所有案例研究的总体总结、相应的开发策略和影响。第一个案例研究是利用内核中的异常处理机制，这涉及到策略❶。我们发现容器中引发的异常可以调用用户空间进程，其后果是容器可以消耗比cgroups限制多200倍的CPU资源。第二种情况是利用回写机制进行磁盘数据同步，这涉及到策略❷。容器可以不断调用全局数据同步，以降低主机上特定I&#x2F;O工作负载的速度，最高可达95%。第三种情况是利用系统服务日志(通过策略❸)，产生消耗CPU和块设备带宽的工作负载。第四种情况是利用容器引擎在容器引擎进程(策略❸)和内核线程(策略 ❷)上产生额外的未计算的工作负载(大约3倍)。最后一种情况是利用softirq处理机制在内核线程(策略 ❷)和中断上下文(策略❹)上消耗CPU周期。</p>
+</li>
+</ul>
+<img title src="/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/Summary2.png" alt data-align="center">
+
+<h2 id="Case-1-Exception-Handling"><a href="#Case-1-Exception-Handling" class="headerlink" title="Case 1:Exception Handling"></a>Case 1:Exception Handling</h2><p>第一种情况是利用内核中的异常处理机制。我们发现可以调用用户模式助手API，并通过异常进一步触发用户空间流程(作为策略❶)。通过反复产生异常，一个容器消耗的CPU资源比限制多约200倍，从而使同一主机(不限于一个核)上其他容器的性能显著降低85% ~ 95%。</p>
+<ul>
+<li><p>Detailed analysis </p>
+<p>Linux内核为各种异常提供了专用的异常处理程序，包括错误(例如，分割错误)和陷阱(例如，溢出)。内核维护一个中断描述符表(IDT)，其中包含每个中断或异常处理程序的地址。如果CPU在用户模式下引发异常，相应的处理程序将在内核模式下调用。处理器首先在内核堆栈中保存寄存器，然后相应地处理异常，最后返回到用户模式。整个过程在内核空间和触发异常的进程上下文中运行。因此，它将被充电到正确的相应的cgroups。</p>
+<p>然而，这些异常将导致初始进程的终止并引发信号。这些信号将进一步触发内核转储功能，生成一个用于调试的内核转储文件。内核中的核心转储代码通过usermode辅助API从内核中调用一个用户空间的应用程序。在Ubuntu中，默认的用户空间核心转储程序是Apport，它将在每个异常情况下被触发。正如上一节所提到的，Apport所消耗的系统资源将不会由容器承担，因为该进程是由内核线程分叉的，而不是由容器化的进程。</p>
+<p>新产生的Apport实例将被内核安排到所有的CPU核心，以达到负载平衡的目的，因此打破了cpusets的cgroup。同时，由于Apport进程的运行比轻量级的异常处理（即内核控制路径）消耗更多的资源，如果容器不断引发异常，整个CPU将被Apport进程完全占据。cpu cgroup的逃逸导致分配给容器的系统资源的巨大放大。</p>
+</li>
+<li><p>Workloads amplification</p>
+<p>为了研究这种影响，我们在一个核心上启动并固定一个容器。我们通过调整周期和配额来为容器设置不同的CPU资源限制。</p>
+<p>容器进入循环，不断引发异常。我们实现了几种用户空间程序可用的异常类型。由于不同类型的异常的结果是相似的，我们使用div 0异常作为例子。容器是唯一在我们的测试平台中运行的活动程序。我们通过top命令测量测试平台的CPU使用率，通过Docker的统计工具测量容器的CPU使用率。对于主机级别的使用情况，我们将所有内核的CPU使用量汇总在一起（因此12个内核的最大使用量为1200%）。我们将放大系数定义为主机的CPU利用率与容器的CPU利用率的比率。</p>
+<p>图演示了用户模式助手API可以触发用户空间程序，从而显著提高容器的CPU使用率。在我们的本地测试平台上，容器使用的一个内核上的CPU利用率只有7.4%，整个12个内核都被占用了。当我们将分配给容器的CPU资源减少到仅10%内核(通过设置period为200,000,quota为20,000)后，这个问题无法缓解。我们进一步将容器的CPU限制降低到20%核心，并最终将12个核心的总利用率限制到1,065%，放大因子为207×。同时，系统内存使用增加了约1GB，而Docker测量的容器内存使用仅为15.58MB。</p>
+<p>我们从EC2服务器上获得了类似的结果:容器的22.5%的利用率就可以耗尽36个内核。由于CPU频率不如我们的本地测试平台强大，一旦我们将容器的CPU资源限制为1&#x2F;10内核，它可以在所有36个内核上产生1907%的利用率。放大系数约为192×。</p>
+</li>
+</ul>
+<img src="/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/Workload.png" title alt data-align="center">
+
+<ul>
+<li><p>The pid controller</p>
+<p>虽然放大要求容器不断抛出异常，但我们进一步使用pid cgroup子系统对容器的任务数量设置一定的限制。同样，如图所示，即使活动进程的数量被限制在50个，pid控制器也不能降低放大结果，这是一个非常小的数字，可能会对容器用户造成巨大的可用性影响。在单核CPU计算能力只有20%的情况下，将pid限制为50，放大系数可以降低到98×。在EC2服务器上，在单核10% CPU计算能力的容器上，通过将pid数量限制在50个，放大系数在144×左右.</p>
+</li>
+<li><p>Denial-of-service(DoS) attacks</p>
+<p>当多个容器在同一个核心上运行时，它们将共享和竞争CPU资源。Linux的CFS系统根据每个容器的份额来分配CPU周期。CFS系统确保了完全的公平性，即容器可以完全利用其插槽中的所有资源。然而,如果一个恶意的容器可以在它自己的cgroup之外产生新的工作负载，CFS系统也会将CPU周期分配给这些进程，从而减少其他co-residence容器的使用。同时，CPU使用率的下降也可能影响其他的性能，如内存和I&#x2F;O吞吐量。</p>
+<p>在我们的实验中，我们通过利用恶意容器中的异常处理机制来衡量DoS攻击的影响。我们运行两个容器:一个恶意容器和一个受害者。我们将攻击的性能与恶意容器运行正常工作负载(即基线)的情况进行比较。受害容器运行不同的sysbench工作负载来度量性能。</p>
+<p>这两个服务器上的结果如表所示。我们首先将两个容器设置在相同的内核上，使用完全相同的CPU共享和配额。我们发现，在我们的本地测试平台上，抛出异常(导致内核转储)可以显著降低95%的CPU和内存性能，并降低17%左右的I&#x2F;O性能。在EC2服务器上，大约85%用于CPU和内存性能，82%用于I&#x2F;O性能。这是合理的，因为引发异常会导致大量用户空间核心转储应用程序与受害容器竞争CPU周期。</p>
+<p>通过将容器固定在不同的核心上，我们进一步改变了恶意容器的核心亲缘性。尽管恶意容器不再与受害者竞争同一内核上的CPU资源，但它在受害者的性能上仍然显示出类似的结果。这是因为CPU资源的主要竞争对手不是恶意容器，而是那些触发内核转储的应用程序。</p>
+<p>这一结果表明，恶意租户可以很容易地利用容器来显著降低同一主机上所有其他容器的性能，并降低服务供应商的服务质量，从而可能导致巨大的经济损失，而成本很少。</p>
+</li>
+</ul>
+<img src="/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/DoSattackResult.png" title alt data-align="center">
+
+<h2 id="Case-2-Data-Synchronization"><a href="#Case-2-Data-Synchronization" class="headerlink" title="Case 2:Data Synchronization"></a>Case 2:Data Synchronization</h2><p>我们的第二个案例是利用磁盘数据同步的回写机制，出于性能考虑，该机制被广泛采用。CPU只会将更新后的数据写入缓存，当缓存被清除时，数据才会写入磁盘。</p>
+<p>由于懒惰的磁盘回写机制将启动I&#x2F;O的进程与同步磁盘写入的进程解耦，所以我们的利用可以逃避cgroups。有多种方法可以触发数据同步，包括定期回写和内存不足。它也可以由用户进程通过系统调用故意调用，如sync（将缓存文件数据的所有未决修改写回给底层文件系统）、syncfs（同步开放文件所指的文件系统）和fsync（将文件的所有修改数据传输到其常驻磁盘设备）。这些系统调用对Linux容器是可用的。特别是，我们发现，同步可以被利用来减慢整个系统的I&#x2F;O性能（例如，在序列写入上有超过87%的降级），发起无资源攻击，并建立秘密通道。</p>
+<ul>
+<li><p>Detailed analysis on sync</p>
+<p>同步的第一步是启动一个内核线程，它将页缓存中包含的所有脏页刷新到磁盘。它通过扫描所有当前挂载的文件系统来查找要刷新的所有脏索引节点，并刷新相应的脏页。由于同步允许进程将所有脏缓冲区写回磁盘，任何I&#x2F;O操作都必须等待刷新。</p>
+<p>更糟糕的是，由其他进程(可能属于另一个容器)生成的脏缓冲区也将被迫写回磁盘。</p>
+<p>容器中的进程可以在不执行I&#x2F;O操作的情况下，以少量的工作负载重复调用sync。但是，与此同时，如果在其他共驻留容器上有I&#x2F;O操作，同步将回写所有脏页。在我们的实验中，我们运行了一个不断调用sync的容器。它不会导致超出容器限制的任何额外利用率。然而，一旦我们运行另一个容器，进行一些简单的写操作，同步操作就会导致大量的CPU等待时间，这是同步和写操作的组合所产生的。CPU等待时间用于指示I&#x2F;O等待所消耗的时间，其他工作负载仍然可以使用它。</p>
+<p>但是，在其他容器上运行的特定工作负载的性能会受到显著影响。</p>
+</li>
+<li><p>blkio cgroup</p>
+<p>正如2.1节中提到的，blkio cgroup子系统可以对块设备应用I&#x2F;O控制。虽然Docker只支持通过权重来限制相对I&#x2F;O吞吐量，但内核实际上可以为cgroups设置一个上限。我们使用blkio对运行同步的容器应用I&#x2F;O控制。不幸的是，基于Docker的统计工具，容器的I&#x2F;O吞吐量为零。因此，blkio控制器不能减少同步的影响。原因是由sync触发的所有回写工作负载都在内核线程中处理，调用sync的容器没有I&#x2F;O工作负载。</p>
+</li>
+<li><p>I&#x2F;O-based DoS attacks</p>
+<p>不管发出I&#x2F;O操作的进程是否在容器内，在容器内调用系统调用同步将继续调用系统范围的回写。在某些情况下，回写会降低系统性能，因为特定的工作负载需要等待回写完成。为了测试有效性，我们运行两个固定在两个不同核心上的容器。恶意容器所做的唯一任务是调用系统调用sync，因此本身不会招致I&#x2F;O操作。</p>
+<p>为了测量受害容器的性能，我们在受害容器内运行FIO基准测试来测量I&#x2F;O性能。特别地，我们进行了四种不同的FIO工作负载，包括序列&#x2F;随机写和序列&#x2F;随机读。我们还运行UnixBenchmark来测试除I&#x2F;O以外对性能的影响。我们通过将结果除以恶意容器中运行空闲循环的基线情况来计算性能下降。结果如图所示。对于UnixBenchmark，我们列出了性能显著下降的工作负载。总的来说，我们可以看到在受害者中运行的FIO基准测试的性能受到了很大的影响。通过在恶意容器中不断调用sync，所有四种类型I&#x2F;O操作的性能都会受到显著影响。对于顺序写入，在我们的本地测试床上性能下降到2%，在EC2服务器上下降到13%。</p>
+<p>对于UnixBenchmark，运行shell脚本的性能也严重降低到不到一半。对于其他基准测试，退化约为5%到10%。</p>
+</li>
+</ul>
+<img src="/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/sysperformance.png" title alt data-align="center">
+
+<ul>
+<li><p>Resource-Freeing Attack(RFA)</p>
+<p>RFA攻击的目标是通过争夺受害者的瓶颈资源来为攻击者的实例释放特定的资源。在容器环境的情况下，两个容器在争夺系统资源，如CPU。恶意容器试图提高其工作负载的性能（被称为beneficiary），以获得更多的系统资源。因此，恶意容器运行另一个轻量级程序（被称为helper）来释放受害者容器使用的资源，以便受益者能够获得更多的资源。帮助者只消耗很少的系统资源（因此它对beneficiary几乎没有影响），但可以显著影响在受害者容器内运行的工作负载。例如，在恶意容器中，受益者程序可以运行CPU密集型的工作负载，并与受害者容器在同一CPU核心上竞争CPU资源。受害者容器运行I&#x2F;O密集型的工作负载，因此CPU活动与I&#x2F;O操作的频率相联系：更多的I&#x2F;O操作使受害者容器消耗更多的CPU周期来处理这些请求。然后，恶意者运行一个辅助程序，定期调用sync，触发回写，并减少受害者的I&#x2F;O活动。这样可以降低受害者容器的CPU使用率，恶意容器可以获得更多的CPU资源。<br>我们通过在同一个核上运行两个容器来模拟实验。在受害容器中，我们模拟了一个网络爬虫的情况，其中容器不断地将一个网页写入一个新文件。</p>
+<p>我们使用sysbench来测量恶意容器的CPU和内存性能，其中值越高表示性能越好。恶意容器还会定期调用sync来触发全局回写。对于基线情况，只有攻击者的容器是活动的，因此不存在对所有系统资源的竞争。然后，我们运行这两个容器，并将攻击者容器的性能与基线情况进行比较。如图，在没有RFA攻击的情况下，由于两个容器争夺同一核上的CPU资源，CPU性能(即白条)约为无竞争情况(即黑条)的一半，内存性能约为无竞争情况的1&#x2F;3。然而，通过发起RFA攻击(即灰色条)，恶意容器内的受益人可以在两个测试平台上获得更好的性能。特别是，在我们的本地服务器上，性能几乎与没有竞争的情况相同。</p>
+</li>
+</ul>
+<p><img src="/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/resource.png"></p>
+<ul>
+<li><p>Covert Channels</p>
+<p>最后，我们证明了cgroups中的不足也可能被恶意攻击者利用，在不同的核心之间构建基于时间的隐蔽通道。其思想是利用由磁盘数据同步引起的性能差异。我们测量在一个容器中写入10个文件的时间，同时在另一个内核的另一个容器中运行sync。</p>
+<p>我们重复实验100次，所需要的时间分布如图所示。我们可以观察到运行同步和不运行同步之间打开文件的明显时间差异。我们通过利用性能差异构建了一个概念验证通道，能够以2bits&#x2F;s的速率传输数据，错误率为2%。</p>
+</li>
+</ul>
+<p><img src="/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/Probability.png"></p>
+<h2 id="Case-3-System-Process-Journald"><a href="#Case-3-System-Process-Journald" class="headerlink" title="Case 3:System Process - Journald"></a>Case 3:System Process - Journald</h2><p>我们的第三个案例是利用system - Journal服务，它提供了一个系统服务来收集系统日志数据，包括内核日志消息、系统日志消息(例如，syslog调用或Journal API)，以及通过审计子系统的审计记录。所有相关的活动都由系统进程日志记录。在我们的案例研究中，我们发现容器中的三类操作可以迫使日志进程记录日志，导致5%到20%的额外CPU利用率和平均2MB&#x2F;s的I&#x2F;O吞吐量，然后可以利用这些影响其他容器的性能。</p>
+<ul>
+<li><p>Detailed analysis</p>
+<p>主机的系统进程被附加到不同于容器中的进程的cgroup中，因为它们是由操作系统维护的，以提供全系统的功能。因此，如果容器内的工作负载可以触发这些系统进程的活动，那么这些活动所消耗的资源将不会被计入容器的cgroup，从而逃避资源控制机制。但是，运行在主机上的系统进程会忽略容器内的大部分操作。例如，在主机上运行的用户空间进程的许多活动将由日志记录。但是如果流程在容器内运行，那么这些活动将被忽略。为了记录容器内的事件，主机上的系统管理员需要更改system -journal服务的配置。</p>
+<p>特别是，Docker提供了一个选项来启用日志记录。</p>
+<p>然而，我们发现，即使没有启用日志记录选项，在某些特定的情况下，容器仍然能够在日志系统进程上生成不可忽略的工作负载。</p>
+<p>特别地，我们介绍了导致系统进程负载的三种类型的操作，从而逃脱了cgroup的控制。</p>
+</li>
+<li><p>Switch user (su) command</p>
+<p>su命令提供了一种将登录会话的所有权切换到root用户的方法。</p>
+<p>切换到root用户的操作将被记录在日志系统进程中。日志包含进程、用户帐户和环境切换的信息。日志服务也会记录用户的退出。使用USER namespace，容器内的根用户映射到主机上的无特权用户。因此，容器中的进程可能在USER名称空间中拥有完全的特权，但实际上在主机上被剥夺了特权。作为容器中的根用户，su命令可以进入另一个用户。不幸的是，在容器内切换帐户所引起的活动将触发system -journal服务来记录相关信息。</p>
+</li>
+<li><p>Add user&#x2F;group</p>
+<p>在USER namespace中，容器用户可以添加新组或在现有组中添加新帐户。这些活动也将由主机上的日志系统进程记录。</p>
+</li>
+<li><p>Exception</p>
+<p>最后，如前所述，内核无法区分所引发异常的上下文(在容器内部或外部)。因此，容器内异常引起的崩溃信息也会触发主机上系统进程的日志记录活动。</p>
+<p>所有上述工作负载都将在日志中触发大量事件日志记录。同样，我们将一个容器设置为具有一个CPU核心计算能力，以继续调用上述命令。在我们的本地测试床上，我们观察到journald上的CPU使用率恒定为3.5%，auditd上的CPU使用率恒定为2.5%，kauditd上的CPU使用率恒定为1%。在EC2服务器中，由于其更好的I&#x2F;O性能，这个数字要大得多:我们观察到平均CPU利用率约为20%。我们还发现，journald进程的平均I&#x2F;O吞吐量约为2MB&#x2F;s，而容器的I&#x2F;O吞吐量为零。如果我们为容器分配更多的计算资源，这个数字将会增加。</p>
+</li>
+<li><p>DoS attacks</p>
+<p>日志journald活动将产生不可忽略的I&#x2F;O操作，这将导致与其他容器的资源竞争。为了衡量结果，我们在主机的不同内核上运行两个容器。在恶意容器中，我们不断切换用户(即su)并退出当前用户(即exit)。在受害容器中，运行与case 2中描述的相同的基准测试。</p>
+<p>图显示了结果。总的来说，我们看到整个系统的性能下降。在I&#x2F;O性能较差的服务器(例如，我们的本地测试平台)中，滥用journald的攻击将更加有效。如前所述，它在日志进程中可能导致超过2MB&#x2F;s的I&#x2F;O吞吐量。我们观察到它仍然可以使EC2专用服务器上的其他容器在1000iops(吞吐量约为15MB&#x2F;s)时变慢。在一个具有默认配置的专用服务器中(例如，400 IOPS，吞吐量约为6MB&#x2F;s)，我们可以观察到更明显的结果。</p>
+</li>
+</ul>
+<img src="/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/Performance%20degradation%20of%20DoS%20attacks%20exploiting%20journald..png" title alt data-align="center">
+
+<ul>
+<li><p>Residual effect</p>
+<p>在I&#x2F;O性能较差的服务器上，系统进程的写工作负载可能超过服务器的I&#x2F;O能力。结果，大量的日志事件被排队，等待稍后被记录。这将导致一个残留效应:即使容器停止了它的工作负载(例如su)，系统仍将继续在journald中写入，直到队列中的工作负载完成。残留效应在我们的本地测试平台上很明显，并且持续的时间比工作负载的运行时间长得多。即使容器完全空闲，CPU和I&#x2F;O资源也会被消耗。更糟糕的是，这些写入操作将显著影响其他容器和主机的I&#x2F;O性能。</p>
+</li>
+</ul>
+<h2 id="Case-4-Container-Engine"><a href="#Case-4-Container-Engine" class="headerlink" title="Case 4:Container Engine"></a>Case 4:Container Engine</h2><p>容器的第四种情况是通过在内核线程(例如kworker)和容器引擎上触发额外的工作负载来利用容器引擎，容器引擎需要在主机上运行以支持和管理容器实例。特别是，容器引擎作为系统上的特权守护进程运行，因此它作为容器实例附加到不同的cgroup上。容器实例上的cgroup限制将不能控制引擎上消耗的资源。总的来说，通过这种方式，我们发现一个容器可以将资源消耗增加到大约3倍。</p>
+<ul>
+<li><p>Detailed analysis</p>
+<p>我们首先简要介绍Docker容器引擎及其cgroup层次结构。Docker创建一个包含所有容器实例的Docker cgroup。每个容器由其ID标识，并保存由fork创建的所有进程。从理论上讲，容器内运行的所有工作负载都将被计入容器cgroup。</p>
+<p>此外，Docker构建在Docker引擎之上，其中一个守护进程(即dockerd)在后台运行，处理Docker映像的管理。Docker引擎然后与containd(一个守护进程)通信，以进一步使用runC来运行容器。dockerd进程对于每个容器实例都有多个子进程。这些进程被附加到所有系统服务的默认cgroup中。</p>
+<p>此外，用户主要通过命令行接口(CLI)客户端(即Docker进程)控制和管理Docker, Docker进程通过Docker REST API与Docker守护进程交互。Docker CLI为用户提供了创建或执行容器的接口。它还提供了多个命令来设置与底层控制组相关的资源限制的配置。与Docker引擎进程类似，Docker CLI也不属于容器的cgroup。</p>
+<p>利用容器引擎来打破cgroups的控制是相当容易的。一种简单的方法是利用终端子系统。当容器用户与tty设备交互时，数据首先经过CLI进程和容器守护进程，然后到达tty驱动程序进行进一步处理。具体来说，数据被发送到LDISC, LDISC连接高级通用接口(例如，读、写、ioctl)和终端系统中的低级设备驱动程序。通过在kworker内核线程中执行工作队列将数据刷新到LDISC。因此，内核线程上的所有工作负载和所有容器引擎进程都不会被计算到容器实例中。</p>
+<p>我们通过在终端中反复显示主机中所有加载的模块来测量容器引擎中生成的工作负载，并将结果说明在图中。同样，容器的使用仅限于一个核心(如图中的container)。</p>
+<p>总的来说，使用一个核心的计算能力(100%的利用率)，容器可以通过滥用docker引擎进程在主机上造成大约300%的工作负载。</p>
+</li>
+</ul>
+<p><img src="/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/CPU%20utilization.png"></p>
+<p>为了细分使用情况，docker进程属于主机的用户cgroup；其他docker进程属于一个系统cgroup：docker.service。其余的（大部分是内核线程kworker，由于流媒体工作负载，如第3.2节所解释）属于根cgroup。我们还在case 1中进行了与表类似的实验。通过利用Docker容器引擎，攻击者能够降低CPU和内存的性能大约15%。</p>
+<img src="/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/DoSattackResult.png" title alt data-align="center">
+
+<h2 id="Case-5-Softirq-Handling"><a href="#Case-5-Softirq-Handling" class="headerlink" title="Case 5:Softirq Handling"></a>Case 5:Softirq Handling</h2><p>最后一种情况是利用Linux内核中的softirq处理机制。当前内核定义了11种类型的softirq。特别是，硬件中断处理程序通常会引发软中断。</p>
+<p>虽然大多数硬件中断可能不是由容器直接引发的，但容器用户能够操作网络接口上的工作负载生成NET softirq，或块设备生成block softirq。处理这些softirq会消耗内核线程进程上下文(例如ksoftirqd)或中断上下文上的CPU资源。</p>
+<ul>
+<li><p>NET softtirq</p>
+<p>一旦NIC完成数据包传输，就会引发中断，而softirq负责在驱动程序缓冲区和网络堆栈之间移动数据包。但是，在流量带宽有限的情况下，使用softirqs带来的开销可以忽略不计:在之前的工作中，当网络流量超过1gbps时，开销为1%。</p>
+<p>我们发现，由于网络流量引起的开销会被服务器上的防火墙系统(如iptables)大大放大。iptables建立在netfilter的基础上，提供了一个管理层，用于包过滤规则的添加和删除。netfilter将数据包挂在网络驱动程序和网络堆栈之间。所有的网络数据包首先通过过滤规则进行检查，然后进行进一步的操作(例如，转发、丢弃、由网络堆栈处理)。因此，iptables下的网络流量处理是在softirq上下文中处理的，因此不会向生成或接收流量的容器收费。</p>
+<p>在Linux上，Docker依赖于配置iptables规则来为容器提供网络隔离。特别是，它可能为提供web或网络服务的容器设置多个规则。即使容器停止，规则也存在。更糟糕的是，在某些情况下，如果相关标志设置为true，容器可以对系统iptables规则进行更改。一旦有相当数量的规则，开销将是不可忽略的。</p>
+<p>我们测量了softirq在不同数量的iptables规则下处理网络流量所带来的开销，如图所示。特别是，我们测量了所有ksoftirqd内核线程的CPU使用情况，以及花在中断上下文上的时间(来自top命令的hi和si)。在我们本地的测试台上，网卡的容量为100mbit &#x2F;s，网络流量约为20 ~ 30mbit &#x2F;s，明显小于中的Gbps级别。我们可以清楚地看到，处理网络流量会产生巨大的开销，并且与规则数量密切相关。当规则数量达到5000条时，CPU将浪费大量的时间(约16%)处理软tirq，并且不会向发起网络流量的容器收费。一旦服务器中有10,000条规则，开销约为40%，其中大多数集中在一个核心上。</p>
+<p><img src="/2023/04/15/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Houdini%E2%80%99s-Escape-Breaking-the-Resource-Rein-of-Linux-Control-Groups/iptable.png"></p>
+<p>EC2服务器有一个非常强大的网卡，具有10,000 Mbit&#x2F;s的容量，与我们的本地测试平台相比带宽更高。因此，与我们的本地测试平台相比，开销略小。在我们的实验中，当网络流量约为300mbit &#x2F;s时，流量仍然会浪费不可忽略的CPU周期。如3.4节所述，软件中断的处理要么抢占当前工作，要么在内核线程中消耗CPU周期。因此，同一核心上的所有其他工作负载将被延迟。</p>
+</li>
+<li><p>BLOCK softirq</p>
+<p>处理softirq时增加工作负载的另一个例子是块设备上的I&#x2F;O操作。Linux内核使用队列存储块请求I&#x2F;O，并将新的请求添加到队列中。一旦请求处理完成，它将引发在softirq上下文中处理的softirq，以进一步处理队列。然后，利用BLOCK softirq转义cgroups的基本思想类似于利用NET softirq。</p>
+<p>在容器上下文中，可以通过持续查询完成队列中的事件并提交写或读操作来生成这样的工作负载。对于I&#x2F;O性能较差的设备，这种影响尤其明显。为了进一步定量度量影响，我们使用固定在一个内核上的容器，运行fio推荐来执行顺序读写。我们选择小块用于写入，大块用于读取。我们测量多个内核线程(如kworker)的CPU利用率。容器中的工作负载能够在我们的本地测试平台上的内核上生成不可忽略的工作量，包括相同内核的kworker上16.7%的工作负载。此外，对于序列I&#x2F;O读取，文件分配过程在jpd2和kswapd上分别产生了3.9%和3.8%的额外利用率。最后，我们还利用kworker来测量退化。我们在同一个内核上的内核线程kworker上创建工作负载，攻击者能够对受害者造成大约10%的性能损失(根据sysbench基准测试测量)。</p>
+</li>
+</ul>
+<h1 id="MITIGATION-DISCUSSION"><a href="#MITIGATION-DISCUSSION" class="headerlink" title="MITIGATION DISCUSSION"></a>MITIGATION DISCUSSION</h1><p>在这一节中，我们将介绍我们在以下方面的初步努力应对现有cgroups机制的不足所带来的安全问题。由于大多数问题涉及多个内核子系统，因此很难部署一个单一的解决方案来全面彻底地解决所有问题。另外，解决一些问题可能需要重新设计当前的资源核算系统。在下文中，我们将从不同角度讨论潜在的缓解方法。</p>
+<p>直观地说，通过考虑由一组进程(或容器)直接或间接生成的所有工作负载，cgroups应该具有细粒度的计算机制。例如，如果一个容器通过内核线程调用另一个用户空间进程，容器的cgroup应该由内核线程传递，这样它也会被复制到新的用户空间进程。因此，新调用的进程与容器属于同一个cgroup，而不是与内核线程属于根cgroup。虽然这种方法可以应用于新生成的进程，但很难处理系统中已经存在的进程。内核线程(如kworker、ksoftirqd)是由内核创建的，用于处理特定的内核工作负载，这些工作负载可能由附加到不同cgroup的不同进程触发。journald系统进程的情况也类似:它记录所有进程引发的所有相关事件，因此将整个日志进程附加到特定的cgroup是不合理的。因此，综合机制不应该改变这些线程的cgroup，而是应该跟踪特定工作量的系统资源，并将其收费给初始进程。例如，Iron跟踪处理每个网络数据包的CPU周期，并向相关进程收费。然而，这样的方法无疑需要大量的内核开发工作，并且由于将多个内核函数用于细粒度资源跟踪而带来大量的运行时开销。</p>
+<p>对于某些工作负载，另一个有争议的问题是cgroup是否应该向容器收取这些系统资源。从隐私的角度考虑，主机服务器不应该记录容器实例中运行的任何敏感信息。journald提供了特定的选项来启用容器内的日志活动。但是，我们展示了，即使没有启用日志记录选项，主机仍然为容器记录多个事件。日志记录是由主机执行的，因此不应该向容器收费。此外，容器用户无法获得容器内引发的异常的核心转储信息。因此，一种可能的方法是通过区分容器上下文禁用所有潜在的日志记录或记录活动。完全解决这个问题的另一种方法是构建一个额外的cgroup子系统，专门用于日志记录。所有日志记录活动都将由新的日志记录cgroup子系统进行记录。</p>
+<p>最后，有些问题即使使用细粒度的会计机制也无法解决。例如，虽然当前的cgroups机制清楚地提到回写工作负载不被计算在内，但Linux内核维护者已经开始开发新的cgroup机制(即cgroup v2)，它利用内存和blkio子系统来跟踪回写并为脏页的容器收费。然而，恶意容器可以在不生成任何I&#x2F;O工作负载的情况下继续调用sync。回写工作负载由具有I&#x2F;O操作的容器承担，而不是由恶意容器承担。同时，向调用数据同步的容器收取所有费用是不公平的。由于简单地禁用所有这些功能将不可避免地影响可用性，一个潜在可行的解决方案是对这些敏感操作施加速率限制。</p>
+<h1 id="RELATED-WORK"><a href="#RELATED-WORK" class="headerlink" title="RELATED WORK"></a>RELATED WORK</h1><p>在本节中，我们调查了一些启发我们工作的研究工作，并强调了我们的工作与以往研究之间的差异。我们主要讨论以下两个方面的研究工作:</p>
+<h2 id="Virtual-Machine-and-Container"><a href="#Virtual-Machine-and-Container" class="headerlink" title="Virtual Machine and Container"></a>Virtual Machine and Container</h2><p>虽然VM已经迎来了云计算时代，但尽管进行了大量的研究工作，其性能仍然不能令人满意。容器正变得越来越流行，因为它提供了一种启用轻量级虚拟化的替代方式，并允许在容器中运行的应用程序完全兼容。因此，研究人员对硬件虚拟化和容器之间的性能比较很好奇。Felter等人表明，通过使用一组涵盖CPU、内存、存储和网络资源的基准测试，Docker在所有情况下都可以实现比KVM更高的性能。</p>
+<p>Spoiala等还证明了Docker优于KVM，并且可以使用Kurento Media Server来测试WebRTC服务器的性能，从而支持实时应用程序。Morabito et al进一步比较了传统hypervisor(例如KVM)和os级虚拟化(包括Docker和LXC)在计算、存储、内存和网络方面的性能，并观察到磁盘I&#x2F;O仍然是KVM hypervisor的瓶颈。所有这些工作都表明，基于容器的操作系统级虚拟化是比传统的基于vm的硬件虚拟化更有效的解决方案。虽然以前的大多数研究工作都集中在理解容器的性能上，但很少有人试图调查底层内核机制的资源共享的有效性。我们是第一批系统地研究由Cgroup不足引起的容器的性能和资源核算问题的人。</p>
+<h3 id="Container-security"><a href="#Container-security" class="headerlink" title="Container security"></a>Container security</h3><p>除了性能，容器的安全性也受到了学术界和业界的广泛关注。Gupta首先简要介绍了Docker安全性。Bui从隔离和相应的内核安全机制方面对Docker容器进行了分析。虽然之前的工作声称Docker容器在默认配置下是相当安全的，但Lin等人发现，大多数现有的漏洞都可以通过默认配置成功地从容器内部发起攻击。Grattafiori等人总结了容器的各种潜在漏洞，包括基于内存的伪文件系统中的问题。Gao等人进一步对基于内存的伪文件系统由于namespace问题而产生的潜在安全影响进行了系统研究。Lei等人提出了一种名为SPEAKER的容器安全机制，以减少对应用程序的可用系统调用数量。Sun等人开发了两个安全命名空间，为容器实现自主安全控制，Arnautov等人提出使用Intel SGX保护Linux容器。</p>
+<p>错误配置的能力也可以被利用来建立容器中的秘密通道。我们在cgroup方面的工作进一步补充了以前的的研究工作。</p>
+<h2 id="Cloud-Security"><a href="#Cloud-Security" class="headerlink" title="Cloud Security"></a>Cloud Security</h2><h3 id="Co-residence"><a href="#Co-residence" class="headerlink" title="Co-residence"></a>Co-residence</h3><p>大量的研究工作也致力于理解云的安全问题，特别是不同租户共享相同计算基础设施的多租户云。在多租户云环境中，攻击者可以将恶意虚拟机与目标虚拟机共同驻留在同一台服务器上，然后发起包括侧通道和隐蔽通道攻击在内的各种攻击。同时，侧面攻击和隐蔽通道攻击是验证同一物理服务器上共存的常用方法。例如，基于缓存的隐蔽通道被广泛采用，因为多个实例共享同一个包上的最后一级缓存。Zhang等人进一步论证了在云上发起真实侧通道攻击的可行性。除了基于缓存的通道，其他方法如内存总线、内存重复数据删除、核心温度也可以有效地构建隐蔽通道。</p>
+<p>虽然也提出了多种防御机制，但之前的两项工作表明，在现有的主流云服务中实现合住仍然是可行的(而且成本低廉)。Wang等人对三种无服务器计算服务进行了大规模的测量研究，发现了几个资源核算问题，租户可能会滥用这些问题来运行额外的工作负载。</p>
+<h3 id="Denial-of-Service-attacks"><a href="#Denial-of-Service-attacks" class="headerlink" title="Denial-of-Service attacks"></a>Denial-of-Service attacks</h3><p>由于底层计算资源在不同的租户之间共享，因此争用是不可避免的。Varadarajan等人提出了资源释放攻击来释放受害者使用的资源，这样攻击者的实例就可以获得额外的利用。Zhang等人调查了内存DoS攻击的影响，并表明恶意云客户可以对电子商务网站造成38倍的延迟。对于针对I&#x2F;O性能的DoS攻击，Huang等提出了级联性能攻击，以耗尽hypervisor的I&#x2F;O处理能力。此外，多种攻击试图耗尽共享的基础设施资源，如电力设施，从而迫使数据中心的服务器关闭。与之前的工作不同，我们的工作表明，cgroups中的不足也可以被利用来在多租户容器环境中发起多次攻击。</p>
+<h1 id="CONCLUSION"><a href="#CONCLUSION" class="headerlink" title="CONCLUSION"></a>CONCLUSION</h1><p>在本文中，我们开发了一套策略来打破Linux控制组的资源控制。我们证明了通过进程创建继承的cgroups限制并不总是保证一致和公平的资源核算。我们可以通过与原始cgroup解关联的进程来生成带外工作负载。</p>
+<p>我们进一步提出了五个案例研究，表明在Docker容器环境中实现这些攻击是可行的。恶意容器利用多租户容器环境中cgroups的这些不足，可以极大地耗尽主机的资源，并发起多种攻击，包括拒绝服务攻击、资源释放攻击和秘密通道攻击。我们在亚马逊EC2云中的本地测试平台和专用服务器上进行了实验，并证明了一个容器可以将其工作负载放大200倍以上，并将其他容器的性能降低95%。</p>
+<h1 id="My"><a href="#My" class="headerlink" title="My"></a>My</h1><h2 id="Case-1"><a href="#Case-1" class="headerlink" title="Case 1"></a>Case 1</h2><p>Linux 内核为各种异常提供了专用的异常处理程序。这些异常处理程序分为两类：错误和陷阱。错误是指程序在运行过程中遇到的问题，如分段错误。陷阱是指程序主动触发的事件，如溢出检测。</p>
+<p>在处理这些异常时，内核维护了一个名为中断描述符表（IDT）的数据结构。IDT 包含每个异常处理程序的地址。当 CPU 在用户模式下引发异常时，相应的处理程序将在内核模式下运行。</p>
+<ol>
+<li><p><strong>寄存器保存和上下文切换</strong>：当异常发生时，处理器首先将当前的寄存器状态保存到内核堆栈中。这样，在异常处理完成后，处理器可以恢复原始状态并返回到用户模式。</p>
+</li>
+<li><p><strong>异常处理</strong>：在内核模式下，处理器会根据异常类型调用相应的处理程序。异常处理程序通常会执行一些特定的操作，如清理资源、记录错误信息等。在处理异常时，整个过程将在内核空间和触发异常的进程上下文中运行。因此，异常处理期间消耗的资源将被计入相应的 cgroups。</p>
+</li>
+<li><p><strong>信号处理和内核转储</strong>：异常处理程序可能会终止初始进程，并向其发送一个信号。这些信号会触发内核转储功能，生成一个用于调试的内核转储文件。在 Linux 内核中，核心转储代码通过 usermode 辅助 API 调用一个用户空间的应用程序来完成这个任务。</p>
+</li>
+<li><p><strong>用户空间核心转储程序</strong>：在 Ubuntu 中，默认的用户空间核心转储程序是 Apport，它会在每个异常情况下被触发。Apport 的资源消耗不会由容器承担，因为它是由内核线程创建的，而不是由容器化的进程创建的。</p>
+</li>
+<li><p><strong>负载平衡和资源放大</strong>：内核会将新生成的 Apport 实例调度到所有可用的 CPU 核心上，以实现负载平衡。这会导致打破 cpusets cgroup 的约束。同时，由于 Apport 进程比轻量级的异常处理（即内核控制路径）消耗更多资源，如果容器不断触发异常，整个 CPU 可能会被 Apport 进程占满。这种情况导致了分配给容器的系统资源的放大。</p>
+</li>
+</ol>
+<p>总结一下，当用户程序触发异常时，Linux 内核会通过 IDT 找到相应的处理程序，并在内核模式下运行。处理程序可能会终止进程并触发内核转储功能。在 Ubuntu 中，这会调用用户空间的 Apport 程序来生成内核转储文件。Apport 的资源消耗不会由容器承担，但可能导致资源放大和 cpusets cgroup 的约束被打破。</p>
+<p>当你在使用电脑时，有时会遇到一些问题，比如程序出错或者意外停止运行。这些问题通常是由于程序中的异常引起的。在 Linux 系统中，有一套专门处理这些异常的机制。</p>
+<p>想象一下，当程序遇到异常时，就像一个球员在比赛中受伤了。这时，教练（内核）会派上另一个球员（异常处理程序）来处理这个问题。这个过程发生在球场内（内核空间），并且会记录下这个问题发生的原因。</p>
+<p>在处理异常时，教练需要确保其他球员不受影响。因此，教练会将受伤球员的状态保存起来，等问题处理完后再恢复。这个过程就像是在现场给受伤球员做紧急处理。</p>
+<p>有时，这个问题严重到需要告知其他人（发送信号）。在这种情况下，教练会通知医疗团队（Apport 程序）来处理。医疗团队会把受伤球员的情况记录下来（生成内核转储文件），以便在之后分析和处理。</p>
+<p>需要注意的是，医疗团队（Apport）处理问题时所消耗的资源不会影响球队（容器），但有时他们的处理可能会让整个比赛（系统资源）受到影响，导致其他球员的表现受到一定程度的影响。</p>
+<p>总之，当电脑遇到问题时，Linux 系统会通过一套内核机制来处理这些异常。在处理过程中，可能会涉及到一些额外的程序，如 Apport，在确保不影响其他程序运行的前提下，记录和处理异常。  </p>
+<h2 id="Case-2"><a href="#Case-2" class="headerlink" title="Case 2"></a>Case 2</h2><ol>
+<li><p><strong>磁盘数据同步回写机制</strong>：这是一种性能优化策略，使CPU只将更新后的数据写入缓存，而不是直接写入磁盘。当缓存被清除时，数据才会写入磁盘。这种机制通过将启动I&#x2F;O进程与同步磁盘写入进程解耦来提高性能。</p>
+</li>
+<li><p><strong>同步</strong>：同步是将缓存中的数据写回磁盘的过程。这可以通过多种方法触发，例如定期回写、内存不足，或者通过用户进程故意调用系统调用（如sync、syncfs和fsync）。这些系统调用对Linux容器是可用的。</p>
+</li>
+<li><p><strong>利用同步的攻击</strong>：由于同步允许进程将所有脏缓冲区写回磁盘，因此在同步期间，任何I&#x2F;O操作都必须等待。这可以被恶意进程利用，通过重复调用sync，以减慢整个系统的I&#x2F;O性能、发起无资源攻击，甚至建立秘密通道。</p>
+</li>
+<li><p><strong>绕过cgroup</strong>：cgroup是一种用于限制资源使用的机制，但由于同步操作是在内核线程中进行的，并且调用sync的容器没有I&#x2F;O工作负载，因此cgroup无法限制同步操作。在这种情况下，即使使用blkio cgroup子系统对运行同步的容器应用I&#x2F;O控制，仍然无法减少同步的影响。这是因为blkio控制器仅限制相对I&#x2F;O吞吐量，而不是绝对值。此外，Docker的统计工具显示，调用sync的容器的I&#x2F;O吞吐量为零，这意味着blkio限制不起作用。</p>
+</li>
+</ol>
+<p>这个案例讲述了一个关于磁盘数据同步的技术，它叫做懒惰回写（lazy write-back）。这种技术的主要优点是提高电脑的性能。当我们在电脑上做一些改动时，这些改动首先会被保存在缓存中，而不是直接写入磁盘。只有当缓存被清空时，改动才会真正地被保存到磁盘里。这样的操作可以节省时间，因为写入磁盘的速度往往比写入缓存慢。</p>
+<p>这种技术可以让一个攻击者绕过cgroups的限制。cgroups是一种用于限制程序在电脑上使用的资源的技术。简单来说，攻击者可以通过触发数据同步，让电脑的整体性能下降。这就像是在公路上开车，突然有人打开了所有的红绿灯，导致所有的车辆都必须停下来等待。</p>
+<p>懒惰回写的关键在于同步（sync）。同步是一个过程，它会把缓存里的数据写入磁盘。当一个程序调用同步时，它会让电脑暂停其他操作，等待数据写入磁盘。如果一个攻击者不断地调用同步，那么电脑的性能就会受到影响，因为其他程序需要不断地等待同步完成。</p>
+<p>现在我们来谈谈cgroups。cgroups是一种技术，可以用来限制程序使用电脑上的资源，比如CPU、内存和磁盘等。但是，在这个案例中，攻击者利用同步绕过了cgroups的限制。原因是，攻击者调用同步时，并没有直接进行磁盘读写操作，而是让内核（电脑的核心部分）进行了这些操作。因此，cgroups无法检测到攻击者的行为，也就无法限制它。</p>
+<p>总之，这个案例向我们展示了一个攻击者可以利用懒惰回写的同步机制来绕过cgroups的限制。这可能会导致电脑的整体性能下降，给其他用户带来麻烦。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/15/C++-%E5%AD%A6%E4%B9%A0-%E5%87%BD%E6%95%B0%E9%AB%98%E7%BA%A7/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1368,183 +1712,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/09/C++-%E5%AD%A6%E4%B9%A0-%E6%8C%87%E9%92%88/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="随便记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/04/09/C++-%E5%AD%A6%E4%B9%A0-%E6%8C%87%E9%92%88/" class="post-title-link" itemprop="url">C++学习 指针</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-04-09 13:57:28" itemprop="dateCreated datePublished" datetime="2023-04-09T13:57:28+08:00">2023-04-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-05-09 16:11:56" itemprop="dateModified" datetime="2023-05-09T16:11:56+08:00">2023-05-09</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/%E8%AF%AD%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">语法</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>7 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="指针基本概念"><a href="#指针基本概念" class="headerlink" title="指针基本概念"></a>指针基本概念</h1><p><strong>指针的作用：</strong> 可以通过指针间接访问内存</p>
-<ul>
-<li><p>内存编号是从0开始记录的，一般用十六进制数字表示</p>
-</li>
-<li><p>可以利用指针变量保存地址</p>
-</li>
-</ul>
-<p>可以通过一个指针来保存一个地址</p>
-<h1 id="指针的定义和使用"><a href="#指针的定义和使用" class="headerlink" title="指针的定义和使用"></a>指针的定义和使用</h1><h2 id="定义指针"><a href="#定义指针" class="headerlink" title="定义指针"></a>定义指针</h2><p>指针定义的语法： <code>数据类型 \* 指针变量名</code></p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span>* p;</span><br><span class="line">    p = &amp;a;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a的地址为&quot;</span> &lt;&lt; &amp;a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;指针p为&quot;</span> &lt;&lt; p &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行结果为：</p>
-<blockquote>
-<p>a的地址为00000087472FFC84<br>指针p为00000087472FFC84</p>
-</blockquote>
-<p>我们可以得到指针就是地址</p>
-<h2 id="使用指针"><a href="#使用指针" class="headerlink" title="使用指针"></a>使用指针</h2><p>可以通过解引用的方式来找到指针指向的内存</p>
-<p>指针前加 <code>*</code>代表解引用</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span>* p;</span><br><span class="line">    p = &amp;a;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a的地址为&quot;</span> &lt;&lt; &amp;a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;指针p为&quot;</span> &lt;&lt; p &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">    *p = <span class="number">1000</span>;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;a = &quot;</span> &lt;&lt; a &lt;&lt;endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;*p = &quot;</span> &lt;&lt; *p &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行结果为：</p>
-<blockquote>
-<p>a的地址为0000003F9953F7C4<br>指针p为0000003F9953F7C4<br>a &#x3D; 1000<br>*p &#x3D; 1000</p>
-</blockquote>
-<p>通过<code>p</code>找到<code>a</code>的内存，并且可以通过<code>*p</code>修改内存</p>
-<h1 id="指针所占内存空间"><a href="#指针所占内存空间" class="headerlink" title="指针所占内存空间"></a>指针所占内存空间</h1><p>指针也是一种数据类型，那么这种数据类型占用多少内存空间呢？</p>
-<p>在32位操作系统下：占用4个字节空间</p>
-<p>在64位操作系统下：占用8个字节空间</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span>* p = &amp;a;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;sizeof (p) = &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(p) &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;sizeof (int *) = &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(<span class="type">int</span> *) &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;sizeof (char *) = &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(<span class="type">char</span> *) &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;sizeof (float *) = &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(<span class="type">float</span> *) &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;sizeof (double *) = &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(<span class="type">double</span> *) &lt;&lt; endl;</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
-
-<p>运行结果为：</p>
-<blockquote>
-<p>sizeof (p) &#x3D; 8<br>sizeof (int *) &#x3D; 8<br>sizeof (char *) &#x3D; 8<br>sizeof (float *) &#x3D; 8<br>sizeof (double *) &#x3D; 8</p>
-</blockquote>
-<p>因为指针是内存，所以不管是什么数据类型下，64位操作系统，指针都是占用8个字节空间大小</p>
-<h1 id="空指针和野指针"><a href="#空指针和野指针" class="headerlink" title="空指针和野指针"></a>空指针和野指针</h1><h2 id="空指针"><a href="#空指针" class="headerlink" title="空指针"></a>空指针</h2><p><strong>空指针</strong>：指针变量指向内存中为0的空间</p>
-<p><strong>用途</strong>：初始化指针变量</p>
-<p><strong>注意</strong>：空指针的内存是不可以访问的</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span>* p = <span class="literal">NULL</span>;</span><br><span class="line">    *p = <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
-
-<p>程序运行错误</p>
-<p><img src="/2023/04/09/C++-%E5%AD%A6%E4%B9%A0-%E6%8C%87%E9%92%88/Error.png"></p>
-<p>0~255之间的内存编号是系统占用的，因此不可以访问</p>
-<h2 id="野指针"><a href="#野指针" class="headerlink" title="野指针"></a>野指针</h2><p><strong>野指针</strong>：指针变量指向一段非法的内存空间</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span>* p = (<span class="type">int</span> *)<span class="number">0x1100</span>;</span><br><span class="line">    cout &lt;&lt; *p &lt;&lt; endl;</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
-
-<p>程序运行错误</p>
-<p><img src="/2023/04/09/C++-%E5%AD%A6%E4%B9%A0-%E6%8C%87%E9%92%88/Erro1.png"></p>
-<p>在程序中尽量避免野指针</p>
-<h1 id="const修饰指针"><a href="#const修饰指针" class="headerlink" title="const修饰指针"></a>const修饰指针</h1><p>const修饰指针有三种情况</p>
-<h2 id="const修饰指针-常量指针"><a href="#const修饰指针-常量指针" class="headerlink" title="const修饰指针 - 常量指针"></a>const修饰指针 - 常量指针</h2><p>指针的指向可以修改，指针指向的值不能修改</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">int</span> * p;</span><br></pre></td></tr></table></figure>
-
-<h2 id="const修饰常量-指针常量"><a href="#const修饰常量-指针常量" class="headerlink" title="const修饰常量 - 指针常量"></a>const修饰常量 - 指针常量</h2><p>指针的指向不可以改，指针指向的值可以改</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> * <span class="type">const</span> p;</span><br></pre></td></tr></table></figure>
-
-<h2 id="const既修饰指针，又修饰常量"><a href="#const既修饰指针，又修饰常量" class="headerlink" title="const既修饰指针，又修饰常量"></a>const既修饰指针，又修饰常量</h2><p>指针的指向不可以改，指针指向的值也不可以改</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">int</span> * <span class="type">const</span> p;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span> b = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//1、const 修饰指针 常量指针</span></span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> * p1 = &amp;a;</span><br><span class="line">    <span class="comment">//*p1 = 20 错误</span></span><br><span class="line">    p1 = &amp;b;<span class="comment">//正确</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//2、const 修饰常量 指针常量</span></span><br><span class="line">    <span class="type">int</span>* <span class="type">const</span> p2 = &amp;a;</span><br><span class="line">    *p2 = <span class="number">100</span>;<span class="comment">//正确</span></span><br><span class="line">    <span class="comment">//p2 = &amp;b; 错误</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//3、const 既修饰常量又修饰指针</span></span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> * <span class="type">const</span> p3 = &amp;a;</span><br><span class="line">    <span class="comment">//*p3 = 100 错误</span></span><br><span class="line">    <span class="comment">//p3 = &amp;b 错误</span></span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
-
-<h1 id="指针和数组"><a href="#指针和数组" class="headerlink" title="指针和数组"></a>指针和数组</h1><p>利用指针访问数组中的数据元素</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> arr[] = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span> ,<span class="number">10</span> &#125;;</span><br><span class="line">    <span class="type">int</span>* p = arr;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;第一个元素为：&quot;</span> &lt;&lt; arr[<span class="number">0</span>] &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;指针访问第一个元素：&quot;</span> &lt;&lt; *p &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; *p &lt;&lt; endl;</span><br><span class="line">        p++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
-
-<p>运行结果为：</p>
-<blockquote>
-<p>第一个元素为：1<br>指针访问第一个元素：1<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</p>
-</blockquote>
-<h1 id="指针和函数"><a href="#指针和函数" class="headerlink" title="指针和函数"></a>指针和函数</h1><p>利用指针作为函数参数，可以修改实参的值</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">swap01</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> temp = a;</span><br><span class="line">    a = b;</span><br><span class="line">    b = temp;</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">swap02</span><span class="params">(<span class="type">int</span>* p1, <span class="type">int</span>* p2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> temp = *p1;</span><br><span class="line">    *p1 = *p2;</span><br><span class="line">    *p2 = temp;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span> b = <span class="number">20</span>;</span><br><span class="line">    <span class="comment">//1、值传递</span></span><br><span class="line">    <span class="built_in">swap01</span>(a, b);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;swap01后a的值为&quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;swap01后b的值为&quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">    <span class="comment">//2、地址传递</span></span><br><span class="line">    <span class="built_in">swap02</span>(&amp;a, &amp;b);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;swap02后a的值为&quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;swap02后b的值为&quot;</span> &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
-
-<p>运行结果如下：</p>
-<blockquote>
-<p>swap01后a的值为10<br>swap01后b的值为20<br>swap02后a的值为20<br>swap02后b的值为10</p>
-</blockquote>
-<h1 id="指针、数组、函数"><a href="#指针、数组、函数" class="headerlink" title="指针、数组、函数"></a>指针、数组、函数</h1><p>案例描述：封装一个函数，利用冒泡排序，实现对整型数组的升序排序 </p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="comment">//冒泡排序函数</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">bubbleSort</span><span class="params">(<span class="type">int</span> * arr, <span class="type">int</span> len)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; len - <span class="number">1</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; len - i - <span class="number">1</span>; j++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//如果j&gt;j+1,交换数字</span></span><br><span class="line">            <span class="keyword">if</span> (arr[j] &gt; arr[j + <span class="number">1</span>])</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="type">int</span> temp = arr[j];</span><br><span class="line">                arr[j] = arr[j + <span class="number">1</span>];</span><br><span class="line">                arr[j + <span class="number">1</span>] = temp;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//打印数组</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">printArray</span><span class="params">(<span class="type">int</span>* arr, <span class="type">int</span> len)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; len; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; arr[i] &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//1、创建数组</span></span><br><span class="line">    <span class="type">int</span> arr[<span class="number">10</span>] = &#123;<span class="number">4</span> , <span class="number">3</span> , <span class="number">6</span> , <span class="number">9</span> , <span class="number">1</span> , <span class="number">2</span> , <span class="number">10</span> , <span class="number">8</span> , <span class="number">7</span> , <span class="number">5</span>&#125;;</span><br><span class="line">    <span class="comment">//数组长度</span></span><br><span class="line">    <span class="type">int</span> len = <span class="built_in">sizeof</span>(arr) / <span class="built_in">sizeof</span>(arr[<span class="number">0</span>]);</span><br><span class="line">    <span class="comment">//2、创建函数，实现冒泡排序</span></span><br><span class="line">    <span class="built_in">bubbleSort</span>(arr, len);</span><br><span class="line">    <span class="comment">//3、打印排序后的数组</span></span><br><span class="line">    <span class="built_in">printArray</span>(arr, len);</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
-
-<p>运行结果如下：</p>
-<blockquote>
-<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</p>
-</blockquote>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1614,7 +1781,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">39</span>
+          <span class="site-state-item-count">40</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1627,7 +1794,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1672,12 +1839,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">471k</span>
+    <span title="Symbols count total">477k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">14:16</span>
+    <span title="Reading time total">14:27</span>
 </div>
 
 <!--
