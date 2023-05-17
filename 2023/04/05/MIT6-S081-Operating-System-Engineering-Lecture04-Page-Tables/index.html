@@ -20,15 +20,15 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"posts","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Topic Address Spaces  支持虚拟内存的硬件  XV中的虚拟内存代码   Address Spaces为什么需要隔离性创造虚拟内存的一个出发点是你可以通过它实现隔离性。如果你正确的设置了page table，并且通过代码对它进行正确的管理，那么原则上你可以实现强隔离。 我们期望的是，每个用户程序都被装进一个盒子里，这样它们就不会彼此影响了。类似的，我们也想让它们与内核操作系统相互">
+  <meta name="description" content="Topic Address Spaces  支持虚拟内存的硬件  XV中的虚拟内存代码   Address Spaces">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MIT6 S081 Operating System Engineering Lecture04 Page Tables">
 <meta property="og:url" content="http://example.com/2023/04/05/MIT6-S081-Operating-System-Engineering-Lecture04-Page-Tables/index.html">
 <meta property="og:site_name" content="Plucky">
-<meta property="og:description" content="Topic Address Spaces  支持虚拟内存的硬件  XV中的虚拟内存代码   Address Spaces为什么需要隔离性创造虚拟内存的一个出发点是你可以通过它实现隔离性。如果你正确的设置了page table，并且通过代码对它进行正确的管理，那么原则上你可以实现强隔离。 我们期望的是，每个用户程序都被装进一个盒子里，这样它们就不会彼此影响了。类似的，我们也想让它们与内核操作系统相互">
+<meta property="og:description" content="Topic Address Spaces  支持虚拟内存的硬件  XV中的虚拟内存代码   Address Spaces">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2023/04/05/MIT6-S081-Operating-System-Engineering-Lecture04-Page-Tables/P18.png">
 <meta property="og:image" content="http://example.com/2023/04/05/MIT6-S081-Operating-System-Engineering-Lecture04-Page-Tables/Addresstransition.png">
@@ -210,7 +210,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
       <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="随便记录">
+      <meta itemprop="description" content="记录">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -521,7 +521,7 @@
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
   <p class="site-author-name" itemprop="name">Plucky</p>
-  <div class="site-description" itemprop="description">随便记录</div>
+  <div class="site-description" itemprop="description">记录</div>
 </div>
 <div class="site-state-wrap motion-element">
   <nav class="site-state">
@@ -586,12 +586,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">477k</span>
+    <span title="Symbols count total">478k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">14:27</span>
+    <span title="Reading time total">14:29</span>
 </div>
 
 <!--

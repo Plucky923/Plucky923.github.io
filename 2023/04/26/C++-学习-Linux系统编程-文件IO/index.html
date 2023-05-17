@@ -20,15 +20,15 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"posts","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="标准C库IO函数和Linux系统IO函数对比标准C库IO函数  标准C库IO函数是跨平台的，第三方库 标准C库函数和Linux系统函数是调用和被调用的关系 Linux函数更加低级更底层一些，效率更高 C函数更高级一些 标准C库IO函数和Linux系统IO的关系  虚拟地址空间  文件描述符  open函数命令man可以查看详细信息 12man 2 (Linux系统IO函数)man 3 (C标准库函">
+  <meta name="description" content="标准C库IO函数和Linux系统IO函数对比标准C库IO函数">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++ 学习 Linux系统编程 文件IO">
 <meta property="og:url" content="http://example.com/2023/04/26/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E6%96%87%E4%BB%B6IO/index.html">
 <meta property="og:site_name" content="Plucky">
-<meta property="og:description" content="标准C库IO函数和Linux系统IO函数对比标准C库IO函数  标准C库IO函数是跨平台的，第三方库 标准C库函数和Linux系统函数是调用和被调用的关系 Linux函数更加低级更底层一些，效率更高 C函数更高级一些 标准C库IO函数和Linux系统IO的关系  虚拟地址空间  文件描述符  open函数命令man可以查看详细信息 12man 2 (Linux系统IO函数)man 3 (C标准库函">
+<meta property="og:description" content="标准C库IO函数和Linux系统IO函数对比标准C库IO函数">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2023/04/26/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E6%96%87%E4%BB%B6IO/%E6%A0%87%E5%87%86C%E5%BA%93IO%E5%87%BD%E6%95%B0.png">
 <meta property="og:image" content="http://example.com/2023/04/26/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E6%96%87%E4%BB%B6IO/%E6%A0%87%E5%87%86C%E5%BA%93IO%E5%92%8CLinux%E7%B3%BB%E7%BB%9FIO%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB.png">
@@ -222,7 +222,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
       <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="随便记录">
+      <meta itemprop="description" content="记录">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -511,7 +511,7 @@
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
   <p class="site-author-name" itemprop="name">Plucky</p>
-  <div class="site-description" itemprop="description">随便记录</div>
+  <div class="site-description" itemprop="description">记录</div>
 </div>
 <div class="site-state-wrap motion-element">
   <nav class="site-state">
@@ -576,12 +576,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">477k</span>
+    <span title="Symbols count total">478k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">14:27</span>
+    <span title="Reading time total">14:29</span>
 </div>
 
 <!--

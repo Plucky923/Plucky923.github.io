@@ -20,15 +20,15 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"posts","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="继承是面向对象三大特性之一 有些类与类之间存在特殊的关系，定义这些类时，下级别的成员除了拥有上一级的共性还有自己的特性，这个时候我们可以考虑利用继承的技术减少重复代码。 继承的基本语法语法： class 子类：继承方式 父类 子类也成为派生类，父类也成为基类 例如我们看到很多网站中，都有公共的头部，公共的底部，甚至公共的左侧列表，只有中心内容不同，接下来我们分别利用普通写法和继承的写法来实现网页中">
+  <meta name="description" content="继承是面向对象三大特性之一 有些类与类之间存在特殊的关系，定义这些类时，下级别的成员除了拥有上一级的共性还有自己的特性，这个时候我们可以考虑利用继承的技术减少重复代码。 继承的基本语法">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++学习 继承">
 <meta property="og:url" content="http://example.com/2023/05/02/C++-%E5%AD%A6%E4%B9%A0-%E7%BB%A7%E6%89%BF/index.html">
 <meta property="og:site_name" content="Plucky">
-<meta property="og:description" content="继承是面向对象三大特性之一 有些类与类之间存在特殊的关系，定义这些类时，下级别的成员除了拥有上一级的共性还有自己的特性，这个时候我们可以考虑利用继承的技术减少重复代码。 继承的基本语法语法： class 子类：继承方式 父类 子类也成为派生类，父类也成为基类 例如我们看到很多网站中，都有公共的头部，公共的底部，甚至公共的左侧列表，只有中心内容不同，接下来我们分别利用普通写法和继承的写法来实现网页中">
+<meta property="og:description" content="继承是面向对象三大特性之一 有些类与类之间存在特殊的关系，定义这些类时，下级别的成员除了拥有上一级的共性还有自己的特性，这个时候我们可以考虑利用继承的技术减少重复代码。 继承的基本语法">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2023/05/02/C++-%E5%AD%A6%E4%B9%A0-%E7%BB%A7%E6%89%BF/vs%E5%BC%80%E5%8F%91.png">
 <meta property="og:image" content="http://example.com/2023/05/02/C++-%E5%AD%A6%E4%B9%A0-%E7%BB%A7%E6%89%BF/cd.png">
@@ -213,7 +213,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
       <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="随便记录">
+      <meta itemprop="description" content="记录">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -497,7 +497,7 @@
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
   <p class="site-author-name" itemprop="name">Plucky</p>
-  <div class="site-description" itemprop="description">随便记录</div>
+  <div class="site-description" itemprop="description">记录</div>
 </div>
 <div class="site-state-wrap motion-element">
   <nav class="site-state">
@@ -562,12 +562,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">477k</span>
+    <span title="Symbols count total">478k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">14:27</span>
+    <span title="Reading time total">14:29</span>
 </div>
 
 <!--
