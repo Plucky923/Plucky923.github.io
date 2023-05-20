@@ -577,7 +577,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /proc/loadavg</span><br></pre></td></tr></table></figure>
 
 <p>输出可能类似于以下内容：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.51 0.38 0.35 1/1234 5678</span><br></pre></td></tr></table></figure>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">0</span>.<span class="number">51</span> <span class="number">0</span>.<span class="number">38</span> <span class="number">0</span>.<span class="number">35</span> <span class="number">1</span>/<span class="number">1234</span> <span class="number">5678</span></span><br></pre></td></tr></table></figure>
 
 <p>这些数字分别表示 1 分钟、5 分钟和 15 分钟的负载平均值，后面的数字表示当前正在运行的进程数&#x2F;系统总进程数，以及最近分配的进程 ID。</p>
 <p>总之，<code>/proc/loadavg</code> 是一个伪文件的示例，它为访问 Linux 系统中的负载平均值信息提供了一个接口，无需使用特殊的系统调用。</p>

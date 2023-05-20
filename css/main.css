@@ -1208,11 +1208,6 @@ pre .javascript .function {
   position: fixed;
   top: 0;
 }
-@media (max-width: 991px) {
-  .sidebar {
-    display: none;
-  }
-}
 .sidebar-inner {
   color: #999;
   padding: 18px 10px;
@@ -1272,7 +1267,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #16c1d0;
+  background: #6b3be8;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -1391,7 +1386,6 @@ pre .javascript .function {
   .sidebar-toggle {
     left: 20px;
     opacity: 0.8;
-    display: none;
   }
 }
 .sidebar-toggle:hover .toggle-line {
@@ -2555,4 +2549,19 @@ embed {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+body {
+  background: url("/images/TD.png");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: 50% 50%;
+  opacity: 1;
+}
+.sidebar {
+  background-color: transparent;
+  opacity: 1;
+}
+.header-inner {
+  background: rgba(255,255,255,0);
 }

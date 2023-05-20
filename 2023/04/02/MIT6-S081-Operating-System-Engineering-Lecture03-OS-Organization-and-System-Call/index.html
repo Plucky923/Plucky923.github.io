@@ -394,7 +394,7 @@
 <h1 id="XV6的启动过程"><a href="#XV6的启动过程" class="headerlink" title="XV6的启动过程"></a>XV6的启动过程</h1><p>QEMU 是一个通用的开源处理器模拟器和虚拟化程序，可以用于在物理计算机上模拟设备，并运行各种操作系统，如 xv6。以下是结合 QEMU 源代码和 xv6 源代码说明启动过程的概述：</p>
 <ol>
 <li><p><strong>启动 QEMU</strong>：从命令行启动 QEMU，并指定要加载的操作系统映像（在这种情况下为 xv6 操作系统）。命令可能如下所示：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-i386 -nographic -serial mon:stdio -hdb fs.img xv6.img -s -S</span><br></pre></td></tr></table></figure>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qemu-<span class="keyword">system</span>-i386 -nographic -<span class="type">serial</span> mon:stdio -hdb fs.img xv6.img -s -S</span><br></pre></td></tr></table></figure>
 
 <p>在这里，<code>qemu-system-i386</code> 是针对 x86（32 位）系统的 QEMU 模拟器，<code>-nographic</code> 参数表示不使用图形界面，<code>-serial mon:stdio</code> 表示将监视器（QEMU 控制台）连接到标准输入&#x2F;输出，<code>-hdb fs.img</code> 指定要加载的 xv6 文件系统映像，<code>xv6.img</code> 是 xv6 操作系统映像，<code>-s</code> 和 <code>-S</code> 参数用于调试。</p>
 </li>

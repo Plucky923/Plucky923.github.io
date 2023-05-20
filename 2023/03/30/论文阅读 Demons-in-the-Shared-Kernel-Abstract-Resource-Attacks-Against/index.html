@@ -853,7 +853,7 @@
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install quota quotatool</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>在 <code>/etc/fstab</code> 文件中启用用户配额。例如，为 <code>/home</code> 分区启用用户配额，可以将以下内容添加到 <code>/etc/fstab</code> 文件：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/dev/sda1 /home ext4 defaults,usrquota,grpquota 0 0</span><br></pre></td></tr></table></figure>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="regexp">/dev/</span>sda1 /home ext4 defaults,usrquota,grpquota <span class="number">0</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
 </li>
 <li><p>重新挂载分区以应用更改：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mount -o remount /home</span><br></pre></td></tr></table></figure>
