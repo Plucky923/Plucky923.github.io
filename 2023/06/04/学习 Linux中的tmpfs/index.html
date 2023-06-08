@@ -31,7 +31,7 @@
 <meta property="og:description" content="tmpfs简介tmpfs（英语：temporary file system） 是类Unix系统上暂存档存储空间的常见名称，通常以挂载文件系统方式实现，并将资料存储在易失性存储器而非永久存储设备中。和RAM disk的概念近似，但后者会呈现出具有完整文件系统的虚拟磁盘。 tmpfs的工作原理是，它使用计算机的内存来模拟一个文件系统，就像在硬盘上创建了一个虚拟的文件柜。当你在tmpfs上创建文件或文件">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-06-04T13:16:53.000Z">
-<meta property="article:modified_time" content="2023-06-05T14:12:54.548Z">
+<meta property="article:modified_time" content="2023-06-08T11:50:43.671Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
 
@@ -230,7 +230,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-06-05 22:12:54" itemprop="dateModified" datetime="2023-06-05T22:12:54+08:00">2023-06-05</time>
+                <time title="Modified: 2023-06-08 19:50:43" itemprop="dateModified" datetime="2023-06-08T19:50:43+08:00">2023-06-08</time>
               </span>
 
           
@@ -265,7 +265,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="tmpfs简介"><a href="#tmpfs简介" class="headerlink" title="tmpfs简介"></a>tmpfs简介</h2><p><strong>tmpfs</strong>（英语：<strong>t</strong>e<strong>mp</strong>orary <strong>f</strong>ile <strong>s</strong>ystem） 是<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E9%A1%9EUnix%E7%B3%BB%E7%B5%B1" title="类Unix系统">类Unix系统</a>上暂存档存储空间的常见名称，通常以挂载文件系统方式实现，并将资料存储在<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%8F%AE%E7%99%BC%E6%80%A7%E8%A8%98%E6%86%B6%E9%AB%94" title="易失性存储器">易失性存储器</a>而非永久存储设备中。和<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/RAM_disk" title="RAM disk">RAM disk</a>的概念近似，但后者会呈现出具有完整文件系统的虚拟磁盘。</p>
+        <h1 id="tmpfs简介"><a href="#tmpfs简介" class="headerlink" title="tmpfs简介"></a>tmpfs简介</h1><p><strong>tmpfs</strong>（英语：<strong>t</strong>e<strong>mp</strong>orary <strong>f</strong>ile <strong>s</strong>ystem） 是<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E9%A1%9EUnix%E7%B3%BB%E7%B5%B1" title="类Unix系统">类Unix系统</a>上暂存档存储空间的常见名称，通常以挂载文件系统方式实现，并将资料存储在<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%8F%AE%E7%99%BC%E6%80%A7%E8%A8%98%E6%86%B6%E9%AB%94" title="易失性存储器">易失性存储器</a>而非永久存储设备中。和<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/RAM_disk" title="RAM disk">RAM disk</a>的概念近似，但后者会呈现出具有完整文件系统的虚拟磁盘。</p>
 <p>tmpfs的工作原理是，它使用计算机的内存来模拟一个文件系统，就像在硬盘上创建了一个虚拟的文件柜。当你在tmpfs上创建文件或文件夹时，实际上它们是存储在内存中的。这样，访问这些文件会非常快，因为内存的速度比硬盘快得多。但是，需要注意的是，当计算机关闭或重启时，内存中的数据会丢失，所以存储在tmpfs上的文件也会消失。</p>
 <p>tmpfs是一种特殊的文件系统，它可以让你把计算机的内存（RAM）当作硬盘来使用。这样做的优点是，因为内存的速度比硬盘快得多，所以访问存储在tmpfs上的文件会非常快。tmpfs通常用于存放临时文件，这些文件在计算机重启后会自动消失。这样可以避免硬盘上堆积很多不必要的临时文件，提高硬盘的使用效率和计算机的性能。</p>
 <h1 id="创建和挂载tmpfs文件系统"><a href="#创建和挂载tmpfs文件系统" class="headerlink" title="创建和挂载tmpfs文件系统"></a>创建和挂载tmpfs文件系统</h1><p>首先创建一个文件夹</p>
@@ -461,7 +461,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#tmpfs%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">tmpfs简介</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%92%8C%E6%8C%82%E8%BD%BDtmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number"></span> <span class="nav-text">创建和挂载tmpfs文件系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tmpfs%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number"></span> <span class="nav-text">tmpfs的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E9%93%BE"><span class="nav-number">1.</span> <span class="nav-text">函数调用链</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%82%E8%BD%BDtmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">挂载tmpfs文件系统流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mount%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">mount系统调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#do-mount%E5%87%BD%E6%95%B0"><span class="nav-number">2.2.</span> <span class="nav-text">do_mount函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#path-mount%E5%87%BD%E6%95%B0"><span class="nav-number">2.3.</span> <span class="nav-text">path_mount函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#do-new-mount%E5%87%BD%E6%95%B0"><span class="nav-number">2.4.</span> <span class="nav-text">do_new_mount函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vfs-get-tree%E5%87%BD%E6%95%B0"><span class="nav-number">2.5.</span> <span class="nav-text">vfs_get_tree函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#get-tree%E5%87%BD%E6%95%B0%E6%98%AF%E5%A6%82%E4%BD%95%E8%A2%AB%E8%AE%BE%E7%BD%AE%E4%B8%BAshmem-init%E5%87%BD%E6%95%B0%E7%9A%84"><span class="nav-number">2.6.</span> <span class="nav-text">get_tree函数是如何被设置为shmem_init函数的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shmem-get-tree%E5%87%BD%E6%95%B0"><span class="nav-number">2.7.</span> <span class="nav-text">shmem_get_tree函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shmem-fill-super%E5%87%BD%E6%95%B0"><span class="nav-number">2.8.</span> <span class="nav-text">shmem_fill_super函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shmem-get-inode%E5%87%BD%E6%95%B0"><span class="nav-number">2.9.</span> <span class="nav-text">shmem_get_inode函数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number"></span> <span class="nav-text">参考资料</span></a></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#tmpfs%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">tmpfs简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%92%8C%E6%8C%82%E8%BD%BDtmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.</span> <span class="nav-text">创建和挂载tmpfs文件系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tmpfs%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">tmpfs的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E9%93%BE"><span class="nav-number">3.1.</span> <span class="nav-text">函数调用链</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%82%E8%BD%BDtmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%B5%81%E7%A8%8B"><span class="nav-number">3.2.</span> <span class="nav-text">挂载tmpfs文件系统流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mount%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">3.2.1.</span> <span class="nav-text">mount系统调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#do-mount%E5%87%BD%E6%95%B0"><span class="nav-number">3.2.2.</span> <span class="nav-text">do_mount函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#path-mount%E5%87%BD%E6%95%B0"><span class="nav-number">3.2.3.</span> <span class="nav-text">path_mount函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#do-new-mount%E5%87%BD%E6%95%B0"><span class="nav-number">3.2.4.</span> <span class="nav-text">do_new_mount函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vfs-get-tree%E5%87%BD%E6%95%B0"><span class="nav-number">3.2.5.</span> <span class="nav-text">vfs_get_tree函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#get-tree%E5%87%BD%E6%95%B0%E6%98%AF%E5%A6%82%E4%BD%95%E8%A2%AB%E8%AE%BE%E7%BD%AE%E4%B8%BAshmem-init%E5%87%BD%E6%95%B0%E7%9A%84"><span class="nav-number">3.2.6.</span> <span class="nav-text">get_tree函数是如何被设置为shmem_init函数的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shmem-get-tree%E5%87%BD%E6%95%B0"><span class="nav-number">3.2.7.</span> <span class="nav-text">shmem_get_tree函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shmem-fill-super%E5%87%BD%E6%95%B0"><span class="nav-number">3.2.8.</span> <span class="nav-text">shmem_fill_super函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shmem-get-inode%E5%87%BD%E6%95%B0"><span class="nav-number">3.2.9.</span> <span class="nav-text">shmem_get_inode函数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -475,7 +475,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">45</span>
+          <span class="site-state-item-count">46</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -488,7 +488,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -537,13 +537,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">551k</span>
+    <span title="Symbols count total">554k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">16:41</span>
+    <span title="Reading time total">16:47</span>
 </div>
 
 <!--

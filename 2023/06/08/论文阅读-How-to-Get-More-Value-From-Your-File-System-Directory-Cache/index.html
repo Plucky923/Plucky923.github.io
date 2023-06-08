@@ -23,21 +23,22 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Oracle Oracle安装连接：Database Software Downloads | Oracle">
+  <meta name="description" content="Abstract 应用程序经常请求文件系统操作来遍历文件系统目录树,例如打开文件或读取文件元数据。因此,在内存中缓存文件系统目录结构和元数据对操作系统内核的性能优化非常重要。 本文确定了几个设计原则,可以在应用程序和文件系统透明的情况下显著提高命中率并降低命中成本。具体而言,我们的目录缓存设计可以在恒定数量的散列表操作中查找目录,将查找路径与权限检查分离,对访问控制检查的结果进行记忆化,使用签名加">
 <meta property="og:type" content="article">
-<meta property="og:title" content="C++学习 数据库编程">
-<meta property="og:url" content="http://example.com/2023/05/11/C++-%E5%AD%A6%E4%B9%A0-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%96%E7%A8%8B/index.html">
+<meta property="og:title" content="论文阅读 How to Get More Value From Your File System Directory Cache">
+<meta property="og:url" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/index.html">
 <meta property="og:site_name" content="Plucky">
-<meta property="og:description" content="Oracle Oracle安装连接：Database Software Downloads | Oracle">
+<meta property="og:description" content="Abstract 应用程序经常请求文件系统操作来遍历文件系统目录树,例如打开文件或读取文件元数据。因此,在内存中缓存文件系统目录结构和元数据对操作系统内核的性能优化非常重要。 本文确定了几个设计原则,可以在应用程序和文件系统透明的情况下显著提高命中率并降低命中成本。具体而言,我们的目录缓存设计可以在恒定数量的散列表操作中查找目录,将查找路径与权限检查分离,对访问控制检查的结果进行记忆化,使用签名加">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2023-05-11T06:10:20.000Z">
-<meta property="article:modified_time" content="2023-05-11T10:33:21.034Z">
+<meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E5%9B%BE1.png">
+<meta property="article:published_time" content="2023-06-08T08:21:52.000Z">
+<meta property="article:modified_time" content="2023-06-08T11:07:00.513Z">
 <meta property="article:author" content="Plucky">
-<meta property="article:tag" content="C++">
-<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="文件系统">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E5%9B%BE1.png">
 
-<link rel="canonical" href="http://example.com/2023/05/11/C++-%E5%AD%A6%E4%B9%A0-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%96%E7%A8%8B/">
+<link rel="canonical" href="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/">
 
 
 <script id="page-configurations">
@@ -50,7 +51,7 @@
   };
 </script>
 
-  <title>C++学习 数据库编程 | Plucky</title>
+  <title>论文阅读 How to Get More Value From Your File System Directory Cache | Plucky</title>
   
 
 
@@ -202,7 +203,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/11/C++-%E5%AD%A6%E4%B9%A0-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%96%E7%A8%8B/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -215,7 +216,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          C++学习 数据库编程
+          论文阅读 How to Get More Value From Your File System Directory Cache
         </h1>
 
         <div class="post-meta">
@@ -226,7 +227,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2023-05-11 14:10:20 / Modified: 18:33:21" itemprop="dateCreated datePublished" datetime="2023-05-11T14:10:20+08:00">2023-05-11</time>
+              <time title="Created: 2023-06-08 16:21:52 / Modified: 19:07:00" itemprop="dateCreated datePublished" datetime="2023-06-08T16:21:52+08:00">2023-06-08</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -234,15 +235,11 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文精读</span></a>
                 </span>
                   , 
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/%E5%86%85%E6%A0%B8%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">内核安全</span></a>
                 </span>
             </span>
 
@@ -259,14 +256,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>49</span>
+              <span>3.3k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
+              <span>6 mins.</span>
             </span>
 
         </div>
@@ -278,9 +275,49 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Oracle"><a href="#Oracle" class="headerlink" title="Oracle"></a>Oracle</h1><ul>
-<li>Oracle安装连接：<a target="_blank" rel="noopener" href="https://www.oracle.com/database/technologies/oracle-database-software-downloads.html">Database Software Downloads | Oracle</a></li>
+        <p><strong>Abstract</strong></p>
+<p>应用程序经常请求文件系统操作来遍历文件系统目录树,例如打开文件或读取文件元数据。因此,在内存中缓存文件系统目录结构和元数据对操作系统内核的性能优化非常重要。</p>
+<p>本文确定了几个设计原则,可以在应用程序和文件系统透明的情况下显著提高命中率并降低命中成本。具体而言,我们的目录缓存设计可以在恒定数量的散列表操作中查找目录,将查找路径与权限检查分离,对访问控制检查的结果进行记忆化,使用签名加速查找,并通过缓存目录完整性降低未命中率。</p>
+<p>该设计可以满足POSIX、Linux安全模块、命名空间和装入别名等差异性要求的一系列要求。这些优化对实际应用程序是一个重要的净改进,例如可以将Dovecot IMAP服务器的吞吐量提高12%,并将updatedb实用程序的吞吐量提高29%。</p>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>操作系统内核通常在虚拟文件系统(VFS)层中缓存文件系统数据和元数据,该层将底层文件系统抽象为常见API(如POSIX)。缓存层已经成为隐藏持久存储技术(如本地磁盘)访问延迟的普遍优化手段。目录缓存不仅仅是性能优化;它还简化了安装多个文件系统、一致的文件句柄行为和高级安全模型(如SELinux)的实现。</p>
+<p> 目录缓存对良好的应用程序性能至关重要。许多常见的系统调用必须对文件路径进行操作,这需要目录缓存查找。例如,iBench系统调用跟踪中的10-20%的系统调用执行路径查找。图1列出了几种常见的命令行应用程序在执行基于路径的系统调用时花费的总执行时间的百分比(有关这些应用程序和测试机器的更多详细信息,请参阅§6)。我们注意到,这些系统调用包括路径查找以外的工作,这些数字包括一些检测开销;尽管如此,除rm外,系统调用时间和计数以stat和open为主,其中路径查找是执行时间的重要组成部分。对于这些应用程序,基于路径的系统调用占总执行时间的6-54%。这意味着降低路径查找延迟是内核提高这些应用程序执行时间的最大机会之一。  </p>
+<img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/图1.png" title alt data-align="center">
+
+<p> 不幸的是,即使目录缓存命中也是昂贵的——我们的测试Linux系统上的<code>stat</code>为 0.3-1.1微秒,相比之下<code>getppid</code>只有0.04微秒,4 KB预读只有0.3微秒。这个问题在Linux内核社区尤其受到重视,该社区对其目录缓存进行了重大修订和越来越复杂的优化,以降低其命中成本,例如从读取路径中删除锁或在重试循环中用死锁避免替换锁定顺序。图2 plotting目录缓存命中延迟与Linux几个版本中更改的目录缓存代码行数,使用测试系统上的路径到inode查找微基准。这些努力已将命中延迟从2011年到2013年提高了47%,但在过去三年中已停滞不前。  </p>
+<p>问题的根源似乎是POSIX路径权限语义要求与路径组件数量线性相关的工作,并严重限制内核开发人员的实现选项。例如,要打开<code>/X/Y/Z</code>文件,必须对父目录<code>/</code>、<code>/X</code>和<code>/X/Y</code>有搜索权限,并且有权访问文件Z。Linux实现简单地从上至下遍历目录树以检查权限。不幸的是,当关键路径以指针为基础的数据结构(在某些体系结构上包含多核一致性的内存屏障)主导时,现代CPU最终由难以预取加载而停滞。此外,由于如此多的Linux功能是建立在此行为之上的,例如Linux 安全模块(LSM)、命名空间和安装别名,所以如果不破坏与其他Linux内核功能的后向兼容性,任何数据结构增强似乎都是不可能的。在理论上,不明显是否有更快的查找算法(如单一散列表查找)可以满足这些API规范和内核内部要求;据我们所知,以前没有人尝试过。</p>
+<p>本文提出了目录缓存的一种分解,可以使大多数查找操作用单个散列表查找执行(§3),以及基于缓存中已有但未有效利用的信息优化以减少未命中率的优化(§5)。我们的设计通过几个关键性见解维持兼容性(§4),包括如何将路径索引与检查父权限分离,以及如何有效和安全地记忆访问控制检查的结果。</p>
+<p>我们的优化提高了频繁查找操作的性能,但引入了几个成本,详见§3和§6,我们认为这些成本是可以接受的,并且对应用程序而言是一个净改进。首先,这些优化会减慢对目录层次结构的不频繁修改,如目录的重命名、chmod和chown。然而,这些较慢的操作在iBench跟踪中占系统调用的不到0.01%。其次,dcache的内存开销增加。第三,查找由于签名冲突而有错误的可能性,可以调整为可以忽略不计且处于数据重复数据删除系统广泛使用的可接受阈值内。在图2的微基准测试中,我们的目录缓存优化提高了lookup延迟26%,超过未修改的Linux。</p>
+<p>本文证明这些技术可以提高频繁使用目录缓存的应用程序的性能,而对于不受益的应用程序的危害则很小。这些变化封装在VFS中——单个文件系统不必更改其代码。本文描述了在Linux 3.14中实现这些改进的原型。第2节解释了Mac OS X、FreeBSD和Solaris的目录缓存结构相当相似,这些原理应该具有普遍性。</p>
+<p>本文的贡献如下:</p>
+<ul>
+<li><p>对路径查找成本和改进缓存命中延迟机会的性能分析。</p>
+</li>
+<li><p>目录缓存设计,通过如下技术改进路径查找延迟:</p>
+<ul>
+<li><p>按完整路径索引目录缓存,将平均情况下的查找从路径组件数量的线性减少到常量。</p>
+</li>
+<li><p>前缀检查缓存(PCC),将权限检查与路径缓存分离。PCC记忆权限检查,与LSM兼容。</p>
+</li>
+<li><p>使用路径签名减少检查散列桶冲突的成本。</p>
+</li>
 </ul>
+</li>
+<li><p>识别利用内核已经拥有的元数据减少未命中率的机会,如跟踪目录是否完全在缓存中。</p>
+</li>
+<li><p>仔细处理许多微妙的边缘情况,这些情况会阻碍这些技术的机械应用,例如与符号链接和Linux命名空间的集成。</p>
+</li>
+<li><p>这些优化的全面评估。例如,我们的优化提高了Dovecot IMAP服务器的吞吐量最高达12%,updatedb的延迟最高达29%。</p>
+</li>
+</ul>
+<h1 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h1><p>本节首先回顾目录缓存必须支持的Unix目录语义;然后解释了目录缓存是如何在现代操作系统中实现的，包括Linux、FreeBSD、Solaris、Mac OS X和Windows。</p>
+<h2 id="Unix-Directory-Hierarchy-Semantics"><a href="#Unix-Directory-Hierarchy-Semantics" class="headerlink" title="Unix Directory Hierarchy Semantics"></a>Unix Directory Hierarchy Semantics</h2><p>目录缓存执行的最常见操作是查找，它将路径字符串映射到内存中的索引节点结构。查找由所有基于路径的系统调用调用，包括打开、启动和取消链接。查找包括检查用户是否具有从进程的根目录或当前工作目录到文件的适当搜索权限，我们称之为前缀检查(prefix check)。</p>
+<p>例如，为了让Alice读取<code>/home/ Alice / x</code>，她必须具有目录<code>/</code>、<code>/home</code>和<code>/home/ Alice</code>的搜索权限，以及文件x的读权限。为了节约起见，目录上的执行权限位编码了搜索权限。搜索与读权限的不同之处在于，搜索只允许用户查询文件是否存在，但不能枚举文件的内容(暴力破解除外)。SELinux和其他经过安全加固的Linux变体可以根据执行位之外的许多因素确定搜索权限，例如进程的角色或目录的扩展属性。</p>
+<h2 id="Linux-Directory-Cache"><a href="#Linux-Directory-Cache" class="headerlink" title="Linux Directory Cache"></a>Linux Directory Cache</h2><p>Linux目录缓存(dcache)缓存dentry(目录条目)结构，它将路径映射到文件(或目录、设备等)的内存inode(其他Unix系统将索引节点的vfs级表示称为vnode)。inode存储与文件相关的元数据，如大小、权限和所有权，以及指向索引内存文件内容的基数树的指针[4]。每个dentry至少由四个不同的结构跟踪:•分层树结构，其中每个父节点都有一个未排序的、双链的子节点列表。</p>
+<p>•一个哈希表，以父节点虚拟地址和文件名为键。</p>
+<p>•别名列表，跟踪与给定索引节点相关联的硬链接。</p>
+<p>•LRU列表，用于根据需要压缩缓存。</p>
+<p>Linux将前缀检查与查找本身集成在一起，一次搜索一个组件的路径和检查权限。lookup不是直接使用树结构，而是使用散列表搜索每个组件。对于较大的目录，哈希表查找将比搜索未排序的子列表快。分层树结构的主要用途是自底向上驱逐条目，以维护隐式不变性，即任何条目的所有父条目也必须在缓存中。尽管所有dentry都存储在按路径键的哈希表中，但权限检查实现在哈希表中查找每个路径组件。</p>
+<p>Linux存储负dentry，它缓存已知文件不存在于磁盘上的事实。负dentries的一个常见示例是在由环境变量指定的多个路径上搜索文件，例如LD LIBRARY PATH。</p>
 
     </div>
 
@@ -291,8 +328,7 @@
       <footer class="post-footer">
           
           <div class="post-tags">
-              <a href="/tags/C/" rel="tag"><i class="fa fa-tag"></i> C++</a>
-              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"><i class="fa fa-tag"></i> 数据库</a>
+              <a href="/tags/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="tag"><i class="fa fa-tag"></i> 文件系统</a>
           </div>
 
         
@@ -301,13 +337,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/05/11/C++-%E5%AD%A6%E4%B9%A0-QT%E7%AE%80%E4%BB%8B/" rel="prev" title="C++学习 QT简介">
-      <i class="fa fa-chevron-left"></i> C++学习 QT简介
+    <a href="/2023/06/05/C++-%E5%AD%A6%E4%B9%A0-%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98-webserver/" rel="prev" title="C++学习 项目实战 webserver">
+      <i class="fa fa-chevron-left"></i> C++学习 项目实战 webserver
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2023/05/15/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E7%BA%BF%E7%A8%8B/" rel="next" title="C++学习 Linux系统编程 线程">
-      C++学习 Linux系统编程 线程 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -367,7 +400,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Oracle"><span class="nav-number">1.</span> <span class="nav-text">Oracle</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Background"><span class="nav-number">2.</span> <span class="nav-text">Background</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Unix-Directory-Hierarchy-Semantics"><span class="nav-number">2.1.</span> <span class="nav-text">Unix Directory Hierarchy Semantics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux-Directory-Cache"><span class="nav-number">2.2.</span> <span class="nav-text">Linux Directory Cache</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -559,7 +592,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'Blog-talk',
       owner       : 'Plucky923',
       admin       : ['Plucky923'],
-      id          : '1d75b2a92bcecfd2d6e02707801a983e',
+      id          : '89ef43ceabe3a0ec10f463c6deed2eb6',
         language: 'zh-CH',
       distractionFreeMode: true
     });
