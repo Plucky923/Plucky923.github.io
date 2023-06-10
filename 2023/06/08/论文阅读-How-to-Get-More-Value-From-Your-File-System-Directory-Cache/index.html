@@ -31,8 +31,19 @@
 <meta property="og:description" content="Abstract 应用程序经常请求文件系统操作来遍历文件系统目录树,例如打开文件或读取文件元数据。因此,在内存中缓存文件系统目录结构和元数据对操作系统内核的性能优化非常重要。 本文确定了几个设计原则,可以在应用程序和文件系统透明的情况下显著提高命中率并降低命中成本。具体而言,我们的目录缓存设计可以在恒定数量的散列表操作中查找目录,将查找路径与权限检查分离,对访问控制检查的结果进行记忆化,使用签名加">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E5%9B%BE1.png">
+<meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E5%9B%BE2.png">
+<meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E5%9B%BE3.png">
+<meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E5%9B%BE4.png">
+<meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E5%9B%BE5.png">
+<meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E5%85%AC%E5%BC%8F1.png">
+<meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E5%9B%BE6.png">
+<meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E5%9B%BE7%E5%9B%BE8.png">
+<meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E5%9B%BE9.png">
+<meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E8%A1%A81.png">
+<meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E8%A1%A82.png">
+<meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E5%9B%BE10%E8%A1%A83%E8%A1%A84.png">
 <meta property="article:published_time" content="2023-06-08T08:21:52.000Z">
-<meta property="article:modified_time" content="2023-06-08T11:07:00.513Z">
+<meta property="article:modified_time" content="2023-06-10T02:28:19.839Z">
 <meta property="article:author" content="Plucky">
 <meta property="article:tag" content="文件系统">
 <meta name="twitter:card" content="summary">
@@ -225,10 +236,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2023-06-08 16:21:52 / Modified: 19:07:00" itemprop="dateCreated datePublished" datetime="2023-06-08T16:21:52+08:00">2023-06-08</time>
+              <time title="Created: 2023-06-08 16:21:52" itemprop="dateCreated datePublished" datetime="2023-06-08T16:21:52+08:00">2023-06-08</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-06-10 10:28:19" itemprop="dateModified" datetime="2023-06-10T10:28:19+08:00">2023-06-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -256,14 +273,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.3k</span>
+              <span>23k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>6 mins.</span>
+              <span>42 mins.</span>
             </span>
 
         </div>
@@ -312,12 +329,211 @@
 <h1 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h1><p>本节首先回顾目录缓存必须支持的Unix目录语义;然后解释了目录缓存是如何在现代操作系统中实现的，包括Linux、FreeBSD、Solaris、Mac OS X和Windows。</p>
 <h2 id="Unix-Directory-Hierarchy-Semantics"><a href="#Unix-Directory-Hierarchy-Semantics" class="headerlink" title="Unix Directory Hierarchy Semantics"></a>Unix Directory Hierarchy Semantics</h2><p>目录缓存执行的最常见操作是查找，它将路径字符串映射到内存中的索引节点结构。查找由所有基于路径的系统调用调用，包括打开、启动和取消链接。查找包括检查用户是否具有从进程的根目录或当前工作目录到文件的适当搜索权限，我们称之为前缀检查(prefix check)。</p>
 <p>例如，为了让Alice读取<code>/home/ Alice / x</code>，她必须具有目录<code>/</code>、<code>/home</code>和<code>/home/ Alice</code>的搜索权限，以及文件x的读权限。为了节约起见，目录上的执行权限位编码了搜索权限。搜索与读权限的不同之处在于，搜索只允许用户查询文件是否存在，但不能枚举文件的内容(暴力破解除外)。SELinux和其他经过安全加固的Linux变体可以根据执行位之外的许多因素确定搜索权限，例如进程的角色或目录的扩展属性。</p>
-<h2 id="Linux-Directory-Cache"><a href="#Linux-Directory-Cache" class="headerlink" title="Linux Directory Cache"></a>Linux Directory Cache</h2><p>Linux目录缓存(dcache)缓存dentry(目录条目)结构，它将路径映射到文件(或目录、设备等)的内存inode(其他Unix系统将索引节点的vfs级表示称为vnode)。inode存储与文件相关的元数据，如大小、权限和所有权，以及指向索引内存文件内容的基数树的指针[4]。每个dentry至少由四个不同的结构跟踪:•分层树结构，其中每个父节点都有一个未排序的、双链的子节点列表。</p>
-<p>•一个哈希表，以父节点虚拟地址和文件名为键。</p>
-<p>•别名列表，跟踪与给定索引节点相关联的硬链接。</p>
-<p>•LRU列表，用于根据需要压缩缓存。</p>
+<h2 id="Linux-Directory-Cache"><a href="#Linux-Directory-Cache" class="headerlink" title="Linux Directory Cache"></a>Linux Directory Cache</h2><p>Linux目录缓存(dcache)缓存dentry(目录条目)结构，它将路径映射到文件(或目录、设备等)的内存inode(其他Unix系统将索引节点的vfs级表示称为vnode)。inode存储与文件相关的元数据，如大小、权限和所有权，以及指向索引内存文件内容的基数树的指针[4]。每个dentry至少由四个不同的结构跟踪:</p>
+<ul>
+<li><p>分层树结构，其中每个父节点都有一个未排序的、双链的子节点列表。</p>
+</li>
+<li><p>一个哈希表，以父节点虚拟地址和文件名为键。</p>
+</li>
+<li><p>别名列表，跟踪与给定索引节点相关联的硬链接。</p>
+</li>
+<li><p>LRU列表，用于根据需要压缩缓存。</p>
+</li>
+</ul>
 <p>Linux将前缀检查与查找本身集成在一起，一次搜索一个组件的路径和检查权限。lookup不是直接使用树结构，而是使用散列表搜索每个组件。对于较大的目录，哈希表查找将比搜索未排序的子列表快。分层树结构的主要用途是自底向上驱逐条目，以维护隐式不变性，即任何条目的所有父条目也必须在缓存中。尽管所有dentry都存储在按路径键的哈希表中，但权限检查实现在哈希表中查找每个路径组件。</p>
-<p>Linux存储负dentry，它缓存已知文件不存在于磁盘上的事实。负dentries的一个常见示例是在由环境变量指定的多个路径上搜索文件，例如LD LIBRARY PATH。</p>
+<p>Linux存储负dentry(negative dentries)，它缓存已知文件不存在于磁盘上的事实。负dentries的一个常见示例是在由环境变量指定的多个路径上搜索文件，例如<code>LD LIBRARY PATH</code>。</p>
+<p><strong>Current dcache optimizations</strong></p>
+<p>图2所示的大部分dcache优化工作都改善了缓存命中延迟，主要是通过减少使用读-复制更新(RCU)的查找函数中的同步成本。</p>
+<p>RCU消除了读操作所需要的原子指令。其他Unix系统将索引节点的vfs级表示称为vnode。</p>
+<p>锁定和对单个dentry进行引用计数，将一些额外的工作推到不经常修改目录结构的代码上，例如重命名和取消链接。</p>
+<p>最新的Linux内核在检查路径权限时也使用乐观同步，使用序列锁(本质上是版本计数器)来检测子树何时可能与遍历同时发生更改。如果乐观快速路径由于并发修改而失败，内核将返回到使用父节点和子节点交替锁定的慢路径。</p>
+<p>由于Linux开发人员社区已经在优化其dcache方面投入了大量精力，因此我们在本文中使用Linux作为案例研究。本文中的优化不是特定于linux的，但在某些情况下，构建在其他内核可以采用的优化之上。</p>
+<img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/图2.png" title alt data-align="center">
+
+<h2 id="Other-Operating-Systems"><a href="#Other-Operating-Systems" class="headerlink" title="Other  Operating Systems"></a>Other  Operating Systems</h2><h3 id="FreeBSD-OS-X-and-Solaris"><a href="#FreeBSD-OS-X-and-Solaris" class="headerlink" title="FreeBSD, OS X, and Solaris."></a>FreeBSD, OS X, and Solaris.</h3><p>这些Unix变体都有一个目录缓存，其结构类似于Linux的[25,28,39]。每个系统都使用散列表组织其目录缓存，每次检查一个组件的路径，并存储负条目。在这里，我们使用FreeBSD作为BSD家族的一个代表性例子，根据最近的调查，它是最受欢迎的[6]。OS X内核采用了FreeBSD的文件系统，并没有实质性地改变它们在目录元数据缓存方面的行为。</p>
+<p>Linux的独特之处在于，hit路径避免调用低级文件系统，而其他Unix变体总是调用低级文件系统。低级文件系统可以选择退出默认结构，如果它有更专门的结构，比如大型目录，或者它可以直接实现自己的查找函数。直接管理文件系统的缓存部分是有问题的，因为对低级文件系统不可见挂载点。之前的一些研究发现这种限制很麻烦，特别是对于网络文件系统。这些Unix变体也没有在缓存中使用乐观同步，但这不是基本的。</p>
+<p>Solaris dcache，称为直接名称查找缓存(DNLC)，具有复杂的缓存管理启发式，例如在替换决策中权衡相关性和时间局域性Solaris也有一个比FreeBSD更简单的缓存路径参考管理系统(更类似于Linux)。</p>
+<h3 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h3><p>Windows中的几乎所有的操作系统API抽象都由对象管理器表示。对象管理器是最接近Unix目录缓存的类比,它跟踪层次路径和权限。不幸的是,Windows内部结构的公开文档有限,尤其是对于未被动用的元数据的内部数据结构和缓存策略,所以详细比较困难。尽管如此,我们可以比较一些高级设计选择的影响。</p>
+<p>首先,Windows只支持一种根文件系统格式,和非常有限的其他文件系统。因此,对文件系统元数据的一般目的的内存组织没有太大价值,Windows没有vnodes,dentries或其他VFS层面的概括。相反,缓存主要是文件系统的责任,磁盘和内存结构布局可能相同。</p>
+<p>与Unix变种不同,当Windows文件系统路径没有缓存在对象管理器中时,底层文件系统负责解析完整路径,而不是一次解析一个组件。为此,Windows NT也将父目录权限传播到每个子目录的磁盘元数据,在创建或修改时间。这种方法可以直接查找,但也会产生一点易管理性问题。假设Alice使她的主目录对所有人可读:这个更改是否应传播到所有子目录?为了回答这个问题,Windows采用一个错误易发生的启发法,不改变手动修改的子权限。本文展示如何在内存中保留直接查找的性能优势,而不存储传播的分层权限在磁盘上产生的管理性问题。</p>
+<h3 id="Opportunities-for-Improvement"><a href="#Opportunities-for-Improvement" class="headerlink" title="Opportunities for Improvement"></a>Opportunities for Improvement</h3><p>图3显示了Linux中路径查找的主要组件所花费的时间，其中四个路径的长度不断增加。</p>
+<p>对查找时间的第一阶影响是路径本身的长度，它决定了对每个组件进行哈希、在哈希表中查找以及对每个目录的索引节点执行权限检查的次数。这些成本在路径组件的数量上是线性的。</p>
+<p>本文中描述的命中延迟优化使大多数这些操作的时间不变，除了散列，它仍然是路径长度的函数。</p>
+<img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/图3.png" title alt data-align="center">
+
+<h1 id="Minimizing-Hit-Latency"><a href="#Minimizing-Hit-Latency" class="headerlink" title="Minimizing Hit Latency"></a>Minimizing Hit Latency</h1><p>本节描述dcache命中路径的算法改进。在缓存命中情况下,最昂贵的操作之一是检查进程的凭据是否允许进程从上到下搜索dentry路径(称为前缀检查prefix check)。本节展示了如何通过缓存前缀检查结果显着降低命中延迟。本节解释了优化方案,如何将其集成到现有的Linux目录缓存框架中,如何使这些缓存结果与其他文件系统操作保持一致,以及如何使用路径签名进一步加速查找。</p>
+<h2 id="Caching-Prefix-Checks"><a href="#Caching-Prefix-Checks" class="headerlink" title="Caching Prefix Checks"></a>Caching Prefix Checks</h2><p>像许多Unix变体一样，Linux在哈希表中存储缓存的路径到索引节点映射(dentry)(§2.2)。这个散列表由父条目的虚拟地址和下一个路径组件字符串的组合作为键值，如图4所示。内核对象的虚拟地址不会随着时间的推移而改变，并且在各个进程之间是相同的。</p>
+<p>在实践中，前缀检查具有高度的空间和时间局部性，非常适合缓存，即使这意味着将一些额外的工作推到不经常修改的目录结构上(例如，重命名目录)。RCU已经做了这个权衡(§2.2)。</p>
+<p>为了缓存前缀检查结果，我们必须首先将查找dentry与前缀检查解耦。我们添加了第二个系统范围的哈希表，专门用于查找dentry，称为直接查找哈希表(DLHT)。DLHT存储最近访问的按完整的、规范化的路径散列的dentry。dentry通常存在于主哈希表中，也可能存在于DLHT中。DLHT是惰性填充的，为了与目录树修改保持一致，条目可以被删除(§3.2)。</p>
+<img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/图4.png" title alt data-align="center">
+
+<p>每个进程在与进程凭据(在4.1节中进一步讨论)关联的前缀检查缓存(PCC)中缓存以前前缀检查的结果,可以在具有相同权限的进程之间共享。PCC是一个散列表,缓存dentry虚拟地址和版本号(序列锁),用于检测陈旧条目(3.2节)。当前缀检查通过时,表示凭据被允许访问dentry,则将条目添加到PCC;根据LRU策略替换条目。PCC中的未命中可以表示权限被拒绝或权限检查最近未执行。</p>
+<p>因此，给定任何路径，内核都有一个直接查找DLHT中的路径的快速路径。如果快速路径在DLHT中命中，则在进程的PCC中查找该齿列。</p>
+<p>如果找到PCC条目并且版本计数器与缓存的计数器匹配，则使用缓存的前缀检查结果。</p>
+<p>如果DLHT或PCC中的快速路径查找丢失，或者PCC条目中的版本计数器比dentry更老，则代码将返回到原始的Linux查找算法(慢路径)，只使用主哈希表并一次遍历一个组件。</p>
+<p>在相对路径的情况下，例如目录<code>/home/alice</code>下的<code>foo/bar</code>，我们有效地将相对路径和当前工作目录的路径连接起来。为了实现相对路径，Linux已经在每个进程描述符(任务结构)中存储了一个指向当前工作目录条目的指针。我们没有对字符串进行记忆，而是在每个条目中存储哈希函数的中间状态，以便可以从任何前缀恢复哈希。</p>
+<p>当前的设计包括两种非常罕见的边缘情况。首先，可以释放dentry并使用陈旧的PCC条目重新分配。我们通过使用单调递增的版本号初始化新分配的dentry来检测这种情况，允许PCC条目在重新分配时检测过时。释放一个牙齿将它从DLHT中移除。其次，版本号可以在新条目或重命名、chmod或非空目录的城镇的每2^32次初始化之后环绕;我们的设计目前通过使所有活动的pcc无效来处理封装。</p>
+<p>图5说明了对Linux dentry结构的修改。快速dentry存储签名、标志、序列计数、挂载点、用于管理深度目录条目的列表(第5.2节)，以及用于将快速dentry添加到DLHT bucket的列表(哈希链)。PCC被添加到内核凭据结构(struct cred)中，并存储一个可调数量的由指针和序列号组成的元组;用64kb的PCC对系统进行评估。由于每个dentry指针的最高位和最低位是相同的，PCC只存储唯一的指针位(x86 64 Linux中的8-39位)以节省空间。</p>
+<img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/图5.png" title alt data-align="center">
+
+<h2 id="Coherence-with-Permission-and-Path-Changes"><a href="#Coherence-with-Permission-and-Path-Changes" class="headerlink" title="Coherence with Permission and Path Changes"></a>Coherence with Permission and Path Changes</h2><p>当目录或目录结构的权限被更改时(例如使用chmod或rename)，任何包含该目录的缓存前缀检查都必须无效。</p>
+<p>我们的设计通过在更改层次结构之前使相关的PCC和DLHT条目失效，防止过时的慢路径查找被重新缓存，并利用vfs级同步来确保正确的慢路径行为，从而确保并发查找和更改的安全性。</p>
+<p>首先，我们确保在更改目录结构后，快速路径查找不能使用陈旧的数据完成。</p>
+<p>在发生突变(如重命名或chmod)之前，操作必须递归遍历dcache中的所有子节点，并增加<code>fast_dentry</code>版本计数器(seq)。</p>
+<p>每个进程的PCC使用<code>fast_dentry</code>版本计数器来检测查找时缓存前缀检查的变化;增加此版本计数器将使该条目的所有PCC项无效，而无需直接修改每个PCC。对目录结构的更改(例如，mount和rename)也会从直接查找哈希表(DLHT)中删除新旧路径下的dentry。PCC和DLHT表项在慢路径上缓慢地重新填充。</p>
+<p>其次，通过使用原子的全局序列计数器(invalidation)，我们确保不能将过时的慢路径查找的结果重新添加到DLHT或PCC中。在慢路径遍历之前和之后读取序列计数器;只有当计数器没有改变时，结果才被添加到DLHT和PCC中，这意味着没有并发关机。</p>
+<p>第三，我们使用vfs级同步来确保慢路径与突变正确同步。例如，rename获取全局重命名锁序列锁，以及新旧父目录上的每个条目锁。当使用重命名锁进行写操作时，慢路径(即当前Linux代码)上的所有查找都必须以一种从根目录(或当前工作目录，对于相对路径)到目标子目录的交替方式锁定每个条目。在重命名完成之前，目标条目上的锁会阻止交替遍历。无效计数器防止缓存在获取dentry锁之前已经通过此点的慢路径查找的结果。我们的实现遵循VFS现有的锁定原则来避免死锁;它添加了版本计数器来检测不一致性，并退回到慢路径。</p>
+<p>因此，相关的PCC和DLHT条目在重命名开始之前就已经失效了，阻断了快速路径； 慢速路径的遍历将被阻止，直到重命名完成和每个条目的锁被释放；并且一个序列计数器 序列计数器确保只有观察到新路径的慢速路径遍历可以重新填充DLR的 路径可以重新填充DLHT和PCC。<br>这些递归的遍历将目录权限和结构的变化从恒定的时间转变为与子树的大小成线性关系。子树的大小。作为一个例子，重命名或chmod一个有10,000个子目录，最多深度为4的目录需要大约需要330微秒来完成。在最初的Linux内核中，重命名和chmod几乎是恒定时间操作，只需要4.5和1.1微秒。一些应用程序，如aptitude或rsync，依靠rename来原子化地替换一个目录，但这只占其总工作的一小部分，而且比查找的频率低几个数量级，这使得总体上是一个很好的权衡。</p>
+<p><strong>Directory References</strong> </p>
+<p>Unix的语义允许人们cd进入一个目录，并在随后的权限改变后继续在该目录中工作，否则将禁止进一步访问。例如，假设一个进程在工作目录&#x2F;foo&#x2F;bar中，foo的权限发生了变化，使得该进程在未来不能进入bar。只要该进程不离开该目录或退出，该进程就应该能够继续打开bar下的文件。类似的语义也适用于打开的目录柄。在我们的设计中，这样的权限变化最终会导致一个被封锁的PCC条目，而快速路径查询将违反预期行为。我们的设计通过检查 打开的引用在PCC中是否仍然被允许。如果PCC有一个 更多的条目，将阻止重新打开这个句柄、查询将被强制采用慢速路径，并且这个陈旧的结果不会被添加到PCC中。结果不会被添加到PCC中。</p>
+<h2 id="Accelerating-Lookuos-with-Signatures"><a href="#Accelerating-Lookuos-with-Signatures" class="headerlink" title="Accelerating Lookuos with Signatures"></a>Accelerating Lookuos with Signatures</h2><p>我们优化的查找使用240位签名来最小化密钥比较的成本。Linux通过链接在哈希表中查找dentry。当哈希表键是一个相对较短的路径组件时，简单地比较键的成本是可以接受的。但是，Linux上的完整路径最多可以有4,096个字符，即使比较中等长度的字符串也会损害直接查找的算法优势。我们可以通过创建路径的签名来避免这个开销，这样可以最小化键比较的开销。</p>
+<p>使用签名会带来冲突的风险，这可能导致系统将路径映射到错误的入口。</p>
+<p>我们首先解释签名碰撞如何在我们的设计中导致问题，然后解释所需的抗碰撞属性，最后解释我们如何选择签名大小以使这种风险最小化。</p>
+<p><strong>Signature collisions</strong></p>
+<p>当用户查找路径时，我们的设计首先计算规范化路径的签名，在全局DLHT中查找散列，如果DLHT中有命中，则在每个凭据PCC中查找dentry和序列号。</p>
+<p>如果具有相同签名的另一个文件的dentry已经在DLHT中，并且该dentry在PCC中，则用户可能打开错误的文件。例如，如果Alice打开了带有X签名的文件<code>/home/alice/foo</code>，然后打开了同样带有X签名的文件<code>/home/alice/bar</code>，她的第二次打开实际上会创建一个文件foo的句柄。这就产生了一种担忧，即用户可能会由于自己的过错而损坏自己的文件。可以根据签名大小将此风险配置为非常小(下面将讨论)。</p>
+<p>任何不正确的查找结果必须是进程(或具有相同凭据的另一个进程)有权访问的文件。要使快速路径查找返回任何内容，必须在任务的PCC中有匹配的dentry指针，该PCC对于具有相同凭据的任务是私有的。因此，碰撞不会导致Alice意外打开属于Bob的完全不相关的文件，否则她无法访问这些文件。</p>
+<p>我们的设计正确地处理了两个用户使用相同签名访问不同文件的情况，因为PCC中的错误将导致两个用户都退回到慢路径。</p>
+<p>假设Bob开了foo，它和Alice的酒吧相撞了。当Alice打开bar时，它的签名将在DLHT中匹配，但在PCC中会丢失。这将导致Alice的查找以慢路径重新执行前缀检查，最终打开正确的文件并将此条目添加到她的PCC中。</p>
+<p>因此，如果Bob是对抗性的，他就不能通过改变缓存内部状态导致Alice打开错误的文件。</p>
+<p>我们在启动时为签名哈希函数选择一个随机密钥，以降低确定性错误或离线冲突生成的风险，因为人们可能会使用这些错误来攻击基于用户输入打开文件的应用程序，例如web服务器。因此，相同的路径不会跨重启或相同内核的实例生成相同的签名。</p>
+<p>尽管采取了所有这些措施，但对于以root身份运行的应用程序来说，这种风险仍然是不可接受的，因为它可以打开任何文件，特别是那些接受来自不受信任用户的输入的文件。</p>
+<p>例如，假设恶意用户识别了一个与密码数据库具有相同签名的路径。该用户可以将此路径传递给setuid-root实用程序，并欺骗setuid实用程序覆盖密码数据库。通过不允许对特权二进制文件或对安全敏感的路径名进行基于签名的查找加速，可以消除这种风险，尽管这在我们的原型中没有实现。</p>
+<p><strong>Collision Resistance Requirement</strong></p>
+<p>我们设计的安全性取决于对手只能通过蛮力找到碰撞。我们的设计可以使用2通用哈希函数或伪随机函数族(PRF)来生成路径签名。在抗碰撞方面，2-universal hash散列和PRF之间的区别在于，攻击者可以通过观察2-universal hash函数的输出来学习密钥，但不能从PRF的输出中学习密钥。因为我们的dcache设计不向用户显示签名，只显示两条路径是否有签名冲突，所以任何一个族的散列函数都足够了。</p>
+<p> 需要注意的是，使用双通用哈希函数时，必须小心计时和其他侧通道不会泄漏签名。例如，不能同时使用签名中的位来索引哈希表，因为可能会通过测量在给定哈希桶上遍历链的时间来了解签名的位。在我们选择的函数中，可以安全地使用256位哈希输出中的较低位，因为在我们的特定算法中，较低位不受较高位值的影响;因此，我们使用16位哈希表索引和240位签名。相反，当使用PRF生成签名时，可以避免从侧通道学习签名的问题。</p>
+<p>我们的设计使用了2-universal multilinear hash函数。我们使用基于AES-NI硬件的prf做了几个实验，但没有找到一个足够快的函数来改进基线Linux。使用当前的128位AES硬件，我们可以提高4个或更多路径组件的性能，但是创建256位PRF需要更复杂的构造，这太昂贵了。更谨慎的实现可能更倾向于使用PRF，以避免任何被忽略的侧通道风险，特别是如果在未来几代硬件中可以使用快速的256位PRF。</p>
+<p><strong>Probability of a signature collision</strong></p>
+<p>我们选择了一个240位的签名，它与重复数据删除系统中使用的签名大小相当，范围从128位到256位。</p>
+<p>重复数据删除设计通常选择一个签名大小，该签名大小引入的冲突风险大大小于未检测到的ECC RAM错误的风险。</p>
+<p>我们假设对手正在用蛮力寻找碰撞。攻击者必须查找系统上的路径，例如通过打开本地文件或查询web服务器上的路径。因为我们的哈希函数是用一个随机值作为键的，并且输出对用户是隐藏的，所以攻击者只能在目标系统上搜索冲突。因此，攻击者受到系统上的查找速率以及目标系统在缓存中保存多个签名以供比较的能力的限制。</p>
+<p>我们计算碰撞风险变得不可忽略(即高于2^-128)的预期时间，并对碰撞风险建模如下。首先，|H(X)| &#x3D; 2^240是可能的签名数。我们将缓存限制为n &#x3D; 2^35个条目(即，假设RAM中的dcache空间为10TB，每个条目为320字节)，并采用LRU替换策略。我们计算碰撞风险大于P &#x3D; 2^−128的查询次数(q)如下:</p>
+<img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/公式1.png" title alt data-align="center">
+
+<p>以每秒1000亿次的查找速度(目前的核每秒可以查找大约300万次)，强力碰撞的概率超过2^-128的预期时间是4.8万年</p>
+<h1 id="Generalizing-the-Fast-Path"><a href="#Generalizing-the-Fast-Path" class="headerlink" title="Generalizing the Fast Path"></a>Generalizing the Fast Path</h1><p>到目前为止，我们已经使用相对简单的规范路径名解释了快速路径优化。</p>
+<p>本节解释如何将这些优化与Linux的高级安全模块集成，以及如何处理Unix路径语义中的一些边缘情况，例如挂载选项、挂载别名和符号链接。</p>
+<h2 id="Generalizing-Credentials"><a href="#Generalizing-Credentials" class="headerlink" title="Generalizing Credentials"></a>Generalizing Credentials</h2><p>Linux包括一个可扩展的安全模块框架(LSMs)， SELinux、AppArmor等都是在此基础上构建的。LSM可以覆盖搜索权限检查的实现，检查目录层次结构或进程的自定义属性。因此，即使LSM覆盖了默认的访问控制规则，我们的dcache优化也必须能够正常工作。</p>
+<p>我们的方法利用了Linux中的credit结构，该结构旨在存储进程(任务结构)的凭据，并具有几个有用的属性。首先，信用结构是全面的，包括影响默认权限的所有变量，并包括LSM存储元数据的不透明安全指针。其次，信用是写时复制(copy-on-write, COW)，因此当进程更改其凭据时，例如通过执行setuid二进制文件或更改SELinux中的角色，信用将被复制。我们手动检查了AppArmor和SELinux对私有元数据的更改是否遵守COW约定。此外，在常见情况下，一个信用可以被进程共享，例如一个shell脚本分支子进程具有相同的信用。</p>
+<p>因此，cred结构满足了我们的大部分需求，只有一些变化，我们将在下面解释。</p>
+<p>我们在每个信用结构中存储缓存的前缀检查(§3.1)，将前缀检查结果与不可变凭证耦合在一起。使用空PCC初始化新的信用结构。当更多进程共享PCC时，它们可以进一步减少慢路径查找的数量。</p>
+<p>一个挑战是，即使凭证没有更改，Linux也经常分配新的信用结构。潜在的问题是，COW行为不是在页表中实现的，而是在可能修改信用的代码中按照约定实现的。在许多情况下，例如在exec中，只需提前分配另一个信用，而不是确定凭据是否将被更改，这要简单得多。这种自由分配新凭据的方式造成了在具有相同凭据的子进程之间重用前缀缓存项的问题。为了缓解这个问题，我们等待，直到一个新的信用被应用到一个进程(提交信用())。如果信用的内容没有改变，旧的信用和PCC被重用和共享。</p>
+<p>我们的信用方法记忆了不同lsm的复杂和可能任意的权限评估函数。</p>
+<h2 id="Non-Canonical-Paths-and-Symbolic-Links"><a href="#Non-Canonical-Paths-and-Symbolic-Links" class="headerlink" title="Non-Canonical Paths and Symbolic Links"></a>Non-Canonical Paths and Symbolic Links</h2><p>我们的优化哈希表是以全路径为键。然而，用户可以指定一个路径的变体，例如<code>/X/Y/./Z</code>代表<code>/X/Y/Z</code>。简单的变化在散列过程中很容易被规范化。<br>一个更复杂的情况是，如果&#x2F;X&#x2F;L是一个符号链接，路径<code>/X/L/.../Y</code>可以映射到&#x2F;X&#x2F;Y以外的路径。同样，如果用户没有搜索<code>/X/Z</code>的权限，即使用户有搜索<code>/X/Y</code>的权限，对<code>/X/Z/.../Y</code>的查询也应该失败。为了保持与Linux的bug-for-bug兼容，我们的原型在每个点上都会发出一个额外的fastpath查询来检查权限。保持Unix的语义会给非经典的 路径的开销。<br>我们发现使用Plan 9的词法路径语义。Plan 9通过预处理，将网络文件 通过对<code>/X/L/.../Y</code>这样的路径进行预处理，将网络文件系统的查询降到最低。到<code>/X/Y</code>。我们注意到，Plan 9在每次查找组件时都会进行 查询，但没有目录缓存。</p>
+<p><strong>Symbollic Links</strong></p>
+<p>我们在我们的查询中解决符号链接 我们通过为符号链接创建dentry aliases来解决符号链接。例如 例如，如果路径<code>/X/L</code>是<code>/X/Y</code>的别名，我们的内核会 创建dentries，将<code>/X/L/Z</code>重定向到<code>/X/Y/Z</code>。换句话说，符号链接被视为一种特殊的目录类型、 并可以创建子目录，对翻译进行缓存。 符号链接dentries存储240位的签名，代表目标路径。代表目标路径。PCC是单独检查 为目标目录。如果一个符号链接发生变化，我们必须 无效所有的后继别名，类似于目录重命名的无效化。目录重命名(rename)。这种重定向可以无缝地处理 的情况，即在翻译的路径上发生权限变化 路径上的权限变化，或者被引用的目录被删除以回收空间。</p>
+<h2 id="Mount-Point"><a href="#Mount-Point" class="headerlink" title="Mount Point"></a>Mount Point</h2><p>我们的快速路径处理由挂载点引入的几个微妙的边缘情况。</p>
+<p><strong>Mount options</strong></p>
+<p>挂载选项(如read-only或nosuid)会影响文件访问权限检查。Linux dcache通常将挂载点作为分层文件系统遍历的一部分，并内联检查与权限相关的挂载标志。一旦消除了这种自上而下的行走，我们需要能够识别任何给定牙齿的当前挂载点。目前我们为每个dentry添加了一个指针，尽管可能有更节省空间的选项。</p>
+<p><strong>Mount Aliases</strong></p>
+<p>一些伪文件系统，如proc、dev和sysfs，可以在多个位置挂载相同的实例。chroot环境使用该特性，并在引导期间移动这些文件系统。绑定挂载还可以创建挂载别名。</p>
+<p>在我们的系统中，一个dentry只存储一个签名，并且一次只能通过一个路径在直接查找哈希表中。我们目前的设计只是选择最近的优化位置。如果慢路径遍历注意到匹配的dentry(按路径)有不同的签名，在别名挂载下，并且已经在DLHT中，那么慢路径将替换签名，增加dentry版本计数，并更新指向该dentry挂载点的指针。</p>
+<p>如果别名路径有不同的前缀检查结果，则需要增加版本计数。这种方法确保了所有情况下的正确性，并且对于任何挂载别名的入口，在最近使用的路径上都具有良好的性能。</p>
+<p><strong>Mount Namespaces</strong></p>
+<p>Linux中的挂载namespace允许进程创建私有挂载点，包括chroot环境，这些挂载点仅对进程及其后代可见。当进程创建一个新的挂载namespace时，它还分配一个新的、namespace-private的直接查找哈希表。slowpath总是包含任何挂载重定向，并且任何新的签名到dentry映射在名称空间中都是正确的。因此，名称空间内部的相同路径(和签名)将映射到不同于名称空间外部的dentry。类似地，前缀检查缓存(PCC)在名称空间中始终是私有的。</p>
+<p>与挂载别名(Mount Aliases)一样，我们一次只允许一个dentry存在于一个直接查找哈希表上。这有利于局部性，并且当重命名的目录跨多个namespace共享时，使无效任务易于处理。用于目录树修改的无效代码只是将每个子条目从当前存储的DLHT中移除</p>
+<p><strong>Network File Systems</strong></p>
+<p>我们的原型不支持在网络文件系统上直接查找，例如NFS版本2和3。为了在无状态协议上实现从近到开的一致性，客户端必须在服务器上重新验证所有路径组件——有效地强制缓存丢失，并使命中路径的任何好处无效。我们期望这些优化可以使具有目录修改回调的有状态协议受益，例如AFS或NFS 4.1。</p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>本节演示我们的目录缓存优化如何支持Linux在目录缓存上构建的各种特性，包括名称空间、增强的安全模块和符号链接。我们的原型主要集中在Linux上，可以说Linux的特性与目录缓存交织在一起，但是我们相信这些优化在其他系统上也可以工作，只需要适当的移植工作。</p>
+<p>我们的设计有以下要求，我们期望任何posix兼容的目录缓存都能满足这些要求。</p>
+<p>首先，POSIX权限语义要求对从当前根目录或工作目录到文件的路径进行目录访问检查(即前缀检查);我们的实现继承了Linux的不变量，即任何缓存目录的父目录都在缓存中，但是任何可以实现前缀检查的设计都应该足够了。其次，我们要求，如果一个目录的权限改变，有一个程序化的方式来找到所有的后代在缓存中(§3.2)。我们的实现集成了Linux dcache中的乐观同步，以获得良好的性能和一致性，但这种设计可以集成任何合理的同步方案，例如FreeBSD的读&#x2F;写锁。最后，我们利用Linux具有不可变凭证结构的事实(§4.1);适应可变的或不太统一的凭证将需要额外的工作。</p>
+<h1 id="Improving-the-Hit-Rate"><a href="#Improving-the-Hit-Rate" class="headerlink" title="Improving the Hit Rate"></a>Improving the Hit Rate</h1><p>前几节解释了dcache结构的变化如何通过算法改进来降低平均命中延迟。本节将介绍几个可以提高命中率的简单更改。在dcache丢失的情况下，低级文件系统被调用来为系统调用提供服务。在最好的情况下，磁盘上的元数据格式仍在页缓存中，但必须转换为通用格式;在最坏的情况下，请求阻塞在磁盘I&#x2F;O上。虽然并不是每个应用程序都以非常低的命中率大量使用这些情况，但评估显示有几个广泛使用的应用程序从这些优化中受益匪浅。</p>
+<h2 id="Caching-Directory-Completeness"><a href="#Caching-Directory-Completeness" class="headerlink" title="Caching Directory Completeness"></a>Caching Directory Completeness</h2><p>尽管Linux dcache跟踪目录的层次结构，但它并不知道目录的内容是全部还是部分在缓存中。假设Alice在本地文件系统上创建了一个新目录X;如果她的下一个系统调用试图创建文件<code>X/Y</code>，则dcache将错过此查找，并询问低级文件系统是否存在<code>X/Y</code>。如果VFS跟踪所有目录内容都在缓存中，则可以避免这种开销。</p>
+<p>第二个例子是<code>readdir</code>，它列出目录中的文件，以及它们的inode号和类型，比如普通文件、字符设备、目录或符号链接。在当前的VFS<code> readdir</code>操作中，总是调用底层文件系统，即使整个目录都在缓存中。对于大到无法在用户提供的缓冲区中列出的目录，可以多次调用<code>readdir</code>，将偏移量存储到目录中。为了构造这个清单，底层文件系统必须重新解析和转换磁盘上的格式，并且可能需要将元数据块从磁盘读入缓冲区缓存。因此，<code>readdir</code>通常是一个昂贵的文件系统操作，特别是对于大型目录。</p>
+<p>我们注意到，重复列出目录是文件系统中的常见行为。例如，用户或shell脚本可以在一个目录中重复运行<code>ls</code>命令。一些应用程序通过目录内容协调状态，需要频繁和重复的目录列表。例如，<code>maildir</code>是一种流行的电子邮件后端存储格式，它比旧的mbox格式产生更好的性能可伸缩性。<code>maildir</code>将每个收件箱或子文件夹存储为一个目录，每个单独的邮件都是该目录中的一个文件。文件名编码属性，包括标志和读&#x2F;未读状态。如果消息改变了状态，例如通过删除或标记为已读，IMAP服务器服务器将重命名或取消该文件的链接，并重新读取目录以同步邮件列表。类似地，作为单独进程运行的邮件传递代理(MDA)可以并发地将新消息写入目录，这要求IMAP服务器监视目录的更改，并定期重新读取目录的内容。</p>
+<p>我们的Linux变体将低级文件系统返回的readdir结果缓存在目录缓存中。如果目录的所有子目录都在缓存中，则用新的DIR COMPLETE标志标记dentry。这个标志是在创建新目录(mkdir)时设置的，或者在一系列readdir系统调用完成时，没有在目录句柄上执行lseek()操作，也没有并发清除任何子目录以回收空间。我们注意到，并发文件的创建或删除与一系列readdir交织在一起，仍然会在缓存中，并产生正确的列表结果。在设置了DIR COMPLETE标志之后，后续的读DIR请求将直接从dentry的子列表中得到服务。一旦目录进入完整状态，只有在从缓存中删除子条目以回收空间时，它才会离开此状态。</p>
+<p>这种方法需要注意的一点是，readdir返回通常会出现在inode中的部分信息，但不足以创建完整的inode。对于这些文件或子目录，我们添加不带inode的dentry作为目录的子目录。这些dentry在查找时必须与阴性dentry分开，并与适当的索引节点链接。这种方法允许将readdir结果用于后续查找，干净地与现有的dcache机制集成，并从每个磁盘I&#x2F;O中获得最大可能的用途，而不会引起不必要的I&#x2F;O。</p>
+<p>我们注意到Solaris包含一个类似的完整目录缓存模式[25]，但它没有与readdir或查找以外的调用集成，是一个单独的缓存(因此相同的dentry可以存储两次，并且在丢失之前必须检查两个散列表)，并且注释表明它仅对大型目录具有性能价值。我们的结果表明，当适当地集成到目录缓存中时，跟踪完整的目录比以前认为的更有价值。</p>
+<p><strong>File Creation</strong></p>
+<p>目录完整性缓存还可以避免新文件创建时的强制遗漏。尽管负dentry缓存对于不存在的特定文件的重复查询效果很好，但是当应用程序请求不存在的不同文件时，负dentry的效果就不那么好了。</p>
+<p>不可预测查找的一个常见示例来自安全临时文件创建实用程序。在我们的原型中，带有<code>DIR_COMPLETED</code>标志的目录下的缺失被视为发现了negative dentry，从而忽略了这种强制缺失。在我们当前的实现中，该标志只会在已读取或新创建的目录中设置，但其他用于检测频繁的negative dentry缺失和加载目录的启发式方法可能也很有用.</p>
+<h2 id="Aggressive-Negative-Caching"><a href="#Aggressive-Negative-Caching" class="headerlink" title="Aggressive Negative Caching"></a>Aggressive Negative Caching</h2><p>negative dentries缓存磁盘上不存在的路径。本小节确定了几个更积极地使用负检索的机会，其中一些与直接查找协同工作</p>
+<p><strong>Renaming and Deletion</strong></p>
+<p>当文件被重命名或解除链接时，可以将旧路径转换为negative dentry。</p>
+<p>虽然Linux会在取消链接时将缓存的但未使用的dentry转换为negative dentry，但对于仍在使用的文件的重命名和取消链接来说，情况并非如此。我们扩展了这些例程，以便在删除文件后保留负记录，以便以后重用该路径，就像创建锁文件或Emacs的备份(“波浪”)文件一样</p>
+<p><strong>Pseudo File Systems</strong></p>
+<p>伪文件系统，如<code>proc</code>、<code>sys</code>和<code>dev</code>，不会为搜索到的不存在的路径创建negative dentry。这是一种基于以下观察的简化:磁盘I&#x2F;O永远不会涉及到遗漏。因为我们的快速路径仍然比遗漏快得多，negative dentry甚至对内存中的文件系统也是有益的，可以加速查找不存在的频繁搜索文件。</p>
+<p><strong>Deep Negative Dentries</strong></p>
+<p>最后，我们扩展了直接查找快速路径(§3)，使其能够创建“深度”负输入。考虑这样一种情况:用户试图打开<code>/X/Y/Z/A</code>，而<code>/X/Y/Z</code>不存在。在慢路径中，查找将在找到第一个缺失的组件时失败，只缓存z的负条目就足够了。然而，对该路径的重复查找将永远不会找到快速路径，因为没有完整路径的条目。</p>
+<p>为了在这种情况下使用快速路径，我们允许负面dentries创建负面子节点，以及深层子节点。</p>
+<p>换句话说，我们允许negative dentry <code>/X/Y/Z</code>创建子节点<code>A</code>和<code>A/B</code>，它们可以服务于对不存在的路径的重复请求。如果为缓存为负的路径创建文件，并且该文件不是目录，则会从缓存中清除任何负的子文件。</p>
+<p>我们还在常规文件下创建深度negative dentry，以捕获返回<code>ENOTDIR</code>而不是<code>ENOENT</code>的查找失败。当将文件名当作目录使用时，就会出现这种查找失败，并且搜索其下的路径。例如，如果<code>/X/Y/Z</code>是一个常规文件，并且用户搜索<code>/X/Y/Z/A</code>, Linux内核将返回<code>ENOTDIR</code>，并且永远不会创建negative dentry。我们用一个deep,<code>ENOTDIR</code>优化这个案例。</p>
+<h1 id="Evaluation"><a href="#Evaluation" class="headerlink" title="Evaluation"></a>Evaluation</h1><p>本节评估我们的目录缓存优化，并试图回答以下问题:</p>
+<ol>
+<li><p>每种优化(查找快速路径、全目录缓存和更激进的negative dentries)对应用程序性能的改善有多大?</p>
+</li>
+<li><p>采用这些更改有多困难，特别是对于单个文件系统?</p>
+</li>
+</ol>
+<p>评估包括微基准测试，用于测量在最佳情况和最坏情况下与文件系统相关的系统调用的延迟，以及选择实际应用程序，以显示我们的解决方案在实践中可能提高的性能。</p>
+<p>所有的实验结果都收集在一台Supermicro超级服务器上，该服务器配备了12核2.40GHz的英特尔Core Xeon CPU、 64GB内存，和一个2TB，7200 RPM的ATA磁盘，格式化为日记式的ext4文件系统，配置为4096 字节块大小。操作系统是Ubuntu 14.04服务器，Linux内核 3.14. 所有的测量结果都是至少6次运行的平均值（对于运行时间较长的实验）；大多数测量是数百或数千次的运行，以确保一致的平均数。表格和图表表明95%的置信区间 用 “+&#x2F;-“列或误差条表示。</p>
+<img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/图6.png" title alt data-align="center">
+
+<h2 id="File-Lookup-Optimization"><a href="#File-Lookup-Optimization" class="headerlink" title="File Lookup Optimization"></a>File Lookup Optimization</h2><h3 id="Micro-benchmarks"><a href="#Micro-benchmarks" class="headerlink" title="Micro-benchmarks"></a>Micro-benchmarks</h3><p>我们使用扩展的LMBench 2.5 UNIX微基准套件来评估系统调用级别的路径查找延迟。图6显示了<code>stat</code>和<code>open</code>具有各种特征的示例路径的延迟，这些特征包括不同的长度、符号链接、父目录(dot dot)和未找到的文件。</p>
+<p>我们观察到的主要趋势是，当路径有更多的组件时，我们的优化的相对增益就会增加。</p>
+<p>对于单个组件文件，<code>stat</code>获得3%的收益，而<code>open</code>与基线Linux相当。对于更长的路径，增益分别增加到26%和12%。</p>
+<p>为了评估最坏的情况，我们包括一组标有 “fastpath miss + slowpath “的条形图，它行使了快速路径代码，但是内核被配置为在PCC中总是miss。这模拟了执行优化的快速路径不成功，然后在缓存中走O(n)慢速路径的全部成本。这种情况下，不会一直错过到低级文件系统。开销通常在12-93%之间，除了路径neg-d。在neg-d的情况下，第一个组件是缺失的，一个组件一个时间的行走会比直接查找更快停止。一般来说，neg-d的情况会通过deep negative dentries来缓解。在实践中，这些开销只有在高速缓存中的强制缺失时才会被观察到，或者由一个表现出极度缺乏定位性的应用来观察。</p>
+<img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/图7图8.png" title alt data-align="center">
+
+<p>接下来，我们比较默认Linux父级(“dot dot”)语义与Plan 9的词法语义的成本。对带有父引用的路径强制执行Linux语义导致我们的优化性能比未修改的Linux差大约31%，因为这需要对每个父节点进行额外的查找。另一方面，词法路径语义允许我们继续使用单个查找进行优化，从而将性能提高43-52%。词法路径语义有一个独立的好处，可以减少在未修改的Linux中查找时需要遍历的组件数量。尽管这个差异很大，但是我们的测试应用程序并没有大量使用父目录指针，并且对这个差异并不敏感。</p>
+<p>缓存符号链接的分辨率可使路径link-f和link-d的性能分别提高44%和48%。这种改进对链接发生在路径中的位置不敏感，因为link-f和link-d都遍历相同数量的组件(link-d将“LLL”映射到“XXX”)。</p>
+<p>对于不存在的文件(negative dentries)，我们看到了与现有路径类似的改进。唯一的例外是路径早期目录下不存在的长路径。我们认为这种情况很少见，因为应用程序通常是自顶向下遍历目录树，而不是跳到一个不存在的目录。在这种情况下(path neg-d)，基线Linux停止处理路径的速度比我们的优化散列整个路径的速度要快，即使缓存deep negative dentries也是如此。尽管如此，deep negative dentries是一个重要的优化:没有它们，path neg-d的状态将比未修改的Linux差113%，open将差43%，而deep negative dentries则慢38%和16%。</p>
+<p>Linux还包括<code>*at()</code>系统调用变体，它们在工作目录下操作—通常只使用单个组件。与上面的结果相对应，对于单个路径组件，<code>fstatat()</code>从我们的优化中获益12%，<code>openat()</code>比未修改的Linux快4%。一些应用程序将多个组件名称与<code>*at</code>调用结合使用;在这些情况下，优化的好处与路径长度成正比。</p>
+<p>为了评估更新目录权限和改变目录结构的开销，我们测量chmod和重命名的延迟。在我们的解决方案中，影响这些开销的主要因素是缓存中的子目录数量（缓存外的目录子目录不会影响性能）。图7显示了不同深度和目录大小的目录上的chmod和重命名的性能。一般来说，重命名或chmod的成本随着子目录数量的增加而急剧增加，而基线Linux和ext4使这些操作的时间不变。即使有10,000个子目录都在缓存中，最坏的情况下的延迟也在330微秒左右。作为一个参考点，Linux 3.19源树包括51,562个文件和目录。几个Linux文件系统维护者的初步反馈表明 这种交易对于提高查询性能是可以接受的。</p>
+<p><strong>Space Overhead</strong></p>
+<p>我们的原型将dentry的大小从192字节增加到280字节。我们的设计还引入了大小为64 KB的每个凭据的PCC和第二个全局散列表(DLHT)，其中包括2^16个bucket。由于Linux没有对dcache大小施加任何硬限制(除了在内存压力下的极端情况)，因此很难标准化执行时间来考虑空间成本。在一个典型的系统上，dcache是几十到几百MB;将其增加50%可能在系统总内存的可接受范围内。或者，如果要限制总dcache大小，则会在更快的命中和更少的命中之间进行权衡。我们把这些权衡的探索留给未来的工作。</p>
+<p><strong>Scalability</strong></p>
+<p>图8显示了当系统上执行更多线程时，在同一路径上执行<code>stat/open</code>操作的延迟。在Linux上，查找的读端已经是线性可伸缩的，我们的优化并没有破坏这一趋势——只是提高了延迟。rename系统调用引入了显著的争用，并且在基线Linux中可伸缩性较差。例如，在我们</p>
+<h2 id="Caching-Directory-Completeness-1"><a href="#Caching-Directory-Completeness-1" class="headerlink" title="Caching Directory Completeness"></a>Caching Directory Completeness</h2><img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/图9.png" title alt data-align="center">
+
+<p>图9显示了不同目录大小的<code>readdir</code>微基准测试的延迟。缓存<code>readdir</code>结果的能力提高了46-74%的性能。随着目录变大，缓存的帮助越来越大。OpenSolaris的注释表明，这个想法只对UFS中至少有1,024个条目的目录有利。我们的结果表明，即使只有10个子目录也有好处。</p>
+<p>图9还显示了在不同大小的目录中创建一个安全的、随机命名的文件的延迟。我们对mkstemp库进行了1-8%的改进。尽管大多数应用程序的执行时间并不被安全文件的创建所支配，但它是许多应用程序的一项常见任务，而且边际成本低。</p>
+<h2 id="Applications"><a href="#Applications" class="headerlink" title="Applications"></a>Applications</h2><p><strong>Command-Line Applications</strong></p>
+<p>当然，应用程序从更快的查找中获得的改进与发出基于路径的系统调用所花费的运行时时间比例以及列出目录的时间数量成正比。我们测量一系列常用应用程序的性能。</p>
+<p>在大多数情况下，这些应用程序从这些优化中受益匪浅;在最坏的情况下，性能损害是最小的。我们用于基准测试的应用程序包括:</p>
+<ul>
+<li><p>find:在Linux源目录中搜索文件名。</p>
+</li>
+<li><p>tar xzf:解压并解包Linux源代码。</p>
+</li>
+<li><p>rm -r:删除Linux源树。</p>
+</li>
+<li><p>make和make -j12:编译Linux内核。</p>
+</li>
+<li><p>du -s:在Linux源代码中递归列出目录大小。</p>
+</li>
+<li><p>updatedb:从一个干净的debootstrap中重建&#x2F;usr中常用搜索文件名的规范路径数据库。</p>
+</li>
+<li><p>git status和git diff:显示克隆的Linux内核git库的状态和未分级的更改</p>
+</li>
+</ul>
+<p>对于我们测试的每个应用程序，我们在热缓存(表1)和冷缓存(表2)两种情况下评估性能。为了热缓存，我们运行一次实验并放弃第一次运行。对于热缓存测试，我们还提供了每个应用程序的路径特征的统计信息。</p>
+<p>也许不足为奇的是，元数据密集型工作负载从我们的优化中获益最多，例如find和updatedb，速度可提高29%。注意，find、updatedb和du只使用*at() api，并且所有路径都是单组件;这些收益可归因于查找和目录完整性缓存的改进。</p>
+<img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/表1.png" title alt data-align="center">
+
+<img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/表2.png" title alt data-align="center">
+
+<p>我们注意到目录搜索工作负载的性能对PCC的大小很敏感;当我们在一个比PCC大两倍的目录树上运行updatedb时，增益从29%下降到16.5%。这是因为在新访问的目录中，越来越多的第一次查找将不得不采用慢路径。</p>
+<p>我们的原型有一个静态设置的PCC大小，我们用一个足够大的PCC进行评估，以便在温暖的缓存实验中缓存大多数相关的目录。我们希望一个生产系统能够动态地调整PCC的大小，使其达到最大的工作集；我们将研究一个适当的策略来决定何时增加PCC和驱逐条目的问题留待今后的工作中解决。</p>
+<p>我们的命中优化主要改进的应用程序是git，它显示了4-9.9%的增益。由其他计算主导的情况，例如Linux编译，显示最小(≤2.3%的减速)。在冷缓存的情况下，所有的增益或损失都大致在实验噪声范围内，这表明这些优化不太可能对在冷系统上运行的应用程序造成损害。总的来说，这些结果肯定了普通的Linux应用程序不会因为我们的优化而受到损害，而且可以从中获得实质性的好处。</p>
+<p>表1还显示了未修改Linux上这些工作负载的统计信息。一般来说，每个路径组件大约有8个字符，基于*at的应用程序通常查找单组件路径，而其他应用程序通常查找3-4个组件。我们的统计数据还表明，使用热缓存时，这些应用程序在缓存中应该看到84 - 100%的命中率，因此优化命中路径对性能至关重要。最后，make是唯一具有显著负dentries比例(大约20%)的应用程序，这是意料之中的，因为它正在创建新的二进制文件。</p>
+<p><strong>Server Applications</strong></p>
+<p>一个经常使用readdir的软件示例是使用MailDir存储格式的IMAP邮件服务器。我们通过为客户机创建10个邮箱来测试Dovecot IMAP服务器。我们使用客户端脚本随机选择不同邮箱中的消息，并将其标记为已读、已标记或未标记。在内部，标记邮件会导致重命名文件，并重新读取目录。为了消除网络延迟，我们在本地主机上运行网络测试;在实际部署中，网络延迟可能会掩盖客户端的这些改进，但服务器的负载仍然会减少。</p>
+<p>图10显示了Dovecot邮件服务器在两个内核上的吞吐量。在两个内核上的吞吐量；改进范围为7.8-12.2%。与readdir微基准相呼应，较大的 目录通常会有更大的改善，在10%的收益中趋于平稳。我们同样使用Apache基准测试来锻炼Apache网络服务器生成文件列表的能力（表3）。这些页面没有被Apache缓存，而是为每个请求动态地生成。总的来说，这些结果表明，readdir缓存策略可以减少服务器的负载或提高服务器的吞吐量。</p>
+<img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/图10表3表4.png" title alt data-align="center">
+
+<h2 id="Code-Changes"><a href="#Code-Changes" class="headerlink" title="Code Changes"></a>Code Changes</h2><p>为了估计采用的难度，表4列出了Linux原型中更改的代码行。所需的绝大多数更改(大约1,000个LoC)是本地化到dcache本身的钩子(dcache.c和name .c);大多数这些优化都在一组单独的文件中，总计约2,400个LoC。此外，我们测试的低级文件系统不需要任何更改就可以使用修改后的目录缓存。对其他子系统的主要影响实际上是对lsm的影响，这需要一些更改来正确地管理pcc。因此，采用其他内核子系统的负担非常小。</p>
+<h2 id="Discussion-and-Future-Work"><a href="#Discussion-and-Future-Work" class="headerlink" title="Discussion and Future Work"></a>Discussion and Future Work</h2><p>如果愿意牺牲完全向后兼容性来最大化查找性能，那么改进的主要机会实际上可能是为基于路径的调用设计一个更简单的接口。</p>
+<p>正如上面的评价所示，在这种设计中，有几个Linux&#x2F;POSIX特性的支持成本过高。例如，实现Plan 9风格的词法路径语义可以显著改善查找带有“dot dot”的路径。类似地，工作目录语义要求慢路径遍历。可以说，在这些点上，特定的实现选择已经“泄露”到接口规范中，并且这些特性限制了支持数据结构的选择。我们建议使用尽可能简单和无状态的接口;这个建议与其他关于可伸缩性的建议一致。</p>
+<p>Linux静态地选择哈希表中的buckets数(默认情况下为262,144)。如果没有很好地选择这个数字，或者需求随着时间的推移而变化，则会浪费空间或bucket链变长，从而损害查找性能。</p>
+<p>在我们的测试系统中，58%的bucket是空的，34%有一个条目，7%有两个条目，1%有3-10个条目，这表明有机会改进查找时间和空间使用。近年来开发了许多高性能哈希表，它们对搜索时间和浪费的空间施加了恒定的限制。</p>
+<h1 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h1><p>大多数提高目录缓存效率的相关工作都是针对两个相互正交的问题:减少丢失延迟和预取条目。最类似于我们记忆前缀检查结果的优化，SQL Server缓存对象最近访问控制检查的结果。</p>
+<p><strong>Reducing Miss Latency</strong></p>
+<p>减少遗漏延迟的一个相关策略是将所有要查找的组件一次性传递给低级文件系统，本质上是创建一个预取提示。一些网络文件系统已经观察到，组件一次查找会为每个组件生成一条往返消息，而更有效的策略是将一个消息中的挂载点下的所有组件传递给服务器进行查找。类似的论点也适用于本地文件系统，通过知道完整的查找目标，可以更有效地从磁盘获取元数据索引。因此，Windows NT和Solaris采用了这种分工。需要注意的是，如果不将其作为预取“提示”，这可能会将大量VFS功能推入每个低级文件系统，例如处理挂载点的重定向、符号链接和权限检查。Chen等人注意到，将权限检查从VFS层向下推到单个文件系统是Linux中难以防止的内核bug的一个重要来源。相比之下，这个项目缓存先前的前缀检查结果，以减少内存中已经存在的路径的命中延迟，而不是使用完整路径作为预取提示。</p>
+<p>另一种普遍存在的延迟减少策略是将元数据持久地存储在散列表中。为了减少网络流量，一些分布式文件系统、集群环境和基于云的应用程序已经使用元数据散列来确定地将元数据映射到节点，从而消除了对目录服务的需求。直接查找文件系统(Direct Lookup File System, DLFS)本质上是将整个磁盘组织成一个哈希表，按照文件系统内的路径进行键控，以便查找只有一个I&#x2F;O的文件。将磁盘组织为散列表会带来一些挑战，例如将目录重命名转换为数据和元数据的深度递归副本。DLFS通过将父权限表示为封闭形式表达式来解决前缀检查问题;这种方法本质上是硬编码传统的Unix自由访问控制，并且不容易扩展到Linux安全模块。我们工作的一个重要见解是，内存中的全路径哈希，而不是磁盘上的，可以实现类似的性能提升，但没有这些可用性问题，例如重命名时的深度目录复制或更新子目录权限时容易出错的启发式方法。</p>
+<p><strong>VFS Cache Profetching</strong></p>
+<p>一些文件系统优化了readdir后跟stat以访问子目录元数据的情况，例如使用ls -l命令。当请求读取目录时，这些低级文件系统推测性地将文件索引节点(通常位于相对较近的磁盘扇区)读取到私有内存缓存中，随后的查找或stat请求将从该缓存中得到服务。类似地，NFS版本2协议包括一个READDIRPLUS操作，它在一次消息往返中请求所有子节点的目录内容和属性。这些文件系统必须实现它们自己的启发式方法来管理这个缓存。预取与我们的工作是正交的，它更有效地缓存已经从低级文件系统请求的内容。</p>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>本文提出了一种目录缓存设计，可以有效地将文件路径映射到操作系统内核中的内存数据结构。我们的设计将目录缓存分解为单独的缓存，用于权限检查和路径索引，支持单步路径查找，并促进基于签名和缓存符号链接解析的新优化。对于经常与文件系统目录树交互的应用程序，这些优化最多可以将性能提高29%。我们的优化保持了与一系列应用程序和内核扩展的兼容性，使它们适合实际部署。</p>
 
     </div>
 
@@ -400,7 +616,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Background"><span class="nav-number">2.</span> <span class="nav-text">Background</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Unix-Directory-Hierarchy-Semantics"><span class="nav-number">2.1.</span> <span class="nav-text">Unix Directory Hierarchy Semantics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux-Directory-Cache"><span class="nav-number">2.2.</span> <span class="nav-text">Linux Directory Cache</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Background"><span class="nav-number">2.</span> <span class="nav-text">Background</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Unix-Directory-Hierarchy-Semantics"><span class="nav-number">2.1.</span> <span class="nav-text">Unix Directory Hierarchy Semantics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux-Directory-Cache"><span class="nav-number">2.2.</span> <span class="nav-text">Linux Directory Cache</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Other-Operating-Systems"><span class="nav-number">2.3.</span> <span class="nav-text">Other  Operating Systems</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FreeBSD-OS-X-and-Solaris"><span class="nav-number">2.3.1.</span> <span class="nav-text">FreeBSD, OS X, and Solaris.</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Windows"><span class="nav-number">2.3.2.</span> <span class="nav-text">Windows</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Opportunities-for-Improvement"><span class="nav-number">2.3.3.</span> <span class="nav-text">Opportunities for Improvement</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Minimizing-Hit-Latency"><span class="nav-number">3.</span> <span class="nav-text">Minimizing Hit Latency</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Caching-Prefix-Checks"><span class="nav-number">3.1.</span> <span class="nav-text">Caching Prefix Checks</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Coherence-with-Permission-and-Path-Changes"><span class="nav-number">3.2.</span> <span class="nav-text">Coherence with Permission and Path Changes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Accelerating-Lookuos-with-Signatures"><span class="nav-number">3.3.</span> <span class="nav-text">Accelerating Lookuos with Signatures</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Generalizing-the-Fast-Path"><span class="nav-number">4.</span> <span class="nav-text">Generalizing the Fast Path</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Generalizing-Credentials"><span class="nav-number">4.1.</span> <span class="nav-text">Generalizing Credentials</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Non-Canonical-Paths-and-Symbolic-Links"><span class="nav-number">4.2.</span> <span class="nav-text">Non-Canonical Paths and Symbolic Links</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mount-Point"><span class="nav-number">4.3.</span> <span class="nav-text">Mount Point</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Summary"><span class="nav-number">4.4.</span> <span class="nav-text">Summary</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Improving-the-Hit-Rate"><span class="nav-number">5.</span> <span class="nav-text">Improving the Hit Rate</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Caching-Directory-Completeness"><span class="nav-number">5.1.</span> <span class="nav-text">Caching Directory Completeness</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Aggressive-Negative-Caching"><span class="nav-number">5.2.</span> <span class="nav-text">Aggressive Negative Caching</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Evaluation"><span class="nav-number">6.</span> <span class="nav-text">Evaluation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#File-Lookup-Optimization"><span class="nav-number">6.1.</span> <span class="nav-text">File Lookup Optimization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Micro-benchmarks"><span class="nav-number">6.1.1.</span> <span class="nav-text">Micro-benchmarks</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Caching-Directory-Completeness-1"><span class="nav-number">6.2.</span> <span class="nav-text">Caching Directory Completeness</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Applications"><span class="nav-number">6.3.</span> <span class="nav-text">Applications</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Code-Changes"><span class="nav-number">6.4.</span> <span class="nav-text">Code Changes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Discussion-and-Future-Work"><span class="nav-number">6.5.</span> <span class="nav-text">Discussion and Future Work</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Related-Work"><span class="nav-number">7.</span> <span class="nav-text">Related Work</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">8.</span> <span class="nav-text">Conclusion</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -476,13 +692,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">554k</span>
+    <span title="Symbols count total">574k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">16:47</span>
+    <span title="Reading time total">17:24</span>
 </div>
 
 <!--
