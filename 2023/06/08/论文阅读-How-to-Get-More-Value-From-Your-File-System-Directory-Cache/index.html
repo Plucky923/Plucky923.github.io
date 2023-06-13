@@ -43,7 +43,7 @@
 <meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E8%A1%A82.png">
 <meta property="og:image" content="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/%E5%9B%BE10%E8%A1%A83%E8%A1%A84.png">
 <meta property="article:published_time" content="2023-06-08T08:21:52.000Z">
-<meta property="article:modified_time" content="2023-06-10T02:28:19.839Z">
+<meta property="article:modified_time" content="2023-06-11T14:34:56.714Z">
 <meta property="article:author" content="Plucky">
 <meta property="article:tag" content="文件系统">
 <meta name="twitter:card" content="summary">
@@ -244,7 +244,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-06-10 10:28:19" itemprop="dateModified" datetime="2023-06-10T10:28:19+08:00">2023-06-10</time>
+                <time title="Modified: 2023-06-11 22:34:56" itemprop="dateModified" datetime="2023-06-11T22:34:56+08:00">2023-06-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -273,14 +273,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>23k</span>
+              <span>26k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>42 mins.</span>
+              <span>47 mins.</span>
             </span>
 
         </div>
@@ -296,15 +296,133 @@
 <p>应用程序经常请求文件系统操作来遍历文件系统目录树,例如打开文件或读取文件元数据。因此,在内存中缓存文件系统目录结构和元数据对操作系统内核的性能优化非常重要。</p>
 <p>本文确定了几个设计原则,可以在应用程序和文件系统透明的情况下显著提高命中率并降低命中成本。具体而言,我们的目录缓存设计可以在恒定数量的散列表操作中查找目录,将查找路径与权限检查分离,对访问控制检查的结果进行记忆化,使用签名加速查找,并通过缓存目录完整性降低未命中率。</p>
 <p>该设计可以满足POSIX、Linux安全模块、命名空间和装入别名等差异性要求的一系列要求。这些优化对实际应用程序是一个重要的净改进,例如可以将Dovecot IMAP服务器的吞吐量提高12%,并将updatedb实用程序的吞吐量提高29%。</p>
-<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>操作系统内核通常在虚拟文件系统(VFS)层中缓存文件系统数据和元数据,该层将底层文件系统抽象为常见API(如POSIX)。缓存层已经成为隐藏持久存储技术(如本地磁盘)访问延迟的普遍优化手段。目录缓存不仅仅是性能优化;它还简化了安装多个文件系统、一致的文件句柄行为和高级安全模型(如SELinux)的实现。</p>
-<p> 目录缓存对良好的应用程序性能至关重要。许多常见的系统调用必须对文件路径进行操作,这需要目录缓存查找。例如,iBench系统调用跟踪中的10-20%的系统调用执行路径查找。图1列出了几种常见的命令行应用程序在执行基于路径的系统调用时花费的总执行时间的百分比(有关这些应用程序和测试机器的更多详细信息,请参阅§6)。我们注意到,这些系统调用包括路径查找以外的工作,这些数字包括一些检测开销;尽管如此,除rm外,系统调用时间和计数以stat和open为主,其中路径查找是执行时间的重要组成部分。对于这些应用程序,基于路径的系统调用占总执行时间的6-54%。这意味着降低路径查找延迟是内核提高这些应用程序执行时间的最大机会之一。  </p>
-<img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/图1.png" title alt data-align="center">
+<blockquote>
+<ul>
+<li><p>文件系统目录缓存是将文件系统的目录结构和元数据信息缓存在内存中的技术。它的主要目的是提高文件系统操作的性能。</p>
+<p>文件系统目录缓存的主要思想是:应用程序在访问文件系统时,大部分操作是在已访问过的目录下进行的。如果能将这些目录信息缓存在内存中,那么应用程序访问这些目录时就不需要再去实际的文件系统中加载目录信息,可以直接从缓存中获取,这样可以大大减少对文件系统的访问,提高性能。</p>
+<p>文件系统目录缓存会缓存诸如:</p>
+<ol>
+<li><p>目录结构:将整个目录树缓存在内存中,包括子目录,文件等信息。</p>
+</li>
+<li><p>目录元数据:每个目录的元数据,如inode号,大小,权限,所有者等信息。</p>
+</li>
+<li><p>文件元数据:每个文件的元数据,如inode号,大小,权限,所有者等信息。</p>
+</li>
+<li><p>权限信息:已检查过的目录和文件的权限信息,避免重复检查。</p>
+</li>
+<li><p>签名信息:目录和文件的签名,用于加速查找。</p>
+</li>
+</ol>
+<p>通过缓存这些信息,应用程序可以避免大量的文件系统访问,直接从缓存中获取需要的信息,从而提高性能。这对文件系统的操作密集型应用程序有很大帮助,如邮件服务器,数据库等。</p>
+<p>所以,文件系统目录缓存的关键是通过缓存来减少文件系统访问,在应用程序与文件系统之间添加一层缓存,提高整体的目录操作性能。这是操作系统在管理文件系统与提高性能方面常用的一种技术手段。</p>
+<hr>
+</li>
+<li><ol>
+<li><p>应用程序经常需要遍历文件系统目录树来进行文件系统操作,如打开文件或读取文件元数据。这需要频繁访问文件系统,对操作系统内核的性能有很大影响。</p>
+</li>
+<li><p>因此,在内存中缓存文件系统目录结构和元数据信息可以显著优化操作系统内核的性能。这是因为应用程序可以直接从缓存中获取信息,避免访问文件系统。</p>
+</li>
+<li><p>本文提出了一些目录缓存的设计原则,可以在应用程序和文件系统之间transparently提高命中率和降低未命中成本。transparently意味着应用程序不需要改变代码,缓存的使用对其透明。</p>
+</li>
+<li><p>目录缓存设计使用散列表在恒定次数的操作中查找目录,可以加速目录查找。散列表是一种高效的数据结构,可以在固定次数内查找到信息。</p>
+</li>
+<li><p>将查找路径和权限检查分离,意思是首先查找目录,然后再进行权限检查。这避免了在权限检查时重复查找目录,提高性能。</p>
+</li>
+<li><p>对访问控制检查的结果进行记忆化,意思是缓存文件或目录的权限信息,避免下次再检查,提高性能。</p>
+</li>
+<li><p>使用签名加速查找,使用目录文件签名(如CRC码)进行查找,避免字符串比对,加速查找。</p>
+</li>
+<li><p>通过缓存目录完整性降低未命中率,意思是缓存整个目录树信息,使应用程序可以在缓存中完成大部分操作,避免访问文件系统,减少未命中。</p>
+</li>
+<li><p>该设计可以符合各种要求,如POSIX、Linux安全模块、命名空间和装入别名等,所以可以广泛使用。</p>
+</li>
+<li><p>该设计对实际应用程序有明显改进,可以提高Dovecot IMAP服务器12%的吞吐量,updatedb工具29%的吞吐量,展示了该方案的优异性能。</p>
+</li>
+</ol>
+<hr>
+</li>
+</ul>
+</blockquote>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>操作系统内核通常在虚拟文件系统(VFS)层中缓存文件系统数据和元数据,该层将底层文件系统抽象为常见API(如POSIX)。</p>
+<blockquote>
+<ul>
+<li><p>指Linux内核。VFS是Linux内核中的一层,它虚拟化了底层的文件系统,如ext4、xfs等。VFS层会缓存从这些底层文件系统读取的数据和元数据(如文件属性)。VFS层对上层应用程序来说隐藏了底层文件系统的细节,它提供了常用的文件系统API,如POSIX接口。这使得应用程序可以通过VFS层访问底层不同的文件系统,而不需要关心它们的差异。</p>
+<p>计算机底层的指令系统是不同的,如x86和ARM架构的指令系统不同。但我们编程时使用的指令是一致的,如加法指令都是+,这是因为编程语言将底层不同的指令系统虚拟化成一致的指令接口。程序员使用这一接口,不需要关心底层指令的差异。</p>
+<p>同样,虚拟机将不同的物理计算机虚拟化成同一逻辑计算机,从而运行相同的操作系统和应用程序。虚拟机屏蔽了底层不同的物理机,为最终用户提供了统一的计算机接口。</p>
+<p>所以,总结来说,虚拟化通过抽象和隐藏底层的差异与实现细节,提供了更高层的统一逻辑接口。这使得高层用户(如应用程序或最终用户)无需关心底层的异构与复杂性,可以更简单地使用接口所提供的功能。</p>
+<p>VFS层虚拟化文件系统,就是采取这样的方式,将不同的文件系统抽象成统一的文件系统接口,屏蔽底层文件系统之间的差异,为应用程序和用户提供简单的文件系统操作方法。这有效地隔离了上层的Linux内核与应用程序与底层具体的文件系统实现。</p>
+<hr>
+</li>
+<li><p>POSIX定义了一套统一的操作系统接口标准,包括API、系统调用、实用程序等,使得应用程序可以在不同的操作系统上移植和运行。Linux等操作系统都实现了POSIX接口,使得Linux下的应用程序可以很容易在其他POSIX兼容系统中使用。</p>
+<p>VFS层提供的POSIX接口,就是遵循POSIX标准,实现了诸如open、read、fork等操作系统调用和API,从而屏蔽了底层文件的系统差异,使应用程序可以直接使用POSIX接口访问各种文件系统。</p>
+</li>
+</ul>
+</blockquote>
+<p>缓存层已经成为隐藏持久存储技术(如本地磁盘)访问延迟的普遍优化手段。目录缓存不仅仅是性能优化;它还简化了安装多个文件系统、一致的文件句柄行为和高级安全模型(如SELinux)的实现。</p>
+<blockquote>
+<ul>
+<li><p>缓存层指的是在系统设计中加入的缓存机制,用于暂存数据或计算结果,从而优化性能。在这里,缓存层特指操作系统在虚拟文件系统(VFS)与具体文件系统之间加入的目录缓存机制。目录缓存缓存了文件系统的目录结构、元数据与访问信息,使VFS层可以直接从缓存中获取这些信息,减少对底层文件系统的访问,优化整体的文件系统性能。</p>
+<hr>
+</li>
+<li><p>目录缓存可以简化在一个系统上安装和使用多个文件系统。因为目录缓存抽象了底层文件系统的差异,使上层可以以同一方式访问不同的文件系统。</p>
+<hr>
+</li>
+<li><p>文件句柄是应用程序访问文件时使用的一个抽象接口。通过目录缓存,应用程序可以使用相同的文件句柄接口访问不同的文件系统,而不需要关心底层文件系统的差异与实现细节。</p>
+<p>文件句柄是应用程序访问文件时使用的一个抽象表示。应用程序可以通过文件名打开一个文件,获取代表该文件的文件句柄,然后使用文件句柄对文件进行各种操作,如读写等,而不再指定文件名。</p>
+<p>举个例子,在C语言中,应用程序可以通过fopen()函数使用文件名打开一个文件,获取FILE类型的文件句柄:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FILE *fp = fopen(<span class="string">&quot;file.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br></pre></td></tr></table></figure>
 
-<p> 不幸的是,即使目录缓存命中也是昂贵的——我们的测试Linux系统上的<code>stat</code>为 0.3-1.1微秒,相比之下<code>getppid</code>只有0.04微秒,4 KB预读只有0.3微秒。这个问题在Linux内核社区尤其受到重视,该社区对其目录缓存进行了重大修订和越来越复杂的优化,以降低其命中成本,例如从读取路径中删除锁或在重试循环中用死锁避免替换锁定顺序。图2 plotting目录缓存命中延迟与Linux几个版本中更改的目录缓存代码行数,使用测试系统上的路径到inode查找微基准。这些努力已将命中延迟从2011年到2013年提高了47%,但在过去三年中已停滞不前。  </p>
-<p>问题的根源似乎是POSIX路径权限语义要求与路径组件数量线性相关的工作,并严重限制内核开发人员的实现选项。例如,要打开<code>/X/Y/Z</code>文件,必须对父目录<code>/</code>、<code>/X</code>和<code>/X/Y</code>有搜索权限,并且有权访问文件Z。Linux实现简单地从上至下遍历目录树以检查权限。不幸的是,当关键路径以指针为基础的数据结构(在某些体系结构上包含多核一致性的内存屏障)主导时,现代CPU最终由难以预取加载而停滞。此外,由于如此多的Linux功能是建立在此行为之上的,例如Linux 安全模块(LSM)、命名空间和安装别名,所以如果不破坏与其他Linux内核功能的后向兼容性,任何数据结构增强似乎都是不可能的。在理论上,不明显是否有更快的查找算法(如单一散列表查找)可以满足这些API规范和内核内部要求;据我们所知,以前没有人尝试过。</p>
+<p>然后应用程序可以通过文件句柄fp对文件进行操作:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fread(buf, <span class="number">1</span>, <span class="number">10</span>, fp);  <span class="comment">// 从文件读取10个字节</span></span><br><span class="line">fwrite(buf, <span class="number">1</span>, <span class="number">10</span>, fp); <span class="comment">// 向文件写入10个字节</span></span><br><span class="line">fclose(fp);              <span class="comment">// 关闭文件 </span></span><br></pre></td></tr></table></figure>
+
+<p>在这里,FILE *fp就是文件file.txt的文件句柄,应用程序通过它对文件进行访问,而不再指定文件名。</p>
+<p>所以,文件句柄的作用是:</p>
+<ol>
+<li><p>将文件在应用程序中的表示抽象化,屏蔽了底层文件的实现细节与差异。</p>
+</li>
+<li><p>使应用程序可以通过统一的文件句柄接口访问不同的文件,而不需要关心每种文件对应的实现方法。</p>
+</li>
+<li><p>方便应用程序通过文件句柄快速访问文件,而不需要反复指定文件名。</p>
+</li>
+</ol>
+<p>返回到这句话,它表达的意思是:通过目录缓存,应用程序可以使用同样的文件句柄接口访问不同种类的文件系统,而不需要关心底层文件系统的差异。这是因为目录缓存抽象了底层文件系统的细节,为应用程序提供了统一的文件访问接口。</p>
+</li>
+</ul>
+</blockquote>
+<p>目录缓存对良好的应用程序性能至关重要。许多常见的系统调用必须对文件路径进行操作,这需要目录缓存查找。例如,iBench系统调用跟踪中的10-20%的系统调用执行路径查找。</p>
+<blockquote>
+<p>许多系统调用，如：open\stat\unlink等都需要使用文件的路径作为参数。这些系统调用在执行时,需要查找目录以定位文件,这需要目录缓存的支持。有10-20%的系统调用会执行路径查找。</p>
+</blockquote>
+<p>图1列出了几种常见的命令行应用程序在执行基于路径的系统调用时花费的总执行时间的百分比(有关这些应用程序和测试机器的更多详细信息,请参阅§6)。我们注意到,这些系统调用包括路径查找以外的工作,这些数字包括一些检测开销;尽管如此,除rm外,系统调用时间和计数以stat和open为主,其中路径查找是执行时间的重要组成部分。对于这些应用程序,基于路径的系统调用占总执行时间的6-54%。这意味着<mark>降低路径查找延迟</mark>是内核提高这些应用程序执行时间的最大机会之一。  </p>
+<p><img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/图1.png" title alt data-align="center">不幸的是,即使目录缓存命中也是昂贵的——我们的测试Linux系统上的<code>stat</code>为 0.3-1.1微秒,相比之下<code>getppid</code>只有0.04微秒,4 KB预读只有0.3微秒。这个问题在Linux内核社区尤其受到重视,该社区对其目录缓存进行了重大修订和越来越复杂的优化,以降低其命中成本,例如从读取路径中删除锁或在重试循环中用死锁避免替换锁定顺序。图2 plotting目录缓存命中延迟与Linux几个版本中更改的目录缓存代码行数,使用测试系统上的路径到inode查找微基准。这些努力已将命中延迟从2011年到2013年提高了47%,但在过去三年中已停滞不前。  </p>
+<p>问题的根源似乎是POSIX路径权限语义要求与路径组件数量线性相关的工作,并严重限制内核开发人员的实现选项。<mark>例如,要打开&#x2F;X&#x2F;Y&#x2F;Z文件,必须对父目录&#x2F;、&#x2F;X和&#x2F;X&#x2F;Y有搜索权限,并且有权访问文件Z。Linux实现简单地从上至下遍历目录树以检查权限。</mark>不幸的是,当关键路径以指针为基础的数据结构(在某些体系结构上包含多核一致性的内存屏障)主导时,现代CPU最终由难以预取加载而停滞。此外,由于如此多的Linux功能是建立在此行为之上的,例如Linux 安全模块(LSM)、命名空间和安装别名,所以如果不破坏与其他Linux内核功能的后向兼容性,任何数据结构增强似乎都是不可能的。在理论上,不明显是否有更快的查找算法(如单一散列表查找)可以满足这些API规范和内核内部要求;据我们所知,以前没有人尝试过。</p>
 <p>本文提出了目录缓存的一种分解,可以使大多数查找操作用单个散列表查找执行(§3),以及基于缓存中已有但未有效利用的信息优化以减少未命中率的优化(§5)。我们的设计通过几个关键性见解维持兼容性(§4),包括如何将路径索引与检查父权限分离,以及如何有效和安全地记忆访问控制检查的结果。</p>
-<p>我们的优化提高了频繁查找操作的性能,但引入了几个成本,详见§3和§6,我们认为这些成本是可以接受的,并且对应用程序而言是一个净改进。首先,这些优化会减慢对目录层次结构的不频繁修改,如目录的重命名、chmod和chown。然而,这些较慢的操作在iBench跟踪中占系统调用的不到0.01%。其次,dcache的内存开销增加。第三,查找由于签名冲突而有错误的可能性,可以调整为可以忽略不计且处于数据重复数据删除系统广泛使用的可接受阈值内。在图2的微基准测试中,我们的目录缓存优化提高了lookup延迟26%,超过未修改的Linux。</p>
-<p>本文证明这些技术可以提高频繁使用目录缓存的应用程序的性能,而对于不受益的应用程序的危害则很小。这些变化封装在VFS中——单个文件系统不必更改其代码。本文描述了在Linux 3.14中实现这些改进的原型。第2节解释了Mac OS X、FreeBSD和Solaris的目录缓存结构相当相似,这些原理应该具有普遍性。</p>
+<blockquote>
+<ol>
+<li><p>一种将目录缓存分解的方案,能使用<mark>散列表</mark>提高大多数查找的性能。</p>
+</li>
+<li><p>基于目录缓存中未充分利用的信息,提出的一些优化方法,以减少未命中率。</p>
+</li>
+<li><p>通过保持与Linux内核兼容性的几个关键设计,实现以上提高性能和减少未命中率的方案。这些关键设计包括分离路径索引和父目录权限检查、安全有效地缓存访问控制检查结果等。</p>
+</li>
+<li><p>作者认为,这种设计可以大幅提高目录缓存性能,解决目前Linux内核目录缓存的性能问题。</p>
+</li>
+</ol>
+</blockquote>
+<img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/图2.png" title alt data-align="center">
+
+<p>我们的优化提高了频繁查找操作的性能,但引入了几个成本,详见§3和§6,我们认为这些成本是可以接受的,并且对应用程序而言是一个净改进。</p>
+<ul>
+<li><p>首先,这些优化会减慢对目录层次结构的不频繁修改,如目录的重命名、chmod和chown。然而,这些较慢的操作在iBench跟踪中占系统调用的不到0.01%。</p>
+</li>
+<li><p>其次,dcache的内存开销增加。</p>
+</li>
+<li><p>第三,查找由于签名冲突而有错误的可能性,可以调整为可以忽略不计且处于数据重复数据删除系统广泛使用的可接受阈值内。</p>
+</li>
+</ul>
+<p>在图2的微基准测试中,我们的目录缓存优化提高了lookup延迟26%,超过未修改的Linux。</p>
+<p>本文证明这些技术可以<mark>提高频繁使用目录缓存的应用程序的性能,而对于不受益的应用程序的危害则很小</mark>。这些变化封装在VFS中——单个文件系统不必更改其代码。本文描述了在Linux 3.14中实现这些改进的原型。第2节解释了Mac OS X、FreeBSD和Solaris的目录缓存结构相当相似,这些原理应该具有普遍性。</p>
+<hr>
 <p>本文的贡献如下:</p>
 <ul>
 <li><p>对路径查找成本和改进缓存命中延迟机会的性能分析。</p>
@@ -327,9 +445,9 @@
 </li>
 </ul>
 <h1 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h1><p>本节首先回顾目录缓存必须支持的Unix目录语义;然后解释了目录缓存是如何在现代操作系统中实现的，包括Linux、FreeBSD、Solaris、Mac OS X和Windows。</p>
-<h2 id="Unix-Directory-Hierarchy-Semantics"><a href="#Unix-Directory-Hierarchy-Semantics" class="headerlink" title="Unix Directory Hierarchy Semantics"></a>Unix Directory Hierarchy Semantics</h2><p>目录缓存执行的最常见操作是查找，它将路径字符串映射到内存中的索引节点结构。查找由所有基于路径的系统调用调用，包括打开、启动和取消链接。查找包括检查用户是否具有从进程的根目录或当前工作目录到文件的适当搜索权限，我们称之为前缀检查(prefix check)。</p>
-<p>例如，为了让Alice读取<code>/home/ Alice / x</code>，她必须具有目录<code>/</code>、<code>/home</code>和<code>/home/ Alice</code>的搜索权限，以及文件x的读权限。为了节约起见，目录上的执行权限位编码了搜索权限。搜索与读权限的不同之处在于，搜索只允许用户查询文件是否存在，但不能枚举文件的内容(暴力破解除外)。SELinux和其他经过安全加固的Linux变体可以根据执行位之外的许多因素确定搜索权限，例如进程的角色或目录的扩展属性。</p>
-<h2 id="Linux-Directory-Cache"><a href="#Linux-Directory-Cache" class="headerlink" title="Linux Directory Cache"></a>Linux Directory Cache</h2><p>Linux目录缓存(dcache)缓存dentry(目录条目)结构，它将路径映射到文件(或目录、设备等)的内存inode(其他Unix系统将索引节点的vfs级表示称为vnode)。inode存储与文件相关的元数据，如大小、权限和所有权，以及指向索引内存文件内容的基数树的指针[4]。每个dentry至少由四个不同的结构跟踪:</p>
+<h2 id="Unix-Directory-Hierarchy-Semantics"><a href="#Unix-Directory-Hierarchy-Semantics" class="headerlink" title="Unix Directory Hierarchy Semantics"></a>Unix Directory Hierarchy Semantics</h2><p><mark>目录缓存执行的最常见操作是查找，它将路径字符串映射到内存中的索引节点结构</mark>。查找由所有基于路径的系统调用调用，包括open、stat和unlink。查找包括检查用户是否具有从进程的根目录或当前工作目录到文件的适当搜索权限，我们称之为前缀检查(prefix check)。</p>
+<p>例如，为了让Alice读取<code>/home/ Alice / x</code>，她必须具有目录<code>/</code>、<code>/home</code>和<code>/home/ Alice</code>的<strong>搜索权限</strong>，以及文件x的<strong>读权限</strong>。为了节约起见，目录上的执行权限位编码了搜索权限。**搜索与读权限的不同之处在于，搜索只允许用户查询文件是否存在，但不能枚举文件的内容(暴力破解除外)**。SELinux和其他经过安全加固的Linux变体可以根据执行位之外的许多因素确定搜索权限，例如进程的角色或目录的扩展属性。</p>
+<h2 id="Linux-Directory-Cache"><a href="#Linux-Directory-Cache" class="headerlink" title="Linux Directory Cache"></a>Linux Directory Cache</h2><p>Linux目录缓存(dcache)缓存dentry(目录条目)结构，它将路径映射到文件(或目录、设备等)的内存inode(其他Unix系统将索引节点的vfs级表示称为vnode)。inode存储与文件相关的元数据，如大小、权限和所有权，以及指向索引内存文件内容的基数树的指针。每个dentry至少由四个不同的结构跟踪:</p>
 <ul>
 <li><p>分层树结构，其中每个父节点都有一个未排序的、双链的子节点列表。</p>
 </li>
@@ -341,16 +459,14 @@
 </li>
 </ul>
 <p>Linux将前缀检查与查找本身集成在一起，一次搜索一个组件的路径和检查权限。lookup不是直接使用树结构，而是使用散列表搜索每个组件。对于较大的目录，哈希表查找将比搜索未排序的子列表快。分层树结构的主要用途是自底向上驱逐条目，以维护隐式不变性，即任何条目的所有父条目也必须在缓存中。尽管所有dentry都存储在按路径键的哈希表中，但权限检查实现在哈希表中查找每个路径组件。</p>
-<p>Linux存储负dentry(negative dentries)，它缓存已知文件不存在于磁盘上的事实。负dentries的一个常见示例是在由环境变量指定的多个路径上搜索文件，例如<code>LD LIBRARY PATH</code>。</p>
+<p><mark>Linux存储负dentry(negative dentries)，它缓存已知文件不存在于磁盘上的事实。</mark>负dentries的一个常见示例是在由环境变量指定的多个路径上搜索文件，例如<code>LD LIBRARY PATH</code>。</p>
 <p><strong>Current dcache optimizations</strong></p>
 <p>图2所示的大部分dcache优化工作都改善了缓存命中延迟，主要是通过减少使用读-复制更新(RCU)的查找函数中的同步成本。</p>
 <p>RCU消除了读操作所需要的原子指令。其他Unix系统将索引节点的vfs级表示称为vnode。</p>
 <p>锁定和对单个dentry进行引用计数，将一些额外的工作推到不经常修改目录结构的代码上，例如重命名和取消链接。</p>
 <p>最新的Linux内核在检查路径权限时也使用乐观同步，使用序列锁(本质上是版本计数器)来检测子树何时可能与遍历同时发生更改。如果乐观快速路径由于并发修改而失败，内核将返回到使用父节点和子节点交替锁定的慢路径。</p>
 <p>由于Linux开发人员社区已经在优化其dcache方面投入了大量精力，因此我们在本文中使用Linux作为案例研究。本文中的优化不是特定于linux的，但在某些情况下，构建在其他内核可以采用的优化之上。</p>
-<img src="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/图2.png" title alt data-align="center">
-
-<h2 id="Other-Operating-Systems"><a href="#Other-Operating-Systems" class="headerlink" title="Other  Operating Systems"></a>Other  Operating Systems</h2><h3 id="FreeBSD-OS-X-and-Solaris"><a href="#FreeBSD-OS-X-and-Solaris" class="headerlink" title="FreeBSD, OS X, and Solaris."></a>FreeBSD, OS X, and Solaris.</h3><p>这些Unix变体都有一个目录缓存，其结构类似于Linux的[25,28,39]。每个系统都使用散列表组织其目录缓存，每次检查一个组件的路径，并存储负条目。在这里，我们使用FreeBSD作为BSD家族的一个代表性例子，根据最近的调查，它是最受欢迎的[6]。OS X内核采用了FreeBSD的文件系统，并没有实质性地改变它们在目录元数据缓存方面的行为。</p>
+<h2 id="Other-Operating-Systems"><a href="#Other-Operating-Systems" class="headerlink" title="Other  Operating Systems"></a>Other  Operating Systems</h2><h3 id="FreeBSD-OS-X-and-Solaris"><a href="#FreeBSD-OS-X-and-Solaris" class="headerlink" title="FreeBSD, OS X, and Solaris."></a>FreeBSD, OS X, and Solaris.</h3><p>这些Unix变体都有一个目录缓存，其结构类似于Linux的[25,28,39]。每个系统都使用散列表组织其目录缓存，每次检查一个组件的路径，并存储负条目。在这里，我们使用FreeBSD作为BSD家族的一个代表性例子，根据最近的调查，它是最受欢迎的。OS X内核采用了FreeBSD的文件系统，并没有实质性地改变它们在目录元数据缓存方面的行为。</p>
 <p>Linux的独特之处在于，hit路径避免调用低级文件系统，而其他Unix变体总是调用低级文件系统。低级文件系统可以选择退出默认结构，如果它有更专门的结构，比如大型目录，或者它可以直接实现自己的查找函数。直接管理文件系统的缓存部分是有问题的，因为对低级文件系统不可见挂载点。之前的一些研究发现这种限制很麻烦，特别是对于网络文件系统。这些Unix变体也没有在缓存中使用乐观同步，但这不是基本的。</p>
 <p>Solaris dcache，称为直接名称查找缓存(DNLC)，具有复杂的缓存管理启发式，例如在替换决策中权衡相关性和时间局域性Solaris也有一个比FreeBSD更简单的缓存路径参考管理系统(更类似于Linux)。</p>
 <h3 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h3><p>Windows中的几乎所有的操作系统API抽象都由对象管理器表示。对象管理器是最接近Unix目录缓存的类比,它跟踪层次路径和权限。不幸的是,Windows内部结构的公开文档有限,尤其是对于未被动用的元数据的内部数据结构和缓存策略,所以详细比较困难。尽管如此,我们可以比较一些高级设计选择的影响。</p>
@@ -557,8 +673,8 @@
       <i class="fa fa-chevron-left"></i> C++学习 项目实战 webserver
     </a></div>
       <div class="post-nav-item">
-    <a href="/2023/06/10/%E5%AD%A6%E4%B9%A0%20Linux%E4%B8%AD%E7%9A%84tmpfs/" rel="next" title="学习 Linux中的tmpfs">
-      学习 Linux中的tmpfs <i class="fa fa-chevron-right"></i>
+    <a href="/2023/06/10/%E5%AD%A6%E4%B9%A0%20Linux%20tmpfs/" rel="next" title="学习 Linux tmpfs">
+      学习 Linux tmpfs <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -633,14 +749,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-count">43</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -695,13 +811,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">592k</span>
+    <span title="Symbols count total">499k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">17:57</span>
+    <span title="Reading time total">15:07</span>
 </div>
 
 <!--
