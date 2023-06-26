@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="简介虚拟文件系统 （VFS） 或虚拟文件系统交换机是更具体的文件系统之上的抽象层。VFS 的目的是允许客户端应用程序以统一的方式访问不同类型的具体文件系统。例如，VFS 可用于透明地访问本地和网络存储设备，而客户端应用程序不会注意到差异。 即对于应用程序透明。它可用于弥Windows，经典Mac OS &#x2F; macOS和Unix文件系统之间的差异，以便应用程序可以访问这些类型的本地文件系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="学习 Linux VFS虚拟文件系统">
+<meta property="og:url" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="简介虚拟文件系统 （VFS） 或虚拟文件系统交换机是更具体的文件系统之上的抽象层。VFS 的目的是允许客户端应用程序以统一的方式访问不同类型的具体文件系统。例如，VFS 可用于透明地访问本地和网络存储设备，而客户端应用程序不会注意到差异。 即对于应用程序透明。它可用于弥Windows，经典Mac OS &#x2F; macOS和Unix文件系统之间的差异，以便应用程序可以访问这些类型的本地文件系统">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS%E6%95%B4%E4%BD%93%E5%B1%82%E6%AC%A1.png">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS%E4%B8%8E%E8%BF%9B%E7%A8%8B%E4%BA%A4%E4%BA%92.png">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/%E5%90%84%E4%B8%AAVFS%E7%BB%84%E4%BB%B6%E7%9A%84%E7%9B%B8%E4%BA%92%E5%85%B3%E7%B3%BB.png">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/super_block%E6%9E%B6%E6%9E%84.png">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84.png">
+<meta property="article:published_time" content="2023-06-17T07:02:34.000Z">
+<meta property="article:modified_time" content="2023-06-23T12:11:44.951Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84.png">
+
+<link rel="canonical" href="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>学习 Linux VFS虚拟文件系统 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          学习 Linux VFS虚拟文件系统
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-06-17 15:02:34" itemprop="dateCreated datePublished" datetime="2023-06-17T15:02:34+08:00">2023-06-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-06-23 20:11:44" itemprop="dateModified" datetime="2023-06-23T20:11:44+08:00">2023-06-23</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>34k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1:01</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>虚拟文件系统 （VFS） 或虚拟文件系统交换机是更具体的文件系统之上的抽象层。VFS 的目的是允许客户端应用程序以统一的方式访问不同类型的具体文件系统。例如，<mark>VFS 可用于透明地访问本地和网络存储设备，而客户端应用程序不会注意到差异。</mark> 即对于应用程序透明。它可用于弥Windows，经典Mac OS &#x2F; macOS和Unix文件系统之间的差异，以便应用程序可以访问这些类型的本地文件系统上的文件，而不必知道它们正在访问的文件系统类型。</p>
+<p><mark>VFS 指定内核和具体文件系统之间的接口（或“协定”）。</mark>因此，只需履行协定即可轻松地向内核添加对新文件系统类型的支持。</p>
+<p><strong>为了让添加新的文件系统更加容易，并且提供一个通用（generic）的文件API，VFS，一个虚拟文件系统层被加到了linux内核中。</strong> 而对于EXT2这样的真实（real）文件系统，是去调用VFS API的。新的文件系统和新类型的存储介质都能找到进入Linux之路，程序无需重写，甚至无需重新编译。</p>
+<ul>
+<li><p>在同一个目录结构中, 可以挂载着若干种不同的文件系统. VFS隐藏了它们的实现细节, 为使用者提供统一的接口;</p>
+</li>
+<li><p>目录结构本身并不是绝对的, 每个进程可能会看到不一样的目录结构. 目录结构是由”地址空间(namespace)”来描述的, 不同的进程可能拥有不同的namespace, 不同的namespace可能有着不同的目录结构(因为它们可能挂载了不同的文件系统)。</p>
+</li>
+</ul>
+<h1 id="VFS层次结构"><a href="#VFS层次结构" class="headerlink" title="VFS层次结构"></a>VFS层次结构</h1><p>操作文件的本质是将磁盘文件数据映射到进程中。在这个过程中，涉及以下几个关键步骤：</p>
+<ol>
+<li><p><strong>进程发出文件操作命令</strong>：<br>当一个进程需要操作文件时，它会通过系统调用（如<code>sys_open</code>，<code>sys_read</code>，<code>sys_write</code>等）将请求传递给内核。系统调用是用户态进程与内核态代码之间的接口，用户态进程不能直接访问内核态资源，因此通过系统调用请求内核完成相应的操作。</p>
+</li>
+<li><p><strong>内核数据结构的创建和维护</strong>：<br>当内核收到进程的文件操作请求后，会为进程打开的文件和系统文件创建相应的数据结构。主要的数据结构包括：</p>
+<ul>
+<li>文件描述符（file descriptor）：一个非负整数，用于唯一标识进程中打开的文件。</li>
+<li>文件对象（file object）：在内核中，文件对象与文件描述符关联，存储文件的元数据（如文件位置、访问权限等）。</li>
+<li>inode：表示文件在磁盘上的元数据，包括文件类型、大小、权限、时间戳等。</li>
+<li>dentry：缓存目录项的数据结构，用于快速查找文件系统中的文件。</li>
+</ul>
+</li>
+<li><p><strong>虚拟文件系统（VFS）</strong>：<br>虚拟文件系统是一种<mark>文件系统抽象层</mark>，用于统一不同类型的文件系统和I&#x2F;O设备（如磁盘、管道、进程间通信、网络等）的接口。通过VFS，内核可以在不同的文件系统和设备之间提供统一的文件操作接口。</p>
+</li>
+<li><p><strong>实现虚拟文件系统和实际文件系统的挂载</strong>：<br>在VFS层之下，还有诸如ext4、FAT32等各种具体的文件系统实现。这些文件系统通过实现VFS定义的接口与VFS层进行交互。当一个文件系统被挂载到操作系统时，VFS会将文件系统的相关操作映射到对应的实现。</p>
+</li>
+<li><p><strong>设备驱动接口和缓存</strong>：<br>为了与不同类型的硬件设备进行交互，内核提供了设备驱动接口。设备驱动程序负责将文件系统的操作转换为特定硬件设备可以识别的指令。此外，内核还通过缓存技术来加快文件读写的速度。常见的缓存方式有页缓存（page cache）和缓冲区缓存（buffer cache）。</p>
+</li>
+</ol>
+<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS基本结构.png" title alt data-align="center">
+
+<p>通用文件模型由对象组成：<strong>超级块对象、索引节点对象、目录项对象、文件对象。</strong></p>
+<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS整体层次.png" title alt data-align="center">
+
+<h1 id="VFS实现"><a href="#VFS实现" class="headerlink" title="VFS实现"></a>VFS实现</h1><h2 id="VFS数据结构"><a href="#VFS数据结构" class="headerlink" title="VFS数据结构"></a>VFS数据结构</h2><p>三个不同进程已打开同一个文件，其中两个进程使用同一个硬链接。在这种情况下，每个进程都使用自己的文件对象，但只需要两个目录项对象，每个硬链接对应一个目录项对象。这两个目录项对象指向同一个索引节点对象，这个索引节点对象标识的是超级块对象以及普通磁盘文件。</p>
+<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS与进程交互.png" title alt data-align="center">
+
+<p>VFS除了能为所有文件系统的实现提供一个通用接口外，它还具有另一个重要的作用，即提高系统性能。最近最常使用的目录项对象被放在所谓目录项高速缓存（dentry cache）的磁盘高速缓存中，以加速从文件路径名到最后一个路径分量的索引节点的转换过程。</p>
+<p>inode是内核选择用于表示文件内容和相关元数据的方法。理论上，实现这个概念只需要一个数据结构（尽管很长），其中包含了所有必要的数据。实际上，数据分散到一系列较小的、布局清晰的结构中。</p>
+<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/各个VFS组件的相互关系.png" title alt data-align="center">
+
+<h3 id="超级块super-block"><a href="#超级块super-block" class="headerlink" title="超级块super_block"></a>超级块super_block</h3><p>存放系统当中已安装文件系统有关信息。对于基于磁盘的文件系统，这类对象通常对应存放在磁盘上的文件系统控制块（每个文件系统都有一个超级块对象）。</p>
+<p>是一个全局的数据结构，不管是什么文件系统都有超级块。VFS也有超级块。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/source/include/linux/fs.h#L1136">fs.h - include&#x2F;linux&#x2F;fs.h - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">super_block</span> &#123;</span></span><br><span class="line"><span class="comment">//文件系统的整体信息成员如下：</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">s_list</span>;</span>        <span class="comment">/* Keep this first */</span> <span class="comment">//用来将所有超级块实例连接到全局链表super_blocks,指向超级快链表的指针</span></span><br><span class="line">    <span class="type">dev_t</span>            s_dev;        <span class="comment">/* search index; _not_ kdev_t */</span>  <span class="comment">//保存文件系统所在的块设备，s_dev保存设备具体文件系统的块设备标识符：/dev/hda1等</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span>        s_blocksize_bits; <span class="comment">//块大小的值所占用的位数</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span>        s_blocksize; <span class="comment">//文件系统中数据库的大小，以字节为单位</span></span><br><span class="line">    <span class="type">loff_t</span>            s_maxbytes;    <span class="comment">/* Max file size */</span> <span class="comment">//文件最大长度</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file_system_type</span>    *<span class="title">s_type</span>;</span> <span class="comment">//指向文件系统类型file_system_type数据结构的指针</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">super_operations</span>    *<span class="title">s_op</span>;</span> <span class="comment">//指向特定文件系统用于超级快的函数的集合</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">dquot_operations</span>    *<span class="title">dq_op</span>;</span> <span class="comment">//指向特定文件系统用于限额操作的函数集合</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">quotactl_ops</span>    *<span class="title">s_qcop</span>;</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">export_operations</span> *<span class="title">s_export_op</span>;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span>        s_flags;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span>        s_iflags;    <span class="comment">/* internal SB_I_* flags */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span>        s_magic;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span>        *<span class="title">s_root</span>;</span> <span class="comment">//指向根目录的结构体dentry，将超级块与全局根目录的dentry项关联起来</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rw_semaphore</span>    <span class="title">s_umount</span>;</span> <span class="comment">//对超级快读写时进行同步</span></span><br><span class="line">    <span class="type">int</span>            s_count; <span class="comment">//对超级快的使用计数</span></span><br><span class="line">    <span class="type">atomic_t</span>        s_active;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_SECURITY</span></span><br><span class="line">    <span class="type">void</span>                    *s_security;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">xattr_handler</span> **<span class="title">s_xattr</span>;</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_FS_ENCRYPTION</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">fscrypt_operations</span>    *<span class="title">s_cop</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fscrypt_keyring</span>    *<span class="title">s_master_keys</span>;</span> <span class="comment">/* master crypto keys in use */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_FS_VERITY</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">fsverity_operations</span> *<span class="title">s_vop</span>;</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> IS_ENABLED(CONFIG_UNICODE)</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">unicode_map</span> *<span class="title">s_encoding</span>;</span></span><br><span class="line">    __u16 s_encoding_flags;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_bl_head</span>    <span class="title">s_roots</span>;</span>    <span class="comment">/* alternate root dentries for NFS */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">s_mounts</span>;</span>    <span class="comment">/* list of mounts; _not_ for fs use */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">block_device</span>    *<span class="title">s_bdev</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">backing_dev_info</span> *<span class="title">s_bdi</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mtd_info</span>        *<span class="title">s_mtd</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_node</span>    <span class="title">s_instances</span>;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>        s_quota_types;    <span class="comment">/* Bitmask of supported quota types */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">quota_info</span>    <span class="title">s_dquot</span>;</span>    <span class="comment">/* Diskquota specific options */</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sb_writers</span>    <span class="title">s_writers</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Keep s_fs_info, s_time_gran, s_fsnotify_mask, and</span></span><br><span class="line"><span class="comment">     * s_fsnotify_marks together for cache efficiency. They are frequently</span></span><br><span class="line"><span class="comment">     * accessed and rarely modified.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">void</span>            *s_fs_info;    <span class="comment">/* Filesystem private info */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Granularity of c/m/atime in ns (cannot be worse than a second) */</span></span><br><span class="line">    u32            s_time_gran;</span><br><span class="line">    <span class="comment">/* Time limits for c/m/atime in seconds */</span></span><br><span class="line">    <span class="type">time64_t</span>           s_time_min;</span><br><span class="line">    <span class="type">time64_t</span>           s_time_max;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_FSNOTIFY</span></span><br><span class="line">    __u32            s_fsnotify_mask;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fsnotify_mark_connector</span> __<span class="title">rcu</span>    *<span class="title">s_fsnotify_marks</span>;</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="type">char</span>            s_id[<span class="number">32</span>];    <span class="comment">/* Informational name */</span></span><br><span class="line">    <span class="type">uuid_t</span>            s_uuid;        <span class="comment">/* UUID */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>        s_max_links;</span><br><span class="line">    <span class="type">fmode_t</span>            s_mode;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * The next field is for VFS *only*. No filesystems have any business</span></span><br><span class="line"><span class="comment">     * even looking at it. You had been warned.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mutex</span> <span class="title">s_vfs_rename_mutex</span>;</span>    <span class="comment">/* Kludge */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Filesystem subtype.  If non-empty the filesystem type field</span></span><br><span class="line"><span class="comment">     * in /proc/mounts will be &quot;type.subtype&quot;</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *s_subtype;</span><br><span class="line"></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">dentry_operations</span> *<span class="title">s_d_op</span>;</span> <span class="comment">/* default d_op for dentries */</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">shrinker</span> <span class="title">s_shrink</span>;</span>    <span class="comment">/* per-sb shrinker handle */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Number of inodes with nlink == 0 but still referenced */</span></span><br><span class="line">    <span class="type">atomic_long_t</span> s_remove_count;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Number of inode/mount/sb objects that are being watched, note that</span></span><br><span class="line"><span class="comment">     * inodes objects are currently double-accounted.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">atomic_long_t</span> s_fsnotify_connectors;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Being remounted read-only */</span></span><br><span class="line">    <span class="type">int</span> s_readonly_remount;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* per-sb errseq_t for reporting writeback errors via syncfs */</span></span><br><span class="line">    <span class="type">errseq_t</span> s_wb_err;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* AIO completions deferred from interrupt context */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">workqueue_struct</span> *<span class="title">s_dio_done_wq</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_head</span> <span class="title">s_pins</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Owning user namespace and default context in which to</span></span><br><span class="line"><span class="comment">     * interpret filesystem uids, gids, quotas, device nodes,</span></span><br><span class="line"><span class="comment">     * xattrs and security labels.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_namespace</span> *<span class="title">s_user_ns</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * The list_lru structure is essentially just a pointer to a table</span></span><br><span class="line"><span class="comment">     * of per-node lru lists, each of which has its own spinlock.</span></span><br><span class="line"><span class="comment">     * There is no need to put them into separate cachelines.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_lru</span>        <span class="title">s_dentry_lru</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_lru</span>        <span class="title">s_inode_lru</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rcu_head</span>        <span class="title">rcu</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">work_struct</span>    <span class="title">destroy_work</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mutex</span>        <span class="title">s_sync_lock</span>;</span>    <span class="comment">/* sync serialisation lock */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Indicates how deep in a filesystem stack this SB is</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">int</span> s_stack_depth;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* s_inode_list_lock protects s_inodes */</span></span><br><span class="line">    <span class="type">spinlock_t</span>        s_inode_list_lock ____cacheline_aligned_in_smp;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">s_inodes</span>;</span>    <span class="comment">/* all inodes */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">spinlock_t</span>        s_inode_wblist_lock;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">s_inodes_wb</span>;</span>    <span class="comment">/* writeback inodes */</span></span><br><span class="line">&#125; __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>s_root将超级块与全局根目录的dentry项关联起来。<br>只有通常可见的文件系统的超级块，才指向&#x2F;（根）目录的dentry实例。具有特殊功能、不出现在通常的目录层次结构中的文件系统（例如，管道或套接字文件系统），指向专门的项，不能通过普通的文件命令访问。</p>
+<p>处理文件系统对象的代码经常需要检查文件系统是否已经装载，而s_root可用于该目的。如果它为NULL，则该文件系统是一个伪文件系统，只在内核内部可见。否则，该文件系统在用户空间中是可见的。</p>
+</li>
+</ul>
+<p>所有超级快对象是以双向环形链表形式进行链接在一起。链表中第一个元素和最后一个元素的地址分别存放在<code>super_blocks</code>变量的<code>s_list/next/prev</code>域中 。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/source/include/linux/types.h#L178">types.h - include&#x2F;linux&#x2F;types.h - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> *<span class="title">next</span>, *<span class="title">prev</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>具体架构如下：</p>
+<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/super_block架构.png" title alt data-align="center">
+
+<p>尽管每个文件系统在file_system_type中只出现一次，但在所有超级块实例的链表中，可能有几个同一文件系统类型的超级块实例，因为在各个块设备&#x2F;分区上可能存储了同一类型的几个文件系统。例如，大多数系统都有root和home分区，二者可能在不同的分区上，但通常使用相同类型的文件系统。在file_system_type中，同一文件系统类型只需定义一次，但这两个装载点的超级块不同，虽然都使用了同样的文件系统。</p>
+<p>超级块结构的一个重要成员是一个列表，包括相关文件系统中所有修改过的inode（内核相当不敬地称之为<strong>脏</strong>inode）。根据该列表很容易标识已经修改过的文件和目录，以便将其写回到存储介质。回写必须经过协调，保证在一定程度上最小化开销，因为这是一个非常费时的操作（硬盘、软盘驱动器及其他介质与系统其余组件相比，速度很慢）。另一方面，如果写回修改数据的间隔太长也可能有严重后果，因为系统崩溃（或者，就Linux的情形而言，更可能的是停电）会导致不能恢复的数据丢失。内核会周期性扫描脏块的列表，并将修改传输到底层硬件。</p>
+<h3 id="VFS索引节点inode"><a href="#VFS索引节点inode" class="headerlink" title="VFS索引节点inode"></a>VFS索引节点inode</h3><p>存放关于具体文件的一些信息。对于基于磁盘的文件系统，此类对象通常对应用于存放在磁盘上的文件控制块（PCB）。每一个文件都有一个索引节点对象，每一个索引节点对象都有一个索引节点号，唯一标识文件系统中的一个文件。</p>
+<p>具体文件系统的索引节点是存储在磁盘上，是一种静态结构，我们要使用它，必须调入内存，填写VFS的索引节点（VFS索引节点是动态节点）。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/inode">inode identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Keep mostly read-only and often accessed (especially for</span></span><br><span class="line"><span class="comment"> * the RCU path lookup and &#x27;stat&#x27; data) fields at the beginning</span></span><br><span class="line"><span class="comment"> * of the &#x27;struct inode&#x27;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">inode</span> &#123;</span></span><br><span class="line">    <span class="type">umode_t</span>            i_mode;          <span class="comment">/* 文件类型和访问权限 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">short</span>        i_opflags;       <span class="comment">/* inode 操作标志 */</span></span><br><span class="line">    <span class="type">kuid_t</span>            i_uid;           <span class="comment">/* 文件拥有者的标识号，用户 ID */</span></span><br><span class="line">    <span class="type">kgid_t</span>            i_gid;           <span class="comment">/* 文件拥有者的所在组的标识号，组 ID */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>        i_flags;         <span class="comment">/* 文件或目录的标志 */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_FS_POSIX_ACL</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">posix_acl</span>    *<span class="title">i_acl</span>;</span>          <span class="comment">/* 访问控制列表 (ACL) */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">posix_acl</span>    *<span class="title">i_default_acl</span>;</span>  <span class="comment">/* 默认访问控制列表 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span>    *<span class="title">i_op</span>;</span>  <span class="comment">/* inode 操作函数集 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">super_block</span>    *<span class="title">i_sb</span>;</span>           <span class="comment">/* 指向此文件系统超级块的指针 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">address_space</span>    *<span class="title">i_mapping</span>;</span>      <span class="comment">/* 文件内容的内存映射 */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_SECURITY</span></span><br><span class="line">    <span class="type">void</span>            *i_security;     <span class="comment">/* 安全模块使用的 inode 信息 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Stat data, not accessed from path walking */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span>        i_ino;           <span class="comment">/* inode 编号 */</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span><span class="comment">//与该节点建立链接的文件数量</span></span><br><span class="line">        <span class="type">const</span> <span class="type">unsigned</span> <span class="type">int</span> i_nlink;        <span class="comment">/* 硬链接计数 */</span></span><br><span class="line">        <span class="type">unsigned</span> <span class="type">int</span> __i_nlink;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="type">dev_t</span>            i_rdev;          <span class="comment">/* 实际设备标识号 */</span></span><br><span class="line">    <span class="type">loff_t</span>            i_size;          <span class="comment">/* 文件大小（字节） */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timespec64</span>    <span class="title">i_atime</span>;</span>         <span class="comment">/* 最后访问时间 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timespec64</span>    <span class="title">i_mtime</span>;</span>         <span class="comment">/* 最后修改时间 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timespec64</span>    <span class="title">i_ctime</span>;</span>         <span class="comment">/* 最后元数据更改时间 */</span></span><br><span class="line">    <span class="type">spinlock_t</span>        i_lock;          <span class="comment">/* 保护 i_blocks, i_bytes 和可能的 i_size 的锁 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">short</span>          i_bytes;        <span class="comment">/* 文件末尾未使用的字节数 */</span></span><br><span class="line">    u8            i_blkbits;       <span class="comment">/* 文件系统块大小的以 2 为底的对数 */</span></span><br><span class="line">    u8            i_write_hint;    <span class="comment">/* 写操作的优化提示 */</span></span><br><span class="line">    <span class="type">blkcnt_t</span>        i_blocks;        <span class="comment">/* 文件占用的磁盘块数量 */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> __NEED_I_SIZE_ORDERED</span></span><br><span class="line">    <span class="type">seqcount_t</span>        i_size_seqcount; <span class="comment">/* 有序 i_size 的序列计数器 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Misc */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span>        i_state;         <span class="comment">/* inode 状态标志 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rw_semaphore</span>    <span class="title">i_rwsem</span>;</span>         <span class="comment">/* 读写信号量，用于保护 inode 结构 */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span>        dirtied_when;    <span class="comment">/* 第一次被脏的时间，以 jiffies 计 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span>        dirtied_time_when; <span class="comment">/* 上次被脏的时间，以 jiffies 计 */</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_node</span>    <span class="title">i_hash</span>;</span>          <span class="comment">/* 散列链表上的节点 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">i_io_list</span>;</span>       <span class="comment">/* 后备设备的 I/O 列表 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_CGROUP_WRITEBACK</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bdi_writeback</span>    *<span class="title">i_wb</span>;</span>           <span class="comment">/* 关联的 cgroup 写回控制器 */</span></span><br><span class="line">    <span class="type">int</span>            i_wb_frn_winner; <span class="comment">/* 外部 inode 检测的赢家 */</span></span><br><span class="line">    u16            i_wb_frn_avg_time; <span class="comment">/* 外部 inode 的平均时间 */</span></span><br><span class="line">    u16            i_wb_frn_history; <span class="comment">/* 外部 inode 的历史记录 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">i_lru</span>;</span>           <span class="comment">/* inode LRU 列表 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">i_sb_list</span>;</span>       <span class="comment">/* 超级块列表 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">i_wb_list</span>;</span>       <span class="comment">/* 后备设备写回列表 */</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">hlist_head</span>    <span class="title">i_dentry</span>;</span>      <span class="comment">/* 目录项列表 */</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">rcu_head</span>        <span class="title">i_rcu</span>;</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="type">atomic64_t</span>        i_version;       <span class="comment">/* inode 版本 */</span></span><br><span class="line">    <span class="type">atomic64_t</span>        i_sequence;      <span class="comment">/* 用于 futex 的序列值 */</span></span><br><span class="line">    <span class="type">atomic_t</span>        i_count;         <span class="comment">/* inode 引用计数 */</span></span><br><span class="line">    <span class="type">atomic_t</span>        i_dio_count;     <span class="comment">/* 直接 I/O 计数 */</span></span><br><span class="line">    <span class="type">atomic_t</span>        i_writecount;    <span class="comment">/* 写计数 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> defined(CONFIG_IMA) || defined(CONFIG_FILE_LOCKING)</span></span><br><span class="line">    <span class="type">atomic_t</span>        i_readcount;     <span class="comment">/* 只读打开的文件计数 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span>    *<span class="title">i_fop</span>;</span>  <span class="comment">/* 以前的 -&gt;i_op-&gt;default_file_ops */</span></span><br><span class="line">        <span class="type">void</span> (*free_inode)(<span class="keyword">struct</span> inode *);</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file_lock_context</span>    *<span class="title">i_flctx</span>;</span>         <span class="comment">/* 文件锁上下文 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">address_space</span>    <span class="title">i_data</span>;</span>          <span class="comment">/* inode 的数据缓冲区 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">i_devices</span>;</span>       <span class="comment">/* 设备列表 */</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">pipe_inode_info</span>    *<span class="title">i_pipe</span>;</span>   <span class="comment">/* 管道 inode 信息 */</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">cdev</span>        *<span class="title">i_cdev</span>;</span>    <span class="comment">/* 字符设备 */</span></span><br><span class="line">        <span class="type">char</span>            *i_link;    <span class="comment">/* 符号链接的目标路径 */</span></span><br><span class="line">        <span class="type">unsigned</span>        i_dir_seq;  <span class="comment">/* 目录序列计数器 */</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    __u32            i_generation;    <span class="comment">/* inode 生成计数器 */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_FSNOTIFY</span></span><br><span class="line">    __u32            i_fsnotify_mask; <span class="comment">/* inode 关心的所有事件 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fsnotify_mark_connector</span> __<span class="title">rcu</span>    *<span class="title">i_fsnotify_marks</span>;</span> <span class="comment">/* 文件系统通知标记连接器 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_FS_ENCRYPTION</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fscrypt_info</span>    *<span class="title">i_crypt_info</span>;</span>   <span class="comment">/* 文件系统加密信息 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_FS_VERITY</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fsverity_info</span>    *<span class="title">i_verity_info</span>;</span>  <span class="comment">/* 文件系统完整性信息 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="type">void</span>            *i_private;       <span class="comment">/* 文件系统或设备的私有指针 */</span></span><br><span class="line">&#125; __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<p>每一个文件都有一个<code>inode</code>，每个<code>inode</code>都有一个索引节点号<code>i_ino</code>。在同一个文件系统时每个索引节点号都是唯一的，内核有时候根据索引节点号的哈希值查找其inode结构。</p>
+<h3 id="目录项dentry"><a href="#目录项dentry" class="headerlink" title="目录项dentry"></a>目录项dentry</h3><p>存放目录项与对应文件进行链接的信息，VFS把每个目录看作一个由若干个子目录和文件组成的常规文件。</p>
+<p>每个文件除了有一个索引节点inode数据结构之外，还有一个目录项dentry（directory entry）数据结构。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/dentry">dentry identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> &#123;</span></span><br><span class="line">    <span class="comment">/* RCU lookup touched fields */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> d_flags;        <span class="comment">/* 目录项的标志位，受 d_lock 保护 */</span></span><br><span class="line">    <span class="type">seqcount_spinlock_t</span> d_seq;    <span class="comment">/* 每个目录项的序列锁 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_bl_node</span> <span class="title">d_hash</span>;</span>    <span class="comment">/* 目录项形成的用于查找的哈希列表 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">d_parent</span>;</span>    <span class="comment">/* 父目录的目录项dentry */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">qstr</span> <span class="title">d_name</span>;</span>             <span class="comment">/* 目录项的名称（可以快速查找） */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">d_inode</span>;</span>        <span class="comment">/* 与文件名称关联的，与目录名关联的 inode 结构指针，NULL 表示负目录项 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> d_iname[DNAME_INLINE_LEN];    <span class="comment">/* 短文件名称 */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Ref lookup also touches following */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">lockref</span> <span class="title">d_lockref</span>;</span>    <span class="comment">/* 每个目录项的锁和引用计数 */</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">dentry_operations</span> *<span class="title">d_op</span>;</span> <span class="comment">/* 目录项操作函数集 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">super_block</span> *<span class="title">d_sb</span>;</span>    <span class="comment">/* 目录项树的根节点（即文件的超级块） */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> d_time;        <span class="comment">/* 用于 d_revalidate 的时间戳 */</span></span><br><span class="line">    <span class="type">void</span> *d_fsdata;            <span class="comment">/* 特定文件系统的数据 */</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">d_lru</span>;</span>        <span class="comment">/* LRU（最近最少使用）列表 */</span></span><br><span class="line">        <span class="type">wait_queue_head_t</span> *d_wait;    <span class="comment">/* 仅用于查找中的目录项 */</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">d_child</span>;</span>    <span class="comment">/* 父目录项的子项列表 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">d_subdirs</span>;</span>    <span class="comment">/* 子目录项列表 */</span></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * d_alias and d_rcu can share memory</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">hlist_node</span> <span class="title">d_alias</span>;</span>    <span class="comment">/* inode 别名列表 */</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">hlist_bl_node</span> <span class="title">d_in_lookup_hash</span>;</span>    <span class="comment">/* 仅用于查找中的目录项 */</span></span><br><span class="line">         <span class="class"><span class="keyword">struct</span> <span class="title">rcu_head</span> <span class="title">d_rcu</span>;</span></span><br><span class="line">    &#125; d_u;</span><br><span class="line">&#125; __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<p>各个dentry实例组成了一个网络，与文件系统的结构形成一定的映射关系。与给定目录下的所有文件和子目录相关联的dentry实例，都归入到d_subdirs链表（在目录对应的dentry实例中）。子结点的d_child成员充当链表元素。</p>
+<p>dentry结构的主要用途是建立文件名和相关的inode之间的关联。结构中有3个成员用于该目<br>的。</p>
+<ul>
+<li><p>d_inode是指向相关的inode实例的指针。</p>
+<p>如果dentry对象是为一个不存在的文件名建立的，则d_inode为NULL指针。这有助于加速查找不存在的文件名，通常情况下，这与查找实际存在的文件名同样耗时。</p>
+</li>
+<li><p>d_name指定了文件的名称。qstr是一个内核字符串的包装器。它存储了实际的char *字符串以及字符串长度和散列值，这使得更容易处理查找工作。</p>
+</li>
+<li><p>d_op指向一个结构，其中包含了各种函数指针，提供对dentry对象的各种操作。这些操作必须由底层文件系统实现。</p>
+</li>
+<li><p>s_sb是一个指针，指向dentry对象所属文件系统超级块的实例。该指针使得各个dentry实例散布到可用的（已装载的）文件系统。由于每个超级块结构都包含了一个指针，指向该文件系统装载点对应目录的dentry实例，因此dentry组成的树可以划分为几个子树。</p>
+</li>
+<li><p>d_flags可以包含几个标志，标志在include&#x2F;linux&#x2F;dcache.h中定义。但其中只有两个与我们的目的相关：DCACHE_DISCONNECTED指定一个dentry当前没有连接到超级块的dentry树。DCACHE_UNHASHED表明该dentry实例没有包含在任何inode的散列表中。要注意，这两个标志是彼此完全独立的。</p>
+</li>
+<li><p>d_parent是一个指针，指向当前结点父目录的dentry实例，当前的dentry实例即位于父目录的。</p>
+</li>
+<li><p>d_subdirs链表中。对于根目录（没有父目录），d_parent指向其自身的dentry实例。<br>当前dentry对象表示一个装载点，那么d_mounted设置为1；否则其值为0。</p>
+</li>
+<li><p>d_alias用作链表元素，以连接表示相同文件的各个dentry对象。在利用硬链接用两个不同名称表示同一文件时，会发生这种情况。对应于文件的inode的i_dentry成员用作该链表的表头。各个dentry对象通过d_alias连接到该链表中。</p>
+</li>
+</ul>
+<p>但其中<mark>并非完全映射文件系统的拓扑结构，因为dentry缓存只包含文件系统结构的一小部分</mark>。 最常用文件和目录对应的目录项才保存在内存中。原则上，可以为所有文件系统对象都生成dentry项，但物理内存空间和性能原因都限制了这样做。</p>
+<p>dentry数据结构代表的是逻辑意义上的文件，所描述的是文件逻辑上的属性，<mark>目录项对象在磁盘上并没有对应的映像</mark>，而inode数据结构代表的是物理意义上的文件，记录的是物理上的属性，对于一个具体的文件系统（ex2&#x2F;3&#x2F;4等），ext3_inode结构在磁盘上就有对应的映像。<mark>一个索引节点对象可能对应多个目录项对象。</mark></p>
+<p>每个目录项对象属于一下四种状态之一</p>
+<ul>
+<li><p>空闲状态（free）</p>
+<p>处于该状态的目录项对象不包含有效的信息，还没有被VFS使用。它对应的内存区由slab分配器进行管理。</p>
+</li>
+<li><p>未使用状态（unused）</p>
+<p>处于该状态的目录项对象当前还没有被内核使用。该对象的引用计数器d_count的值为NULL。但其d_inode域仍然指向相关的索引节点。该目录项对象包含有效的信息，但为了在必要时回收内存，它的内容可能被丢弃。</p>
+</li>
+<li><p>正在使用状态（inuse）</p>
+<p>处于该状态的目录项对象当前正在被内核使用，该对象的引用计数器d_count的值为正数，而其d_inode域指向相关的索引节点对象。该目录项对象包含有效的信息，并且不能被丢弃。</p>
+</li>
+<li><p>负状态（negative）</p>
+<p>与目录项相关的索引节点不复存在，那是因为相应的磁盘索引节点已被删除。该目录项对象的d_inode域被置为NULL，但该对象仍然被保存在目录项高速缓存中，以便后续对同一文件目录名的查找操作能够快速完成。</p>
+</li>
+</ul>
+<h3 id="文件file"><a href="#文件file" class="headerlink" title="文件file"></a>文件file</h3><p>存放打开文件与进程之间交互的有关信息。这类信息仅仅是在进程访问文件期间存在于内存的。文件对象表示进程已打开的文件，如果我们站在用户角度来看待VFS，文件对象会首先进入我们的视野。进程直接处理的是文件，而不是超级块、索引节点或目录项。文件对象由相应的open（）系统调用创建，由close（）系统调用撤销。file也是files_struct定义时用到的一个结构。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/file">file identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">file</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">llist_node</span>    <span class="title">f_llist</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">rcu_head</span>     <span class="title">f_rcuhead</span>;</span></span><br><span class="line">        <span class="type">unsigned</span> <span class="type">int</span>         f_iocb_flags;</span><br><span class="line">    &#125;; <span class="comment">// 定义一个联合体，用于节省空间。联合体中只有一个成员会被实际使用。</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">path</span>        <span class="title">f_path</span>;</span> <span class="comment">// 文件路径 包含目录项</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inode</span>        *<span class="title">f_inode</span>;</span>    <span class="comment">/* 缓存的值 */</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span>    *<span class="title">f_op</span>;</span> <span class="comment">// 文件操作函数指针</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * 保护 f_ep 和 f_flags 的自旋锁。</span></span><br><span class="line"><span class="comment">     * 不得在 IRQ 上下文中使用。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">spinlock_t</span>        f_lock;</span><br><span class="line">    <span class="type">atomic_long_t</span>        f_count; <span class="comment">// 文件引用计数</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>         f_flags; <span class="comment">// 文件标志</span></span><br><span class="line">    <span class="type">fmode_t</span>            f_mode; <span class="comment">// 文件模式</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mutex</span>        <span class="title">f_pos_lock</span>;</span> <span class="comment">// 用于保护文件位置的互斥锁</span></span><br><span class="line">    <span class="type">loff_t</span>            f_pos; <span class="comment">// 文件位置</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fown_struct</span>    <span class="title">f_owner</span>;</span> <span class="comment">// 文件所有者</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">cred</span>    *<span class="title">f_cred</span>;</span> <span class="comment">// 指向文件凭证的指针</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file_ra_state</span>    <span class="title">f_ra</span>;</span> <span class="comment">// 文件读取状态</span></span><br><span class="line"></span><br><span class="line">    u64            f_version; <span class="comment">// 文件版本</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_SECURITY</span></span><br><span class="line">    <span class="type">void</span>            *f_security; <span class="comment">// 指向文件安全结构的指针</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="comment">/* 需要用于 tty 驱动程序，以及其他可能需要的程序 */</span></span><br><span class="line">    <span class="type">void</span>            *private_data; <span class="comment">// 私有数据指针</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_EPOLL</span></span><br><span class="line">    <span class="comment">/* 由 fs/eventpoll.c 使用，将所有钩子链接到此文件 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_head</span>    *<span class="title">f_ep</span>;</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">/* #ifdef CONFIG_EPOLL */</span></span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">address_space</span>    *<span class="title">f_mapping</span>;</span> <span class="comment">// 文件映射地址空间</span></span><br><span class="line">    <span class="type">errseq_t</span>        f_wb_err; <span class="comment">// 写回错误序列</span></span><br><span class="line">    <span class="type">errseq_t</span>        f_sb_err; <span class="comment">// 用于 syncfs 的超级块错误序列</span></span><br><span class="line">&#125; __randomize_layout</span><br><span class="line">  __attribute__((aligned(<span class="number">4</span>)));    <span class="comment">/* 以防某些奇怪的设备认为 2 是合适的对齐方式 */</span></span><br></pre></td></tr></table></figure>
+
+<p>f_path封装了下面两部分信息：</p>
+<ul>
+<li>文件名和inode之间的关联（dentry）</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/C/ident/path">path identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">path</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">vfsmount</span> *<span class="title">mnt</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">dentry</span>;</span></span><br><span class="line">&#125; __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<h3 id="索引节点-x2F-目录-x2F-块-高速缓存"><a href="#索引节点-x2F-目录-x2F-块-高速缓存" class="headerlink" title="索引节点&#x2F;目录&#x2F;块-高速缓存"></a>索引节点&#x2F;目录&#x2F;块-高速缓存</h3><ul>
+<li><p>索引节点inode高速缓存</p>
+<p> 加快文件系统操作速度的缓存机制（内存缓存，保存文件系统中所有的索引节点（inode），可以避免频繁从磁盘读取索引节点信息）</p>
+</li>
+<li><p><mark>目录项dentry高速缓存</mark></p>
+<p>加快文件系统操作速度的缓存机制（内存缓存，保存文件系统中所有已经打开的目录项，可以避免频繁地从硬盘中读取目录项信息）。例如。我们经常需要编辑文件，随后进行编译或编辑，然后打印或拷贝，再进行编辑，诸如此类的情况中，同一个文件需要被反复访问。</p>
+<p>目录项高速缓存由两种类型的数据结构组成：</p>
+<ul>
+<li><p>处于正在使用，未使用或负状态的目录项对象的集合。</p>
+</li>
+<li><p>一个散列表，从中能够快速获取与给定文件名和目录名对应的目录项对象，如果访问的对象不在目录项高速缓存中，散列函数返回一个空值。</p>
+</li>
+</ul>
+<p>目录项高速缓存的作用也相当于索引节点高速缓存（inode cache）的控制器。内核内存中，与未使用目录项相关的索引节点未被丢弃，这是由于目录项高速缓存仍在使用他们，因此，它们的i_count域不为空。因此，这些索引节点对象保存在RAM中，并能够借助相应的目录项快速引用他们。</p>
+<p>所有“未使用unused”的目录项都存放在一个“最近最少使用（LRU：Least Recently Used）”的双向链表中，该链表按照插入的时间排序。换句话说，最后释放的目录项对象放在链表的首部，所以最近最少使用的目录项总是靠近链表的尾部。一旦目录项高速缓存的空间开始变小，内核就从链表的尾部删除元素，使得多数最近经常使用的对象得以保留。LRU链表的首元素和尾元素的地址存放在变量dentry_unused中的next域和prev域。目录项对象的d_lcu域包含的指针指向该链表中相邻目录的对象。</p>
+<p>每个“正在使用inuse”的目录项对象都被插入一个双向链表中，该链表由相应索引节点对象的i_dentry域所指向（由于每个索引节点可能与若干硬链接关联，所以需要一个链表）。目录项对象的d_alias域存放链表中相邻元素的地址。这两个域的类型都是struct list_head。</p>
+<p>当指向相应文件的最后一个硬链接被删除后，一个“正在使用inuse”的目录项对象可能变成“负negative”状态。在这种情况下，该目录项对象被移到“未使用unused”目录项对象组成的LRU链表中。每当内核缩减目录项高速缓存时，“负negative”状态目录项对象就朝着LRU链表的尾部移动。这样一来，这些对象就逐渐被释放。</p>
+<p>散列表是由dentry_hashtable数组实现的。数组中每个元素是一个指向链表的指针，这种链表就是把具有相同散列表值得目录项进行散列而形成得。该数组得长度取决于系统已安装RAM的数量。目录项对象的d_hash域包含指向具有相同散列值的链表中的相邻元素。散列函数产生的值是由目录及文件名的目录项对象的地址计算出来的。</p>
+</li>
+<li><p>块高速缓存</p>
+<p>加快文件系统操作速度的缓存机制（内存缓存，保存文件系统中已经读取过的块数据block，有效避免频繁从硬盘读取数据）。<mark>块高速缓存只适用于数据进行顺序访问的情况</mark>，如果对数据进行随机访问，导致大量无效的缓存命中和未命中反而降低性能。</p>
+</li>
+</ul>
+<h3 id="Ext格式和目录存储以及文件缓存"><a href="#Ext格式和目录存储以及文件缓存" class="headerlink" title="Ext格式和目录存储以及文件缓存"></a>Ext格式和目录存储以及文件缓存</h3><ul>
+<li><p>Ext文件系统：基于磁盘的文件系统，支持多个磁盘分区和超过2TB的大容量磁盘，主要版本：Ex2&#x2F;Ex3&#x2F;Ex4</p>
+</li>
+<li><p>目录存储：指在文件系统中用于组织和存储文件的一种层次结构。在Linux系统当中，所有的文件都存放在根目录（&#x2F;）下或其子目录下 ，而这些目录则以特定方式组织起来，形成一个层次化的目录结构，Linux文件系统采用树形结构组织文件和目录。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/bin 可执行二进制文件</span><br><span class="line">/dev 设备文件</span><br><span class="line">/etc 配置文件</span><br><span class="line">/lib 库文件</span><br><span class="line">/tmp 临时文件 </span><br></pre></td></tr></table></figure>
+</li>
+<li><p>文件缓存： 系统将硬盘上的文件暂时存在内存当中以提高访问效率的一种机制。</p>
+<p>每一个inode结构与文件相关联所有元数据信息（创建事件，文件大小等)。 </p>
+<p>比如在实际应用：写操作时，也可以将需要写入硬盘数据暂存到页高速缓存当中，并延迟实际写入硬盘的事件（延迟写），提升性能和减少I&#x2F;O负载，当需要刷新缓存并将数据同步回到硬盘时，直接调用sync&#x2F;fsnc函数来完成。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/mount">mount identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mount</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_node</span> <span class="title">mnt_hash</span>;</span>                   <span class="comment">// 用于挂载点哈希表的链表节点</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mount</span> *<span class="title">mnt_parent</span>;</span>                     <span class="comment">// 指向父挂载点的指针</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">mnt_mountpoint</span>;</span>                <span class="comment">// 指向挂载点位置的目录入口（dentry）</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">vfsmount</span> <span class="title">mnt</span>;</span>                          <span class="comment">// 包含挂载文件系统相关信息的vfsmount结构体</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">rcu_head</span> <span class="title">mnt_rcu</span>;</span>                  <span class="comment">// 用于RCU（Read-Copy-Update）同步的链表头</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">llist_node</span> <span class="title">mnt_llist</span>;</span>              <span class="comment">// 用于延迟列表（llist）的链表节点</span></span><br><span class="line">    &#125;;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_SMP</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mnt_pcp</span> __<span class="title">percpu</span> *<span class="title">mnt_pcp</span>;</span>             <span class="comment">// 指向每个CPU的mnt_pcp结构体的指针（仅在多处理器系统中使用）</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">    <span class="type">int</span> mnt_count;                                <span class="comment">// 挂载点的引用计数</span></span><br><span class="line">    <span class="type">int</span> mnt_writers;                              <span class="comment">// 写入操作的计数器</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">mnt_mounts</span>;</span>                    <span class="comment">// 子挂载点列表的链表头</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">mnt_child</span>;</span>                    <span class="comment">// 与mnt_mounts链表相连的链表节点</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">mnt_instance</span>;</span>                <span class="comment">// 超级块的s_mounts链表上的挂载实例列表节点</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *mnt_devname;                        <span class="comment">// 设备名称，如 /dev/dsk/hda1</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">mnt_list</span>;</span>                    <span class="comment">// 全局挂载点列表的链表节点</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">mnt_expire</span>;</span>                    <span class="comment">// 特定文件系统的过期列表的链表节点</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">mnt_share</span>;</span>                   <span class="comment">// 共享挂载点的循环列表链表头</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">mnt_slave_list</span>;</span>              <span class="comment">// 从属挂载点的链表头</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">mnt_slave</span>;</span>                   <span class="comment">// 与mnt_slave_list链表相连的链表节点</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mount</span> *<span class="title">mnt_master</span>;</span>                     <span class="comment">// 指向主挂载点的指针，从属挂载点位于master-&gt;mnt_slave_list</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mnt_namespace</span> *<span class="title">mnt_ns</span>;</span>                 <span class="comment">// 包含此挂载点的命名空间</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mountpoint</span> *<span class="title">mnt_mp</span>;</span>                    <span class="comment">// 指向挂载点位置的mountpoint结构体</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">hlist_node</span> <span class="title">mnt_mp_list</span>;</span>            <span class="comment">// 具有相同挂载点的挂载列表链表节点</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">hlist_node</span> <span class="title">mnt_umount</span>;</span>             <span class="comment">// 用于卸载操作的链表节点</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">mnt_umounting</span>;</span>               <span class="comment">// 用于卸载传播的链表节点</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_FSNOTIFY</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fsnotify_mark_connector</span> __<span class="title">rcu</span> *<span class="title">mnt_fsnotify_marks</span>;</span> <span class="comment">// 指向文件系统通知标记的指针</span></span><br><span class="line">    __u32 mnt_fsnotify_mask;                      <span class="comment">// 文件系统通知的掩码</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="type">int</span> mnt_id;                                    <span class="comment">// 挂载点的唯一标识符</span></span><br><span class="line">    <span class="type">int</span> mnt_group_id;                            <span class="comment">// 同级挂载组的唯一标识符</span></span><br><span class="line">    <span class="type">int</span> mnt_expiry_mark;                            <span class="comment">// 如果已标记为过期，则为true</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_head</span> <span class="title">mnt_pins</span>;</span>                  <span class="comment">// 用于记录挂载点引脚的链表头</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_head</span> <span class="title">mnt_stuck_children</span>;</span>        <span class="comment">// 被卡住的子挂载点列表的链表头</span></span><br><span class="line">&#125; __randomize_layout;                           <span class="comment">// 使用内核的地址空间布局随机化（KASLR）特性，以增加安全性</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="文件系统数据结构"><a href="#文件系统数据结构" class="headerlink" title="文件系统数据结构"></a>文件系统数据结构</h2><h4 id="file-system-type"><a href="#file-system-type" class="headerlink" title="file_system_type"></a>file_system_type</h4><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/file_system_type">file_system_type identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">file_system_type</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name; <span class="comment">// 文件系统的名称</span></span><br><span class="line">    <span class="type">int</span> fs_flags; <span class="comment">// 文件系统的标识位</span></span><br><span class="line">    <span class="comment">// 文件系统标识位的定义</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> FS_REQUIRES_DEV         1  <span class="comment">// 文件系统需要一个设备</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> FS_BINARY_MOUNTDATA     2  <span class="comment">// 文件系统的挂载数据是二进制格式</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> FS_HAS_SUBTYPE          4  <span class="comment">// 文件系统具有子类型</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> FS_USERNS_MOUNT         8  <span class="comment">// 可以由用户命名空间的根目录挂载</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> FS_DISALLOW_NOTIFY_PERM 16 <span class="comment">// 禁止 fanotify 权限事件</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> FS_ALLOW_IDMAP          32 <span class="comment">// 文件系统已更新以处理 VFS ID 映射</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> FS_RENAME_DOES_D_MOVE   32768 <span class="comment">// 在 rename() 期间，文件系统将内部处理 d_move()</span></span></span><br><span class="line">    <span class="type">int</span> (*init_fs_context)(<span class="keyword">struct</span> fs_context *); <span class="comment">// 初始化文件系统上下文的函数指针</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">fs_parameter_spec</span> *<span class="title">parameters</span>;</span> <span class="comment">// 文件系统参数的指针</span></span><br><span class="line">    <span class="comment">// 挂载文件系统的函数指针</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *(*<span class="title">mount</span>) (<span class="keyword">struct</span> <span class="title">file_system_type</span> *, <span class="title">int</span>,</span></span><br><span class="line"><span class="class">               <span class="title">const</span> <span class="title">char</span> *, <span class="title">void</span> *);</span></span><br><span class="line">    <span class="type">void</span> (*kill_sb) (<span class="keyword">struct</span> super_block *); <span class="comment">// 销毁超级块的函数指针</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">module</span> *<span class="title">owner</span>;</span> <span class="comment">// 指向文件系统所属模块的指针</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file_system_type</span> * <span class="title">next</span>;</span> <span class="comment">// 指向下一个文件系统类型的指针</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_head</span> <span class="title">fs_supers</span>;</span> <span class="comment">// 用于存放文件系统超级块的哈希链表头</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 以下为各种锁的定义</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">lock_class_key</span> <span class="title">s_lock_key</span>;</span> <span class="comment">// 超级块锁的键</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">lock_class_key</span> <span class="title">s_umount_key</span>;</span> <span class="comment">// 卸载锁的键</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">lock_class_key</span> <span class="title">s_vfs_rename_key</span>;</span> <span class="comment">// VFS 重命名锁的键</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">lock_class_key</span> <span class="title">s_writers_key</span>[<span class="title">SB_FREEZE_LEVELS</span>];</span> <span class="comment">// 写入者锁的键数组</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">lock_class_key</span> <span class="title">i_lock_key</span>;</span> <span class="comment">// inode 锁的键</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">lock_class_key</span> <span class="title">i_mutex_key</span>;</span> <span class="comment">// inode 互斥量的键</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">lock_class_key</span> <span class="title">invalidate_lock_key</span>;</span> <span class="comment">// 使 inode 无效的锁的键</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">lock_class_key</span> <span class="title">i_mutex_dir_key</span>;</span> <span class="comment">// 目录 inode 互斥量的键</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>file_system_type用来描述各种特定文件系统类型。每种文件系统，不管有多少个实例安装到系统中，还是根本没有安装到系统中，都只有一个file_system结构。</p>
+<p>name保存了文件系统的名称，是一个字符串（因此包含了例如reiserfs、ext3等类似的值）。fs_flags是使用的标志，例如标明只读装载、禁止setuid&#x2F;setgid操作或进行其他的微调。owner是一个指向module结构的指针，仅当文件系统以模块形式加载时，owner才包含有意义的值（NULL指针表示文件系统已经持久编译到内核中）。各个可用的文件系统通过next成员连接起来，这里无法利用标准的链表功能，因为这是一个单链表。</p>
+<h4 id="vfsmount"><a href="#vfsmount" class="headerlink" title="vfsmount"></a>vfsmount</h4><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/vfsmount">vfsmount identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">vfsmount</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">mnt_root</span>;</span>       <span class="comment">// 指向已挂载文件系统树的根目录入口（dentry结构体）</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">super_block</span> *<span class="title">mnt_sb</span>;</span>    <span class="comment">// 指向与已挂载文件系统关联的超级块（super_block结构体）</span></span><br><span class="line">    <span class="type">int</span> mnt_flags;                 <span class="comment">// 挂载标志，表示挂载时的选项，如只读、异步等</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mnt_idmap</span> *<span class="title">mnt_idmap</span>;</span>   <span class="comment">// 指向一个mnt_idmap结构体，用于存储用户和组ID的映射关系（仅在某些文件系统中使用，如NFS）</span></span><br><span class="line">&#125; __randomize_layout;             <span class="comment">// 使用内核的地址空间布局随机化（KASLR）特性，以增加安全性</span></span><br></pre></td></tr></table></figure>
+
+<p>当文件系统被实际安装到系统中，将有一个vfsmount结构体在安装点被创建，该结构体用来代表文件系统的实例-换句话说，代表一个安装点。理清文件系统和所有其他安装点之间的关系，是维护所有安装点链表中最复杂的工作。所以vfsmount结构体中维护的各种链表就是为了能够跟踪这些关联信息。文件系统本身的相对根目录所对应的dentry保存在mnt_root中。mnt_sb指针建立了与相关的超级块之间的关联（对每个装载的文件系统而言，都有且只有一个超级块实例）。在nmt_flags可以设置各种独立于文件系统的标志。</p>
+<h3 id="vfs命名空间"><a href="#vfs命名空间" class="headerlink" title="vfs命名空间"></a>vfs命名空间</h3><p>VFS<strong>命名空间</strong>是所有已经装载、构成某个容器目录树的文件系统的集合。</p>
+<p>通常调用fork或clone建立的进程会继承其父进程的命名空间。但可以设置CLONE_NEWNS标志，以建立一个新的VFS命名空间（在下文中，我不再区分VFS命名空间和命名空间，当然内核也提供了非VFS的命名空间。如果修改新的命名空间，改变不会传播到属于不同命名空间的进程。对其他命名空间的改变也不会影响新的命名空间。</p>
+<p>struct task_struct包含的成员nsproxy，该成员负责命名空间的处理。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/nsproxy">nsproxy identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * 一个结构体,包含指向每个进程命名空间的指针 </span></span><br><span class="line"><span class="comment"> * - fs(挂载),uts,网络,sysvipc 等。</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * pid 命名空间是一个例外 - 它通过 task_active_pid_ns 访问。</span></span><br><span class="line"><span class="comment"> * 这里的 pid 命名空间是子进程将使用的命名空间。</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &#x27;count&#x27; 是持有引用的任务数。</span></span><br><span class="line"><span class="comment"> * 因此,每个命名空间的计数将是指向它的 nsproxy 数,而不是任务数。</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * nsproxy 由共享所有命名空间的任务共享。</span></span><br><span class="line"><span class="comment"> * 一旦单个命名空间被克隆或取消共享,nsproxy 就会被复制。</span></span><br><span class="line"><span class="comment"> */</span>  </span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">nsproxy</span> &#123;</span>   </span><br><span class="line">    <span class="type">atomic_t</span> count;   <span class="comment">/*原子计数器*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">uts_namespace</span> *<span class="title">uts_ns</span>;</span>     <span class="comment">/*UTS命名空间结构体指针*/</span>    </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ipc_namespace</span> *<span class="title">ipc_ns</span>;</span>    <span class="comment">/*IPC命名空间结构体指针*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mnt_namespace</span> *<span class="title">mnt_ns</span>;</span>    <span class="comment">/*挂载命名空间结构体指针*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pid_namespace</span> *<span class="title">pid_ns_for_children</span>;</span>   </span><br><span class="line">                                       <span class="comment">/*子进程使用的PID命名空间结构体指针*/</span>   </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">net</span>          *<span class="title">net_ns</span>;</span>     <span class="comment">/*网络命名空间结构体指针*/</span>    </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">time_namespace</span> *<span class="title">time_ns</span>;</span>      <span class="comment">/*时间命名空间结构体指针*/</span>    </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">time_namespace</span> *<span class="title">time_ns_for_children</span>;</span> </span><br><span class="line">                                    <span class="comment">/*子进程使用的时间命名空间结构体指针*/</span>                  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_namespace</span> *<span class="title">cgroup_ns</span>;</span>   <span class="comment">/*cgroup命名空间结构体指针*/</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">extern</span> <span class="class"><span class="keyword">struct</span> <span class="title">nsproxy</span> <span class="title">init_nsproxy</span>;</span>        <span class="comment">/*外部变量:初始的nsproxy*/</span></span><br></pre></td></tr></table></figure>
+
+<p>实现VFS命名空间所需信息的数量相对很少：</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/C/ident/mnt_namespace">mnt_namespace identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mnt_namespace</span> &#123;</span>  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ns_common</span>    <span class="title">ns</span>;</span>  <span class="comment">/*命名空间通用结构*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mount</span> *    <span class="title">root</span>;</span> <span class="comment">/*根挂载点指针*/</span></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * 遍历和修改 .list 是通过两种方式保护的:</span></span><br><span class="line"><span class="comment">     * - 以写方式获取namespace_sem, 或者</span></span><br><span class="line"><span class="comment">     * - 以读方式获取namespace_sem AND 获取 .ns_lock.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">list</span>;</span>     <span class="comment">/*链表头*/</span></span><br><span class="line">    <span class="type">spinlock_t</span>        ns_lock;   <span class="comment">/*自旋锁*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_namespace</span>    *<span class="title">user_ns</span>;</span>   <span class="comment">/*用户命名空间指针*/</span> </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ucounts</span>        *<span class="title">ucounts</span>;</span> <span class="comment">/*引用计数器*/</span></span><br><span class="line">    u64            seq;        <span class="comment">/*序列号,用于防止循环*/</span></span><br><span class="line">    <span class="type">wait_queue_head_t</span> poll;   <span class="comment">/*等待队列头*/</span></span><br><span class="line">    u64 event;  </span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>        mounts;   <span class="comment">/*命名空间中的挂载数*/</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>        pending_mounts; <span class="comment">/*待定挂载数*/</span>  </span><br><span class="line">&#125; __randomize_layout;  <span class="comment">/*随机布局*/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="进程相关数据结构"><a href="#进程相关数据结构" class="headerlink" title="进程相关数据结构"></a>进程相关数据结构</h2><p>系统中的每一个进程都有自己的一组打开的文件，像根文件系统，当前工作目录，安装点等。有三个数据结构将VFS层和系统的进程紧密联系在一起，它们分别是：files_struct、fs_struct、namespace结构体。</p>
+<p>文件描述符（就是整数）用于在一个进程内唯一地标识打开的文件。这假定了内核能够在用户进程中的描述符和内核内部使用的结构之间，建立一种关联。每个进程的task_struct中包含了用于完成该工作的成员。</p>
+<h3 id="task-struct"><a href="#task-struct" class="headerlink" title="task_struct"></a>task_struct</h3><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/task_struct">task_struct identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> &#123;</span></span><br><span class="line">...</span><br><span class="line"><span class="comment">/* 文件系统信息 */</span></span><br><span class="line"><span class="type">int</span> link_count, total_link_count;</span><br><span class="line">...</span><br><span class="line"><span class="comment">/* 文件系统信息 */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">fs_struct</span> *<span class="title">fs</span>;</span></span><br><span class="line"><span class="comment">/* 打开文件信息 */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">files_struct</span> *<span class="title">files</span>;</span></span><br><span class="line"><span class="comment">/* 命名空间 */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">nsproxy</span> *<span class="title">nsproxy</span>;</span></span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>文件描述符（就是整数）用于在一个进程内唯一地标识打开的文件。这假定了内核能够在用户进程中的描述符和内核内部使用的结构之间，建立一种关联。每个进程的task_struct中包含了用于完成该工作的成员。</p>
+<p>进程的文件系统相关数据保存在fs中。这些数据包含，例如当前工作目录和chroot限制有关的信息。整数成员link_count和total_link_count用于在查找环形链表时防止无限循环。</p>
+<p>由于内核允许同时运行多个模仿独立系统的容器，从容器角度看似“全局”的每个资源，都由内核包装起来，分别根据每个容器进行管理。虚拟文件系统也受到影响，因为各个容器可能因装载点的不同导致不同的目录层次结构。对应的信息包含在ns_proxy-&gt;mnt_namespace中。</p>
+<h3 id="files-struct"><a href="#files-struct" class="headerlink" title="files_struct"></a>files_struct</h3><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/files_struct">files_struct identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*  </span></span><br><span class="line"><span class="comment"> * 打开的文件表结构 </span></span><br><span class="line"><span class="comment"> */</span>  </span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">files_struct</span> &#123;</span></span><br><span class="line"> <span class="comment">/*  </span></span><br><span class="line"><span class="comment"> *  主要读取部分</span></span><br><span class="line"><span class="comment"> */</span>  </span><br><span class="line">    <span class="type">atomic_t</span> count;           <span class="comment">//原子计数器，共享该表的进程数目  </span></span><br><span class="line">    <span class="type">bool</span> resize_in_progress;   <span class="comment">//重新调整进度  </span></span><br><span class="line">    <span class="type">wait_queue_head_t</span> resize_wait; <span class="comment">//等待重新调整队列  </span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fdtable</span> __<span class="title">rcu</span> *<span class="title">fdt</span>;</span>   <span class="comment">//文件描述符表  </span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fdtable</span> <span class="title">fdtab</span>;</span>   </span><br><span class="line">  <span class="comment">/*  </span></span><br><span class="line"><span class="comment">   * SMP上单独的缓存线中的写入部分</span></span><br><span class="line"><span class="comment"> */</span>  </span><br><span class="line">    <span class="type">spinlock_t</span> file_lock ____cacheline_aligned_in_smp; <span class="comment">//文件锁  </span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> next_fd;       <span class="comment">//下一个文件描述符</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> close_on_exec_init[<span class="number">1</span>]; <span class="comment">//执行时关闭的初始化  </span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> open_fds_init[<span class="number">1</span>];   <span class="comment">//打开的文件描述符初始化 </span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> full_fds_bits_init[<span class="number">1</span>]; <span class="comment">//完整文件描述符位的初始化</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file</span> __<span class="title">rcu</span> * <span class="title">fd_array</span>[<span class="title">NR_OPEN_DEFAULT</span>];</span> <span class="comment">//文件描述符数组  </span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>next_fd表示下一次打开新文件时使用的文件描述符。close_on_exec_init和open_fds_init是位图。对执行exec时将关闭的所有文件描述符，在close_on_exec中对应的比特位都将置位。open_fds_init是最初的文件描述符集合。</p>
+<p>fd_array的每个数组项都是一个指针，指向每个打开文件的struct file实例，稍后我会讨论该结构。默认情况下，内核允许每个进程打开NR_OPEN_DEFAULT个文件。该值定义在<a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/NR_OPEN_DEFAULT">NR_OPEN_DEFAULT identifier - Linux source code (v6.3.8) - Bootlin</a>中，默认值为BITS_PER_LONG。因此在32位系统上，允许打开文件的初始数目是32。64位系统可以同时处理64个文件。如果一个进程试图同时打开更多的文件，内核必须对files_struct中用于管理与进程相关的所有文件信息的各个成员，分配更多的内存空间。最重要的信息包含在fdtab中。内核为此定义了另一个数据结构fdtable。</p>
+<h3 id="fdtable"><a href="#fdtable" class="headerlink" title="fdtable"></a>fdtable</h3><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/C/ident/fdtable">fdtable identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">fdtable</span> &#123;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> max_fds;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file</span> __<span class="title">rcu</span> **<span class="title">fd</span>;</span>      <span class="comment">/* current fd array */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> *close_on_exec;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> *open_fds;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> *full_fds_bits;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rcu_head</span> <span class="title">rcu</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>struct files_struct中包含了该结构的一个实例和指向一个实例的指针，因为这里使用了RCU机制以便在无需锁定的情况下读取这些数据结构，这可以加速处理。在讨论具体的做法前，我们需要介绍各个成员的语义。</p>
+<p>max_fds指定了进程当前可以处理的文件对象和文件描述符的最大数目。这里没有固有的上限，因为这两个值都可以在必要时增加（只要没有超出由Rlimit指定的值，但这与文件结构无关）。尽管内核使用的文件对象和文件描述符的数目总是相同的，但必须定义不同的最大数目。这归因于管理相关数据结构的方法。我会在下文解释这一点，但首先必须阐明该结构剩余成员的语义。</p>
+<ul>
+<li><p>fd是一个指针数组，每个数组项指向一个file结构的实例，管理一个打开文件的所有信息。用户空间进程的文件描述符充当数组索引。该数组当前的长度由max_fds定义。</p>
+</li>
+<li><p>open_fds是一个指向位域的指针，该位域管理着当前所有打开文件的描述符。每个可能的文件描述符都对应着一个比特位。如果该比特位置位，则对应的文件描述符处于使用中；否则该描述符未使用。当前比特位置的最大数目由max_fdset指定。</p>
+</li>
+<li><p>close_on_exec也是一个指向位域的指针，该位域保存了所有在exec系统调用时将要关闭的文件描述符的信息。</p>
+</li>
+</ul>
+<h3 id="fs-struct"><a href="#fs-struct" class="headerlink" title="fs_struct"></a>fs_struct</h3><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/fs_struct">fs_struct identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">fs_struct</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> users;</span><br><span class="line">    <span class="type">spinlock_t</span> lock;</span><br><span class="line">    <span class="type">seqcount_spinlock_t</span> seq;</span><br><span class="line">    <span class="type">int</span> umask;</span><br><span class="line">    <span class="type">int</span> in_exec;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">path</span> <span class="title">root</span>, <span class="title">pwd</span>;</span></span><br><span class="line">&#125; __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="虚拟文件系统机制原理"><a href="#虚拟文件系统机制原理" class="headerlink" title="虚拟文件系统机制原理"></a>虚拟文件系统机制原理</h2><p>Linux内核当中负责管理和存储文件的模块，即文件系统模块。Linux文件系统的架构视图（用户空间、内核空间、硬件层面）</p>
+<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/文件系统架构.png" title alt data-align="center">
+
+<ul>
+<li><p>挂载执行命令：<code>mount -t fstype device dir</code></p>
+</li>
+<li><p>卸载执行命令：<code>umount</code></p>
+</li>
+</ul>
+<p>当我们写文件时，Linux内核系统模块会把数据保存在页缓存当中，不会立刻写到存储设备。使用<code>fsync</code>把文件修改过的属性和数据立即写到存储设备，使用<code>fsync</code>把文件修改过的属性和数据立即写到存储设备，或者使用<code>fdatasync</code>把文件修改过的数据理解写到存储设备。</p>
+<p>我们应用程序可以使用glibc库封装的I&#x2F;O来访问文件（提供缓冲区，目的是尽可能减少调用read&#x2F;write的次数，提高性能）</p>
+<hr>
+<p>硬件层面：块设备（机械硬盘）、闪存（SSD）、NVDIMM设备。NOR闪存适合存储程序（一般情况下存储引导程序，U-Boot程序）。NAND闪存适合存储数据。</p>
+<p>为什么要针对闪存专门设计文件系统？</p>
+<ul>
+<li><p>NAND存在坏块，软件需要识别且跳过坏块。</p>
+</li>
+<li><p>需要实现损耗均衡，损耗均衡就是使所有擦除块的擦除次数均衡，避免一部分擦除快先损坏。</p>
+</li>
+</ul>
+<p>NAND闪存和机械硬盘的主要区别：</p>
+<ul>
+<li><p>机械硬盘最小读写单位为扇区，扇区大小一般为512字节；NAND闪存最小读写单位是页或子页。</p>
+</li>
+<li><p>机械硬盘可以直接写入数据；NAND在写入数据之前需要擦除一个擦除块。</p>
+</li>
+<li><p>机械硬盘的使用寿命比NAND闪存长；机械硬盘的扇区的写入次数没有限制；NAND闪存擦除快的擦除次数有限。</p>
+</li>
+<li><p>机械硬盘隐藏坏的扇区，软件不需要处理坏的扇区；NAND闪存的坏块对软件可见，软件需要处理坏块。</p>
+</li>
+</ul>
+<hr>
+<p>Linux内核空间层面：Linux内核的目录fs（内核支持多种文件系统类型）。为了不同文件系统实现能够共存，内核实现一个抽象层（称为虚拟文件系统）。文件系统分类：块设备文件系统（ext2&#x2F;3&#x2F;4、btrfs）、闪存文件系统（JFFS2、UBIFS）、内存文件系统（tmpfs）、伪文件系统（sockfs、proc、sysfs、hugetlbfs、cgroup)。</p>
+<p>避免每次读写都需要访问块设备，内核实现块缓存，为每个块设备在内存中创建一个块缓存，缓存单位为块，块缓存基于页缓存实现。I&#x2F;O调度器用来决定读写请求的提交顺序，不同场景提供多种调度算法：NOOP（适合闪存类设备）、CFQ，Deadline（后两个适合机械硬盘）。</p>
+<p>Linux内核把闪存称为存储技术设备（MTD）</p>
+<hr>
+<p>虚拟文件系统（VFS）数据结构：超级块(super_block)、索引节点(inode)(每个文件对应一个索引节点，每个索引节点有一个唯一的编号）、目录项(dentry)。</p>
+<p>当进程打开一个文件时，虚拟文件系统就会创建文件的一个打开实例（file数据结构）。文件系统的第一块是超级块（super_block)</p>
+<hr>
+<p>挂载描述符：一个文件系统，只有挂载到内存当中目录树的 一个目录下，进程才能够访问这个文件系统。每次挂载文件系统，虚拟文件系统就会创建一个挂载描述符：mount结构体。挂载描述符用来描述文件系统的一个挂载实例，同一个存储设备上的文件系统可以多次挂载，每次挂载到不同的目录下。mount结构体。</p>
+<hr>
+<h2 id="文件系统安装"><a href="#文件系统安装" class="headerlink" title="文件系统安装"></a>文件系统安装</h2><p>在使用一个文件系统之前，必须执行两个操作：注册和安装。</p>
+<p>或者在系统启动时，或者在安装某个文件系统的模块时，都需要进行注册。一旦一个文件系统完成注册，那么它具体的函数对内核就是可用的了，因此，这个文件系统就可以安装在系统的目录树上。在文件系统注册到内核时，文件系统是编译为模块，或者持久编译到内核中，都没有差别。如果不考虑注册的时间（持久编译到内核的文件系统在启动时注册，模块化文件系统在相关模块载入内核时注册），在两种情况下所用的技术方法是同样的。</p>
+<p>每个文件系统都有它自己的根目录，如果某文件系统的根目录时系统目录树的根，那么该文件系统称为根文件系统。而其他文件系统可以安装到系统的目录树上，把这些文件系统要插入的那些目录就成为安装点（mount point）。</p>
+<h3 id="注册文件系统"><a href="#注册文件系统" class="headerlink" title="注册文件系统"></a>注册文件系统</h3><p>在系统初始化期间，Linux v2.6调用函数filesystem_setup()来注册编译时指定的文件系统，而在最新版本的Linux中这个函数由其他函数替代。通过module_init()和相应的init_xxx_fs()函数来实现文件系统的注册。</p>
+<p>对于每个不同类型的文件系统，以指向file_system_type类型的某个对象作为参数来调用register_filesystem()函数，因此，该对象就被插入到文件系统类型的链表中。</p>
+<p>当某个文件系统的模块被装入时，也要调用register_filesystem()函数。在这种情况下，当该模块被卸载时，对应的文件系统也可以被注销（调用unregister_filesystem()函数）。</p>
+<p>get_fs_type()函数（接受一个文件系统名作为它的参数）扫描已注册的文件系统链表，并返回指向相应的file_system_type对象的指针（如果存在）。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/get_fs_type">get_fs_type identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> file_system_type *<span class="title function_">get_fs_type</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *name)</span>  </span><br><span class="line">&#123;                       <span class="comment">//根据文件系统名称获取文件系统类型</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file_system_type</span> *<span class="title">fs</span>;</span>  </span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *dot = <span class="built_in">strchr</span>(name, <span class="string">&#x27;.&#x27;</span>); <span class="comment">//查找点号</span></span><br><span class="line">    <span class="type">int</span> len = dot ? dot - name : <span class="built_in">strlen</span>(name);  <span class="comment">//获取文件系统类型名称的长度</span></span><br><span class="line"></span><br><span class="line">    fs = __get_fs_type(name, len);   <span class="comment">//根据名称和长度获取文件系统类型</span></span><br><span class="line">    <span class="keyword">if</span> (!fs &amp;&amp; (request_module(<span class="string">&quot;fs-%.*s&quot;</span>, len, name) == <span class="number">0</span>)) &#123;  </span><br><span class="line">                                   <span class="comment">//如果获取不到,加载文件系统模块</span></span><br><span class="line">        fs = __get_fs_type(name, len);  <span class="comment">//再次获取文件系统类型</span></span><br><span class="line">        <span class="keyword">if</span> (!fs)  </span><br><span class="line">            pr_warn_once(<span class="string">&quot;request_module fs-%.*s succeeded, but still no fs?\n&quot;</span>,   <span class="comment">//如果还是获取不到,打印警告信息</span></span><br><span class="line">                     len, name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (dot &amp;&amp; fs &amp;&amp; !(fs-&gt;fs_flags &amp; FS_HAS_SUBTYPE)) &#123;  <span class="comment">//如果文件系统名称包含点号,且文件系统类型不支持子类型</span></span><br><span class="line">        put_filesystem(fs); <span class="comment">//释放文件系统类型  </span></span><br><span class="line">        fs = <span class="literal">NULL</span>; <span class="comment">//设置为NULL</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> fs;  <span class="comment">//返回文件系统类型</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>加载文件系统模块（如 ext4），并调用文件系统的注册函数。在注册函数中，需要提供一个指向 <code>file_system_type</code> 结构体的指针，该结构体包含文件系统的基本信息和操作指针。</p>
+<ul>
+<li><p>文件系统可以以两种方式存在于操作系统中：内建于内核中或作为可加载模块。内建文件系统直接编译进内核，而作为模块的文件系统可以在运行时动态加载。这种模块化设计可以节省内核空间和提高运行效率，因为只有在需要使用特定文件系统时，对应的模块才会被加载。</p>
+</li>
+<li><p>内建于内核的文件系统意味着文件系统的实现代码直接编译进内核二进制文件，而不是作为模块动态加载。内建文件系统在内核启动时就已经可用，不需要额外的加载过程。这种方式适用于一些基本或常用的文件系统，如 <code>ext4</code>、<code>proc</code> 、<code>tmpfs</code>等。</p>
+</li>
+</ul>
+</li>
+<li><p>使用 <code>register_filesystem()</code> 函数注册新的文件系统，将其添加到 VFS 支持的文件系统列表中。</p>
+</li>
+<li><p>当需要挂载该文件系统时（例如，通过 <code>mount</code> 命令），VFS 将调用 <code>file_system_type</code> 结构体中的 <code>mount</code> 函数指针。这将触发读取设备的超级块数据并创建一个对应的 VFS <code>super_block</code> 结构体实例。这个实例包含了该文件系统的类型、状态、操作等信息。</p>
+</li>
+</ol>
+<hr>
+<p><strong>以tmpfs文件系统为例</strong></p>
+<ul>
+<li><p>当内核启动时，会执行<code>shmem_init</code>函数（定义在<code>mm/shmem.c</code>文件中）。这个函数会调用<code>register_filesystem</code>注册tmpfs文件系统。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.6/C/ident/shmem_init">shmem_init identifier - Linux source code (v6.3.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __init <span class="title function_">shmem_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="comment">// 初始化 inode 缓存</span></span><br><span class="line">shmem_init_inodecache();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 注册 tmpfs 文件系统</span></span><br><span class="line"><span class="type">int</span> error = register_filesystem(&amp;shmem_fs_type);</span><br><span class="line"><span class="keyword">if</span> (error) &#123;</span><br><span class="line">    <span class="comment">// 若注册失败，打印错误信息</span></span><br><span class="line">    pr_err(<span class="string">&quot;Could not register tmpfs\n&quot;</span>);</span><br><span class="line">    <span class="comment">// 跳转到 out2，执行清理操作</span></span><br><span class="line">    <span class="keyword">goto</span> out2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 尝试挂载 tmpfs 文件系统</span></span><br><span class="line">shm_mnt = kern_mount(&amp;shmem_fs_type);</span><br><span class="line"><span class="keyword">if</span> (IS_ERR(shm_mnt)) &#123;</span><br><span class="line">    <span class="comment">// 若挂载失败，获取错误代码</span></span><br><span class="line">    error = PTR_ERR(shm_mnt);</span><br><span class="line">    <span class="comment">// 打印错误信息</span></span><br><span class="line">    pr_err(<span class="string">&quot;Could not kern_mount tmpfs\n&quot;</span>);</span><br><span class="line">    <span class="comment">// 跳转到 out1，执行清理操作</span></span><br><span class="line">    <span class="keyword">goto</span> out1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_TRANSPARENT_HUGEPAGE</span></span><br><span class="line"><span class="comment">// 如果支持透明巨页，且巨页设置不为禁用，设置巨页选项</span></span><br><span class="line"><span class="keyword">if</span> (has_transparent_hugepage() &amp;&amp; shmem_huge &gt; SHMEM_HUGE_DENY)</span><br><span class="line">    SHMEM_SB(shm_mnt-&gt;mnt_sb)-&gt;huge = shmem_huge;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="comment">// 否则，将巨页设置为永不使用，以防万一</span></span><br><span class="line">    shmem_huge = SHMEM_HUGE_NEVER;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 成功执行，函数返回</span></span><br><span class="line"><span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">out1:</span><br><span class="line"><span class="comment">// 清理操作：注销 tmpfs 文件系统</span></span><br><span class="line">unregister_filesystem(&amp;shmem_fs_type);</span><br><span class="line"></span><br><span class="line">out2:</span><br><span class="line"><span class="comment">// 清理操作：销毁 inode 缓存</span></span><br><span class="line">shmem_destroy_inodecache();</span><br><span class="line"><span class="comment">// 设置 shm_mnt 为错误指针，表示初始化失败</span></span><br><span class="line">shm_mnt = ERR_PTR(error);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>shmem_fs_type</code>是一个<code>file_system_type</code>结构体，定义了tmpfs文件系统的基本信息。在这个结构体中，<code>init_fs_context</code>成员被设置为<code>shmem_init_fs_context</code>。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.6/C/ident/shmem_fs_type">shmem_fs_type identifier - Linux source code (v6.3.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_system_type</span> <span class="title">shmem_fs_type</span> =</span> &#123;</span><br><span class="line">.owner          = THIS_MODULE, <span class="comment">// 指定文件系统模块的所有者</span></span><br><span class="line">.name           = <span class="string">&quot;tmpfs&quot;</span>, <span class="comment">// 文件系统的名称</span></span><br><span class="line">.init_fs_context = shmem_init_fs_context, <span class="comment">// 初始化文件系统上下文的回调函数</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_TMPFS</span></span><br><span class="line">.parameters     = shmem_fs_parameters, <span class="comment">// 指定文件系统的挂载参数解析回调</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">.kill_sb        = kill_litter_super, <span class="comment">// 用于销毁超级块的回调函数</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_SHMEM</span></span><br><span class="line">.fs_flags       = FS_USERNS_MOUNT | FS_ALLOW_IDMAP, <span class="comment">// 文件系统的标志（支持用户命名空间挂载和ID映射）</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">.fs_flags       = FS_USERNS_MOUNT, <span class="comment">// 文件系统的标志（仅支持用户命名空间挂载）</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>当一个新的文件系统需要被支持时，它需要使用 <code>register_filesystem()</code> 函数将自己注册到 VFS。这样，VFS 就可以识别和处理这个新的文件系统。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.6/C/ident/register_filesystem">register_filesystem identifier - Linux source code (v6.3.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *    register_filesystem - 注册一个新的文件系统</span></span><br><span class="line"><span class="comment"> *    @fs: 文件系统结构体</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *    将传入的文件系统添加到内核已知的文件系统列表中，供挂载和其他系统调用使用。</span></span><br><span class="line"><span class="comment"> *    成功时返回0，出错时返回一个负的errno错误码。</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *    传入的 &amp;struct file_system_type 结构体将链接到内核结构中，</span></span><br><span class="line"><span class="comment"> *    在文件系统未注销之前，不应该被释放。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">register_filesystem</span><span class="params">(<span class="keyword">struct</span> file_system_type * fs)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> res = <span class="number">0</span>; <span class="comment">// 初始化结果为0，表示成功</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file_system_type</span> ** <span class="title">p</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查文件系统参数是否有效</span></span><br><span class="line">    <span class="keyword">if</span> (fs-&gt;parameters &amp;&amp;</span><br><span class="line">        !fs_validate_description(fs-&gt;name, fs-&gt;parameters))</span><br><span class="line">        <span class="keyword">return</span> -EINVAL;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查文件系统名称中是否包含非法字符 &#x27;.&#x27;</span></span><br><span class="line">    BUG_ON(<span class="built_in">strchr</span>(fs-&gt;name, <span class="string">&#x27;.&#x27;</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查文件系统是否已经链接到其他文件系统</span></span><br><span class="line">    <span class="keyword">if</span> (fs-&gt;next)</span><br><span class="line">        <span class="keyword">return</span> -EBUSY;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取 file_systems_lock 写锁，以保护 file_systems 链表</span></span><br><span class="line">    write_lock(&amp;file_systems_lock);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 查找具有相同名称的文件系统</span></span><br><span class="line">    p = find_filesystem(fs-&gt;name, <span class="built_in">strlen</span>(fs-&gt;name));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果找到了具有相同名称的文件系统，返回 -EBUSY</span></span><br><span class="line">    <span class="keyword">if</span> (*p)</span><br><span class="line">        res = -EBUSY;</span><br><span class="line">    <span class="keyword">else</span> <span class="comment">// 否则，将新的文件系统链接到 file_systems 链表中</span></span><br><span class="line">        *p = fs;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 释放 file_systems_lock 写锁</span></span><br><span class="line">    write_unlock(&amp;file_systems_lock);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回结果</span></span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">EXPORT_SYMBOL(register_filesystem); <span class="comment">// 导出 register_filesystem 符号，供其他模块使用k);</span></span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="安装根文件系统"><a href="#安装根文件系统" class="headerlink" title="安装根文件系统"></a>安装根文件系统</h3><p>安装根文件系统是系统初始化的关键部分。当系统启动时，就要在变量ROOT_DEV中寻找包含根文件系统的磁盘主码。当编译内核或向最初的启动装入程序传递一个合适的选项时，根文件系统可以被指定为&#x2F;dev目录下的一个设备文件。类似地，根文件系统的安装标志存放在root_mountflags变量中。用户可以指定这些标志，这是通过对已编译的内核映像使用&#x2F;sbin&#x2F;rdev外部程序，或者向最初的启动装入程序传递一个合适的选项来达到的。</p>
+<p>在系统初始化期间，mount_root()安装根文件系统。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/mount_root">mount_root identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __init <span class="title function_">mount_root</span><span class="params">(<span class="type">void</span>)</span>  </span><br><span class="line">&#123;  </span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_ROOT_NFS   </span></span><br><span class="line">    <span class="comment">// 如果根文件系统位于 NFS 上,尝试挂载 NFS 根文件系统  </span></span><br><span class="line">    <span class="keyword">if</span> (ROOT_DEV == Root_NFS) &#123;     </span><br><span class="line">        <span class="keyword">if</span> (!mount_nfs_root())         </span><br><span class="line">            printk(KERN_ERR <span class="string">&quot;VFS: Unable to mount root fs via NFS.\n&quot;</span>);     </span><br><span class="line">        <span class="keyword">return</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"><span class="meta">#<span class="keyword">endif</span>  </span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_CIFS_ROOT   </span></span><br><span class="line">    <span class="comment">// 如果根文件系统位于 CIFS(SMB) 上,尝试挂载 CIFS 根文件系统  </span></span><br><span class="line">    <span class="keyword">if</span> (ROOT_DEV == Root_CIFS) &#123;     </span><br><span class="line">        <span class="keyword">if</span> (!mount_cifs_root())         </span><br><span class="line">            printk(KERN_ERR <span class="string">&quot;VFS: Unable to mount root fs via SMB.\n&quot;</span>);     </span><br><span class="line">        <span class="keyword">return</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"><span class="meta">#<span class="keyword">endif</span>  </span></span><br><span class="line">    <span class="keyword">if</span> (ROOT_DEV == <span class="number">0</span> &amp;&amp; root_device_name &amp;&amp; root_fs_names) &#123;   </span><br><span class="line">        <span class="comment">// 如果根设备为空(0),并且命令行指定了根设备名和根文件系统类型,  </span></span><br><span class="line">        <span class="comment">// 尝试挂载一个无块设备的根文件系统(如 initramfs)。  </span></span><br><span class="line">        <span class="keyword">if</span> (mount_nodev_root() == <span class="number">0</span>)     </span><br><span class="line">            <span class="keyword">return</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_BLOCK    </span></span><br><span class="line">    &#123;      </span><br><span class="line">        <span class="comment">// 为根块设备创建一个 /dev/root 节点    </span></span><br><span class="line">        <span class="type">int</span> err = create_dev(<span class="string">&quot;/dev/root&quot;</span>, ROOT_DEV);     </span><br><span class="line">        <span class="keyword">if</span> (err &lt; <span class="number">0</span>)         </span><br><span class="line">            pr_emerg(<span class="string">&quot;Failed to create /dev/root: %d\n&quot;</span>, err);      </span><br><span class="line">        <span class="comment">// 使用 /dev/root 和指定的挂载标志来挂载块设备根文件系统  </span></span><br><span class="line">        mount_block_root(<span class="string">&quot;/dev/root&quot;</span>, root_mountflags);  </span><br><span class="line">    &#125;  </span><br><span class="line"><span class="meta">#<span class="keyword">endif</span>  </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装一个普通的文件系统"><a href="#安装一个普通的文件系统" class="headerlink" title="安装一个普通的文件系统"></a>安装一个普通的文件系统</h3><p>一旦完成对根文件系统的初始化，就可以安装其他的文件系统。其中的每一个都有自己的安装点，安装点仅仅是系统目录树中现有的一个目录。</p>
+<h2 id="操作文件"><a href="#操作文件" class="headerlink" title="操作文件"></a>操作文件</h2><h3 id="查找inode"><a href="#查找inode" class="headerlink" title="查找inode"></a><mark>查找inode</mark></h3><p>一个主要操作是根据给定的文件名查找inode，这使得我们首先需要了解有关查找该信息的机制。</p>
+<p>nameidata结构体用来查找函数传递参数数，并保存查找结果。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/nameidata">nameidata identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> EMBEDDED_LEVELS 2</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">nameidata</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">path</span> <span class="title">path</span>;</span> <span class="comment">// 路径对象，表示路径</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">qstr</span> <span class="title">last</span>;</span> <span class="comment">// 最后的路径组件</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">path</span> <span class="title">root</span>;</span> <span class="comment">// 文件系统的根路径</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">inode</span>;</span> <span class="comment">// 指向路径中的目录项的节点 (path.dentry.d_inode)</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> flags, state; <span class="comment">// 标志位和状态</span></span><br><span class="line">    <span class="type">unsigned</span> seq, next_seq, m_seq, r_seq; <span class="comment">// 用于序列号的变量</span></span><br><span class="line">    <span class="type">int</span> last_type; <span class="comment">// 最后路径组件的类型</span></span><br><span class="line">    <span class="type">unsigned</span> depth; <span class="comment">// 链接深度</span></span><br><span class="line">    <span class="type">int</span> total_link_count; <span class="comment">// 总的链接数</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">saved</span> &#123;</span> <span class="comment">// 保存结构，用于链接跟踪</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">path</span> <span class="title">link</span>;</span> <span class="comment">// 链接路径</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">delayed_call</span> <span class="title">done</span>;</span> <span class="comment">// 延迟调用</span></span><br><span class="line">        <span class="type">const</span> <span class="type">char</span> *name; <span class="comment">// 链接名称</span></span><br><span class="line">        <span class="type">unsigned</span> seq; <span class="comment">// 序列号</span></span><br><span class="line">    &#125; *<span class="built_in">stack</span>, internal[EMBEDDED_LEVELS]; <span class="comment">// 保存结构的栈和内部数组</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">filename</span> *<span class="title">name</span>;</span> <span class="comment">// 文件名对象</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">nameidata</span> *<span class="title">saved</span>;</span> <span class="comment">// 指向保存的nameidata结构</span></span><br><span class="line">    <span class="type">unsigned</span> root_seq; <span class="comment">// 根路径序列号</span></span><br><span class="line">    <span class="type">int</span> dfd; <span class="comment">// 目录文件描述符</span></span><br><span class="line">    <span class="type">vfsuid_t</span> dir_vfsuid; <span class="comment">// 目录的VFS用户ID</span></span><br><span class="line">    <span class="type">umode_t</span> dir_mode; <span class="comment">// 目录的模式 (权限)</span></span><br><span class="line">&#125; __randomize_layout; <span class="comment">// 随机化布局属性</span></span><br></pre></td></tr></table></figure>
+
+<p>path包含了找到的文件系统项的数据，path结构包含dentry和mnt。</p>
+<p>下面看到这个调用链</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">open</span><span class="params">()</span></span></span><br><span class="line">    └── do_sys_open</span><br><span class="line">        └── do_filp_open</span><br><span class="line">            ├── path_openat</span><br><span class="line">            │    ├── link_path_walk</span><br><span class="line">            │    │     ├── lookup_fast</span><br><span class="line">            │    │     │     └── __d_lookup_rcu</span><br><span class="line">            │    │     │         └── hlist_bl_for_each_entry_rcu</span><br><span class="line">            │    │     └── lookup_slow</span><br><span class="line">            │    │            └── __lookup_slow</span><br><span class="line">            │    │               └──simple_lookup</span><br><span class="line">            │    └── open_last_lookups（创建新文件）</span><br><span class="line">            │          └──shmem_create</span><br><span class="line">            │                 └── shmem_mknod</span><br><span class="line">            └── do_open</span><br><span class="line">                  └── vfs_open</span><br><span class="line">                        └── do_dentry_open</span><br></pre></td></tr></table></figure>
+
+<p>首先在open()系统调用中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个名为 open 的系统调用，该调用接受三个参数：filename（文件名），flags（标志）和 mode（模式）</span></span><br><span class="line">SYSCALL_DEFINE3(open, <span class="type">const</span> <span class="type">char</span> __user *, filename, <span class="type">int</span>, flags, <span class="type">umode_t</span>, mode)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 如果需要处理大文件，将 O_LARGEFILE 标志添加到 flags 中</span></span><br><span class="line">    <span class="keyword">if</span> (force_o_largefile())</span><br><span class="line">        flags |= O_LARGEFILE;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调用 do_sys_open 函数，传入当前工作目录的文件描述符 AT_FDCWD、filename、flags 和 mode 参数</span></span><br><span class="line">    <span class="keyword">return</span> do_sys_open(AT_FDCWD, filename, flags, mode);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>传入AT_FDCWD到do_sys_open函数中，即为当前工作目录的文件描述符</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><p><a target="_blank" rel="noopener" href="https://tldp.org/LDP/khg/HyperNews/get/fs/vfstour.html">A tour of the Linux VFS (tldp.org)</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://www.science.unitn.it/~fiorella/guidelinux/tlk/node102.html#vfsfigure">The Virtual File System (VFS) — 虚拟文件系统 （VFS） (unitn.it)</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.win.tue.nl/~aeb/linux/lk/lk-8.html">The Linux kernel: The Linux Virtual File System — Linux 内核：Linux 虚拟文件系统 (tue.nl)</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/10986803?fromtitle=VFS&fromid=7519887">虚拟文件系统_百度百科 (baidu.com)</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://ty-chen.github.io/linux-kernel-vfs/">Linux操作系统学习笔记（十二）虚拟文件系统 | Ty-Chen’s Home</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Virtual_file_system">Virtual file system - Wikipedia — 虚拟文件系统 - 维基百科</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39278265/article/details/88839027">[高级操作系统] VFS详解（虚拟文件系统）_宇内虹游的博客-CSDN博客</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/File_system">File system - Wikipedia</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.cs.jhu.edu/~yairamir/cs418/600-418.html">Yair Amir lectures (jhu.edu)</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://www.2cto.com/os/201110/108845.html">linux虚拟文件系统浅析 - Linux操作系统：Ubuntu_Centos_Debian - 红黑联盟 (2cto.com)</a></p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/06/13/%E5%AD%A6%E4%B9%A0-Linux-%E5%86%85%E6%A0%B8%E6%93%8D%E4%BD%9C/" rel="prev" title="学习 Linux 内核操作">
+      <i class="fa fa-chevron-left"></i> 学习 Linux 内核操作
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#VFS%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">VFS层次结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#VFS%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">VFS实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#VFS%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">VFS数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B6%85%E7%BA%A7%E5%9D%97super-block"><span class="nav-number">3.1.1.</span> <span class="nav-text">超级块super_block</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VFS%E7%B4%A2%E5%BC%95%E8%8A%82%E7%82%B9inode"><span class="nav-number">3.1.2.</span> <span class="nav-text">VFS索引节点inode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95%E9%A1%B9dentry"><span class="nav-number">3.1.3.</span> <span class="nav-text">目录项dentry</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6file"><span class="nav-number">3.1.4.</span> <span class="nav-text">文件file</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E8%8A%82%E7%82%B9-x2F-%E7%9B%AE%E5%BD%95-x2F-%E5%9D%97-%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98"><span class="nav-number">3.1.5.</span> <span class="nav-text">索引节点&#x2F;目录&#x2F;块-高速缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ext%E6%A0%BC%E5%BC%8F%E5%92%8C%E7%9B%AE%E5%BD%95%E5%AD%98%E5%82%A8%E4%BB%A5%E5%8F%8A%E6%96%87%E4%BB%B6%E7%BC%93%E5%AD%98"><span class="nav-number">3.1.6.</span> <span class="nav-text">Ext格式和目录存储以及文件缓存</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">3.2.</span> <span class="nav-text">文件系统数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#file-system-type"><span class="nav-number">3.2.0.1.</span> <span class="nav-text">file_system_type</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#vfsmount"><span class="nav-number">3.2.0.2.</span> <span class="nav-text">vfsmount</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vfs%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4"><span class="nav-number">3.2.1.</span> <span class="nav-text">vfs命名空间</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">3.3.</span> <span class="nav-text">进程相关数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#task-struct"><span class="nav-number">3.3.1.</span> <span class="nav-text">task_struct</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#files-struct"><span class="nav-number">3.3.2.</span> <span class="nav-text">files_struct</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fdtable"><span class="nav-number">3.3.3.</span> <span class="nav-text">fdtable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fs-struct"><span class="nav-number">3.3.4.</span> <span class="nav-text">fs_struct</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%9C%BA%E5%88%B6%E5%8E%9F%E7%90%86"><span class="nav-number">3.4.</span> <span class="nav-text">虚拟文件系统机制原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85"><span class="nav-number">3.5.</span> <span class="nav-text">文件系统安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E5%86%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">3.5.1.</span> <span class="nav-text">注册文件系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">3.5.2.</span> <span class="nav-text">安装根文件系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E4%B8%80%E4%B8%AA%E6%99%AE%E9%80%9A%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">3.5.3.</span> <span class="nav-text">安装一个普通的文件系统</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E6%96%87%E4%BB%B6"><span class="nav-number">3.6.</span> <span class="nav-text">操作文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E6%89%BEinode"><span class="nav-number">3.6.1.</span> <span class="nav-text">查找inode</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">572k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">17:20</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : '72f25f6fe536ea7cd5e5ab6fbd963676',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>

@@ -35,8 +35,10 @@
 <meta property="og:image" content="http://example.com/2023/06/13/%E5%AD%A6%E4%B9%A0-Linux-%E5%86%85%E6%A0%B8%E6%93%8D%E4%BD%9C/%E6%98%BE%E7%A4%BA%E5%BD%93%E5%89%8D%E7%9A%84%E5%86%85%E6%A0%B8.png">
 <meta property="og:image" content="http://example.com/2023/06/13/%E5%AD%A6%E4%B9%A0-Linux-%E5%86%85%E6%A0%B8%E6%93%8D%E4%BD%9C/%E5%9B%BE%E5%BD%A2%E5%8C%96%E7%95%8C%E9%9D%A2.png">
 <meta property="og:image" content="http://example.com/2023/06/13/%E5%AD%A6%E4%B9%A0-Linux-%E5%86%85%E6%A0%B8%E6%93%8D%E4%BD%9C/%E9%81%87%E5%88%B0%E9%94%99%E8%AF%AF.png">
+<meta property="og:image" content="http://example.com/2023/06/13/%E5%AD%A6%E4%B9%A0-Linux-%E5%86%85%E6%A0%B8%E6%93%8D%E4%BD%9C/Ubuntu%E5%90%AF%E5%8A%A8%E9%80%89%E6%8B%A91.png">
+<meta property="og:image" content="http://example.com/2023/06/13/%E5%AD%A6%E4%B9%A0-Linux-%E5%86%85%E6%A0%B8%E6%93%8D%E4%BD%9C/ubuntu%E5%90%AF%E5%8A%A8%E9%80%89%E6%8B%A92.png">
 <meta property="article:published_time" content="2023-06-13T08:04:01.000Z">
-<meta property="article:modified_time" content="2023-06-13T13:27:30.445Z">
+<meta property="article:modified_time" content="2023-06-21T03:32:36.178Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2023/06/13/%E5%AD%A6%E4%B9%A0-Linux-%E5%86%85%E6%A0%B8%E6%93%8D%E4%BD%9C/%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E5%AD%98%E5%9C%A8%E7%9A%84%E5%86%85%E6%A0%B8.png">
@@ -228,10 +230,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2023-06-13 16:04:01 / Modified: 21:27:30" itemprop="dateCreated datePublished" datetime="2023-06-13T16:04:01+08:00">2023-06-13</time>
+              <time title="Created: 2023-06-13 16:04:01" itemprop="dateCreated datePublished" datetime="2023-06-13T16:04:01+08:00">2023-06-13</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-06-21 11:32:36" itemprop="dateModified" datetime="2023-06-21T11:32:36+08:00">2023-06-21</time>
+              </span>
 
           
             <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
@@ -246,14 +254,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1k</span>
+              <span>1.5k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
+              <span>3 mins.</span>
             </span>
 
         </div>
@@ -318,14 +326,41 @@
 <p>运行下列命令</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install libelf-dev</span><br></pre></td></tr></table></figure>
 
+<p>继续进行编译，如果遇到如下错误</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make[<span class="number">2</span>]: *** 没有规则可制作目标“debian<span class="regexp">/canonical-certs.pem”，由“certs/</span>x509_certificate_list” 需求。 停止。</span><br></pre></td></tr></table></figure>
 
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make[<span class="number">2</span>]: *** 没有规则可制作目标“debian<span class="regexp">/canonical-revoked-certs.pem”，由“certs/</span>x509_revocation_list” 需求。 停止。</span><br></pre></td></tr></table></figure>
 
-<p>scripts&#x2F;config –disable SYSTEM_TRUSTED_KEYS</p>
-<p>make[2]: *** 没有规则可制作目标“debian&#x2F;canonical-certs.pem”，由“certs&#x2F;x509_certificate_list” 需求。 停止。</p>
-<p>scripts&#x2F;config –disable SYSTEM_REVOCATION_KEYS</p>
-<p>make[2]: *** 没有规则可制作目标“debian&#x2F;canonical-revoked-certs.pem”，由“certs&#x2F;x509_revocation_list” 需求。 停止。</p>
+<p>那么运行如下命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scripts/config --disable SYSTEM_TRUSTED_KEYS</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scripts/config --disable SYSTEM_REVOCATION_KEYS</span><br></pre></td></tr></table></figure>
+
+<p>之后继续编译至完成</p>
 </li>
 </ul>
+<h1 id="切换运行内核"><a href="#切换运行内核" class="headerlink" title="切换运行内核"></a>切换运行内核</h1><ul>
+<li><p>查看当前内核的启动顺序</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /boot/grub/grub.cfg |grep menuentry</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改文件在启动时选择内核</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo  vim /etc/default/grub</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>更新文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo update-grub</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启系统</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo reboot now</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>选择Advanced options for Ubuntu</p>
+<img src="/2023/06/13/%E5%AD%A6%E4%B9%A0-Linux-%E5%86%85%E6%A0%B8%E6%93%8D%E4%BD%9C/Ubuntu启动选择1.png" title alt data-align="center">
+</li>
+<li><p>选择要启动的内核</p>
+<img src="/2023/06/13/%E5%AD%A6%E4%B9%A0-Linux-%E5%86%85%E6%A0%B8%E6%93%8D%E4%BD%9C/ubuntu启动选择2.png" title alt data-align="center"></li>
+</ul>
+<h1 id="添加输出"><a href="#添加输出" class="headerlink" title="添加输出"></a>添加输出</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="built_in">strstr</span>(current-&gt;comm, <span class="string">&quot;cat&quot;</span>))</span><br><span class="line">printk(<span class="string">&quot;%p&quot;</span>,f1);</span><br></pre></td></tr></table></figure>
+
+<h1 id="切换cgroupv1-gt-cgroupv2"><a href="#切换cgroupv1-gt-cgroupv2" class="headerlink" title="切换cgroupv1-&gt;cgroupv2"></a>切换cgroupv1-&gt;cgroupv2</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo  vim /etc/default/grub</span><br><span class="line">systemd.unified_cgroup_hierarchy=1</span><br><span class="line">GRUB_CMDLINE_LINUX_DEFAULT=&quot;systemd.unified_cgroup_hierarchy=1&quot;</span><br><span class="line">sudo update-grub</span><br><span class="line">sudo reboot now</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -344,7 +379,10 @@
     <a href="/2023/06/10/%E5%AD%A6%E4%B9%A0-Linux-tmpfs/" rel="prev" title="学习 Linux tmpfs">
       <i class="fa fa-chevron-left"></i> 学习 Linux tmpfs
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="next" title="学习 Linux VFS虚拟文件系统">
+      学习 Linux VFS虚拟文件系统 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -404,7 +442,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">1.</span> <span class="nav-text">内核基本操作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8"><span class="nav-number">2.</span> <span class="nav-text">编译内核</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">1.</span> <span class="nav-text">内核基本操作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8"><span class="nav-number">2.</span> <span class="nav-text">编译内核</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%87%E6%8D%A2%E8%BF%90%E8%A1%8C%E5%86%85%E6%A0%B8"><span class="nav-number">3.</span> <span class="nav-text">切换运行内核</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E8%BE%93%E5%87%BA"><span class="nav-number">4.</span> <span class="nav-text">添加输出</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%87%E6%8D%A2cgroupv1-gt-cgroupv2"><span class="nav-number">5.</span> <span class="nav-text">切换cgroupv1-&gt;cgroupv2</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -418,7 +456,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-count">46</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -480,13 +518,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">527k</span>
+    <span title="Symbols count total">572k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">15:59</span>
+    <span title="Reading time total">17:20</span>
 </div>
 
 <!--
