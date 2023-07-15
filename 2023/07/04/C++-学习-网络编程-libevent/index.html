@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="学习目标 描述什么是libevent并掌握如何安装  掌握event_base的作用和使用方法  熟练掌握libevent库中的事件循环  掌握event事件的使用方法  掌握bufferevent的工作方式  掌握使用libevent实现TCP服务端流程  掌握使用libevent实现TCP客户端流程   libevent介绍">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++学习 网络编程 libevent">
+<meta property="og:url" content="http://example.com/2023/07/04/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-libevent/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="学习目标 描述什么是libevent并掌握如何安装  掌握event_base的作用和使用方法  熟练掌握libevent库中的事件循环  掌握event事件的使用方法  掌握bufferevent的工作方式  掌握使用libevent实现TCP服务端流程  掌握使用libevent实现TCP客户端流程   libevent介绍">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2023/07/04/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-libevent/libevent%E4%B8%BB%E8%A6%81%E7%9A%84%E7%8A%B6%E6%80%81%E8%BD%AC%E6%8D%A2.png">
+<meta property="og:image" content="http://example.com/2023/07/04/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-libevent/bufferevent%E6%B5%81%E7%A8%8B.png">
+<meta property="article:published_time" content="2023-07-04T01:58:46.000Z">
+<meta property="article:modified_time" content="2023-07-15T02:35:07.490Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/07/04/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-libevent/libevent%E4%B8%BB%E8%A6%81%E7%9A%84%E7%8A%B6%E6%80%81%E8%BD%AC%E6%8D%A2.png">
+
+<link rel="canonical" href="http://example.com/2023/07/04/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-libevent/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>C++学习 网络编程 libevent | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/04/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-libevent/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++学习 网络编程 libevent
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-04 09:58:46" itemprop="dateCreated datePublished" datetime="2023-07-04T09:58:46+08:00">2023-07-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-15 10:35:07" itemprop="dateModified" datetime="2023-07-15T10:35:07+08:00">2023-07-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">网络编程</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>13k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>24 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="学习目标"><a href="#学习目标" class="headerlink" title="学习目标"></a>学习目标</h1><ul>
+<li><p>描述什么是libevent并掌握如何安装</p>
+</li>
+<li><p>掌握event_base的作用和使用方法</p>
+</li>
+<li><p>熟练掌握libevent库中的事件循环</p>
+</li>
+<li><p>掌握event事件的使用方法</p>
+</li>
+<li><p>掌握bufferevent的工作方式</p>
+</li>
+<li><p>掌握使用libevent实现TCP服务端流程</p>
+</li>
+<li><p>掌握使用libevent实现TCP客户端流程</p>
+</li>
+</ul>
+<h1 id="libevent介绍"><a href="#libevent介绍" class="headerlink" title="libevent介绍"></a>libevent介绍</h1><ul>
+<li><p>事件驱动、高性能、轻量级、专注于网络</p>
+</li>
+<li><p>源代码精炼、易读</p>
+</li>
+<li><p>跨平台</p>
+</li>
+<li><p>支持多种I&#x2F;O多路复用技术，如epoll、select、poll等</p>
+</li>
+<li><p>支持I&#x2F;O和信号等事件</p>
+</li>
+</ul>
+<h1 id="libevent的安装"><a href="#libevent的安装" class="headerlink" title="libevent的安装"></a>libevent的安装</h1><p><a target="_blank" rel="noopener" href="https://libevent.org/">libevent</a>登录官方网站，查看相关信息</p>
+<p><strong>libevent源码下载主要分2个大版本：</strong></p>
+<ol>
+<li><p>1.4.x系列，较为早期版本，适合源码学习</p>
+</li>
+<li><p>2.x系列，较新的版本，代码量比1.4版本多很多，功能也更完善。</p>
+</li>
+</ol>
+<p><strong>libevent的核心实现</strong></p>
+<p>在linux上，其实质就是epoll反应堆。</p>
+<p>libevent是事件驱动，epoll反应堆也是事件驱动，当要检测的事件发生的时候，就会调用事件对应的回调函数，执行相应的操作。特别提醒：事件回调函数是由用户开发的，但是不是由用户显示去调用的，而是由libevent去调用得到。</p>
+<hr>
+<p>从官网下载上下载安装文件之后，将安装文件上传到linux系统上；源码包的安装，以2.1.12版本为例，在官网可以下载到源码包tar -zxvf libevent-2.1.12-stable.tar.gz,安装步骤与第三方库源码包安装方式基本一致。</p>
+<ul>
+<li><p>解压libevent-2.1.12-stable.tar.gz</p>
+<ul>
+<li><p>解压：<code>tar -zxvf libevent-2.1.12-stable.tar.gz</code> </p>
+</li>
+<li><p>cd到libevent-2.1.12-stable目录下，查看README文件，该文件里描述了安装的详细步骤，可参照这个文件进行安装</p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">./configure</span><br><span class="line"><span class="built_in">make</span></span><br><span class="line"><span class="built_in">make</span> verify   <span class="meta"># (optional)</span></span><br><span class="line">sudo <span class="built_in">make</span> install</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>进入源码目录</p>
+<ul>
+<li><p>执行配置.&#x2F;configure，检测安装环境。生成makefile</p>
+<ul>
+<li>执行.&#x2F;configure的时候也可以指定路径，.&#x2F;configure –prefix&#x3D;&#x2F;usr&#x2F;xxxxx,这样就可以安装到指定的目录下，但是这样在进行源代码编译的时候就可以安装到指定的目录下，但是这样在进行源代码编译的时候需要指定用-l头文件的路径和用-L库文件的路径。若默认安装不指定–prefix，则会安装到系统默认的路径下，编译的时候可以不指定头文件和库文件所在的路径。</li>
+</ul>
+</li>
+<li><p>执行make命令编译整个项目文件</p>
+<ul>
+<li>通过执行make命令，会生成一些库文件（动态库和静态库）和可执行文件</li>
+</ul>
+</li>
+<li><p>执行sudo make install进行安装</p>
+<ul>
+<li><p>安装需要root用户权限，这一步需要输入当前用户的密码</p>
+</li>
+<li><p>执行这一步，可以将刚刚编译成的库文件和执行文件以及一些头文件拷贝到&#x2F;usr&#x2F;local目录下：</p>
+<ol>
+<li><p>头文件拷贝到了&#x2F;usr&#x2F;local&#x2F;include目录下；</p>
+</li>
+<li><p>库文件拷贝到了&#x2F;usr&#x2F;local&#x2F;lib目录下</p>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="libevent库的使用"><a href="#libevent库的使用" class="headerlink" title="libevent库的使用"></a>libevent库的使用</h1><p>进入到libevent-2.1.12-stable&#x2F;sample下，可以查看一些实例源代码文件。使用libevent库编写代码在编译程序的时候需要指定库名：-levent；</p>
+<p>安装文件的libevent库文件所在路径：libevent-2.1.12-stable&#x2F;.libs;</p>
+<p>编写代码的时候用到event.h头文件，或者直接参考sample目录下的源代码文件也可以。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;event2/event.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>由于安装的时候已经将头文件和库文件拷贝到了系统头文件所在路径&#x2F;usr&#x2F;local&#x2F;include和系统库文件所在路径&#x2F;usr&#x2F;local&#x2F;lib，所以这里编译的时候可以不指定-l和-L</p>
+<p>编译源代码文件（以hello-world.c文件为例）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc hello-world.c -levent</span><br></pre></td></tr></table></figure>
+
+<p>测试，编译之后，在文件夹中运行hello-world程序，在另一个中段窗口进行测试，输入：nc 127.1 9995，然后回车立刻显示Hello，World！字符串。</p>
+<h1 id="libevent的使用"><a href="#libevent的使用" class="headerlink" title="libevent的使用"></a>libevent的使用</h1><h2 id="libevent的地基event-base"><a href="#libevent的地基event-base" class="headerlink" title="libevent的地基event_base"></a>libevent的地基event_base</h2><p>使用libevent函数之前需要分配一个或者多个event_base结构体，每个event_base结构体持有一个事件集合，可以检测以确定哪个事件是激活的，event_base结构相当于epoll红黑树的树根节点，每个event_base都有一种用于检测某种事件已经就绪的”方法”（回调函数）</p>
+<p>通常情况下可以通过event_base_new函数获得event_base结构。</p>
+<p>相关函数说明：</p>
+<ul>
+<li><pre><code class="cpp">struct event_base* event_base_new(void)
+//函数说明：获得event_base结构
+//参数说明：无
+//返回值：
+//  - 成功返回event_base结构体指针
+//  - 失败返回NULL 
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- ```cpp</span><br><span class="line">  void event<span class="constructor">_base_free(<span class="params">struct</span> <span class="params">event_base</span><span class="operator">*</span>)</span></span><br><span class="line">  <span class="comment">//函数说明：释放event_base指针</span></span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+<li><pre><code class="cpp">int event_reinit(struct event_base* base)
+//函数说明：如果有子进程，且子进程也要使用base，则子进程需要对event_base重新初始化，此时需要调用event_base重新初始化，此时需要调用event_reinit函数
+//函数参数：由event_base_new返回的执行event_base结构的指针
+//返回值：成功返回0，失败返回-1
+<figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">对于不同系统而言，event_base就是调用不同的多路IO接口去判断事件是否已经被激活，对于linux系统而言，核心调用的就是epoll，同时支持poll和<span class="keyword">select</span>。</span><br><span class="line"></span><br><span class="line">查看libevent支持的后端的方法有哪些：</span><br><span class="line"></span><br><span class="line">- ```cpp</span><br><span class="line">  <span class="keyword">const</span> <span class="built_in">char</span>** event_get_supported_methods(<span class="keyword">void</span>)</span><br><span class="line">  <span class="comment">//函数说明：获得当前系统（或者称为平台）支持的方法有哪些</span></span><br><span class="line">  <span class="comment">//参数：无</span></span><br><span class="line">  <span class="comment">//返回值：返回二维数组，类似与main函数的第二个参数**argv</span></span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+<li><pre><code class="cpp">const char** event_base_get_method(const struct event_base* base)
+//函数说明：获得当前base节点使用的多路io方法
+//函数参数：event_base结构的base指针
+//返回值：获得当前base节点使用的多路io方法的指针
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">```cpp</span><br><span class="line"><span class="comment">//测试当前系统支持的libevent方法和当前使用的方法</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;event2/event.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//获取当前系统支持的方法</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span>** p = <span class="built_in">event_get_supported_methods</span>();</span><br><span class="line">    <span class="keyword">while</span> (p[i] != <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s \t&quot;</span>, p[i++]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    <span class="comment">//获取地基节点</span></span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">event_base</span>* base = <span class="built_in">event_base_new</span>();</span><br><span class="line">    <span class="keyword">if</span> (base == <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;event_base_new error\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//读取当前系统使用的方法</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span>** pp = <span class="built_in">event_base_get_method</span>(base);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, pp);</span><br><span class="line">    <span class="comment">//释放地基节点</span></span><br><span class="line">    <span class="built_in">event_base_free</span>(base);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+<p>运行结果为：</p>
+<blockquote>
+<p>epoll   poll    select<br>epoll</p>
+</blockquote>
+<h2 id="等待事件产生-循环等待event-loop"><a href="#等待事件产生-循环等待event-loop" class="headerlink" title="等待事件产生-循环等待event_loop"></a>等待事件产生-循环等待event_loop</h2><p>libevent在地基打好之后，需要等待事件的产生，也就是等待事件被激活后，所以程序不能退出，对于epoll来说，我们需要自己控制循环，而在libevent中也给我们提供了API接口，类似where(1)的功能。</p>
+<p>函数如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">event_base_loop</span><span class="params">(<span class="keyword">struct</span> event_base* ，<span class="type">int</span> flag)</span></span></span><br><span class="line"><span class="function"><span class="comment">//函数说明：进入循环等待事件</span></span></span><br><span class="line"><span class="function"><span class="comment">//参数说明</span></span></span><br><span class="line"><span class="function"><span class="comment">//  - base：由event_base_new函数返回的指向event_base结构的指针</span></span></span><br><span class="line"><span class="function"><span class="comment">//  - flags的取值：</span></span></span><br><span class="line"><span class="function"><span class="comment">//      - #define EVLOOP_ONCE 0x01 只触发一次，如果事件没有被触发，阻塞等待</span></span></span><br><span class="line"><span class="function"><span class="comment">//      - #define EVLOOP_NONBLOCK 0x02 非阻塞方式检测事件是否被处罚法，不管事件触发与否，都会立即返回</span></span></span><br><span class="line"><span class="function"><span class="comment">//  - base：由event_base_new函数返回的指向event_base结构的指针</span></span></span><br><span class="line"><span class="function"><span class="comment">//  - flags的取值：</span></span></span><br><span class="line"><span class="function"><span class="comment">//      - #define EVLOOP_ONCE 0x01 只触发一次，如果事件没有被触发，阻塞等待</span></span></span><br><span class="line"><span class="function"><span class="comment">//      - #define EVLOOP_NONBLOCK 0x02 非阻塞方式检测事件是否被处罚法，不管事件触发与否，都会立即返回</span></span></span><br></pre></td></tr></table></figure>
+
+<p>这个函数一般不用，而大多数都调用libevent给我们提供的另外一个API：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">event_base_dispath</span><span class="params">(<span class="keyword">struct</span> event_base* base)</span></span></span><br><span class="line"><span class="function"><span class="comment">//函数说明：进入循环等待事件</span></span></span><br><span class="line"><span class="function"><span class="comment">//参数说明：由event_base_new函数返回的指向event_base结构的指针</span></span></span><br><span class="line"><span class="function"><span class="comment">//调用该函数，相当于没有设置标志位的event_base_loop。程序将会一直运行，知道没有需要检测的事件了，或者结束循环的API终止</span></span></span><br></pre></td></tr></table></figure>
+
+<p>调用该函数，相当于没有设置标志位的event_base_loop。程序将会一直运行，直到没有需要检测的事件了，或者被结束循环的API终止。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">event_base_loopexit</span><span class="params">(<span class="keyword">struct</span> event_base* base, <span class="type">const</span> <span class="keyword">struct</span> timeval* tv)</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">event_base_loopbreak</span><span class="params">(<span class="keyword">struct</span> event_base* base)</span></span></span><br><span class="line"><span class="function"><span class="keyword">struct</span> timeval</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">long</span> tv_sec;</span><br><span class="line">    <span class="type">long</span> tv_usec;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>两个函数的区别是如果正在执行激活事件的回调函数，那么event_base_loopexit将在事件回调执行结束后终止循环（如果tv事件非NULL，那么将等待tv设置的时间后立即结束循环），而event_base_loopbreak会立即终止循环。</p>
+<h2 id="使用libevent库的步骤"><a href="#使用libevent库的步骤" class="headerlink" title="使用libevent库的步骤"></a>使用libevent库的步骤</h2><ol>
+<li><p>创建根节点–event_base_new</p>
+</li>
+<li><p>设置监听事件和数据可读可写的事件的回调函数，设置了事件对应的回调函数以后，当事件产生的时候会自动调用回调函数</p>
+</li>
+<li><p>事件循环–event_base_dispatch，相当于while(1),在循环内部等待事件的发生，若有事件发生则会触发事件对应的回调函数。</p>
+</li>
+<li><p>释放根节点–event_base_free，释放由event_base_new和event_new创建的资源，分别调用event_base_free和event_free函数。</p>
+</li>
+</ol>
+<h2 id="事件驱动-event"><a href="#事件驱动-event" class="headerlink" title="事件驱动-event"></a>事件驱动-event</h2><p>事件驱动实际上libevent的核心思想，主要的状态转化</p>
+<img src="/2023/07/04/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-libevent/libevent主要的状态转换.png" title alt data-align="center">
+
+<p>主要的几个状态：</p>
+<ul>
+<li><p>无效的指针：此时仅仅是定义了struct event *ptr</p>
+</li>
+<li><p>非未决：相当于创建了事件，但是事件还没有处于被监听状态，类似于我们使用epoll的时候定义了struct epoll_event ev并且对ev的两个字段进行了赋值，但是此时尚未调用epoll_ctl对事件上述。</p>
+</li>
+<li><p>未决：就是对事件开始监听，暂时未有事件产生。相当于调用epoll_ctl对要监听的事件上树，但是没有事件产生。</p>
+</li>
+<li><p>激活：代表监听的事件已经产生，这时需要处理，相当于调用epoll_wait函数有返回，当事件被激活以后，libevent会调用该事件对应的回调函数。</p>
+</li>
+</ul>
+<p>libevent的事件驱动对应的结构体为struct event，对应的函数在图上也比较清晰。</p>
+<ul>
+<li><pre><code class="cpp">typedef void(*event_callback_fn)(evutil_socket_t fd, short events, event_callback_fn cb, void* arg)
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- ```cpp</span><br><span class="line">  struct event* event_new(struct event_base* base, evutil_socket_t fd, short events, event_callback_fn cb, void* arg)</span><br><span class="line">  <span class="regexp">//</span>函数说明：event_new负责创建event结构指针，同时指定对应的地基base，还有对应的文件描述符，事件，以及回调函数和回调函数的参数</span><br><span class="line">  <span class="regexp">//</span>参数说明：</span><br><span class="line">  <span class="regexp">//</span>  - base：对应的根节点--地基</span><br><span class="line">  <span class="regexp">//</span>  - fd：要监听的文件描述符</span><br><span class="line">  <span class="regexp">//</span>  - events：要监听的事件</span><br><span class="line">  <span class="regexp">//</span>      - <span class="comment">#define EV_TIMEOUT 0x01 //超时事件</span></span><br><span class="line">  <span class="regexp">//</span>      - <span class="comment">#define EV_READ 0x02 //读事件</span></span><br><span class="line">  <span class="regexp">//</span>      - <span class="comment">#define EV_WRITE 0x04 //写事件</span></span><br><span class="line">  <span class="regexp">//</span>      - <span class="comment">#define EV_SIGNAL 0x08 //信号触发</span></span><br><span class="line">  <span class="regexp">//</span>      - <span class="comment">#define EV_PERSIST 0x10 //周期性触发</span></span><br><span class="line">  <span class="regexp">//</span>      - <span class="comment">#define EV_ET 0x20 //边缘触发，如果底层模型支持设置则有效，若不支持则无效</span></span><br><span class="line">  <span class="regexp">//</span>      - 若要想设置持续的读事件则：EV_READ|EV_PERSIST</span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+<p>cb回调函数，原型如下：</p>
+<ul>
+<li><pre><code class="cpp">typedef void(*event_callback_fn)(evutil_socket_t fd,short events,void *arg)
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">  </span><br><span class="line">  注意：回调函数的参数就对应于event_new函数的fd，event和arg</span><br><span class="line"></span><br><span class="line">- ```cpp</span><br><span class="line">  #define evsignal<span class="constructor">_new(<span class="params">b</span>,<span class="params">x</span>,<span class="params">cb</span>,<span class="params">arg</span>)</span></span><br><span class="line">  event<span class="constructor">_new((<span class="params">b</span>)</span>,(x),EV_SIGNAL<span class="pattern-match">|<span class="constructor">EV_PRESIST</span>,(cb),(arg))</span></span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+<li><pre><code class="cpp">int event_add(struct event* ev, const struct timeval* timeout)
+//函数说明：将非未决态事件转为未决态，相当于调用epoll_ctl函数（EPOLL_CTL_ADD），开始监听事件是否产生，相当于epoll的上树操作
+//参数说明：
+//  - ev：调用event_new创建的事件
+//  - timeout：限时等待事件的产生，也可以设置为NULL，没有限时。
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- ```cpp</span><br><span class="line">  <span class="built_in">int</span> event<span class="constructor">_del(<span class="params">struct</span> <span class="params">event</span><span class="operator">*</span> <span class="params">ev</span>)</span></span><br><span class="line">  <span class="comment">//函数说明：将事件从未决态变为非未决态，相当于epoll的下树（epoll_ctl调用EPOLL_CTL_DEL操作）操作</span></span><br><span class="line">  <span class="comment">//参数说明：ev指的是由event_new创建的事件</span></span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+<li><pre><code class="cpp">void event_free(struct event* ev)
+//函数说明：释放由event_new申请的event节点
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"># 编写一个基于event实现的tcp服务器</span><br><span class="line"></span><br><span class="line">总体步骤：</span><br><span class="line"></span><br><span class="line"><span class="number">1.</span> 搭建服务器固定三步，标出的三步：</span><br><span class="line">   </span><br><span class="line">   - &lt;mark&gt;创建socket---socket<span class="literal">()</span>&lt;/mark&gt;</span><br><span class="line">   </span><br><span class="line">   - 设置端口复用---setsockopt(lfd,SOL_SOCKET,SO_REUSEADDR,&amp;opt,sizeof(<span class="built_in">int</span>))</span><br><span class="line">   </span><br><span class="line">   - &lt;mark&gt;绑定bind---bind<span class="literal">()</span>&lt;/mark&gt;</span><br><span class="line">   </span><br><span class="line">   - &lt;mark&gt;监听listen---listen<span class="literal">()</span>&lt;/mark&gt;</span><br><span class="line">   </span><br><span class="line">   - 创建地基---<span class="keyword">struct</span> event_base *base = event<span class="constructor">_base_new()</span>（下面的第二步）</span><br><span class="line">   </span><br><span class="line">   - 创建lfd对应的事件节点---<span class="keyword">struct</span> event *ev = event<span class="constructor">_new(<span class="params">base</span>,<span class="params">lfd</span>，EV_READ|EV_PERSIST,<span class="params">conncb</span>,NULL)</span>(下面的第三步)</span><br><span class="line">   </span><br><span class="line">   - 上event_base地基---event<span class="constructor">_add(<span class="params">ev</span>,NULL)</span></span><br><span class="line">   </span><br><span class="line">   - 进入事件循环---event<span class="constructor">_base_dispatch(<span class="params">base</span>)</span>(下面的第四步)</span><br><span class="line">   </span><br><span class="line">   - 释放资源--event<span class="constructor">_base_free(<span class="params">base</span>)</span>,event<span class="constructor">_free(<span class="params">ev</span>)</span></span><br><span class="line">   </span><br><span class="line">   - </span><br><span class="line"></span><br><span class="line"><span class="number">2.</span> 调用event_base_new函数创建event_base节点</span><br><span class="line"></span><br><span class="line"><span class="number">3.</span> 创建要监听的事件event，主要就是监听事件和读数据的事件</span><br><span class="line">   </span><br><span class="line">   - 设置好监听事件的回调函数，然后event_add上树</span><br><span class="line">   </span><br><span class="line">   - 有新的连接，则调用accept接受新的连接</span><br><span class="line">   </span><br><span class="line">   - 将这个新的连接设置好回调函数（一般是设置读事件），然后继续event_add上述，若有客户端关闭连接则从树上摘除该事件节点</span><br><span class="line"></span><br><span class="line"><span class="number">4.</span> 调用event_base_dispatch进入循环等待事件的发生</span><br><span class="line"></span><br><span class="line"># libevent服务端程序的代码实现</span><br><span class="line"></span><br><span class="line">```cpp</span><br><span class="line">#<span class="keyword">include</span>&lt;unistd.h&gt;</span><br><span class="line">#<span class="keyword">include</span>&lt;arpa/inet.h&gt;</span><br><span class="line">#<span class="keyword">include</span>&lt;netinet/<span class="keyword">in</span>.h&gt;</span><br><span class="line">#<span class="keyword">include</span>&lt;<span class="built_in">string</span>.h&gt;</span><br><span class="line">#<span class="keyword">include</span>&lt;stdlib.h&gt;</span><br><span class="line">#<span class="keyword">include</span>&lt;event2/event.h&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> event* connev = NULL;</span><br><span class="line"></span><br><span class="line">void readcb(evutil_socket_t fd, short events, void* arg)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">int</span> n;</span><br><span class="line">    <span class="built_in">char</span> buf<span class="literal">[<span class="number">1024</span>]</span>;</span><br><span class="line"></span><br><span class="line">    memset(buf, <span class="number">0x00</span>, sizeof(buf));</span><br><span class="line">    n = read(fd, buf, sizeof(buf));</span><br><span class="line">    <span class="keyword">if</span> (n &lt;= <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        close(fd);</span><br><span class="line">        <span class="comment">//将通信文件描述符对应的事件从base地基上删除</span></span><br><span class="line">        event<span class="constructor">_del(<span class="params">connev</span>)</span>;</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        write(fd, buf, n);</span><br><span class="line">    &#125;</span><br><span class="line">    write(fd, buf, n);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void conncb(evutil_socket_t fd, short events, void* arg)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">struct</span> event_base* base = (<span class="keyword">struct</span> event_base*)arg;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//接受新的客户端连接</span></span><br><span class="line">    <span class="built_in">int</span> cfd = accept(fd, NULL, NULL);</span><br><span class="line">    <span class="keyword">if</span> (cfd &gt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//创建通信描述符对应的事件并设置回调函数为readcb</span></span><br><span class="line">        <span class="keyword">struct</span> event* connev = event<span class="constructor">_new(<span class="params">base</span>, <span class="params">cfd</span>, EV_READ | EV_PERSIST, <span class="params">readcb</span>, NULL)</span>;</span><br><span class="line">        <span class="keyword">if</span> (connev<span class="operator"> == </span>NULL)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//退出循环</span></span><br><span class="line">            event<span class="constructor">_base_loopexit(<span class="params">base</span>, NULL)</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//将通信文件描述符对应的事件上event_base地基</span></span><br><span class="line">        event<span class="constructor">_add(<span class="params">connev</span>, NULL)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">int</span> main<span class="literal">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//创建socket</span></span><br><span class="line">    <span class="built_in">int</span> fd = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//设置端口复用</span></span><br><span class="line">    <span class="built_in">int</span> opt = <span class="number">1</span>;</span><br><span class="line">    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &amp;opt, sizeof(opt));</span><br><span class="line"></span><br><span class="line">    <span class="comment">//绑定</span></span><br><span class="line">    <span class="keyword">struct</span> sockaddr_in serv;</span><br><span class="line">    bzero(&amp;serv, sizeof(serv));</span><br><span class="line">    serv.sin_addr.s_addr = htonl(INADDR_ANY);</span><br><span class="line">    serv.sin_port = htons(<span class="number">8888</span>);</span><br><span class="line">    serv.sin_family = AF_INET;</span><br><span class="line">    bind(fd, (<span class="keyword">struct</span> sockaddr*)&amp;serv, sizeof(serv));</span><br><span class="line"></span><br><span class="line">    <span class="comment">//监听</span></span><br><span class="line">    listen(fd, <span class="number">120</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//创建地基</span></span><br><span class="line">    <span class="keyword">struct</span> event_base* base = event<span class="constructor">_base_new()</span>;</span><br><span class="line">    <span class="keyword">if</span> (base<span class="operator"> == </span>NULL)</span><br><span class="line">    &#123;</span><br><span class="line">        printf(<span class="string">&quot;event_base_new error\n&quot;</span>);</span><br><span class="line">        return -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//创建监听文件描述符对应的事件</span></span><br><span class="line">    <span class="keyword">struct</span> event* ev = event<span class="constructor">_new(<span class="params">base</span>, <span class="params">fd</span>, EV_READ | EV_PERSIST, <span class="params">conncb</span>, <span class="params">base</span>)</span>;</span><br><span class="line">    <span class="keyword">if</span> (ev<span class="operator"> == </span>NULL)    </span><br><span class="line">    &#123;</span><br><span class="line">        printf(<span class="string">&quot;event_new error\n&quot;</span>);</span><br><span class="line">        return -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//将新的事件节点上base地基</span></span><br><span class="line">    event<span class="constructor">_add(<span class="params">ev</span>, NULL)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//进入事件循环等待</span></span><br><span class="line">    event<span class="constructor">_base_dispatch(<span class="params">base</span>)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//释放资源</span></span><br><span class="line">    event<span class="constructor">_base_free(<span class="params">base</span>)</span>;</span><br><span class="line">    event<span class="constructor">_free(<span class="params">ev</span>)</span>;</span><br><span class="line"></span><br><span class="line">    close(fd);</span><br><span class="line">    return <span class="number">0</span>;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+<h1 id="libevent服务端程序测试和错误分析"><a href="#libevent服务端程序测试和错误分析" class="headerlink" title="libevent服务端程序测试和错误分析"></a>libevent服务端程序测试和错误分析</h1><p>使用下面命令打开客户端：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nc 127.1 8888</span><br></pre></td></tr></table></figure>
+
+<p>使用下面命令查看对应的端口状态：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -anp | grep 8888</span><br></pre></td></tr></table></figure>
+
+<p>分析之后，根据上述代码，只要关闭最后一个客户端时，也会影响到别的客户端。</p>
+<h1 id="自带buffer的事件bufferevent"><a href="#自带buffer的事件bufferevent" class="headerlink" title="自带buffer的事件bufferevent"></a>自带buffer的事件bufferevent</h1><p>bufferevent实际上也是一个event，只不过比普通的event高级一些，它的内部有两个缓冲区，以及一个文件描述符（网络套接字）。一个网络套接字有读和写两个缓冲区，bufferevent同样也带有两个缓冲区，还有就是libevent事件驱动的核心回调函数，那么四个缓冲区以及触发回调的关系如下：</p>
+<img src="/2023/07/04/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-libevent/bufferevent流程.png" title alt data-align="center">
+
+<p>从图中可以得知，一个bufferevent对应两个缓冲区，三个回调函数，分别是写回调，读回调和事件回调。</p>
+<p>bufferevent有三个回调函数：</p>
+<ul>
+<li><p>读回调 - 当bufferevent将底层读缓冲区的数据读到自身的读缓冲区时触发读事件回调</p>
+</li>
+<li><p>写回调 - 当bufferevent将自身写缓冲的数据写到底层写缓冲区的时候触发写事件回调，由于数据最终是写入了内核的写缓冲区中，应用程序以及无法控制，这个事件对于应用程序来说基本没什么用，只是通知功能。</p>
+</li>
+<li><p>事件回调 - 当bufferevent绑定的socket连接，断开或者异常的时候触发事件回调。</p>
+</li>
+</ul>
+<p>bufferevent的读事件触发时机</p>
+<ul>
+<li><p>当数据由内核的读缓冲区到 bufferevent的读缓冲区的时候，会触发bufferevent读事件回调</p>
+<p>需要注意的是：数据由内核到bufferevent的过程不是用户程序做的，是由bufferevent内部操作的。</p>
+</li>
+</ul>
+<p>bufferevent的写事件触发时机</p>
+<ul>
+<li>当用户程序将数据写到bufferevent的写缓冲区之后，bufferevent会自动将数据写到内核的写缓冲区，最终有内核程序将数据发送出去。</li>
+</ul>
+<p>事件回调：</p>
+<ul>
+<li>当bufferevent绑定的socket连接，断开或者异常的时候触发事件回调。</li>
+</ul>
+<p>主要使用的函数如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">bufferevent</span> *<span class="built_in">bufferevent_socket_new</span>(<span class="keyword">struct</span> event_base *base,<span class="type">evutil_socket_t</span> fd,<span class="type">int</span> options);</span><br><span class="line"><span class="comment">//函数说明：bufferevent_socket_new对已经存在socket创建bufferevent事件，可用于后面讲到的连接监听器的回调函数中</span></span><br><span class="line"><span class="comment">//参数说明：</span></span><br><span class="line"><span class="comment">//  base：对应根节点</span></span><br><span class="line"><span class="comment">//  fd：文件描述符</span></span><br><span class="line"><span class="comment">//  options：bufferevent的选项</span></span><br><span class="line"><span class="comment">//      BEV_OPT_CLOSE_ON_FREE --释放bufferevent自动关闭底层接口（当bufferevent被释放以后，文件描述符也随之被close</span></span><br><span class="line"><span class="comment">//      BEV_OPT_THREADSAFE --使bufferevent能够在多线程下是安全的</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">bufferevent_socket_connect</span><span class="params">(<span class="keyword">struct</span> bufferevent *bev,<span class="keyword">struct</span> sockaddr *serv,<span class="type">int</span> socklen)</span></span>;</span><br><span class="line"><span class="comment">//函数说明：该函数封装了底层的socket与connect接口，通过调用此函数，可以将bufferevent事件与通信的socket进行绑定</span></span><br><span class="line"><span class="comment">//参数说明：</span></span><br><span class="line"><span class="comment">//  bev -- 需要提前初始化的bufferevent事件</span></span><br><span class="line"><span class="comment">//  serv -- 对端（一般指服务端）的ip地址，端口，协议的结构指针</span></span><br><span class="line"><span class="comment">//  socklen -- 描述serv的长度</span></span><br><span class="line"><span class="comment">//说明：调用此函数以后，通信的socket与bufferevent缓冲区做了绑定，后面调用了bufferevent_setcb函数以后，</span></span><br><span class="line"><span class="comment">//会对bufferevent缓冲区的读写操作的事件设置回调函数，当往缓冲区中写数据的时候会触发写回调函数，当数据从socket的内核缓冲区读到bufferevent读缓冲区中的时候会触发读回调函数</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">bufferevent_free</span><span class="params">(<span class="keyword">struct</span> bufferevent *bufev)</span></span>;</span><br><span class="line"><span class="comment">//函数说明 ：释放bufferevent</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">bufferevent_setcb</span><span class="params">(<span class="keyword">struct</span> bufferevent *bufev,</span></span></span><br><span class="line"><span class="params"><span class="function">                bufferevent_data_cb readcb, bufferevent_data_cb writecb,</span></span></span><br><span class="line"><span class="params"><span class="function">                bufferevent_event_cb eventcb,<span class="type">void</span> *cbarg)</span></span>;</span><br><span class="line"><span class="comment">//函数说明：bufferevent_setcb用于设置bufferevent的回调函数，readcb,writecb,eventcb分别对应了读回调，写回调，事件回调，cbarg代表回调函数的参数。</span></span><br></pre></td></tr></table></figure>
+
+<p>回调函数如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*bufferevent_data_cb)</span><span class="params">(<span class="keyword">struct</span> bufferevent *bev ,<span class="type">void</span> *ctx)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*bufferevent_event_cb)</span><span class="params">(<span class="keyword">struct</span> bufferevent *bev,<span class="type">short</span> what,<span class="type">void</span> *ctx)</span></span>;</span><br><span class="line"><span class="comment">//What代表对应的事件</span></span><br><span class="line"><span class="comment">//BEV_EVENT_EOF遇到文件结束提示</span></span><br><span class="line"><span class="comment">//BEV_EVENT_ERROR发生错误</span></span><br><span class="line"><span class="comment">//BEV_EVENT_TIMEOUT发生超时</span></span><br><span class="line"><span class="comment">//BEV_EVENT_CONNECTED请求的过程中连接已经完成</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">bufferevent_write</span><span class="params">(<span class="keyword">struct</span> bufferevent *bufev,<span class="type">const</span> <span class="type">void</span> *data,<span class="type">size_t</span> size)</span></span>;</span><br><span class="line"><span class="comment">//bufferevent_write是将data的数据写到bufferevent的写缓冲区</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">bufferevnet_write_buffer</span><span class="params">(<span class="keyword">struct</span> bufferevent *bufev,<span class="keyword">struct</span> evbuffer *buf)</span></span>;</span><br><span class="line"><span class="comment">//bufferevent_write_buffer 是将数据写到缓冲区另外一个写法，实际上bufferevent的内部的两个缓冲区结构就是struct evbuffer</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">size_t</span> <span class="title">bufferevent_read</span><span class="params">(<span class="keyword">struct</span> bufferevent *bufev,<span class="type">void</span> *data,<span class="type">size_t</span> size)</span></span>;</span><br><span class="line"><span class="comment">//bufferevent_read是将bufferevent的读缓冲区数据读到data中，同时将读到的数据从bufferevent的读缓冲清除。</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="链接监听器-evconnlistener"><a href="#链接监听器-evconnlistener" class="headerlink" title="链接监听器-evconnlistener"></a>链接监听器-evconnlistener</h1><p>链接监听器封装了底层的socket通信相关函数，比如socket，bind，listen，accept这几个函数。链接监听器创建后实际上相当于调用了socket，bind，listen，此时等待新的客户端链接到来，如果又新的客户端连接，那么内部先进行调用accept处理，然后调用用户指定的回调函数。可以先看看函数原型，了解一下他是怎么运作的：</p>
+<p>函数声明所在的头文件：event2&#x2F;listener.h</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> evconnlistener *<span class="title function_">evconnlistener_new_bind</span><span class="params">(<span class="keyword">struct</span> event_base *base,</span></span><br><span class="line"><span class="params">    evconnlistener_cb cb,<span class="type">void</span> *ptr,<span class="type">unsigned</span> flags,<span class="type">int</span> backlog,</span></span><br><span class="line"><span class="params">    <span class="type">const</span> <span class="keyword">struct</span> sockaddr *sa,<span class="type">int</span> socklen)</span>;</span><br><span class="line"><span class="comment">//函数说明：</span></span><br><span class="line"><span class="comment">//  是在当前没有套接字的情况下对链接监听器进行初始化，看最后2个参数实际上</span></span><br><span class="line"><span class="comment">//就是bind使用的关键参数，backlog是listen函数的关键参数（略有不同的是，如果</span></span><br><span class="line"><span class="comment">//backlog是-1，那么监听器会自动选择一个合适的值，如果填0，那么监听器会认为</span></span><br><span class="line"><span class="comment">//listen函数是已经被调用过了），ptr是回调函数的参数，cb是有新链接之后的回调</span></span><br><span class="line"><span class="comment">//函数，但是注意这个回调函数触发的时候，链接器已经处理好新连接了，并将与新连接</span></span><br><span class="line"><span class="comment">//通信的描述符交给回调函数。flags需要参考几个值：</span></span><br><span class="line"><span class="comment">// LEV_OPT_LEAVE_SOCKETS_BLOCKING 文件描述符为阻塞的</span></span><br><span class="line"><span class="comment">// LEV_OPT_CLOSE_ON_FREE 关闭时自动释放</span></span><br><span class="line"><span class="comment">// LEV_OPT_REUSEABLE 端口复用</span></span><br><span class="line"><span class="comment">// LEV_OPT_THREADSAFE 分配锁，线程安全</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">evconnlistener</span> *<span class="built_in">evconnlistener_new</span>(<span class="keyword">struct</span> event_base *base,</span><br><span class="line">    evconnlistener_cb cb,<span class="type">void</span> *ptr,<span class="type">unsigned</span> flags,<span class="type">int</span> backlog,</span><br><span class="line">    <span class="type">evutil_socket_t</span> fd);</span><br><span class="line"><span class="comment">//evconnlistener_new函数与前一个函数不同的地方在与后两个参数，使用本函数时，</span></span><br><span class="line"><span class="comment">//认为socket已经初始化好，并且bind完成，甚至也可以做完listen，所以大多数时候，我们都可以使用第一个函数</span></span><br></pre></td></tr></table></figure>
+
+<p>两个函数的回调函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*evconnlistener_cb)</span><span class="params">(<span class="keyword">struct</span> evconnlistener *evl,evutil_socket fd,<span class="keyword">struct</span> sockaddr *cliaddr,<span class="type">int</span> socklen,<span class="type">void</span> *ptr)</span></span>;</span><br><span class="line"><span class="comment">//回调函数fd参数是与客户端通信的描述符，并非是等待连接的监听的那个描述符，所以cliaddr对应的也是新连接的对端地址信息，已经是accept处理好的</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">evconnlistener_free</span><span class="params">(<span class="keyword">struct</span> evconnlistener *lev)</span></span>;</span><br><span class="line"><span class="comment">//函数说明：释放连接监听</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">evconnlistener_enable</span><span class="params">(<span class="keyword">struct</span> evconnlistener *lev)</span></span>;</span><br><span class="line"><span class="comment">//函数说明：使链接监听器生效</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">evconnlistener_disable</span><span class="params">(<span class="keyword">struct</span> evconnlistener *lev)</span></span>;</span><br><span class="line"><span class="comment">//函数说明：使链接监听器失效</span></span><br></pre></td></tr></table></figure>
+
+<p>如果上述函数都较为了解了，可以尝试去看懂hello-world.c的代码，在安装包sample目录下，其中有涉及到信号的函数，看看自己能否找到函数的原型在哪？实际上就是一个宏定义，也是我们之前介绍的event_new函数，只是对应一个信号事件而已，处理机制略有不同。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/07/01/C++-%E5%AD%A6%E4%B9%A0-%E5%BC%82%E5%B8%B8/" rel="prev" title="C++学习 异常">
+      <i class="fa fa-chevron-left"></i> C++学习 异常
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0%E7%9B%AE%E6%A0%87"><span class="nav-number">1.</span> <span class="nav-text">学习目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#libevent%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">libevent介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#libevent%E7%9A%84%E5%AE%89%E8%A3%85"><span class="nav-number">3.</span> <span class="nav-text">libevent的安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#libevent%E5%BA%93%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">libevent库的使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#libevent%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">libevent的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#libevent%E7%9A%84%E5%9C%B0%E5%9F%BAevent-base"><span class="nav-number">5.1.</span> <span class="nav-text">libevent的地基event_base</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AD%89%E5%BE%85%E4%BA%8B%E4%BB%B6%E4%BA%A7%E7%94%9F-%E5%BE%AA%E7%8E%AF%E7%AD%89%E5%BE%85event-loop"><span class="nav-number">5.2.</span> <span class="nav-text">等待事件产生-循环等待event_loop</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8libevent%E5%BA%93%E7%9A%84%E6%AD%A5%E9%AA%A4"><span class="nav-number">5.3.</span> <span class="nav-text">使用libevent库的步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E9%A9%B1%E5%8A%A8-event"><span class="nav-number">5.4.</span> <span class="nav-text">事件驱动-event</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#libevent%E6%9C%8D%E5%8A%A1%E7%AB%AF%E7%A8%8B%E5%BA%8F%E6%B5%8B%E8%AF%95%E5%92%8C%E9%94%99%E8%AF%AF%E5%88%86%E6%9E%90"><span class="nav-number">6.</span> <span class="nav-text">libevent服务端程序测试和错误分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%87%AA%E5%B8%A6buffer%E7%9A%84%E4%BA%8B%E4%BB%B6bufferevent"><span class="nav-number">7.</span> <span class="nav-text">自带buffer的事件bufferevent</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E7%9B%91%E5%90%AC%E5%99%A8-evconnlistener"><span class="nav-number">8.</span> <span class="nav-text">链接监听器-evconnlistener</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">49</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">647k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">19:37</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : '43ed63d6742272746d0dd98497cdce16',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
