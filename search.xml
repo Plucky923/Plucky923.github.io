@@ -9444,4 +9444,44 @@
         <category>网络编程</category>
       </categories>
   </entry>
+  <entry>
+    <title>学习 Linux 自定义内核模块</title>
+    <url>/2023/07/15/%E5%AD%A6%E4%B9%A0-Linux-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97/</url>
+    <content><![CDATA[<h1 id="程序举例"><a href="#程序举例" class="headerlink" title="程序举例"></a>程序举例</h1><p>可以在任意目录下编写自定义内核模块，在这个例子中我将模块放在&#x2F;home&#x2F;hust&#x2F;modules_6.3.7，例如编写一段hello.c代码</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">  <span class="comment">// hello.c </span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">hello_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    printk(<span class="string">&quot;Hello World!\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">hello_exit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    printk(<span class="string">&quot;Goodbye World!\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(hello_init);</span><br><span class="line">module_exit(hello_exit);</span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;Your Name&quot;</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">&quot;A Simple Hello World module&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>说明：虽然文件后缀为.c，但是语法跟标准c有差异，模块编写是基于内核编写的</p>
+<h1 id="编写Makefile"><a href="#编写Makefile" class="headerlink" title="编写Makefile"></a>编写Makefile</h1><p>在hello.c相同目录下新建Makefile文件，内容如下</p>
+<figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line">obj-m := hello.o </span><br><span class="line"></span><br><span class="line">KDIR := /home/hust/linux-6.3.7</span><br><span class="line">MDIR := /home/hust/modules_6.3.7</span><br><span class="line"></span><br><span class="line"><span class="section">all:</span></span><br><span class="line">	make -C <span class="variable">$(KDIR)</span> M=<span class="variable">$(MDIR)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">	make -C <span class="variable">$(KDIR)</span> M=<span class="variable">$(MDIR)</span> clean</span><br></pre></td></tr></table></figure>
+
+<p>KDIR是linux内核的源码文件夹，这里linux-6.3.7是自己编译运行的内核，所以直接就放的是内核源码文件夹，如果是Ubuntu的内核，就在    &#x2F;usr&#x2F;src文件夹里找到相应的内核。</p>
+<p>MDIR是hello.c所在的文件夹，即自定义内核模块所在的文件夹。</p>
+<h1 id="编译模块文件"><a href="#编译模块文件" class="headerlink" title="编译模块文件"></a>编译模块文件</h1><p>执行命令</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<p>得到hello.ko文件，即为模块文件</p>
+<h1 id="安装模块"><a href="#安装模块" class="headerlink" title="安装模块"></a>安装模块</h1><p>执行命令</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo insmod hello.ko</span><br></pre></td></tr></table></figure>
+
+<h2 id="验证是否成功"><a href="#验证是否成功" class="headerlink" title="验证是否成功"></a>验证是否成功</h2><p>执行命令</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo dmesg</span><br></pre></td></tr></table></figure>
+
+<p>查看输出了我们代码中打印的Hello World!</p>
+<p>执行命令</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">lsmod | grep hello</span><br></pre></td></tr></table></figure>
+
+<p>可以看到模块已经出现了</p>
+<h1 id="卸载模块"><a href="#卸载模块" class="headerlink" title="卸载模块"></a>卸载模块</h1><p>执行</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo rmmod hello</span><br></pre></td></tr></table></figure>
+
+<h2 id="验证是否成功-1"><a href="#验证是否成功-1" class="headerlink" title="验证是否成功"></a>验证是否成功</h2><p>执行命令</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo dmesg  </span><br></pre></td></tr></table></figure>
+
+<p>查看输出了我们代码中打印的Goodbye World！</p>
+<p>执行</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">lsmod | grep hello</span><br></pre></td></tr></table></figure>
+
+<p>可以看到我们的模块已经不存在了</p>
+]]></content>
+  </entry>
 </search>
