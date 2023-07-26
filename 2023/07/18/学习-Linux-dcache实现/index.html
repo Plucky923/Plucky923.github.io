@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="简介一个dentry结构体代表文件系统中的一个目录或文件，vfs使用基于dentry构建的dentry树来管理整个系统的目录树结构。当然，对于大型系统不可能把整个系统的目录树都塞进内存，dentry cache就负责维护系统目录树中最常用的项目，并采用lru的淘汰策略淘汰最近不使用的项目，维持整个dentry cache中项目数量的稳定。 dentry的三种状态">
+<meta property="og:type" content="article">
+<meta property="og:title" content="学习 Linux dcache实现">
+<meta property="og:url" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-dcache%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="简介一个dentry结构体代表文件系统中的一个目录或文件，vfs使用基于dentry构建的dentry树来管理整个系统的目录树结构。当然，对于大型系统不可能把整个系统的目录树都塞进内存，dentry cache就负责维护系统目录树中最常用的项目，并采用lru的淘汰策略淘汰最近不使用的项目，维持整个dentry cache中项目数量的稳定。 dentry的三种状态">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-07-18T07:15:54.000Z">
+<meta property="article:modified_time" content="2023-07-18T08:09:46.325Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-dcache%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>学习 Linux dcache实现 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-dcache%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          学习 Linux dcache实现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-07-18 15:15:54 / Modified: 16:09:46" itemprop="dateCreated datePublished" datetime="2023-07-18T15:15:54+08:00">2023-07-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>20k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>37 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>一个dentry结构体代表文件系统中的一个目录或文件，vfs使用基于dentry构建的dentry树来管理整个系统的目录树结构。当然，对于大型系统不可能把整个系统的目录树都塞进内存，dentry cache就负责维护系统目录树中最常用的项目，并采用lru的淘汰策略淘汰最近不使用的项目，维持整个dentry cache中项目数量的稳定。</p>
+<h1 id="dentry的三种状态"><a href="#dentry的三种状态" class="headerlink" title="dentry的三种状态"></a>dentry的三种状态</h1><ul>
+<li><p>未使用（unused）状态：该dentry对象的引用计数d_count的值为0，但其d_inode指针仍然指向相关的的索引节点。该目录项仍然包含有效的信息，只是当前没有人引用他。这种dentry对象在回收内存时可能会被释放。</p>
+</li>
+<li><p>正在使用（inuse）状态：处于该状态下的dentry对象的引用计数d_count大于0，且其d_inode指向相关的inode对象。这种dentry对象不能被释放。</p>
+</li>
+<li><p>负（negative）状态：与目录项相关的inode对象不复存在（相应的磁盘索引节点可能已经被删除），dentry对象的d_inode指针为NULL。但这种dentry对象仍然保存在dcache中，以便后续对同一文件名的查找能够快速完成。这种dentry对象在回收内存时将首先被释放。</p>
+</li>
+</ul>
+<h1 id="dentry-hashtable"><a href="#dentry-hashtable" class="headerlink" title="dentry_hashtable"></a>dentry_hashtable</h1><p>我们所说的dcache，指的是目录项高速缓存，主要是用于高效处理路径解析查找，它实际上由两部分组成：<code>dentry_hashtable</code>哈希表和<code>dentry_unused</code>链表。</p>
+<p><code>dentry_hashtable</code>定义如下</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/dentry_hashtable">dentry_hashtable identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">hlist_bl_head</span> *<span class="title">dentry_hashtable</span> __<span class="title">read_mostly</span>;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>__read_mostly</code>宏表示此处会经常被读取，内核加载时将其存放在cache中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> __read_mostly __section(<span class="string">&quot;.data..read_mostly&quot;</span>)</span></span><br></pre></td></tr></table></figure>
+
+<p><code>_read_mostly</code>修饰的变量均放在<code>.data..read_mostly</code>段中。</p>
+<h1 id="dcache初始化"><a href="#dcache初始化" class="headerlink" title="dcache初始化"></a>dcache初始化</h1><p><code>dentry cache</code>在内核启动时完成初始化。内核的启动入口函数是<code>init/main.c</code>文件的<code>start_kernel</code>函数，<code>start_kernel</code>函数会调用<code>vfs_caches_init</code>函数，并调用<code>dcache_init</code>函数来完成<code>dentry cache</code>的初始化。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/source/init/main.c#L944">main.c - init&#x2F;main.c - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br></pre></td><td class="code"><pre><span class="line">asmlinkage __visible <span class="type">void</span> __init __no_sanitize_address <span class="title function_">start_kernel</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> *command_line;</span><br><span class="line">    <span class="type">char</span> *after_dashes;</span><br><span class="line"></span><br><span class="line">    set_task_stack_end_magic(&amp;init_task);</span><br><span class="line">    smp_setup_processor_id();</span><br><span class="line">    debug_objects_early_init();</span><br><span class="line">    init_vmlinux_build_id();</span><br><span class="line"></span><br><span class="line">    cgroup_init_early();</span><br><span class="line"></span><br><span class="line">    local_irq_disable();</span><br><span class="line">    early_boot_irqs_disabled = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Interrupts are still disabled. Do necessary setups, then</span></span><br><span class="line"><span class="comment">     * enable them.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    boot_cpu_init();</span><br><span class="line">    page_address_init();</span><br><span class="line">    pr_notice(<span class="string">&quot;%s&quot;</span>, linux_banner);</span><br><span class="line">    early_security_init();</span><br><span class="line">    setup_arch(&amp;command_line);</span><br><span class="line">    setup_boot_config();</span><br><span class="line">    setup_command_line(command_line);</span><br><span class="line">    setup_nr_cpu_ids();</span><br><span class="line">    setup_per_cpu_areas();</span><br><span class="line">    smp_prepare_boot_cpu();    <span class="comment">/* arch-specific boot-cpu hooks */</span></span><br><span class="line">    boot_cpu_hotplug_init();</span><br><span class="line"></span><br><span class="line">    build_all_zonelists(<span class="literal">NULL</span>);</span><br><span class="line">    page_alloc_init();</span><br><span class="line"></span><br><span class="line">    pr_notice(<span class="string">&quot;Kernel command line: %s\n&quot;</span>, saved_command_line);</span><br><span class="line">    <span class="comment">/* parameters may set static keys */</span></span><br><span class="line">    jump_label_init();</span><br><span class="line">    parse_early_param();</span><br><span class="line">    after_dashes = parse_args(<span class="string">&quot;Booting kernel&quot;</span>,</span><br><span class="line">                  static_command_line, __start___param,</span><br><span class="line">                  __stop___param - __start___param,</span><br><span class="line">                  <span class="number">-1</span>, <span class="number">-1</span>, <span class="literal">NULL</span>, &amp;unknown_bootoption);</span><br><span class="line">    print_unknown_bootoptions();</span><br><span class="line">    <span class="keyword">if</span> (!IS_ERR_OR_NULL(after_dashes))</span><br><span class="line">        parse_args(<span class="string">&quot;Setting init args&quot;</span>, after_dashes, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="number">-1</span>, <span class="number">-1</span>,</span><br><span class="line">               <span class="literal">NULL</span>, set_init_arg);</span><br><span class="line">    <span class="keyword">if</span> (extra_init_args)</span><br><span class="line">        parse_args(<span class="string">&quot;Setting extra init args&quot;</span>, extra_init_args,</span><br><span class="line">               <span class="literal">NULL</span>, <span class="number">0</span>, <span class="number">-1</span>, <span class="number">-1</span>, <span class="literal">NULL</span>, set_init_arg);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Architectural and non-timekeeping rng init, before allocator init */</span></span><br><span class="line">    random_init_early(command_line);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * These use large bootmem allocations and must precede</span></span><br><span class="line"><span class="comment">     * kmem_cache_init()</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    setup_log_buf(<span class="number">0</span>);</span><br><span class="line">    vfs_caches_init_early();</span><br><span class="line">    sort_main_extable();</span><br><span class="line">    trap_init();</span><br><span class="line">    mm_init();</span><br><span class="line">    poking_init();</span><br><span class="line">    ftrace_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* trace_printk can be enabled here */</span></span><br><span class="line">    early_trace_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Set up the scheduler prior starting any interrupts (such as the</span></span><br><span class="line"><span class="comment">     * timer interrupt). Full topology setup happens at smp_init()</span></span><br><span class="line"><span class="comment">     * time - but meanwhile we still have a functioning scheduler.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    sched_init();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (WARN(!irqs_disabled(),</span><br><span class="line">         <span class="string">&quot;Interrupts were enabled *very* early, fixing it\n&quot;</span>))</span><br><span class="line">        local_irq_disable();</span><br><span class="line">    radix_tree_init();</span><br><span class="line">    maple_tree_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Set up housekeeping before setting up workqueues to allow the unbound</span></span><br><span class="line"><span class="comment">     * workqueue to take non-housekeeping into account.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    housekeeping_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Allow workqueue creation and work item queueing/cancelling</span></span><br><span class="line"><span class="comment">     * early.  Work item execution depends on kthreads and starts after</span></span><br><span class="line"><span class="comment">     * workqueue_init().</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    workqueue_init_early();</span><br><span class="line"></span><br><span class="line">    rcu_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Trace events are available after this */</span></span><br><span class="line">    trace_init();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (initcall_debug)</span><br><span class="line">        initcall_debug_enable();</span><br><span class="line"></span><br><span class="line">    context_tracking_init();</span><br><span class="line">    <span class="comment">/* init some links before init_ISA_irqs() */</span></span><br><span class="line">    early_irq_init();</span><br><span class="line">    init_IRQ();</span><br><span class="line">    tick_init();</span><br><span class="line">    rcu_init_nohz();</span><br><span class="line">    init_timers();</span><br><span class="line">    srcu_init();</span><br><span class="line">    hrtimers_init();</span><br><span class="line">    softirq_init();</span><br><span class="line">    timekeeping_init();</span><br><span class="line">    time_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* This must be after timekeeping is initialized */</span></span><br><span class="line">    random_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* These make use of the fully initialized rng */</span></span><br><span class="line">    kfence_init();</span><br><span class="line">    boot_init_stack_canary();</span><br><span class="line"></span><br><span class="line">    perf_event_init();</span><br><span class="line">    profile_init();</span><br><span class="line">    call_function_init();</span><br><span class="line">    WARN(!irqs_disabled(), <span class="string">&quot;Interrupts were enabled early\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    early_boot_irqs_disabled = <span class="literal">false</span>;</span><br><span class="line">    local_irq_enable();</span><br><span class="line"></span><br><span class="line">    kmem_cache_init_late();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * HACK ALERT! This is early. We&#x27;re enabling the console before</span></span><br><span class="line"><span class="comment">     * we&#x27;ve done PCI setups etc, and console_init() must be aware of</span></span><br><span class="line"><span class="comment">     * this. But we do want output early, in case something goes wrong.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    console_init();</span><br><span class="line">    <span class="keyword">if</span> (panic_later)</span><br><span class="line">        panic(<span class="string">&quot;Too many boot %s vars at `%s&#x27;&quot;</span>, panic_later,</span><br><span class="line">              panic_param);</span><br><span class="line"></span><br><span class="line">    lockdep_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Need to run this when irqs are enabled, because it wants</span></span><br><span class="line"><span class="comment">     * to self-test [hard/soft]-irqs on/off lock inversion bugs</span></span><br><span class="line"><span class="comment">     * too:</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    locking_selftest();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * This needs to be called before any devices perform DMA</span></span><br><span class="line"><span class="comment">     * operations that might use the SWIOTLB bounce buffers. It will</span></span><br><span class="line"><span class="comment">     * mark the bounce buffers as decrypted so that their usage will</span></span><br><span class="line"><span class="comment">     * not cause &quot;plain-text&quot; data to be decrypted when accessed.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    mem_encrypt_init();</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_BLK_DEV_INITRD</span></span><br><span class="line">    <span class="keyword">if</span> (initrd_start &amp;&amp; !initrd_below_start_ok &amp;&amp;</span><br><span class="line">        page_to_pfn(virt_to_page((<span class="type">void</span> *)initrd_start)) &lt; min_low_pfn) &#123;</span><br><span class="line">        pr_crit(<span class="string">&quot;initrd overwritten (0x%08lx &lt; 0x%08lx) - disabling it.\n&quot;</span>,</span><br><span class="line">            page_to_pfn(virt_to_page((<span class="type">void</span> *)initrd_start)),</span><br><span class="line">            min_low_pfn);</span><br><span class="line">        initrd_start = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    setup_per_cpu_pageset();</span><br><span class="line">    numa_policy_init();</span><br><span class="line">    acpi_early_init();</span><br><span class="line">    <span class="keyword">if</span> (late_time_init)</span><br><span class="line">        late_time_init();</span><br><span class="line">    sched_clock_init();</span><br><span class="line">    calibrate_delay();</span><br><span class="line">    pid_idr_init();</span><br><span class="line">    anon_vma_init();</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_X86</span></span><br><span class="line">    <span class="keyword">if</span> (efi_enabled(EFI_RUNTIME_SERVICES))</span><br><span class="line">        efi_enter_virtual_mode();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    thread_stack_cache_init();</span><br><span class="line">    cred_init();</span><br><span class="line">    fork_init();</span><br><span class="line">    proc_caches_init();</span><br><span class="line">    uts_ns_init();</span><br><span class="line">    key_init();</span><br><span class="line">    security_init();</span><br><span class="line">    dbg_late_init();</span><br><span class="line">    net_ns_init();</span><br><span class="line">    vfs_caches_init();</span><br><span class="line">    pagecache_init();</span><br><span class="line">    signals_init();</span><br><span class="line">    seq_file_init();</span><br><span class="line">    proc_root_init();</span><br><span class="line">    nsfs_init();</span><br><span class="line">    cpuset_init();</span><br><span class="line">    cgroup_init();</span><br><span class="line">    taskstats_init_early();</span><br><span class="line">    delayacct_init();</span><br><span class="line"></span><br><span class="line">    check_bugs();</span><br><span class="line"></span><br><span class="line">    acpi_subsystem_init();</span><br><span class="line">    arch_post_acpi_subsys_init();</span><br><span class="line">    kcsan_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Do the rest non-__init&#x27;ed, we&#x27;re now alive */</span></span><br><span class="line">    arch_call_rest_init();</span><br><span class="line"></span><br><span class="line">    prevent_tail_call_optimization();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过<code>dcache_init</code>初始化哈希表存放<code>dcache</code>，将<code>dentry</code>通过哈希表组织起来</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/source/fs/dcache.c#L3301">dcache.c - fs&#x2F;dcache.c - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> __init <span class="title function_">dcache_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * 对于稳定状态的列表，可以添加一个构造函数，</span></span><br><span class="line"><span class="comment">     * 但由于dcache的缓存特性，这可能并不值得。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="comment">// 创建一个dentry_cache，它是一个内存缓存，用于存储dentry结构</span></span><br><span class="line">    dentry_cache = KMEM_CACHE_USERCOPY(dentry,</span><br><span class="line">        <span class="comment">// 设置内存缓存的一些属性标志</span></span><br><span class="line">        SLAB_RECLAIM_ACCOUNT|SLAB_PANIC|SLAB_MEM_SPREAD|SLAB_ACCOUNT,</span><br><span class="line">        d_iname);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果hashdist没有设置，直接返回</span></span><br><span class="line">    <span class="comment">/* Hash may have been set up in dcache_init_early */</span></span><br><span class="line">    <span class="keyword">if</span> (!hashdist)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 分配一个大型系统哈希表，用于存储dentry结构的哈希表</span></span><br><span class="line">    dentry_hashtable =</span><br><span class="line">        alloc_large_system_hash(<span class="string">&quot;Dentry cache&quot;</span>,</span><br><span class="line">                    <span class="comment">// 每个哈希表节点的大小</span></span><br><span class="line">                    <span class="keyword">sizeof</span>(<span class="keyword">struct</span> hlist_bl_head),</span><br><span class="line">                    <span class="comment">// 哈希表的预分配大小</span></span><br><span class="line">                    dhash_entries,</span><br><span class="line">                    <span class="number">13</span>, <span class="comment">// 这是一个固定参数，用于计算哈希表的大小</span></span><br><span class="line">                    HASH_ZERO, <span class="comment">// 哈希表的标志</span></span><br><span class="line">                    &amp;d_hash_shift, <span class="comment">// 用于计算哈希值的移位值</span></span><br><span class="line">                    <span class="literal">NULL</span>, <span class="comment">// 指定一个用于计算哈希值的函数，这里使用默认函数</span></span><br><span class="line">                    <span class="number">0</span>, <span class="comment">// 只在NUMA系统中使用，这里设置为0</span></span><br><span class="line">                    <span class="number">0</span>); <span class="comment">// 只在NUMA系统中使用，这里设置为0</span></span><br><span class="line">    <span class="comment">// 计算哈希值的移位值</span></span><br><span class="line">    d_hash_shift = <span class="number">32</span> - d_hash_shift;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>dcache_init函数主要工作内容是两项。</p>
+<p>第一项是初始化<code>dentry cache</code>模块的私有变量<code>struct kmem_cache *dentry_cache</code>，这是一个slab内存分配器。slab内存分配是内核内存管理的常用手段，其核心思想非常简单，可以理解为一个对象池，专门应对同一类型，也就是等长内存的频繁分配和释放。dentry cache模块的<code>dentry_cache</code>字段就是专门用来分配<code>struct dentry</code>数据结构所需使用的内存的。</p>
+<p>第二项是初始化<code>dentry cache</code>模块的另一个私有变量<code>struct hlist_bl_head *dentry_hashtable</code>，这是一个巨大的哈希表，也就是<code>dentry cache</code>的查找索引，可以dentry的name直接在这个哈希表中进行查找。类型<code>struct hlist_bl_head</code>是一个bit lock hash list的链表头。<code>hash list</code>用于实现哈希表的一个slot，这里的bit lock hash list是一个内核中的hash list实现版本，不需要为每个<code>hash list</code>分配一把锁，只需要使用链表头指针的一个bit来进行访问并发控制，节省内存开销。dentry_hashtable由一个定长的hlist_bl_head数组组成，相当于是一个永不扩容的哈希表，可以减少并发控制带来的性能开销和实现复杂度。</p>
+<p>在dentry的数据结构中，是通过类型为qstr的name来充当key值，进而计算出hash表的索引即value，例如下面的代码</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/d_hash">d_hash identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">d_hash(dentry-&gt;d_name.hash)</span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="keyword">struct</span> hlist_bl_head *<span class="title function_">d_hash</span><span class="params">(<span class="type">unsigned</span> <span class="type">int</span> hash)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> dentry_hashtable + (hash &gt;&gt; d_hash_shift);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>既然是依据<code>name</code>来做<code>hash</code>，那相同<code>name</code>的、不同<code>name</code>的，都可能在同一<code>hash</code>链表里（碰撞）。</p>
+<p>name不同，可以通过对比字符串，而name相同的，其parent肯定不同（同一目录下不可能有两种同名的文件），所以具有是具有唯一性的。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/dentry">dentry identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> &#123;</span></span><br><span class="line">    <span class="comment">/* RCU lookup touched fields */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> d_flags;        <span class="comment">/* 目录项的标志位，受 d_lock 保护 */</span></span><br><span class="line">    <span class="type">seqcount_spinlock_t</span> d_seq;    <span class="comment">/* 每个目录项的序列锁 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_bl_node</span> <span class="title">d_hash</span>;</span>    <span class="comment">/* 目录项形成的用于查找的哈希列表 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">d_parent</span>;</span>    <span class="comment">/* 父目录的目录项dentry */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">qstr</span> <span class="title">d_name</span>;</span>             <span class="comment">/* 目录项的名称（可以快速查找） */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">d_inode</span>;</span>        <span class="comment">/* 与文件名称关联的，与目录名关联的 inode 结构指针，NULL 表示负目录项 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> d_iname[DNAME_INLINE_LEN];    <span class="comment">/* 短文件名称 */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Ref lookup also touches following */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">lockref</span> <span class="title">d_lockref</span>;</span>    <span class="comment">/* 每个目录项的锁和引用计数 */</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">dentry_operations</span> *<span class="title">d_op</span>;</span> <span class="comment">/* 目录项操作函数集 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">super_block</span> *<span class="title">d_sb</span>;</span>    <span class="comment">/* 目录项树的根节点（即文件的超级块） */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> d_time;        <span class="comment">/* 用于 d_revalidate 的时间戳 */</span></span><br><span class="line">    <span class="type">void</span> *d_fsdata;            <span class="comment">/* 特定文件系统的数据 */</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">d_lru</span>;</span>        <span class="comment">/* LRU（最近最少使用）列表 */</span></span><br><span class="line">        <span class="type">wait_queue_head_t</span> *d_wait;    <span class="comment">/* 仅用于查找中的目录项 */</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">d_child</span>;</span>    <span class="comment">/* 父目录项的子项列表 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">d_subdirs</span>;</span>    <span class="comment">/* 子目录项列表 */</span></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * d_alias and d_rcu can share memory</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">hlist_node</span> <span class="title">d_alias</span>;</span>   </span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">hlist_bl_node</span> <span class="title">d_in_lookup_hash</span>;</span>    <span class="comment">/* 仅用于查找中的目录项 */</span></span><br><span class="line">         <span class="class"><span class="keyword">struct</span> <span class="title">rcu_head</span> <span class="title">d_rcu</span>;</span></span><br><span class="line">    &#125; d_u;</span><br><span class="line">&#125; __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<p>只要在内存中建立了一个dentry，那么它指向的inode也会在内存中被”cached”，这就构成了inode cache（简称icache），icache的每一项内容都是一个已挂载的文件系统中的文件inode。</p>
+<p>如果一个dentry的引用计数（dentry-&gt;d_lockref.count)不为0，说明还有进程在引用它，比如通过“open”操作，此时dentry处于“in use”状态。</p>
+<hr>
+<p>而当其引用计数变为0，表明不再被使用（比如文件被close了），则切换到“unused”的状态，但此时其指向的内存inode依然有效，因为这些inode对应的文件之后可能被用到。删除指向相应文件的最后一个硬链接时，in use的dentry可能会变为negative，在这种情况下，dentry对象会移动到unused dentry的LRU列表中。</p>
+<p>对于那些未使用状态的dentry对象来说，它们被再次访问的可能性很大，因此，不能将它们立即丢弃而必须将它们在dcache保留一段时间。为此，Linux通过LRU链表来有效地管理这些未使用的dentry对象。每一个处于unused状态下的dentry通过其d_lru指针域链入系统全局的LRU链表，表头包含在super_block::s_dentry_lru中。</p>
+<p>当内存紧张时，这些unused dentry所占据的内存是可以被回收的，根据局部性原理，我们应当选择最近未被使用的dentry作为回收的对象。同page cache类似，通过slab cache分配得到的dentry在进入unused状态后，会通过<strong>LRU链表</strong>的形式被管理，最新加入的unused dentry被放在链表的头部，启动内存shrink的操作时，链表尾部的dentry将被率先回收。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.8/A/ident/d_lru_add">d_lru_add identifier - Linux source code (v6.3.8) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">d_lru_add</span><span class="params">(<span class="keyword">struct</span> dentry *dentry)</span></span><br><span class="line">&#123;</span><br><span class="line">    D_FLAG_VERIFY(dentry, <span class="number">0</span>);</span><br><span class="line">    dentry-&gt;d_flags |= DCACHE_LRU_LIST;</span><br><span class="line">    this_cpu_inc(nr_dentry_unused);</span><br><span class="line">    <span class="keyword">if</span> (d_is_negative(dentry))</span><br><span class="line">        this_cpu_inc(nr_dentry_negative);</span><br><span class="line">    WARN_ON_ONCE(!list_lru_add(&amp;dentry-&gt;d_sb-&gt;s_dentry_lru, &amp;dentry-&gt;d_lru));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果尝试open一个路径，但最后发现此路径对应的文件在磁盘上是不存在的，此时路径对应的的dentry也会以<a href="https://link.zhihu.com/?target=https://lwn.net/Articles/814535/">negative entry</a>的形式记录在dcache里，这样下次在试图访问这个不存在的路径时，可以立即返回错误，不用再去磁盘瞎折腾一番（失败的案例同样有价值）。</p>
+<h1 id="path-lookup搜索dcache流程"><a href="#path-lookup搜索dcache流程" class="headerlink" title="path lookup搜索dcache流程"></a>path lookup搜索dcache流程</h1><p>路径查找首先用lookup_fast在dcache里找，一开始查找的时候会设置LOOKUP_RCU标志，所以会调用__d_lookup_rcu函数，这个函数里通过d_hash找到要找的dentry的对应的哈希表，通过hlist_bl_for_each_entry_rcu遍历这个哈希表，对比父目录，名称等等是否相同，然后在这个函数里没有锁之类的东西，如果找不到，会通过try_to_unlazy函数将rcu-walk转为ref-walk，然后一层层返回上去，到do_filp_open函数中，重新调用path_openat函数，这个时候没有设置LOOKUP_RCU了，所以先进入lookup_fast就不会调用__d_lookup_rcu，而是去调用__d_lookup，这个函数和__d_lookup_rcu基本相同，但是多了很多锁，如果这个函数还是找不到对应的dentry，就说明在dcache中没有，就要进入lookup_slow调用具体文件系统的lookup，去磁盘里找。</p>
+<p>首先看到do_filp_open函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个名为 do_filp_open 的函数，该函数接受三个参数：dfd（目录文件描述符），pathname（文件名结构体指针）和 op（打开方式结构体指针）</span></span><br><span class="line"><span class="keyword">struct</span> file *<span class="title function_">do_filp_open</span><span class="params">(<span class="type">int</span> dfd, <span class="keyword">struct</span> filename *pathname,</span></span><br><span class="line"><span class="params">        <span class="type">const</span> <span class="keyword">struct</span> open_flags *op)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">nameidata</span> <span class="title">nd</span>;</span></span><br><span class="line">    <span class="comment">// 从 op 结构体中获取查找标志</span></span><br><span class="line">    <span class="type">int</span> flags = op-&gt;lookup_flags;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">filp</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用 set_nameidata 函数初始化 nd 结构体，传入 dfd（目录文件描述符）、pathname（文件名结构体指针）和 NULL（用于初始化 nd-&gt;intent）</span></span><br><span class="line">    set_nameidata(&amp;nd, dfd, pathname, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="comment">// 使用 path_openat 函数尝试打开文件，传入 nd（名字数据结构体）、op（打开方式结构体）和 flags（查找标志）；使用 LOOKUP_RCU 标志进行 RCU 优化</span></span><br><span class="line">    filp = path_openat(&amp;nd, op, flags | LOOKUP_RCU);</span><br><span class="line">    <span class="comment">// 如果文件打开失败并返回 -ECHILD 错误码，表明 RCU 优化失败，尝试使用非 RCU 优化方式打开文件</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(filp == ERR_PTR(-ECHILD)))</span><br><span class="line">        filp = path_openat(&amp;nd, op, flags);</span><br><span class="line">    <span class="comment">// 如果文件打开失败并返回 -ESTALE 错误码，表明文件系统状态陈旧，尝试使用 LOOKUP_REVAL 标志重新评估文件系统状态并打开文件</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(filp == ERR_PTR(-ESTALE)))</span><br><span class="line">        filp = path_openat(&amp;nd, op, flags | LOOKUP_REVAL);</span><br><span class="line">    <span class="comment">// 通过调用 restore_nameidata 函数恢复名字数据结构体（nd）的状态</span></span><br><span class="line">    restore_nameidata();</span><br><span class="line">    <span class="comment">// 返回文件结构体指针 filp</span></span><br><span class="line">    <span class="keyword">return</span> filp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这里展示了path walk的两种策略：rcu-walk和ref-walk。在 rcu-walk 期间将会禁止抢占，也决不能出现进程阻塞，所以其效率很高；ref-walk 会在 rcu-walk 失败、进程需要随眠或者需要取得某结构的引用计数（reference count）的情况下切换进来，很明显它的效率大大低于 rcu-walk。最后 REVAL其实也是 ref-walk，在以后我们会看到，该模式是在已经完成了路径查找，打开具体文件时，如果该文件已经过期（stale）才启动的，所以 REVAL 是给具体文件系统自己去解释的。其实 REVAL 几乎不会用到，在内核的文件系统中只有 nfs 用到了这个模式。</p>
+<p>首先看到<code>filp = path_openat(&amp;nd, op, flags | LOOKUP_RCU);</code>就是使用rcu-walk先进行路径查找，如果查找失败，回退到do_filp_open，进行ref-walk。</p>
+<p>进入到path_openat函数中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个名为 path_openat 的静态函数，该函数接受三个参数：nd（名字数据结构体指针）、op（打开方式结构体指针）和 flags（打开标志）</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">struct</span> file *<span class="title function_">path_openat</span><span class="params">(<span class="keyword">struct</span> nameidata *nd,</span></span><br><span class="line"><span class="params">            <span class="type">const</span> <span class="keyword">struct</span> open_flags *op, <span class="type">unsigned</span> flags)</span></span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">     <span class="keyword">while</span> (!(error = link_path_walk(s, nd)) &amp;&amp;</span><br><span class="line">          (s = open_last_lookups(nd, file, op)) != <span class="literal">NULL</span>)</span><br><span class="line">     ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>link_path_walk在达到最终目标所在目录的时候停下来，最终目标交给另一个函数open_last_lookups。</p>
+<p>在link_path_walk中有一个大循环，循环处理每个组件，其中，通过walk_component函数处理中间组件，接下来看到walk_component函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个名为 walk_component 的函数，参数包括一个指向 nameidata 结构体的指针和一个整数 flags</span></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="type">char</span> *<span class="title function_">walk_component</span><span class="params">(<span class="keyword">struct</span> nameidata *nd, <span class="type">int</span> flags)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 定义一个指向 dentry 结构体的指针</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">dentry</span>;</span></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * &quot;.&quot; 和 &quot;..&quot; 是特殊的 - 尤其是 &quot;..&quot;，因为它必须知道当前根目录和</span></span><br><span class="line"><span class="comment">     * 父目录之间的关系。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="comment">// 如果 nd-&gt;last_type 不是 LAST_NORM，则执行以下代码</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(nd-&gt;last_type != LAST_NORM)) &#123;</span><br><span class="line">        <span class="comment">// 如果 flags 没有设置 WALK_MORE 且 nd-&gt;depth 不为 0，则调用 put_link 函数</span></span><br><span class="line">        <span class="keyword">if</span> (!(flags &amp; WALK_MORE) &amp;&amp; nd-&gt;depth)</span><br><span class="line">            put_link(nd);</span><br><span class="line">        <span class="comment">// 调用 handle_dots 函数处理 &quot;.&quot; 和 &quot;..&quot;</span></span><br><span class="line">        <span class="keyword">return</span> handle_dots(nd, nd-&gt;last_type);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 调用 lookup_fast 函数进行快速查找</span></span><br><span class="line">    dentry = lookup_fast(nd);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果 dentry 是一个错误指针，则返回错误指针</span></span><br><span class="line">    <span class="keyword">if</span> (IS_ERR(dentry))</span><br><span class="line">        <span class="keyword">return</span> ERR_CAST(dentry);</span><br><span class="line">    <span class="comment">// 如果 dentry 为 NULL，则执行以下代码</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(!dentry)) &#123;</span><br><span class="line">        <span class="comment">// 调用 lookup_slow 函数进行慢速查找</span></span><br><span class="line">        dentry = lookup_slow(&amp;nd-&gt;last, nd-&gt;path.dentry, nd-&gt;flags);</span><br><span class="line">        <span class="comment">// 如果 dentry 是一个错误指针，则返回错误指针</span></span><br><span class="line">        <span class="keyword">if</span> (IS_ERR(dentry))</span><br><span class="line">            <span class="keyword">return</span> ERR_CAST(dentry);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果 flags 没有设置 WALK_MORE 且 nd-&gt;depth 不为 0，则调用 put_link 函数</span></span><br><span class="line">    <span class="keyword">if</span> (!(flags &amp; WALK_MORE) &amp;&amp; nd-&gt;depth)</span><br><span class="line">        put_link(nd);</span><br><span class="line">    <span class="comment">// 调用 step_into 函数进入下一个组件（目录或文件）</span></span><br><span class="line">    <span class="keyword">return</span> step_into(nd, flags, dentry);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 对于这个子路径可以分成三种情况，第一，它可能是“.”或“..”；第二，这就是一个普通的目录；第三，它是一个符号链接。</p>
+<p>对于普通组件，可以看到，首先会尝试lookup_fast然后，如果失败了才会启动lookup_slow。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">struct</span> dentry *<span class="title function_">lookup_fast</span><span class="params">(<span class="keyword">struct</span> nameidata *nd)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">dentry</span>, *<span class="title">parent</span> =</span> nd-&gt;path.dentry; <span class="comment">// 定义dentry指针，将nd中的path的dentry赋值给parent</span></span><br><span class="line">    <span class="type">int</span> status = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Rename seqlock is not required here because in the off chance</span></span><br><span class="line"><span class="comment">     * of a false negative due to a concurrent rename, the caller is</span></span><br><span class="line"><span class="comment">     * going to fall back to non-racy lookup.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">if</span> (nd-&gt;flags &amp; LOOKUP_RCU) &#123; <span class="comment">// 如果使用RCU（读-拷贝-更新）查找</span></span><br><span class="line">        dentry = __d_lookup_rcu(parent, &amp;nd-&gt;last, &amp;nd-&gt;next_seq); <span class="comment">// 用RCU方式查找目录项</span></span><br><span class="line">        <span class="keyword">if</span> (unlikely(!dentry)) &#123; <span class="comment">// 如果没有找到dentry</span></span><br><span class="line">            <span class="keyword">if</span> (!try_to_unlazy(nd)) <span class="comment">// 尝试将rcu锁升级为非rcu锁</span></span><br><span class="line">                <span class="keyword">return</span> ERR_PTR(-ECHILD); <span class="comment">// 返回错误</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">NULL</span>; <span class="comment">// 返回空指针</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * This sequence count validates that the parent had no</span></span><br><span class="line"><span class="comment">         * changes while we did the lookup of the dentry above.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">if</span> (read_seqcount_retry(&amp;parent-&gt;d_seq, nd-&gt;seq)) <span class="comment">// 验证在查找dentry过程中parent没有发生变化</span></span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(-ECHILD); <span class="comment">// 返回错误</span></span><br><span class="line"></span><br><span class="line">        status = d_revalidate(dentry, nd-&gt;flags); <span class="comment">// 验证dentry的有效性</span></span><br><span class="line">        <span class="keyword">if</span> (likely(status &gt; <span class="number">0</span>)) <span class="comment">// 如果验证成功</span></span><br><span class="line">            <span class="keyword">return</span> dentry; <span class="comment">// 返回dentry</span></span><br><span class="line">        <span class="keyword">if</span> (!try_to_unlazy_next(nd, dentry)) <span class="comment">// 尝试将rcu锁升级为非rcu锁</span></span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(-ECHILD); <span class="comment">// 返回错误</span></span><br><span class="line">        <span class="keyword">if</span> (status == -ECHILD)</span><br><span class="line">            <span class="comment">/* we&#x27;d been told to redo it in non-rcu mode */</span></span><br><span class="line">            status = d_revalidate(dentry, nd-&gt;flags); <span class="comment">// 在非RCU模式下重新验证dentry的有效性</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">// 如果使用非RCU查找，REF查找</span></span><br><span class="line">        dentry = __d_lookup(parent, &amp;nd-&gt;last); <span class="comment">// 查找目录项</span></span><br><span class="line">        <span class="keyword">if</span> (unlikely(!dentry)) <span class="comment">// 如果没有找到dentry</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">NULL</span>; <span class="comment">// 返回空指针</span></span><br><span class="line">        status = d_revalidate(dentry, nd-&gt;flags); <span class="comment">// 验证dentry的有效性</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (unlikely(status &lt;= <span class="number">0</span>)) &#123; <span class="comment">// 如果验证失败</span></span><br><span class="line">        <span class="keyword">if</span> (!status) <span class="comment">// 如果status为0</span></span><br><span class="line">            d_invalidate(dentry); <span class="comment">// 使dentry无效</span></span><br><span class="line">        dput(dentry); <span class="comment">// 释放dentry引用</span></span><br><span class="line">        <span class="keyword">return</span> ERR_PTR(status); <span class="comment">// 返回错误</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dentry; <span class="comment">// 返回dentry</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先尝试进入lookup_fast中，尝试rcu-walk，即进入__d_lookup_rcu函数中，进入__d_lookup_rcu函数中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *__<span class="title">d_lookup_rcu</span>(<span class="title">const</span> <span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">parent</span>,</span></span><br><span class="line"><span class="class">                <span class="title">const</span> <span class="keyword">struct</span> <span class="title">qstr</span> *<span class="title">name</span>,</span></span><br><span class="line"><span class="class">                <span class="title">unsigned</span> *<span class="title">seqp</span>)</span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    u64 hashlen = name-&gt;hash_len; <span class="comment">// 计算名称的哈希长度</span></span><br><span class="line">    <span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> *str = name-&gt;name; <span class="comment">// 获取名称字符串</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_bl_head</span> *<span class="title">b</span> =</span> d_hash(hashlen_hash(hashlen)); <span class="comment">// 计算哈希值并获取散列表头</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_bl_node</span> *<span class="title">node</span>;</span> <span class="comment">// 定义哈希表节点指针</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">dentry</span>;</span> <span class="comment">// 定义目录项指针</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Note: There is significant duplication with __d_lookup_rcu which is</span></span><br><span class="line"><span class="comment">     * required to prevent single threaded performance regressions</span></span><br><span class="line"><span class="comment">     * especially on architectures where smp_rmb (in seqcounts) are costly.</span></span><br><span class="line"><span class="comment">     * Keep the two functions in sync.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查父目录项是否包含自定义比较函数，如果有则调用特定的查找函数</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(parent-&gt;d_flags &amp; DCACHE_OP_COMPARE))</span><br><span class="line">        <span class="keyword">return</span> __d_lookup_rcu_op_compare(parent, name, seqp);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * The hash list is protected using RCU.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * Carefully use d_seq when comparing a candidate dentry, to avoid</span></span><br><span class="line"><span class="comment">     * races with d_move().</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * It is possible that concurrent renames can mess up our list</span></span><br><span class="line"><span class="comment">     * walk here and result in missing our dentry, resulting in the</span></span><br><span class="line"><span class="comment">     * false-negative result. d_lookup() protects against concurrent</span></span><br><span class="line"><span class="comment">     * renames using rename_lock seqlock.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * See Documentation/filesystems/path-lookup.txt for more details.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="comment">// 使用 RCU 保护的哈希列表来遍历目录项</span></span><br><span class="line">    hlist_bl_for_each_entry_rcu(dentry, node, b, d_hash) &#123;</span><br><span class="line">        <span class="type">unsigned</span> seq;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * The dentry sequence count protects us from concurrent</span></span><br><span class="line"><span class="comment">         * renames, and thus protects parent and name fields.</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * The caller must perform a seqcount check in order</span></span><br><span class="line"><span class="comment">         * to do anything useful with the returned dentry.</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * NOTE! We do a &quot;raw&quot; seqcount_begin here. That means that</span></span><br><span class="line"><span class="comment">         * we don&#x27;t wait for the sequence count to stabilize if it</span></span><br><span class="line"><span class="comment">         * is in the middle of a sequence change. If we do the slow</span></span><br><span class="line"><span class="comment">         * dentry compare, we will do seqretries until it is stable,</span></span><br><span class="line"><span class="comment">         * and if we end up with a successful lookup, we actually</span></span><br><span class="line"><span class="comment">         * want to exit RCU lookup anyway.</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * Note that raw_seqcount_begin still *does* smp_rmb(), so</span></span><br><span class="line"><span class="comment">         * we are still guaranteed NUL-termination of -&gt;d_name.name.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        seq = raw_seqcount_begin(&amp;dentry-&gt;d_seq); <span class="comment">// 获取 dentry 的序列计数</span></span><br><span class="line">        <span class="keyword">if</span> (dentry-&gt;d_parent != parent) <span class="comment">// 检查 dentry 的父目录项是否与给定的父目录项相同</span></span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        <span class="keyword">if</span> (d_unhashed(dentry)) <span class="comment">// 检查 dentry 是否已从散列表中删除</span></span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        <span class="keyword">if</span> (dentry-&gt;d_name.hash_len != hashlen) <span class="comment">// 检查 dentry 的名称哈希长度是否与给定名称相同</span></span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        <span class="keyword">if</span> (dentry_cmp(dentry, str, hashlen_len(hashlen)) != <span class="number">0</span>) <span class="comment">// 比较 dentry 的名称与给定名称是否相同</span></span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        *seqp = seq; <span class="comment">// 将序列计数赋值给 seqp</span></span><br><span class="line">        <span class="keyword">return</span> dentry; <span class="comment">// 返回找到的 dentry</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>; <span class="comment">// 如果没有找到匹配的 dentry，则返回空指针</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先通过d_hash得到对应的哈希表，然后通过hlist_bl_for_each_entry_rcu遍历哈希表，在rcu模式下，依次比较dentry的父目录，哈希长度，名称是否相等。</p>
+<p>如果没有找到dentry，返回到上层的lookup_fast函数，会通过try_to_unlazy切换到ref-walk，然后返回ERR_PTR(-ECHILD)。</p>
+<p>最终会返回到do_filp_open函数中，重新进行路径查找</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个名为 do_filp_open 的函数，该函数接受三个参数：dfd（目录文件描述符），pathname（文件名结构体指针）和 op（打开方式结构体指针）</span></span><br><span class="line"><span class="keyword">struct</span> file *<span class="title function_">do_filp_open</span><span class="params">(<span class="type">int</span> dfd, <span class="keyword">struct</span> filename *pathname,</span></span><br><span class="line"><span class="params">        <span class="type">const</span> <span class="keyword">struct</span> open_flags *op)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">nameidata</span> <span class="title">nd</span>;</span></span><br><span class="line">    <span class="comment">// 从 op 结构体中获取查找标志</span></span><br><span class="line">    <span class="type">int</span> flags = op-&gt;lookup_flags;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">filp</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用 set_nameidata 函数初始化 nd 结构体，传入 dfd（目录文件描述符）、pathname（文件名结构体指针）和 NULL（用于初始化 nd-&gt;intent）</span></span><br><span class="line">    set_nameidata(&amp;nd, dfd, pathname, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="comment">// 使用 path_openat 函数尝试打开文件，传入 nd（名字数据结构体）、op（打开方式结构体）和 flags（查找标志）；使用 LOOKUP_RCU 标志进行 RCU 优化</span></span><br><span class="line">    filp = path_openat(&amp;nd, op, flags | LOOKUP_RCU);</span><br><span class="line">    <span class="comment">// 如果文件打开失败并返回 -ECHILD 错误码，表明 RCU 优化失败，尝试使用非 RCU 优化方式打开文件</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(filp == ERR_PTR(-ECHILD)))</span><br><span class="line">        filp = path_openat(&amp;nd, op, flags);</span><br><span class="line">    <span class="comment">// 如果文件打开失败并返回 -ESTALE 错误码，表明文件系统状态陈旧，尝试使用 LOOKUP_REVAL 标志重新评估文件系统状态并打开文件</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(filp == ERR_PTR(-ESTALE)))</span><br><span class="line">        filp = path_openat(&amp;nd, op, flags | LOOKUP_REVAL);</span><br><span class="line">    <span class="comment">// 通过调用 restore_nameidata 函数恢复名字数据结构体（nd）的状态</span></span><br><span class="line">    restore_nameidata();</span><br><span class="line">    <span class="comment">// 返回文件结构体指针 filp</span></span><br><span class="line">    <span class="keyword">return</span> filp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这次查找，运行到lookup_fast时，不会运行__d_lookup_rcu,而是运行__d_lookup，进入这个函数中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * __d_lookup - 搜索一个 dentry (容易出现竞争)</span></span><br><span class="line"><span class="comment"> * @parent: 父 dentry</span></span><br><span class="line"><span class="comment"> * @name: 我们希望找到的名字的 qstr</span></span><br><span class="line"><span class="comment"> * 返回: dentry，或者 NULL</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * __d_lookup 类似于 d_lookup，但是由于与重命名无关的活动，它可能（很少）返回</span></span><br><span class="line"><span class="comment"> * 一个错误的负面结果。</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * __d_lookup 通过避免读取 rename_lock seqlock，速度稍快，</span></span><br><span class="line"><span class="comment"> * 但必须谨慎使用，例如在失败时使用后续的 d_lookup。</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * __d_lookup 调用者必须加注释。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *__<span class="title">d_lookup</span>(<span class="title">const</span> <span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">parent</span>, <span class="title">const</span> <span class="keyword">struct</span> <span class="title">qstr</span> *<span class="title">name</span>)</span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> hash = name-&gt;hash; <span class="comment">// 计算 name 的哈希值</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_bl_head</span> *<span class="title">b</span> =</span> d_hash(hash); <span class="comment">// 获取哈希值对应的哈希表头</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_bl_node</span> *<span class="title">node</span>;</span> <span class="comment">// 用于遍历哈希链表的节点</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">found</span> =</span> <span class="literal">NULL</span>; <span class="comment">// 用于存储找到的 dentry</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">dentry</span>;</span> <span class="comment">// 用于遍历哈希链表的临时 dentry</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * 注意：这里与 __d_lookup_rcu 有很大的重复部分，这是为了防止单线程性能</span></span><br><span class="line"><span class="comment">     * 回归，特别是在 smp_rmb（在 seqcounts 中）代价高昂的架构上。</span></span><br><span class="line"><span class="comment">     * 保持这两个函数同步更新。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * 哈希列表使用 RCU 保护。</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * 在比较候选 dentry 时，获取 d_lock 以避免与 d_move() 的竞争。</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * 有可能并发的重命名操作会破坏我们这里的列表遍历，导致我们错过 dentry，</span></span><br><span class="line"><span class="comment">     * 从而产生错误的负面结果。d_lookup() 使用 rename_lock seqlock 来保护</span></span><br><span class="line"><span class="comment">     * 并发重命名。</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * 更多细节请参阅 Documentation/filesystems/path-lookup.txt。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    rcu_read_lock(); <span class="comment">// 获取 RCU 读锁</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 遍历哈希链表</span></span><br><span class="line">    hlist_bl_for_each_entry_rcu(dentry, node, b, d_hash) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (dentry-&gt;d_name.hash != hash) <span class="comment">// 哈希值不匹配，继续下一个</span></span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">        spin_lock(&amp;dentry-&gt;d_lock); <span class="comment">// 获取 dentry 的自旋锁</span></span><br><span class="line">        <span class="keyword">if</span> (dentry-&gt;d_parent != parent) <span class="comment">// 父 dentry 不匹配，跳到下一个</span></span><br><span class="line">            <span class="keyword">goto</span> next;</span><br><span class="line">        <span class="keyword">if</span> (d_unhashed(dentry)) <span class="comment">// 检查 dentry 是否已从哈希表中移除，如果是则跳到下一个</span></span><br><span class="line">            <span class="keyword">goto</span> next;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!d_same_name(dentry, parent, name)) <span class="comment">// 名字不匹配，跳到下一个</span></span><br><span class="line">            <span class="keyword">goto</span> next;</span><br><span class="line"></span><br><span class="line">        dentry-&gt;d_lockref.count++; <span class="comment">// 增加 dentry 的引用计数</span></span><br><span class="line">        found = dentry; <span class="comment">// 找到匹配的 dentry，赋值给 found</span></span><br><span class="line">        spin_unlock(&amp;dentry-&gt;d_lock); <span class="comment">// 释放 dentry 的自旋锁</span></span><br><span class="line">        <span class="keyword">break</span>; <span class="comment">// 结束循环</span></span><br><span class="line">    next:</span><br><span class="line">        spin_unlock(&amp;dentry-&gt;d_lock); <span class="comment">// 释放 dentry 的自旋锁</span></span><br><span class="line">    &#125;</span><br><span class="line">    rcu_read_unlock(); <span class="comment">// 释放 RCU 读锁</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> found; <span class="comment">// 返回找到的 dentry，如果没有找到返回 NULL</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这个函数和上面的rcu-walk基本相同，但是多了很多锁的处理，所以rcu-walk的速度比ref的速度快。</p>
+<p>如果ref-walk还没找到对应的dentry，就会进入到lookup_slow调用对应的具体文件系统的lookup方法</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/shp1234/article/details/124150753">Linux系统调用open函数分析___randomize_layout_shp1234的博客-CSDN博客</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903938567716878">Linux path-lookup 翻译 - 掘金 (juejin.cn)</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/457005511">vfs dentry cache 模块实现分析 - 知乎 (zhihu.com)</a>s</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/261669249">Linux的VFS实现 - 番外[一] - dcache - 知乎 (zhihu.com)</a></p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/07/16/%E5%AD%A6%E4%B9%A0-Linux-Docker%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" rel="prev" title="学习 Linux Docker环境搭建">
+      <i class="fa fa-chevron-left"></i> 学习 Linux Docker环境搭建
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/" rel="next" title="学习 Linux Mnt Namespace实现">
+      学习 Linux Mnt Namespace实现 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#dentry%E7%9A%84%E4%B8%89%E7%A7%8D%E7%8A%B6%E6%80%81"><span class="nav-number">2.</span> <span class="nav-text">dentry的三种状态</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#dentry-hashtable"><span class="nav-number">3.</span> <span class="nav-text">dentry_hashtable</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#dcache%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">4.</span> <span class="nav-text">dcache初始化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#path-lookup%E6%90%9C%E7%B4%A2dcache%E6%B5%81%E7%A8%8B"><span class="nav-number">5.</span> <span class="nav-text">path lookup搜索dcache流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">53</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">679k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">20:35</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : 'a045eb8a6ac5ba10fbf28a1c712e53e6',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="文件系统层次化对 Linux 系统来说一切皆文件，Linux 使用树形的层次化结构来管理所有的文件对象。 完整的 Linux 文件系统，是由多种设备、多种文件系统组成的一个混合的树形结构。我们首先从一个单独的块设备来分析其树形结构的构造。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="学习 Linux Mnt Namespace实现">
+<meta property="og:url" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="文件系统层次化对 Linux 系统来说一切皆文件，Linux 使用树形的层次化结构来管理所有的文件对象。 完整的 Linux 文件系统，是由多种设备、多种文件系统组成的一个混合的树形结构。我们首先从一个单独的块设备来分析其树形结构的构造。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/bdev_tree.png">
+<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mount_struct.png">
+<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree.png">
+<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_mmp.png">
+<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_mdev.png">
+<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_path.png">
+<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_chroot.png">
+<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_ns.png">
+<meta property="article:published_time" content="2023-07-18T08:06:21.000Z">
+<meta property="article:modified_time" content="2023-07-19T01:41:26.981Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/bdev_tree.png">
+
+<link rel="canonical" href="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>学习 Linux Mnt Namespace实现 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          学习 Linux Mnt Namespace实现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-18 16:06:21" itemprop="dateCreated datePublished" datetime="2023-07-18T16:06:21+08:00">2023-07-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-19 09:41:26" itemprop="dateModified" datetime="2023-07-19T09:41:26+08:00">2023-07-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>9 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="文件系统层次化"><a href="#文件系统层次化" class="headerlink" title="文件系统层次化"></a>文件系统层次化</h1><p>对 Linux 系统来说一切皆文件，Linux 使用树形的层次化结构来管理所有的文件对象。</p>
+<p>完整的 Linux 文件系统，是由多种设备、多种文件系统组成的一个混合的树形结构。我们首先从一个单独的块设备来分析其树形结构的构造。</p>
+<h2 id="块设备的层次化（superblock-x2F-inode-x2F-dentry）"><a href="#块设备的层次化（superblock-x2F-inode-x2F-dentry）" class="headerlink" title="块设备的层次化（superblock&#x2F;inode&#x2F;dentry）"></a>块设备的层次化（superblock&#x2F;inode&#x2F;dentry）</h2><img src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/bdev_tree.png" title alt data-align="center">
+
+<p>在Linux内核中，<code>struct super_block</code> 是一个重要的数据结构，用于代表文件系统的超级块。超级块包含了文件系统的元数据，例如文件系统类型、块大小、空闲块和inode的数量等。每个在内存中挂载的文件系统都有一个对应的 <code>struct super_block</code> 实例。</p>
+<p><code>struct block_device</code> 是另一个重要的数据结构，用于表示块设备，如硬盘。这个结构体包含了关于块设备的信息，如设备的大小、读写方法、驱动程序引用等。</p>
+<p><code>struct super_block</code> 中指向 <code>struct block_device</code> 的指针的存在，是为了将文件系统与其下层的块设备关联起来。当文件系统需要读写数据时，它会通过这个指针访问相应的块设备。这个指针也允许文件系统查询块设备的状态（如设备是否可用）或者进行特定的设备操作（如数据同步）。</p>
+<p>这样的设计允许内核以抽象的方式处理文件系统操作，无论文件系统位于哪种类型的块设备上（例如，硬盘、SD卡、网络块设备等）。这也为操作系统提供了一种可以在运行时动态添加、删除或者修改文件系统和设备的能力，这是现代操作系统的一个重要特性。、</p>
+<hr>
+<p>我们在计算机系统中使用文件时，我们并不直接与硬盘或其他块设备进行交互。而是通过文件系统，这是一种组织、存储和检索数据的方法。文件系统作为一种抽象机制，允许我们以文件和目录的形式访问底层的块设备，而不需要关心数据在硬盘上具体是如何存储的。</p>
+<p>这就是 <code>struct super_block</code> 数据结构在Linux内核中的角色。它将块设备（<code>block_device</code>）和文件系统类型（<code>file_system_type</code>）两个全局因素连接起来，用来标识一个块设备。你可以将其视为一个翻译器或者解释器，它知道如何将我们对文件的操作转换为对硬盘上特定块的读写。</p>
+<p>让我们具体看一下这两个全局因素：</p>
+<ul>
+<li><p>块设备 (<code>block_device</code>)：这是硬盘或其他存储设备的表示。它提供了一个接口，我们可以通过这个接口读写设备上的数据块。</p>
+</li>
+<li><p>文件系统类型 (<code>file_system_type</code>)：这是文件系统的类型，例如ext4、NTFS或FAT32等。不同的文件系统类型有不同的组织结构和规则，它们定义了如何在块设备上存储和检索数据。</p>
+</li>
+</ul>
+<p>当我们挂载一个文件系统时，Linux内核会创建一个新的 <code>struct super_block</code> 实例。这个实例包含了特定文件系统的信息（通过 <code>file_system_type</code> 指定）以及对应的块设备（通过 <code>block_device</code> 指定）。当我们通过文件系统访问数据时，内核就会使用这个 <code>struct super_block</code> 实例来翻译我们的请求，将其转换为对块设备上特定块的读写。</p>
+<p>因此，<code>struct super_block</code> 在构建文件系统树形结构时起着核心的作用。它是文件系统和块设备之间的连接，允许我们以一种抽象的、对用户友好的方式来使用存储设备。</p>
+<p>确定了 <code>super_block</code> 以后，就可以使用文件系统提供的方法来解析块设备的内容，形成一个块设备内部的树形结构，也就是我们熟悉的文件夹、文件的层次结构。</p>
+<hr>
+<p>在Linux文件系统中，<code>struct inode</code> 是一个非常重要的数据结构，它代表了文件系统中的一个对象，这个对象可以是一个文件或者一个目录。每个 <code>inode</code> 都有一个唯一的编号，被称为 <code>inode</code> 编号，这个编号在 <code>struct inode</code> 的 <code>i_ino</code> 成员中记录。</p>
+<p>这里的 “偏移” 是指 <code>inode</code> 在块设备中的位置。每个 <code>inode</code> 在块设备中都有一个特定的位置，这个位置由 <code>inode</code> 编号决定。我们可以通过 <code>i_ino</code> 成员找到文件系统中相应的文件或目录。</p>
+<p>当文件系统被挂载和 <code>super_block</code> 被确定后，文件系统就可以开始解析块设备的内容了。文件系统将会读取块设备上的数据，根据 <code>inode</code> 的信息构建出文件和目录的层次结构，这就是我们常说的文件系统树。</p>
+<p>这个过程就像是读取一本书的目录，然后根据目录的信息找到每一章的开始位置。在这个比喻中，<code>inode</code> 就像是目录中的每一项，<code>i_ino</code> 是每一章的页码。</p>
+<p>总的来说，<code>struct inode</code> 和其 <code>i_ino</code> 成员是创建文件系统树形结构的关键。通过它们，我们可以在块设备上找到任何文件或目录的位置，进一步读取或修改它们的内容。</p>
+<hr>
+<p>Linux系统中，<code>struct dentry</code>（目录项）是另一个非常重要的数据结构，它用来辅助和优化文件系统的操作。<code>struct dentry</code> 主要用于缓存文件的元数据，比如文件名和文件的层次结构等信息。这些信息是从 <code>struct inode</code> 中获取的，但是通过在 <code>dentry</code> 中缓存这些信息，可以避免频繁地访问 <code>inode</code>，从而提高文件系统的效率。</p>
+<p>通常情况下，一个 <code>struct dentry</code> 对应一个 <code>struct inode</code>，也就是说，每个文件或目录都有一个对应的 <code>dentry</code>。但是，在有些情况下，可能会有多个 <code>dentry</code> 对应同一个 <code>inode</code>。这种情况通常发生在创建硬链接的时候。硬链接是指在文件系统中创建一个新的文件名，但是这个新的文件名实际上指向的是已经存在的另一个文件的 <code>inode</code>。也就是说，通过硬链接，我们可以用不同的文件名来访问同一个文件。</p>
+<p>在 <code>struct dentry</code> 中，<code>d_parent</code> 成员是一个指向父目录的 <code>dentry</code> 的指针，也就是说，它指向了该文件或目录的上一级目录。<code>d_subdirs</code> 是一个链接列表，它连接了所有的子目录。这两个成员使得我们可以在文件系统树中上下移动，找到任何需要的文件或目录。</p>
+<h2 id="多设备的层次化（mount-x2F-vfsmount）"><a href="#多设备的层次化（mount-x2F-vfsmount）" class="headerlink" title="多设备的层次化（mount&#x2F;vfsmount）"></a>多设备的层次化（mount&#x2F;vfsmount）</h2><p>在Linux系统中，不止可以有一个块设备（如硬盘或USB驱动器）和相应的文件系统，我们可以连接并使用多个这样的设备。每个设备都有自己的文件系统，这个文件系统可以被视为一棵树，它的根是设备上的最顶级目录。</p>
+<p>然而，对于用户来说，他们并不直接看到这些单独的设备和文件系统。相反，他们看到的是一个统一的、连续的文件系统，这就是所谓的文件系统挂载。</p>
+<p>挂载是将一个设备的文件系统树连接到另一个设备的文件系统树的过程。在这个过程中，一个设备（我们称之为父设备）的一个目录（我们称之为挂载点）被选中，然后另一个设备（我们称之为子设备）的文件系统树就会在那个挂载点上连接。这个挂载点就成为子设备文件系统树的根目录。</p>
+<p>这样，当用户访问挂载点时，他们实际上是访问了子设备的文件系统。例如，假设我们有一个硬盘设备，其文件系统包含一个名为 “&#x2F;photos” 的目录，我们可以将一个USB驱动器挂载到这个目录上。然后，当我们访问 “&#x2F;photos” 目录时，我们实际上是访问了USB驱动器的内容。</p>
+<p>在Linux内核中，挂载点是由 <code>struct dentry</code> 结构表示的，这个结构代表了父设备文件系统中的一个目录。当挂载发生时，这个 <code>dentry</code> 将会指向子设备的文件系统树的根。</p>
+<p>通过挂载，我们可以将多个设备和文件系统组织成一个复杂的、统一的、连续的文件系统，这对用户来说是透明的，使得他们可以轻松地管理和访问文件，而不需要关心文件实际上存储在哪个设备上。</p>
+<ul>
+<li><p>mount&#x2F;vfsmount</p>
+<img src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mount_struct.png" title alt data-align="center">
+
+<p>在Linux系统中，<code>struct mount</code> 结构是用来表示和管理挂载点的。当你将一个设备（我们可以称之为子设备）的文件系统挂载到另一个设备（我们可以称之为父设备）的特定目录时，系统会创建一个 <code>struct mount</code> 结构来跟踪这个挂载操作。</p>
+<p><code>struct mount</code> 结构包含了管理和维护挂载点所需的所有信息。例如，它可以帮助系统知道当访问挂载点时，应当将文件操作（如打开文件、读取文件等）重定向到子设备的哪个文件或目录。</p>
+<p>在文件系统树中，<code>struct mount</code> 结构实际上表现为一个链接，连接了父设备的挂载点和子设备的文件系统树的根。当你通过父设备的文件系统路径访问子设备的文件或目录时，<code>struct mount</code> 结构就会起作用，它会将你的请求引导到正确的设备和文件。</p>
+</li>
+<li><p>mount tree</p>
+<img src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree.png" title alt data-align="center">
+
+<p>在Linux系统中，通过使用<code>struct mount</code>结构，一个子设备的文件系统（也就是一棵子设备树）可以被挂载到父设备树的一个特定<code>dentry</code>节点上。这个<code>dentry</code>节点代表父设备文件系统中的一个目录，它将作为挂载点来访问子设备文件系统。</p>
+<p>当一个<code>dentry</code>变成挂载点时，系统会给它设置一个标志，这个标志叫做<code>DCACHE_MOUNTED</code>。这个标志告诉系统，当访问这个<code>dentry</code>时，实际上应该访问子设备的文件系统，而不是原本在父设备上的内容。因此，一旦<code>dentry</code>成为挂载点，原本在该目录下的内容就不能被直接访问了，取而代之的是子设备文件系统根节点下的内容。</p>
+<p><code>struct mount</code>结构本身也可以形成一个树状结构，这个结构反映了所有挂载点和子设备文件系统之间的关系。</p>
+<p>在Linux系统中，我们通常使用<code>mount -t fstype devname pathname</code>命令来挂载子设备。在这个命令中，<code>fstype</code>参数指定了文件系统的类型，例如ext4或ntfs；<code>devname</code>参数指定了设备的名字，例如&#x2F;dev&#x2F;sdb1；<code>pathname</code>参数指定了挂载点的路径，例如&#x2F;mnt&#x2F;usb。</p>
+<p>Linux 拥有非常灵活的挂载规则：</p>
+<ul>
+<li><p>一个设备可以被挂载多次：</p>
+<img src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_mmp.png" title alt data-align="center">
+
+<p>可以看到同一个子设备树，同时被两个 <code>struct mount</code> 结构所引用，被挂载到父设备树的两处不同的 <code>dentry</code> 处。</p>
+<blockquote>
+<p>特别说明：虽然子设备树被挂载两次并且通过两处路径都能访问，但子设备的 <code>dentry</code> 和 <code>inode</code> 只保持一份。</p>
+</blockquote>
+</li>
+<li><p>一个挂载点可以挂载多个设备：</p>
+<img src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_mdev.png" title alt data-align="center">
+
+<p>还可以对父设备树的同一个文件夹 <code>dentry</code> 进行多次挂载，最后路径查找时生效的是最后一次挂载的子设备树。</p>
+</li>
+</ul>
+</li>
+<li><p>path</p>
+<img src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_path.png" title alt data-align="center">
+
+<p>因为 Linux 提供的灵活的挂载规则，所以我们如果要标识一个路径 <code>struct path</code> 的话需要两个元素：<code>vfsmount</code> 和 <code>dentry</code>。</p>
+<p>可以看到两个路径 <code>struct path</code> 最后引用到了同一 <code>inode</code>，但是路径 <code>path</code> 是不一样的，因为 <code>path</code> 指向的 <code>vfsmount</code> 是不一样的。</p>
+</li>
+<li><p>chroot</p>
+<p>Linux 还支持每个进程拥有不同的根目录，使用 <code>chroot()</code> 系统调用可以把当前进程的根目录设置为整棵文件系统树中的任何 <code>path</code>。</p>
+<img title src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_chroot.png" alt data-align="center"></li>
+</ul>
+<h2 id="多名空间的层次化（mnt-namespace）"><a href="#多名空间的层次化（mnt-namespace）" class="headerlink" title="多名空间的层次化（mnt_namespace）"></a>多名空间的层次化（mnt_namespace）</h2><p>Linux 系统为了支持 <code>mnt_namespace</code>，必须将单一的 <code>mount</code> 树扩展成多棵 <code>mount</code> 树。让我们先解释一下什么是 <code>namespace</code> 和 <code>mnt_namespace</code>。</p>
+<p><code>Namespace</code> 是 Linux 提供的一种机制，它可以将系统资源划分为多个独立的视图或环境。每个 <code>namespace</code> 都有自己的一组资源，对资源的改变不会影响到其他的 <code>namespace</code>。这种机制在容器技术中尤其重要，因为它使每个容器都可以有自己独立的系统视图，就像在自己的系统中一样。</p>
+<p><code>mnt_namespace</code> 是 <code>namespace</code> 的一种，它是用来隔离文件系统挂载点的。每个 <code>mnt_namespace</code> 都有自己的 <code>mount</code> 树，这意味着在一个 <code>namespace</code> 中挂载或卸载的文件系统不会影响到其他的 <code>namespace</code>。</p>
+<p>举个例子，如果你在一个 <code>namespace</code> 中挂载了一个 USB 驱动器，那么这个驱动器仅在该 <code>namespace</code> 内可见。在其他 <code>namespace</code> 中，你将看不到这个驱动器，除非你在那个 <code>namespace</code> 中也执行了挂载操作。</p>
+<p>因此，通过每个 <code>mnt_namespace</code> 拥有一棵独立的 <code>mount</code> 树，Linux 系统能为每个 <code>namespace</code> 提供独立的文件系统视图，从而实现更强大、更灵活的资源隔离功能。</p>
+<img src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_ns.png" title alt data-align="center">
+
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><p><a target="_blank" rel="noopener" href="https://tinylab.org/mnt-namespace/">Mnt Namespace 详解 - 泰晓科技 (tinylab.org)</a></p>
+</li>
+<li><p>GPT-4</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-dcache%E5%AE%9E%E7%8E%B0/" rel="prev" title="学习 Linux dcache实现">
+      <i class="fa fa-chevron-left"></i> 学习 Linux dcache实现
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B1%82%E6%AC%A1%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">文件系统层次化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9D%97%E8%AE%BE%E5%A4%87%E7%9A%84%E5%B1%82%E6%AC%A1%E5%8C%96%EF%BC%88superblock-x2F-inode-x2F-dentry%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">块设备的层次化（superblock&#x2F;inode&#x2F;dentry）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E8%AE%BE%E5%A4%87%E7%9A%84%E5%B1%82%E6%AC%A1%E5%8C%96%EF%BC%88mount-x2F-vfsmount%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">多设备的层次化（mount&#x2F;vfsmount）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E5%90%8D%E7%A9%BA%E9%97%B4%E7%9A%84%E5%B1%82%E6%AC%A1%E5%8C%96%EF%BC%88mnt-namespace%EF%BC%89"><span class="nav-number">1.3.</span> <span class="nav-text">多名空间的层次化（mnt_namespace）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">2.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">53</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">679k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">20:35</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : 'cbc2faf5c90c7c12d94c4c33ddc4e948',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>

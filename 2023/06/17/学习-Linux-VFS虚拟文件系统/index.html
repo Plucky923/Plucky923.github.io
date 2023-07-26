@@ -40,7 +40,7 @@
 <meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/%E6%89%93%E5%BC%80%E6%88%96%E8%80%85%E5%88%9B%E5%BB%BA%E6%96%B0%E6%96%87%E4%BB%B6%E6%B5%81%E7%A8%8B%E5%9B%BE.png">
 <meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/link_path_walk%E5%86%85%E6%A0%B8printk.png">
 <meta property="article:published_time" content="2023-06-17T07:02:34.000Z">
-<meta property="article:modified_time" content="2023-07-12T08:28:22.449Z">
+<meta property="article:modified_time" content="2023-07-20T06:36:50.316Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84.png">
@@ -240,8 +240,17 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-07-12 16:28:22" itemprop="dateModified" datetime="2023-07-12T16:28:22+08:00">2023-07-12</time>
+                <time title="Modified: 2023-07-20 14:36:50" itemprop="dateModified" datetime="2023-07-20T14:36:50+08:00">2023-07-20</time>
               </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+            </span>
 
           
             <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
@@ -308,7 +317,8 @@
 <p>通用文件模型由对象组成：<strong>超级块对象、索引节点对象、目录项对象、文件对象。</strong></p>
 <img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS整体层次.png" title alt data-align="center">
 
-<h1 id="VFS实现"><a href="#VFS实现" class="headerlink" title="VFS实现"></a>VFS实现</h1><h2 id="VFS数据结构"><a href="#VFS数据结构" class="headerlink" title="VFS数据结构"></a>VFS数据结构</h2><p><img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB.png"></p>
+<h1 id="VFS实现"><a href="#VFS实现" class="headerlink" title="VFS实现"></a>VFS实现</h1><h2 id="VFS数据结构"><a href="#VFS数据结构" class="headerlink" title="VFS数据结构"></a>VFS数据结构</h2><img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS数据结构之间的关系.png" title alt width="717">
+
 <p>三个不同进程已打开同一个文件，其中两个进程使用同一个硬链接。在这种情况下，每个进程都使用自己的文件对象，但只需要两个目录项对象，每个硬链接对应一个目录项对象。这两个目录项对象指向同一个索引节点对象，这个索引节点对象标识的是超级块对象以及普通磁盘文件。</p>
 <img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS与进程交互.png" title alt data-align="center">
 
@@ -1174,7 +1184,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">53</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1236,13 +1246,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">649k</span>
+    <span title="Symbols count total">679k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">19:39</span>
+    <span title="Reading time total">20:35</span>
 </div>
 
 <!--

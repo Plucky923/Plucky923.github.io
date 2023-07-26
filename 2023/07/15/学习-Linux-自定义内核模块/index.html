@@ -31,7 +31,7 @@
 <meta property="og:description" content="程序举例可以在任意目录下编写自定义内核模块，在这个例子中我将模块放在&#x2F;home&#x2F;hust&#x2F;modules_6.3.7，例如编写一段hello.c代码 12345678910111213141516171819202122  &#x2F;&#x2F; hello.c #include &lt;linux&#x2F;module.h&gt;#include &lt;linux&#x2F;kernel.h&gt;">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-07-15T08:44:44.000Z">
-<meta property="article:modified_time" content="2023-07-15T09:37:16.071Z">
+<meta property="article:modified_time" content="2023-07-18T08:12:34.398Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
 
@@ -222,9 +222,24 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2023-07-15 16:44:44 / Modified: 17:37:16" itemprop="dateCreated datePublished" datetime="2023-07-15T16:44:44+08:00">2023-07-15</time>
+              <time title="Created: 2023-07-15 16:44:44" itemprop="dateCreated datePublished" datetime="2023-07-15T16:44:44+08:00">2023-07-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-18 16:12:34" itemprop="dateModified" datetime="2023-07-18T16:12:34+08:00">2023-07-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
             </span>
 
           
@@ -264,7 +279,7 @@
 
 <p>说明：虽然文件后缀为.c，但是语法跟标准c有差异，模块编写是基于内核编写的</p>
 <h1 id="编写Makefile"><a href="#编写Makefile" class="headerlink" title="编写Makefile"></a>编写Makefile</h1><p>在hello.c相同目录下新建Makefile文件，内容如下</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">obj-m := hello.o </span><br><span class="line"></span><br><span class="line">KDIR := /home/hust/linux-6.3.7</span><br><span class="line">MDIR := /home/hust/modules_6.3.7</span><br><span class="line"></span><br><span class="line"><span class="section">all:</span></span><br><span class="line">	make -C <span class="variable">$(KDIR)</span> M=<span class="variable">$(MDIR)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">	make -C <span class="variable">$(KDIR)</span> M=<span class="variable">$(MDIR)</span> clean</span><br></pre></td></tr></table></figure>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">obj-m := hello.o </span><br><span class="line"></span><br><span class="line">KDIR := /home/hust/linux-6.3.7</span><br><span class="line">MDIR := /home/hust/modules_6.3.7</span><br><span class="line"></span><br><span class="line"><span class="section">all:</span></span><br><span class="line">    make -C <span class="variable">$(KDIR)</span> M=<span class="variable">$(MDIR)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C <span class="variable">$(KDIR)</span> M=<span class="variable">$(MDIR)</span> clean</span><br></pre></td></tr></table></figure>
 
 <p>KDIR是linux内核的源码文件夹，这里linux-6.3.7是自己编译运行的内核，所以直接就放的是内核源码文件夹，如果是Ubuntu的内核，就在    &#x2F;usr&#x2F;src文件夹里找到相应的内核。</p>
 <p>MDIR是hello.c所在的文件夹，即自定义内核模块所在的文件夹。</p>
@@ -312,7 +327,10 @@
     <a href="/2023/07/04/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-libevent/" rel="prev" title="C++学习 网络编程 libevent">
       <i class="fa fa-chevron-left"></i> C++学习 网络编程 libevent
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2023/07/16/%E5%AD%A6%E4%B9%A0-Linux-Docker%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" rel="next" title="学习 Linux Docker环境搭建">
+      学习 Linux Docker环境搭建 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -386,7 +404,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">53</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -448,13 +466,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">649k</span>
+    <span title="Symbols count total">679k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">19:39</span>
+    <span title="Reading time total">20:35</span>
 </div>
 
 <!--
