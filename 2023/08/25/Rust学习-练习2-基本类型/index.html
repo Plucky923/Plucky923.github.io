@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="基本类型 - Rust By Practice( Rust 练习实践 ) 数值类型整数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust学习 练习2 基本类型">
+<meta property="og:url" content="http://example.com/2023/08/25/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A02-%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="基本类型 - Rust By Practice( Rust 练习实践 ) 数值类型整数">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-08-25T11:04:01.000Z">
+<meta property="article:modified_time" content="2023-09-02T12:09:28.397Z">
+<meta property="article:author" content="Plucky">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/08/25/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A02-%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Rust学习 练习2 基本类型 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/25/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A02-%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Rust学习 练习2 基本类型
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-08-25 19:04:01" itemprop="dateCreated datePublished" datetime="2023-08-25T19:04:01+08:00">2023-08-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-09-02 20:09:28" itemprop="dateModified" datetime="2023-09-02T20:09:28+08:00">2023-09-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/" itemprop="url" rel="index"><span itemprop="name">Rust</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/%E7%BB%83%E4%B9%A0%E5%AE%9E%E8%B7%B5/" itemprop="url" rel="index"><span itemprop="name">练习实践</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>14k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>25 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://zh.practice.rs/basic-types/intro.html">基本类型 - Rust By Practice( Rust 练习实践 )</a></p>
+<h1 id="数值类型"><a href="#数值类型" class="headerlink" title="数值类型"></a>数值类型</h1><h2 id="整数"><a href="#整数" class="headerlink" title="整数"></a>整数</h2><ol>
+<li><p>🌟</p>
+<blockquote>
+<p>Tips: 如果我们没有显式的给予变量一个类型，那编译器会自动帮我们推导一个类型</p>
+</blockquote>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 移除某个部分让代码工作</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span>: <span class="type">i32</span> = <span class="number">5</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">y</span>: <span class="type">u32</span> = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">    y = x;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">z</span> = <span class="number">10</span>; <span class="comment">// 这里 z 的类型是? </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 移除某个部分让代码工作</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span>: <span class="type">i32</span> = <span class="number">5</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">y</span>: <span class="type">u32</span> = <span class="number">5</span>;</span><br></pre></td></tr></table></figure>
+
+<pre><code>let z = 10; // 这里 z 的类型是? 
+</code></pre>
+<p>}</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">     </span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<ul>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span>: <span class="type">i32</span> = <span class="number">5</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">y</span> = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">    y = x;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">z</span> = <span class="number">10</span>; <span class="comment">// type of z : i32</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="2">
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 填空</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span>: <span class="type">u16</span> = <span class="number">38_u8</span> <span class="keyword">as</span> __;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 填空</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span>: <span class="type">u16</span> = <span class="number">38_u8</span> <span class="keyword">as</span> <span class="type">u16</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span>: <span class="type">u16</span> = <span class="number">38_u8</span> <span class="keyword">as</span> <span class="type">u16</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟🌟</p>
+<blockquote>
+<p>Tips: 如果我们没有显式的给予变量一个类型，那编译器会自动帮我们推导一个类型</p>
+</blockquote>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修改 `assert_eq!` 让代码工作</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">5</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="string">&quot;u32&quot;</span>.<span class="title function_ invoke__">to_string</span>(), <span class="title function_ invoke__">type_of</span>(&amp;x));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 以下函数可以获取传入参数的类型，并返回类型的字符串形式，例如  &quot;i8&quot;, &quot;u8&quot;, &quot;i32&quot;, &quot;u32&quot;</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">type_of</span>&lt;T&gt;(_: &amp;T) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">format!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, std::any::type_name::&lt;T&gt;())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修改 `assert_eq!` 让代码工作</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">5</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="string">&quot;u32&quot;</span>.<span class="title function_ invoke__">to_string</span>(), <span class="title function_ invoke__">type_of</span>(&amp;x));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 以下函数可以获取传入参数的类型，并返回类型的字符串形式，例如  &quot;i8&quot;, &quot;u8&quot;, &quot;i32&quot;, &quot;u32&quot;</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">type_of</span>&lt;T&gt;(_: &amp;T) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">format!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, std::any::type_name::&lt;T&gt;())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">5</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="string">&quot;i32&quot;</span>.<span class="title function_ invoke__">to_string</span>(), <span class="title function_ invoke__">type_of</span>(&amp;x));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// get the type of given variable, return a string representation of the type  , e.g &quot;i8&quot;, &quot;u8&quot;, &quot;i32&quot;, &quot;u32&quot;</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">type_of</span>&lt;T&gt;(_: &amp;T) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">format!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, std::any::type_name::&lt;T&gt;())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 填空，让代码工作</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="type">i8</span>::MAX, __); </span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="type">u8</span>::MAX, __); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 填空，让代码工作</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="type">i8</span>::MAX, <span class="number">127</span>); </span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="type">u8</span>::MAX, <span class="number">255</span>); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="type">i8</span>::MAX, <span class="number">127</span>); </span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="type">u8</span>::MAX, <span class="number">255</span>); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 解决代码中的错误和 `panic`</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">v1</span> = <span class="number">251_u8</span> + <span class="number">8</span>;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">v2</span> = <span class="type">i8</span>::<span class="title function_ invoke__">checked_add</span>(<span class="number">251</span>, <span class="number">8</span>).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">   <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,v1,v2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 解决代码中的错误和 `panic`</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">v1</span> = <span class="number">251_u16</span> + <span class="number">8_u16</span>;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">v2</span> = <span class="type">u8</span>::<span class="title function_ invoke__">checked_add</span>(<span class="number">251</span>, <span class="number">8</span>).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">   <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,v1,v2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v1</span> = <span class="number">247_u8</span> + <span class="number">8</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v2</span> = <span class="type">i8</span>::<span class="title function_ invoke__">checked_add</span>(<span class="number">119</span>, <span class="number">8</span>).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,v1,v2);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span> = <span class="number">1_024</span> + <span class="number">0xff</span> + <span class="number">0o77</span> + <span class="number">0b1111_1111</span>;</span><br><span class="line">    <span class="built_in">assert!</span>(v == <span class="number">1597</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修改 `assert!` 让代码工作</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span> = <span class="number">1_024</span> + <span class="number">0xff</span> + <span class="number">0o77</span> + <span class="number">0b1111_1111</span>;</span><br><span class="line">    <span class="built_in">assert!</span>(v == <span class="number">1597</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修改 `assert!` 让代码工作</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span> = <span class="number">1_024</span> + <span class="number">0xff</span> + <span class="number">0o77</span> + <span class="number">0b1111_1111</span>;</span><br><span class="line">    <span class="built_in">assert!</span>(v == <span class="number">1597</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h2 id="浮点数"><a href="#浮点数" class="headerlink" title="浮点数"></a>浮点数</h2><ol start="7">
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将 ? 替换成你的答案</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">1_000.000_1</span>; <span class="comment">// ?</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span>: <span class="type">f32</span> = <span class="number">0.12</span>; <span class="comment">// f32</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">z</span> = <span class="number">0.01_f64</span>; <span class="comment">// f64</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My  Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将 ? 替换成你的答案</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">1_000.000_1</span>; <span class="comment">// f64</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span>: <span class="type">f32</span> = <span class="number">0.12</span>; <span class="comment">// f32</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">z</span> = <span class="number">0.01_f64</span>; <span class="comment">// f64</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">1_000.000_1</span>; <span class="comment">// f64</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span>: <span class="type">f32</span> = <span class="number">0.12</span>; <span class="comment">// f32</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">z</span> = <span class="number">0.01_f64</span>; <span class="comment">// f64</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="title function_ invoke__">type_of</span>(&amp;x), <span class="string">&quot;f64&quot;</span>.<span class="title function_ invoke__">to_string</span>());</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">type_of</span>&lt;T&gt;(_: &amp;T) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">format!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, std::any::type_name::&lt;T&gt;())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟 使用两种方法来让下面代码工作</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">0.1</span>+<span class="number">0.2</span>==<span class="number">0.3</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">0.1_f32</span>+<span class="number">0.2_f32</span>==<span class="number">0.3_f32</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">0.1_f32</span>+<span class="number">0.2_f32</span>==<span class="number">0.3_f32</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">assert!</span>((<span class="number">0.1_f64</span>+ <span class="number">0.2</span> - <span class="number">0.3</span>).<span class="title function_ invoke__">abs</span>() &lt; <span class="number">0.001</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h2 id="序列"><a href="#序列" class="headerlink" title="序列"></a>序列</h2><ol start="9">
+<li><p>🌟🌟 两个目标: 1. 修改 <code>assert!</code> 让它工作 2. 让 <code>println!</code> 输出: 97 - 122</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">sum</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> -<span class="number">3</span>..<span class="number">2</span> &#123;</span><br><span class="line">        sum += i</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert!</span>(sum == -<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">c</span> <span class="keyword">in</span> <span class="string">&#x27;a&#x27;</span>..=<span class="string">&#x27;z&#x27;</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>,c);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">sum</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> -<span class="number">3</span>..<span class="number">2</span> &#123;</span><br><span class="line">        sum += i</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert!</span>(sum == -<span class="number">5</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">c</span> <span class="keyword">in</span> <span class="string">&#x27;a&#x27;</span>..=<span class="string">&#x27;z&#x27;</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>,c <span class="keyword">as</span> <span class="type">u8</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">sum</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> -<span class="number">3</span>..<span class="number">2</span> &#123;</span><br><span class="line">        sum += i</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert!</span>(sum == -<span class="number">5</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">c</span> <span class="keyword">in</span> <span class="string">&#x27;a&#x27;</span>..=<span class="string">&#x27;z&#x27;</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>,c <span class="keyword">as</span> <span class="type">u8</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 填空</span></span><br><span class="line"><span class="keyword">use</span> std::ops::&#123;Range, RangeInclusive&#125;;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">assert_eq!</span>((<span class="number">1</span>..__), Range&#123; start: <span class="number">1</span>, end: <span class="number">5</span> &#125;);</span><br><span class="line">    <span class="built_in">assert_eq!</span>((<span class="number">1</span>..__), RangeInclusive::<span class="title function_ invoke__">new</span>(<span class="number">1</span>, <span class="number">5</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 填空</span></span><br><span class="line"><span class="keyword">use</span> std::ops::&#123;Range, RangeInclusive&#125;;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">assert_eq!</span>((<span class="number">1</span>..<span class="number">5</span>), Range&#123; start: <span class="number">1</span>, end: <span class="number">5</span> &#125;);</span><br><span class="line">    <span class="built_in">assert_eq!</span>((<span class="number">1</span>..=<span class="number">5</span>), RangeInclusive::<span class="title function_ invoke__">new</span>(<span class="number">1</span>, <span class="number">5</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 填空</span></span><br><span class="line"><span class="keyword">use</span> std::ops::&#123;Range, RangeInclusive&#125;;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">assert_eq!</span>((<span class="number">1</span>..<span class="number">5</span>), Range&#123; start: <span class="number">1</span>, end: <span class="number">5</span> &#125;);</span><br><span class="line">    <span class="built_in">assert_eq!</span>((<span class="number">1</span>..=<span class="number">5</span>), RangeInclusive::<span class="title function_ invoke__">new</span>(<span class="number">1</span>, <span class="number">5</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h2 id="计算"><a href="#计算" class="headerlink" title="计算"></a>计算</h2><ol start="11">
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 填空，并解决错误</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 整数加法</span></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">1u32</span> + <span class="number">2</span> == __);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 整数减法</span></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">1i32</span> - <span class="number">2</span> == __);</span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">1u8</span> - <span class="number">2</span> == -<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">3</span> * <span class="number">50</span> == __);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">9.6</span> / <span class="number">3.2</span> == <span class="number">3.0</span>); <span class="comment">// error ! 修改它让代码工作</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">24</span> % <span class="number">5</span> == __);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 逻辑与或非操作</span></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="literal">true</span> &amp;&amp; <span class="literal">false</span> == __);</span><br><span class="line">    <span class="built_in">assert!</span>(<span class="literal">true</span> || <span class="literal">false</span> == __);</span><br><span class="line">    <span class="built_in">assert!</span>(!<span class="literal">true</span> == __);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 位操作</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;0011 AND 0101 is &#123;:04b&#125;&quot;</span>, <span class="number">0b0011u32</span> &amp; <span class="number">0b0101</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;0011 OR 0101 is &#123;:04b&#125;&quot;</span>, <span class="number">0b0011u32</span> | <span class="number">0b0101</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;0011 XOR 0101 is &#123;:04b&#125;&quot;</span>, <span class="number">0b0011u32</span> ^ <span class="number">0b0101</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;1 &lt;&lt; 5 is &#123;&#125;&quot;</span>, <span class="number">1u32</span> &lt;&lt; <span class="number">5</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;0x80 &gt;&gt; 2 is 0x&#123;:x&#125;&quot;</span>, <span class="number">0x80u32</span> &gt;&gt; <span class="number">2</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 填空，并解决错误</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 整数加法</span></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">1u32</span> + <span class="number">2</span> == <span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 整数减法</span></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">1i32</span> - <span class="number">2</span> == -<span class="number">1</span>);</span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">1i8</span> - <span class="number">2</span> == -<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">3</span> * <span class="number">50</span> == <span class="number">150</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">9</span> / <span class="number">3</span> == <span class="number">3</span>); <span class="comment">// error ! 修改它让代码工作</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">24</span> % <span class="number">5</span> == <span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 逻辑与或非操作</span></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="literal">true</span> &amp;&amp; <span class="literal">false</span> == <span class="literal">false</span>);</span><br><span class="line">    <span class="built_in">assert!</span>(<span class="literal">true</span> || <span class="literal">false</span> == <span class="literal">true</span>);</span><br><span class="line">    <span class="built_in">assert!</span>(!<span class="literal">true</span> == <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 位操作</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;0011 AND 0101 is &#123;:04b&#125;&quot;</span>, <span class="number">0b0011u32</span> &amp; <span class="number">0b0101</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;0011 OR 0101 is &#123;:04b&#125;&quot;</span>, <span class="number">0b0011u32</span> | <span class="number">0b0101</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;0011 XOR 0101 is &#123;:04b&#125;&quot;</span>, <span class="number">0b0011u32</span> ^ <span class="number">0b0101</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;1 &lt;&lt; 5 is &#123;&#125;&quot;</span>, <span class="number">1u32</span> &lt;&lt; <span class="number">5</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;0x80 &gt;&gt; 2 is 0x&#123;:x&#125;&quot;</span>, <span class="number">0x80u32</span> &gt;&gt; <span class="number">2</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// Integer addition</span></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">1u32</span> + <span class="number">2</span> == <span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Integer subtraction</span></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">1i32</span> - <span class="number">2</span> == -<span class="number">1</span>);</span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">1i8</span> - <span class="number">2</span> == -<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">3</span> * <span class="number">50</span> == <span class="number">150</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">9</span> / <span class="number">3</span> == <span class="number">3</span>); <span class="comment">// error ! make it work</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="number">24</span> % <span class="number">5</span> == <span class="number">4</span>);</span><br><span class="line">    <span class="comment">// Short-circuiting boolean logic</span></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="literal">true</span> &amp;&amp; <span class="literal">false</span> == <span class="literal">false</span>);</span><br><span class="line">    <span class="built_in">assert!</span>(<span class="literal">true</span> || <span class="literal">false</span> == <span class="literal">true</span>);</span><br><span class="line">    <span class="built_in">assert!</span>(!<span class="literal">true</span> == <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Bitwise operations</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;0011 AND 0101 is &#123;:04b&#125;&quot;</span>, <span class="number">0b0011u32</span> &amp; <span class="number">0b0101</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;0011 OR 0101 is &#123;:04b&#125;&quot;</span>, <span class="number">0b0011u32</span> | <span class="number">0b0101</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;0011 XOR 0101 is &#123;:04b&#125;&quot;</span>, <span class="number">0b0011u32</span> ^ <span class="number">0b0101</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;1 &lt;&lt; 5 is &#123;&#125;&quot;</span>, <span class="number">1u32</span> &lt;&lt; <span class="number">5</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;0x80 &gt;&gt; 2 is 0x&#123;:x&#125;&quot;</span>, <span class="number">0x80u32</span> &gt;&gt; <span class="number">2</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h1 id="字符、布尔、单元类型"><a href="#字符、布尔、单元类型" class="headerlink" title="字符、布尔、单元类型"></a>字符、布尔、单元类型</h1><h2 id="字符"><a href="#字符" class="headerlink" title="字符"></a>字符</h2><ol>
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修改2处 `assert_eq!` 让代码工作</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> std::mem::size_of_val;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c1</span> = <span class="string">&#x27;a&#x27;</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="title function_ invoke__">size_of_val</span>(&amp;c1),<span class="number">1</span>); </span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c2</span> = <span class="string">&#x27;中&#x27;</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="title function_ invoke__">size_of_val</span>(&amp;c2),<span class="number">3</span>); </span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修改2处 `assert_eq!` 让代码工作</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> std::mem::size_of_val;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c1</span> = <span class="string">&#x27;a&#x27;</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="title function_ invoke__">size_of_val</span>(&amp;c1),<span class="number">4</span>); </span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c2</span> = <span class="string">&#x27;中&#x27;</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="title function_ invoke__">size_of_val</span>(&amp;c2),<span class="number">4</span>); </span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::mem::size_of_val;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c1</span> = <span class="string">&#x27;a&#x27;</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="title function_ invoke__">size_of_val</span>(&amp;c1), <span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c2</span> = <span class="string">&#x27;中&#x27;</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="title function_ invoke__">size_of_val</span>(&amp;c2), <span class="number">4</span>);</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修改一行让代码正常打印</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c1</span> = <span class="string">&quot;中&quot;</span>;</span><br><span class="line">    <span class="title function_ invoke__">print_char</span>(c1);</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_char</span>(c : <span class="type">char</span>) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修改一行让代码正常打印</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c1</span> = <span class="string">&quot;中&quot;</span>;</span><br><span class="line">    <span class="title function_ invoke__">print_char</span>(c1);</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_char</span>(c : &amp;<span class="type">str</span>) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c1</span> = <span class="string">&#x27;中&#x27;</span>;</span><br><span class="line">    <span class="title function_ invoke__">print_char</span>(c1);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_char</span>(c: <span class="type">char</span>) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h2 id="布尔"><a href="#布尔" class="headerlink" title="布尔"></a>布尔</h2><ol start="3">
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使成功打印</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">_f</span>: <span class="type">bool</span> = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">t</span> = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">if</span> !t &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使成功打印</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">_f</span>: <span class="type">bool</span> = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">t</span> = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">if</span> t &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">_f</span>: <span class="type">bool</span> = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">t</span> = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">if</span> !t &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">f</span> = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">t</span> = <span class="literal">true</span> &amp;&amp; <span class="literal">false</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(t, f);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">f</span> = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">t</span> = <span class="literal">true</span> || <span class="literal">false</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(t, f);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">f</span> = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">t</span> = <span class="literal">true</span> || <span class="literal">false</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(t, f);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h2 id="单元类型"><a href="#单元类型" class="headerlink" title="单元类型"></a>单元类型</h2><ol start="5">
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 让代码工作，但不要修改 `implicitly_ret_unit` !</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">_v</span>: () = ();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span> = (<span class="number">2</span>, <span class="number">3</span>);</span><br><span class="line">    <span class="built_in">assert_eq!</span>(v, <span class="title function_ invoke__">implicitly_ret_unit</span>());</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">implicitly_ret_unit</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;I will return a ()&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 不要使用下面的函数，它只用于演示！</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">explicitly_ret_unit</span>() <span class="punctuation">-&gt;</span> () &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;I will return a ()&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 让代码工作，但不要修改 `implicitly_ret_unit` !</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">u</span>: () = ();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">_vv</span> = (<span class="number">2</span>, <span class="number">3</span>);</span><br><span class="line">    <span class="built_in">assert_eq!</span>(u, <span class="title function_ invoke__">implicitly_ret_unit</span>());</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">implicitly_ret_unit</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;I will return a ()&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 不要使用下面的函数，它只用于演示！</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">explicitly_ret_unit</span>() <span class="punctuation">-&gt;</span> () &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;I will return a ()&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v0</span>: () = ();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span> = (<span class="number">2</span>, <span class="number">3</span>);</span><br><span class="line">    <span class="built_in">assert_eq!</span>(v0, <span class="title function_ invoke__">implicitly_ret_unit</span>())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">implicitly_ret_unit</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;I will return a ()&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// don&#x27;t use this one</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">explicitly_ret_unit</span>() <span class="punctuation">-&gt;</span> () &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;I will return a ()&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟 单元类型占用的内存大小是多少？</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 让代码工作：修改 `assert!` 中的 `4` </span></span><br><span class="line"><span class="keyword">use</span> std::mem::size_of_val;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">unit</span>: () = ();</span><br><span class="line">    <span class="built_in">assert!</span>(<span class="title function_ invoke__">size_of_val</span>(&amp;unit) == <span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">     </span><br></pre></td></tr></table></figure>
+
+<p>&#x2F;&#x2F; 让代码工作：修改 <code>assert!</code> 中的 <code>4</code><br>use std::mem::size_of_val;<br>fn main() {</p>
+<pre><code>let unit: () = ();
+assert!(size_of_val(&amp;unit) == 0);
+
+println!(&quot;Success!&quot;)
+</code></pre>
+<p>}</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">     </span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<ul>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::mem::size_of_val;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">unit</span>: () = ();</span><br><span class="line">    <span class="comment">// unit type does&#x27;t occupy any memeory space</span></span><br><span class="line">    <span class="built_in">assert!</span>(<span class="title function_ invoke__">size_of_val</span>(&amp;unit) == <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="语句和表达式"><a href="#语句和表达式" class="headerlink" title="语句和表达式"></a>语句和表达式</h1><h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">5u32</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">x_squared</span> = x * x;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">x_cube</span> = x_squared * x;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 下面表达式的值将被赋给 `y`</span></span><br><span class="line">        x_cube + x_squared + x</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">z</span> = &#123;</span><br><span class="line">        <span class="comment">// 分号让表达式变成了语句，因此返回的不再是表达式 `2 * x` 的值，而是语句的值 `()`</span></span><br><span class="line">        <span class="number">2</span> * x;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;x is &#123;:?&#125;&quot;</span>, x);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;y is &#123;:?&#125;&quot;</span>, y);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;z is &#123;:?&#125;&quot;</span>, z);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h2><ol>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用两种方法让代码工作起来</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">v</span> = &#123;</span><br><span class="line">       <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">x</span> = <span class="number">1</span>;</span><br><span class="line">       x += <span class="number">2</span></span><br><span class="line">   &#125;;</span><br><span class="line"></span><br><span class="line">   <span class="built_in">assert_eq!</span>(v, <span class="number">3</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用两种方法让代码工作起来</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">v</span> = &#123;</span><br><span class="line">       <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">x</span> = <span class="number">1</span>;</span><br><span class="line">       x += <span class="number">2</span></span><br><span class="line">   &#125;;</span><br><span class="line"></span><br><span class="line">   <span class="built_in">assert_eq!</span>(v, ());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用两种方法让代码工作起来</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">v</span> = &#123;</span><br><span class="line">       <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">x</span> = <span class="number">1</span>;</span><br><span class="line">       x += <span class="number">2</span>;</span><br><span class="line">       x</span><br><span class="line">   &#125;;</span><br><span class="line"></span><br><span class="line">   <span class="built_in">assert_eq!</span>(v, <span class="number">3</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span> = &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">x</span> = <span class="number">1</span>;</span><br><span class="line">        x += <span class="number">2</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert_eq!</span>(v, ());</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span> = &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">x</span> = <span class="number">1</span>;</span><br><span class="line">        x += <span class="number">2</span>;</span><br><span class="line">        x</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert_eq!</span>(v, <span class="number">3</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">v</span> = (<span class="keyword">let</span> <span class="variable">x</span> = <span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">   <span class="built_in">assert!</span>(v == <span class="number">3</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">v</span> = &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">3</span>;</span><br><span class="line">    x</span><br><span class="line">   &#125;;</span><br><span class="line"></span><br><span class="line">   <span class="built_in">assert!</span>(v == <span class="number">3</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span> = &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">3</span>;</span><br><span class="line">        x</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert!</span>(v == <span class="number">3</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="title function_ invoke__">sum</span>(<span class="number">1</span> , <span class="number">2</span>);</span><br><span class="line">    <span class="built_in">assert_eq!</span>(s, <span class="number">3</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">sum</span>(x: <span class="type">i32</span>, y: <span class="type">i32</span>) <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">    x + y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="title function_ invoke__">sum</span>(<span class="number">1</span> , <span class="number">2</span>);</span><br><span class="line">    <span class="built_in">assert_eq!</span>(s, <span class="number">3</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">sum</span>(x: <span class="type">i32</span>, y: <span class="type">i32</span>) <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">    x + y</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="title function_ invoke__">sum</span>(<span class="number">1</span> , <span class="number">2</span>);</span><br><span class="line">    <span class="built_in">assert_eq!</span>(s, <span class="number">3</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">sum</span>(x: <span class="type">i32</span>, y: <span class="type">i32</span>) <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">    x + y</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h1 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h1><ol>
+<li><p>🌟🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 不要修改下面两行代码!</span></span><br><span class="line">    <span class="keyword">let</span> (x, y) = (<span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="title function_ invoke__">sum</span>(x, y);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert_eq!</span>(s, <span class="number">3</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">sum</span>(x, y: <span class="type">i32</span>) &#123;</span><br><span class="line">    x + y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 不要修改下面两行代码!</span></span><br><span class="line">    <span class="keyword">let</span> (x, y) = (<span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="title function_ invoke__">sum</span>(x, y);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert_eq!</span>(s, <span class="number">3</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">sum</span>(x : <span class="type">i32</span>, y: <span class="type">i32</span>) <span class="punctuation">-&gt;</span> <span class="type">i32</span>&#123;</span><br><span class="line">    x + y</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// don&#x27;t modify the following two lines!</span></span><br><span class="line">    <span class="keyword">let</span> (x, y) = (<span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="title function_ invoke__">sum</span>(x, y);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert_eq!</span>(s, <span class="number">3</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">sum</span>(x: <span class="type">i32</span>, y: <span class="type">i32</span>) <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">    x + y</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="title function_ invoke__">print</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用另一个类型来替代 i32</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print</span>() <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">   <span class="built_in">println!</span>(<span class="string">&quot;hello,world&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="title function_ invoke__">print</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用另一个类型来替代 i32</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print</span>() <span class="punctuation">-&gt;</span> () &#123;</span><br><span class="line">   <span class="built_in">println!</span>(<span class="string">&quot;hello,world&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="title function_ invoke__">print</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// replace i32 with another type</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print</span>() <span class="punctuation">-&gt;</span> () &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;hello,world&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 用两种方法求解</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="title function_ invoke__">never_return</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">never_return</span>() <span class="punctuation">-&gt;</span> ! &#123;</span><br><span class="line">    <span class="comment">// 实现这个函数，不要修改函数签名!</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<p>不会</p>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="title function_ invoke__">never_return</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">never_return</span>() <span class="punctuation">-&gt;</span> ! &#123;</span><br><span class="line">    <span class="comment">// implement this function, don&#x27;t modify fn signatures</span></span><br><span class="line">    <span class="built_in">panic!</span>(<span class="string">&quot;I return nothing!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟 发散函数( Diverging function )不会返回任何值，因此它们可以用于替代需要返回任何值的地方</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">get_option</span>(tp: <span class="type">u8</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;<span class="type">i32</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">match</span> tp &#123;</span><br><span class="line">        <span class="number">1</span> =&gt; &#123;</span><br><span class="line">            <span class="comment">// TODO</span></span><br><span class="line">        &#125;</span><br><span class="line">        _ =&gt; &#123;</span><br><span class="line">            <span class="comment">// TODO</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 这里与其返回一个 None，不如使用发散函数替代</span></span><br><span class="line">    <span class="title function_ invoke__">never_return_fn</span>()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用三种方法实现以下发散函数</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">never_return_fn</span>() <span class="punctuation">-&gt;</span> ! &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<p>不会</p>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">get_option</span>(tp: <span class="type">u8</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;<span class="type">i32</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">match</span> tp &#123;</span><br><span class="line">        <span class="number">1</span> =&gt; &#123;</span><br><span class="line">            <span class="comment">// TODO</span></span><br><span class="line">        &#125;</span><br><span class="line">        _ =&gt; &#123;</span><br><span class="line">            <span class="comment">// TODO</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">never_return_fn</span>()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// IMPLEMENT this function</span></span><br><span class="line"><span class="comment">// DON&#x27;T change any code else</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">never_return_fn</span>() <span class="punctuation">-&gt;</span> ! &#123;</span><br><span class="line">    <span class="built_in">unimplemented!</span>()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// IMPLEMENT this function in THREE ways</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">never_return_fn</span>() <span class="punctuation">-&gt;</span> ! &#123;</span><br><span class="line">    <span class="built_in">panic!</span>()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// IMPLEMENT this function in THREE ways</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">never_return_fn</span>() <span class="punctuation">-&gt;</span> ! &#123;</span><br><span class="line">    todo!();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// IMPLEMENT this function in THREE ways</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">never_return_fn</span>() <span class="punctuation">-&gt;</span> ! &#123;</span><br><span class="line">    <span class="keyword">loop</span> &#123;</span><br><span class="line">        std::thread::<span class="title function_ invoke__">sleep</span>(std::time::Duration::<span class="title function_ invoke__">from_secs</span>(<span class="number">1</span>))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 填空</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">b</span> = __;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">_v</span> = <span class="keyword">match</span> b &#123;</span><br><span class="line">        <span class="literal">true</span> =&gt; <span class="number">1</span>,</span><br><span class="line">        <span class="comment">// 发散函数也可以用于 `match` 表达式，用于替代任何类型的值</span></span><br><span class="line">        <span class="literal">false</span> =&gt; &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>);</span><br><span class="line">            <span class="built_in">panic!</span>(<span class="string">&quot;we have no value for `false`, but we can panic&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Exercise Failed if printing out this line!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 填空</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">b</span> = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">_v</span> = <span class="keyword">match</span> b &#123;</span><br><span class="line">        <span class="literal">true</span> =&gt; <span class="number">1</span>,</span><br><span class="line">        <span class="comment">// 发散函数也可以用于 `match` 表达式，用于替代任何类型的值</span></span><br><span class="line">        <span class="literal">false</span> =&gt; &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>);</span><br><span class="line">            <span class="built_in">panic!</span>(<span class="string">&quot;we have no value for `false`, but we can panic&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Exercise Failed if printing out this line!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// FILL in the blank</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">b</span> = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">_v</span> = <span class="keyword">match</span> b &#123;</span><br><span class="line">        <span class="literal">true</span> =&gt; <span class="number">1</span>,</span><br><span class="line">        <span class="comment">// Diverging functions can also be used in match expression</span></span><br><span class="line">        <span class="literal">false</span> =&gt; &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>);</span><br><span class="line">            <span class="built_in">panic!</span>(<span class="string">&quot;we have no value for `false`, but we can panic&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Exercise Failed if printing out this line!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/Rust/" rel="tag"><i class="fa fa-tag"></i> Rust</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/08/23/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A01-%E5%8F%98%E9%87%8F%E7%BB%91%E5%AE%9A%E4%B8%8E%E8%A7%A3%E6%9E%84/" rel="prev" title="Rust学习 练习1 变量绑定与解构">
+      <i class="fa fa-chevron-left"></i> Rust学习 练习1 变量绑定与解构
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/08/31/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A03-%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E5%80%9F%E7%94%A8/" rel="next" title="Rust学习 练习3 所有权和借用">
+      Rust学习 练习3 所有权和借用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E5%80%BC%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">数值类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B4%E6%95%B0"><span class="nav-number">1.1.</span> <span class="nav-text">整数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%AE%E7%82%B9%E6%95%B0"><span class="nav-number">1.2.</span> <span class="nav-text">浮点数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%8F%E5%88%97"><span class="nav-number">1.3.</span> <span class="nav-text">序列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97"><span class="nav-number">1.4.</span> <span class="nav-text">计算</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E3%80%81%E5%B8%83%E5%B0%94%E3%80%81%E5%8D%95%E5%85%83%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">字符、布尔、单元类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6"><span class="nav-number">2.1.</span> <span class="nav-text">字符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%83%E5%B0%94"><span class="nav-number">2.2.</span> <span class="nav-text">布尔</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%95%E5%85%83%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.3.</span> <span class="nav-text">单元类型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%AD%E5%8F%A5%E5%92%8C%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">语句和表达式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">3.1.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%83%E4%B9%A0"><span class="nav-number">3.2.</span> <span class="nav-text">练习</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%BD%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">函数</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">60</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.1m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">33:14</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : '3525a772ed6822ccea51f441a019af99',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>

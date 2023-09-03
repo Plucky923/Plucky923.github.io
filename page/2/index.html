@@ -197,6 +197,430 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/15/%E5%AD%A6%E4%B9%A0-Linux-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/15/%E5%AD%A6%E4%B9%A0-Linux-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97/" class="post-title-link" itemprop="url">学习 Linux 自定义内核模块</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-15 16:44:44" itemprop="dateCreated datePublished" datetime="2023-07-15T16:44:44+08:00">2023-07-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-18 16:12:34" itemprop="dateModified" datetime="2023-07-18T16:12:34+08:00">2023-07-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="程序举例"><a href="#程序举例" class="headerlink" title="程序举例"></a>程序举例</h1><p>可以在任意目录下编写自定义内核模块，在这个例子中我将模块放在&#x2F;home&#x2F;hust&#x2F;modules_6.3.7，例如编写一段hello.c代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">  <span class="comment">// hello.c </span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">hello_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    printk(<span class="string">&quot;Hello World!\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">hello_exit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    printk(<span class="string">&quot;Goodbye World!\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(hello_init);</span><br><span class="line">module_exit(hello_exit);</span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;Your Name&quot;</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">&quot;A Simple Hello World module&quot;</span>);</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/07/15/%E5%AD%A6%E4%B9%A0-Linux-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/04/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-libevent/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/04/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-libevent/" class="post-title-link" itemprop="url">C++学习 网络编程 libevent</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-04 09:58:46" itemprop="dateCreated datePublished" datetime="2023-07-04T09:58:46+08:00">2023-07-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-26 18:02:32" itemprop="dateModified" datetime="2023-07-26T18:02:32+08:00">2023-07-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">网络编程</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>17k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>31 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="学习目标"><a href="#学习目标" class="headerlink" title="学习目标"></a>学习目标</h1><ul>
+<li><p>描述什么是libevent并掌握如何安装</p>
+</li>
+<li><p>掌握event_base的作用和使用方法</p>
+</li>
+<li><p>熟练掌握libevent库中的事件循环</p>
+</li>
+<li><p>掌握event事件的使用方法</p>
+</li>
+<li><p>掌握bufferevent的工作方式</p>
+</li>
+<li><p>掌握使用libevent实现TCP服务端流程</p>
+</li>
+<li><p>掌握使用libevent实现TCP客户端流程</p>
+</li>
+</ul>
+<h1 id="libevent介绍"><a href="#libevent介绍" class="headerlink" title="libevent介绍"></a>libevent介绍</h1>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/07/04/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-libevent/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/01/C++-%E5%AD%A6%E4%B9%A0-%E5%BC%82%E5%B8%B8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/01/C++-%E5%AD%A6%E4%B9%A0-%E5%BC%82%E5%B8%B8/" class="post-title-link" itemprop="url">C++学习 异常</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-01 09:44:22" itemprop="dateCreated datePublished" datetime="2023-07-01T09:44:22+08:00">2023-07-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-03 11:28:46" itemprop="dateModified" datetime="2023-07-03T11:28:46+08:00">2023-07-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/%E8%AF%AD%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">语法</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>8.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>15 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="异常的基本概念"><a href="#异常的基本概念" class="headerlink" title="异常的基本概念"></a>异常的基本概念</h1><p>提供异常的基本目的就是为了处理上面的问题。基本思想是：让一个函数在发现了自己无法处理的错误时抛出（throw）一个异常，然后它的（直接或者间接）调用者能够处理这个问题。将问题检测和问题处理相分离。</p>
+<p>一种思想：在所有支持异常处理的编程语言中（例如java)，要认识到的一个思想：在异常处理过程中，由问题检测代码可以抛出一个对象给问题处理代码，通过这个对象的类型和内容，实际上完成了两个部分的通信，通信的内容是：出现了上面错误。当然，各种语言对异常的具体实现有着或多或少的区别，但是这个通信的思想是不变的。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/07/01/C++-%E5%AD%A6%E4%B9%A0-%E5%BC%82%E5%B8%B8/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/30/C++-%E5%AD%A6%E4%B9%A0-%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/06/30/C++-%E5%AD%A6%E4%B9%A0-%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/" class="post-title-link" itemprop="url">C++学习 类型转换</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-06-30 18:04:47" itemprop="dateCreated datePublished" datetime="2023-06-30T18:04:47+08:00">2023-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-01 09:42:54" itemprop="dateModified" datetime="2023-07-01T09:42:54+08:00">2023-07-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/%E8%AF%AD%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">语法</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>3.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>7 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>类型转换(cast)是一种数据类型转换成另一种数据类型。例如，如果将一个整型值赋给一个浮点类型的变量，编译器会暗地里将其转换成浮点类型。</p>
+<p>转换是非常有用的，但是它也会带来一些问题，比如在转换指针时，我们很可能将其转换成一个比它更大的类型，但这可能会破坏其他的数据。</p>
+<p>应该小心类型转换，因为转换也就相当于对编译器说：忘记类型检查，把他看作其他的类型。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/06/30/C++-%E5%AD%A6%E4%B9%A0-%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -837,426 +1261,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/25/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/05/25/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/" class="post-title-link" itemprop="url">C++ 学习 网络编程 IO多路复用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-05-25 13:54:32" itemprop="dateCreated datePublished" datetime="2023-05-25T13:54:32+08:00">2023-05-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-06-03 16:53:51" itemprop="dateModified" datetime="2023-06-03T16:53:51+08:00">2023-06-03</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">网络编程</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>9.8k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>18 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="I-x2F-O多路复用（I-x2F-O多路转接）"><a href="#I-x2F-O多路复用（I-x2F-O多路转接）" class="headerlink" title="I&#x2F;O多路复用（I&#x2F;O多路转接）"></a>I&#x2F;O多路复用（I&#x2F;O多路转接）</h1><img src="/2023/05/25/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/阻塞等待.png" title alt data-align="center">
-
-<p><img src="/2023/05/25/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/BIO%E6%A8%A1%E5%9E%8B.png"></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/05/25/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/20/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-socket%E9%80%9A%E4%BF%A1%E5%9F%BA%E7%A1%80/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/05/20/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-socket%E9%80%9A%E4%BF%A1%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">C++学习 网络编程 socket通信基础</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-05-20 15:04:08" itemprop="dateCreated datePublished" datetime="2023-05-20T15:04:08+08:00">2023-05-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-05-23 22:13:15" itemprop="dateModified" datetime="2023-05-23T22:13:15+08:00">2023-05-23</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">网络编程</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>25k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>46 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="socket介绍"><a href="#socket介绍" class="headerlink" title="socket介绍"></a>socket介绍</h1><ul>
-<li><p>所谓 socket（套接字），就是对网络中不同主机上的应用进程之间进行双向通信的端点的抽象。一个套接字就是网络上进程通信的一端，提供了应用层进程利用网络协议交换数据的机制。从所处的地位来讲，套接字上联应用进程，下联网络协议栈，是应用程序通过网络协议进行通信的接口，是应用程序与网络协议根进行交互的接口。</p>
-</li>
-<li><p>socket 可以看成是两个网络应用程序进行通信时，各自通信连接中的端点，这是一个逻辑上的概念。它是网络环境中进程间通信的 API，也是可以被命名和寻址的通信端点，使用中的每一个套接字都有其类型和一个与之相连进程。通信时其中一个网络应用程序将要传输的一段信息写入它所在主机的 socket 中，该 socket 通过与网络接口卡（NIC）相连的传输介质将这段信息送到另外一台主机的 socket 中，使对方能够接收到这段信息。socket 是由 IP 地址和端口结合的，提供向应用层进程传送数据包的机制。</p>
-</li>
-<li><p>socket 本身有“插座”的意思，在 Linux 环境下，用于表示进程间网络通信的特殊文件类型。本质为内核借助缓冲区形成的伪文件。既然是文件，那么理所当然的，我们可以使用文件描述符引用套接字。与管道类似的，Linux 系统将其封装成文件的目的是为了统一接口，使得读写套接字和读写文件的操作一致。区别是管道主要应用于本地进程间通信，而套接字多应用于网络进程间数据的传递。</p>
-</li>
-</ul>
-<p><strong>套接字通信分为两部分</strong></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/05/20/C++-%E5%AD%A6%E4%B9%A0-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-socket%E9%80%9A%E4%BF%A1%E5%9F%BA%E7%A1%80/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/15/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E7%BA%BF%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/05/15/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E7%BA%BF%E7%A8%8B/" class="post-title-link" itemprop="url">C++学习 Linux系统编程 线程</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-05-15 13:40:29" itemprop="dateCreated datePublished" datetime="2023-05-15T13:40:29+08:00">2023-05-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-05-19 21:00:07" itemprop="dateModified" datetime="2023-05-19T21:00:07+08:00">2023-05-19</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">Linux系统编程</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>18k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>32 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="线程概述"><a href="#线程概述" class="headerlink" title="线程概述"></a>线程概述</h1><h2 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h2><ul>
-<li><p>与进程（process）类似，线程（thread）是允许应用程序并发执行多个任务的一种机制。一个进程可以包含多个线程。同一个程序中的所有线程均会独立执行相同程序，且共享同一份全局内存区域，其中包括初始化数据段、未初始化数据段，以及堆内存段。（传统意义上的 UNIX 进程只是多线程程序的一个特例，该进程只包含一个线程）</p>
-</li>
-<li><p>进程是 CPU 分配资源的最小单位，线程是操作系统调度执行的最小单位。</p>
-</li>
-<li><p>线程是轻量级的进程（LWP：Light Weight Process），在 Linux 环境下线程的本质仍是进程。</p>
-</li>
-<li><p>查看指定进程的 LWP （线程）号：<code>ps –Lf pid</code></p>
-</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/05/15/C++-%E5%AD%A6%E4%B9%A0-Linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B-%E7%BA%BF%E7%A8%8B/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/11/C++-%E5%AD%A6%E4%B9%A0-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%96%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/05/11/C++-%E5%AD%A6%E4%B9%A0-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%96%E7%A8%8B/" class="post-title-link" itemprop="url">C++学习 数据库编程</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2023-05-11 14:10:20 / Modified: 18:33:21" itemprop="dateCreated datePublished" datetime="2023-05-11T14:10:20+08:00">2023-05-11</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>49</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Oracle"><a href="#Oracle" class="headerlink" title="Oracle"></a>Oracle</h1><ul>
-<li>Oracle安装连接：<a target="_blank" rel="noopener" href="https://www.oracle.com/database/technologies/oracle-database-software-downloads.html">Database Software Downloads | Oracle</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1326,20 +1330,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-count">60</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1388,13 +1392,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">1m</span>
+    <span title="Symbols count total">1.1m</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">31:13</span>
+    <span title="Reading time total">33:14</span>
 </div>
 
 <!--

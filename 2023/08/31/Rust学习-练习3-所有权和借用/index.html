@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="所有权和借用 - Rust By Practice( Rust 练习实践 ) 所有权 🌟🌟 123456fn main() &amp;#123;    &#x2F;&#x2F; 使用尽可能多的方法来通过编译    let x &#x3D; String::from(&quot;hello, world&quot;);    let y &#x3D; x;    println!(&quot;&amp;#123;&amp;#125;,&amp;#123;&amp;#125;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust学习 练习3 所有权和借用">
+<meta property="og:url" content="http://example.com/2023/08/31/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A03-%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E5%80%9F%E7%94%A8/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="所有权和借用 - Rust By Practice( Rust 练习实践 ) 所有权 🌟🌟 123456fn main() &amp;#123;    &#x2F;&#x2F; 使用尽可能多的方法来通过编译    let x &#x3D; String::from(&quot;hello, world&quot;);    let y &#x3D; x;    println!(&quot;&amp;#123;&amp;#125;,&amp;#123;&amp;#125;">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-08-31T13:52:30.000Z">
+<meta property="article:modified_time" content="2023-09-02T12:09:51.133Z">
+<meta property="article:author" content="Plucky">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/08/31/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A03-%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E5%80%9F%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Rust学习 练习3 所有权和借用 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/31/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A03-%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E5%80%9F%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Rust学习 练习3 所有权和借用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-08-31 21:52:30" itemprop="dateCreated datePublished" datetime="2023-08-31T21:52:30+08:00">2023-08-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-09-02 20:09:51" itemprop="dateModified" datetime="2023-09-02T20:09:51+08:00">2023-09-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/" itemprop="url" rel="index"><span itemprop="name">Rust</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/%E7%BB%83%E4%B9%A0%E5%AE%9E%E8%B7%B5/" itemprop="url" rel="index"><span itemprop="name">练习实践</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>13k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>23 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://zh.practice.rs/ownership/intro.html">所有权和借用 - Rust By Practice( Rust 练习实践 )</a></p>
+<h1 id="所有权"><a href="#所有权" class="headerlink" title="所有权"></a>所有权</h1><ol>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 使用尽可能多的方法来通过编译</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 使用尽可能多的方法来通过编译</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span>: &amp;<span class="type">str</span> = <span class="string">&quot;hello,world&quot;</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 使用尽可能多的方法来通过编译</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x.<span class="title function_ invoke__">clone</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x.<span class="title function_ invoke__">clone</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="string">&quot;hello, world&quot;</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = &amp;<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x.<span class="title function_ invoke__">as_str</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不要修改 main 中的代码</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s1</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s2</span> = <span class="title function_ invoke__">take_ownership</span>(s1);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 只能修改下面的代码!</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">take_ownership</span>(s: <span class="type">String</span>) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不要修改 main 中的代码</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s1</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s2</span> = <span class="title function_ invoke__">take_ownership</span>(s1);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 只能修改下面的代码!</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">take_ownership</span>(s: <span class="type">String</span>) <span class="punctuation">-&gt;</span><span class="type">String</span>&#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">    s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Don&#x27;t modify code in main!</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s1</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s2</span> = <span class="title function_ invoke__">take_ownership</span>(s1);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Only modify the code below!</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">take_ownership</span>(s: <span class="type">String</span>) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">    s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="title function_ invoke__">give_ownership</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 只能修改下面的代码!</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">give_ownership</span>() <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="comment">// convert String to Vec</span></span><br><span class="line">    <span class="comment">// 将 String 转换成 Vec 类型</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">_s</span> = s.<span class="title function_ invoke__">into_bytes</span>();</span><br><span class="line">    s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<p>不会</p>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="title function_ invoke__">give_ownership</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Only modify the code below!</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">give_ownership</span>() <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="comment">// convert String to Vec</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">_s</span> = s.<span class="title function_ invoke__">as_bytes</span>();</span><br><span class="line">    s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="title function_ invoke__">give_ownership</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Only modify the code below!</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">give_ownership</span>() <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修复错误，不要删除任何代码行</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">print_str</span>(s);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_str</span>(s: <span class="type">String</span>)  &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>,s)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修复错误，不要删除任何代码行</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="title function_ invoke__">print_str</span>(s);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_str</span>(s: <span class="type">String</span>) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>,s);</span><br><span class="line">    s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">print_str</span>(s.<span class="title function_ invoke__">clone</span>());</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_str</span>(s: <span class="type">String</span>)  &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>,s)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="title function_ invoke__">print_str</span>(&amp;s);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_str</span>(s: &amp;<span class="type">String</span>)  &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>,s)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不要使用 clone，使用 copy 的方式替代</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = (<span class="number">1</span>, <span class="number">2</span>, (), <span class="string">&quot;hello&quot;</span>.<span class="title function_ invoke__">to_string</span>());</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x.<span class="title function_ invoke__">clone</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;, &#123;:?&#125;&quot;</span>, x, y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不要使用 clone，使用 copy 的方式替代</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = (<span class="number">1</span>, <span class="number">2</span>, (), <span class="string">&quot;hello&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;, &#123;:?&#125;&quot;</span>, x, y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = (<span class="number">1</span>, <span class="number">2</span>, (), <span class="string">&quot;hello&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;, &#123;:?&#125;&quot;</span>, x, y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h2 id="可变性"><a href="#可变性" class="headerlink" title="可变性"></a>可变性</h2><p>当所有权转移时，可变性也可以随之改变。</p>
+<ol start="6">
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 只修改下面这行代码 !</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s1</span> = s;</span><br><span class="line"></span><br><span class="line">    s1.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 只修改下面这行代码 !</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s1</span> = s;</span><br><span class="line"></span><br><span class="line">    s1.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// modify this line only !</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s1</span> = s;</span><br><span class="line"></span><br><span class="line">    s1.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> ...      <span class="comment">// 完成该行代码，不要修改其它行！</span></span><br><span class="line"></span><br><span class="line">    *y = <span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert_eq!</span>(*x, <span class="number">5</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">y</span> = <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(<span class="number">1</span>);      <span class="comment">// 完成该行代码，不要修改其它行！</span></span><br><span class="line"></span><br><span class="line">    *y = <span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert_eq!</span>(*x, <span class="number">5</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">y</span> = <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(<span class="number">3</span>);       <span class="comment">// implement this line, dont change other lines!</span></span><br><span class="line"></span><br><span class="line">    *y = <span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert_eq!</span>(*x, <span class="number">5</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h2 id="部分move"><a href="#部分move" class="headerlink" title="部分move"></a>部分move</h2><p>当解构一个变量时，可以同时使用 <code>move</code> 和引用模式绑定的方式。当这么做时，部分 <code>move</code> 就会发生：变量中一部分的所有权被转移给其它变量，而另一部分我们获取了它的引用。</p>
+<p>在这种情况下，原变量将无法再被使用，但是它没有转移所有权的那一部分依然可以使用，也就是之前被引用的那部分。</p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="meta">#[derive(Debug)]</span></span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">        name: <span class="type">String</span>,</span><br><span class="line">        age: <span class="type">Box</span>&lt;<span class="type">u8</span>&gt;,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">person</span> = Person &#123;</span><br><span class="line">        name: <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;Alice&quot;</span>),</span><br><span class="line">        age: <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(<span class="number">20</span>),</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过这种解构式模式匹配，person.name 的所有权被转移给新的变量 `name`</span></span><br><span class="line">    <span class="comment">// 但是，这里 `age` 变量却是对 person.age 的引用, 这里 ref 的使用相当于: let age = &amp;person.age </span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">Person</span> &#123; name, <span class="keyword">ref</span> age &#125; = person;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;The person&#x27;s age is &#123;&#125;&quot;</span>, age);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;The person&#x27;s name is &#123;&#125;&quot;</span>, name);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Error! 原因是 person 的一部分已经被转移了所有权，因此我们无法再使用它</span></span><br><span class="line">    <span class="comment">//println!(&quot;The person struct is &#123;:?&#125;&quot;, person);</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 虽然 `person` 作为一个整体无法再被使用，但是 `person.age` 依然可以使用</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;The person&#x27;s age from person struct is &#123;&#125;&quot;</span>, person.age);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h3><ol start="8">
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">t</span> = (<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>), <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;world&quot;</span>));</span><br><span class="line"></span><br><span class="line">   <span class="keyword">let</span> <span class="variable">_s</span> = t.<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 仅修改下面这行代码，且不要使用 `_s`</span></span><br><span class="line">   <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, t);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">t</span> = (<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>), <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;world&quot;</span>));</span><br><span class="line"></span><br><span class="line">   <span class="keyword">let</span> <span class="variable">_s</span> = t.<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 仅修改下面这行代码，且不要使用 `_s`</span></span><br><span class="line">   <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, t.<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">t</span> = (<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>), <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;world&quot;</span>));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">_s</span> = t.<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// modify this line only, don&#x27;t use `_s`</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, t.<span class="number">1</span>);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">t</span> = (<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>), <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;world&quot;</span>));</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 填空，不要修改其它代码</span></span><br><span class="line">   <span class="keyword">let</span> (__, __) = __;</span><br><span class="line"></span><br><span class="line">   <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;, &#123;:?&#125;, &#123;:?&#125;&quot;</span>, s1, s2, t); <span class="comment">// -&gt; &quot;hello&quot;, &quot;world&quot;, (&quot;hello&quot;, &quot;world&quot;)</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">t</span> = (<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>), <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;world&quot;</span>));</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 填空，不要修改其它代码</span></span><br><span class="line">   <span class="keyword">let</span> (s1, s2) = t.<span class="title function_ invoke__">clone</span>();</span><br><span class="line"></span><br><span class="line">   <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;, &#123;:?&#125;, &#123;:?&#125;&quot;</span>, s1, s2, t); <span class="comment">// -&gt; &quot;hello&quot;, &quot;world&quot;, (&quot;hello&quot;, &quot;world&quot;)</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">t</span> = (<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>), <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;world&quot;</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// fill the blanks</span></span><br><span class="line">    <span class="keyword">let</span> (s1, s2) = t.<span class="title function_ invoke__">clone</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;, &#123;:?&#125;, &#123;:?&#125;&quot;</span>, s1, s2, t); <span class="comment">// -&gt; &quot;hello&quot;, &quot;world&quot;, (&quot;hello&quot;, &quot;world&quot;)</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h1 id="引用和借用"><a href="#引用和借用" class="headerlink" title="引用和借用"></a>引用和借用</h1><h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><ol>
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">5</span>;</span><br><span class="line">   <span class="comment">// 填写空白处</span></span><br><span class="line">   <span class="keyword">let</span> <span class="variable">p</span> = __;</span><br><span class="line"></span><br><span class="line">   <span class="built_in">println!</span>(<span class="string">&quot;x 的内存地址是 &#123;:p&#125;&quot;</span>, p); <span class="comment">// output: 0x16fa3ac84</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">5</span>;</span><br><span class="line">   <span class="comment">// 填写空白处</span></span><br><span class="line">   <span class="keyword">let</span> <span class="variable">p</span> = &amp;x;</span><br><span class="line"></span><br><span class="line">   <span class="built_in">println!</span>(<span class="string">&quot;x 的内存地址是 &#123;:p&#125;&quot;</span>, p); <span class="comment">// output: 0x16fa3ac84</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">5</span>;</span><br><span class="line">    <span class="comment">// fill the blank</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">p</span> = &amp;x;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;the memory address of x is &#123;:p&#125;&quot;</span>, p); <span class="comment">// one possible output: 0x16fa3ac84</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">5</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = &amp;x;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 只能修改以下行</span></span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">5</span>, y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">5</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = &amp;x;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 只能修改以下行</span></span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">5</span>, *y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">5</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = &amp;x;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// modify this line only</span></span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">5</span>, *y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修复错误</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">borrow_object</span>(s)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">borrow_object</span>(s: &amp;<span class="type">String</span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修复错误</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">borrow_object</span>(&amp;s)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">borrow_object</span>(s: &amp;<span class="type">String</span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">borrow_object</span>(&amp;s)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">borrow_object</span>(s: &amp;<span class="type">String</span>) &#123;&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修复错误</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">push_str</span>(s)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">push_str</span>(s: &amp;<span class="keyword">mut</span> <span class="type">String</span>) &#123;</span><br><span class="line">    s.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修复错误</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">push_str</span>(&amp; <span class="keyword">mut</span> s)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">push_str</span>(s: &amp;<span class="keyword">mut</span> <span class="type">String</span>) &#123;</span><br><span class="line">    s.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">push_str</span>(&amp;<span class="keyword">mut</span> s)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">push_str</span>(s: &amp;<span class="keyword">mut</span> <span class="type">String</span>) &#123;</span><br><span class="line">    s.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 填写空白处，让代码工作</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">p</span> = __;</span><br><span class="line"></span><br><span class="line">    p.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 填写空白处，让代码工作</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">p</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line"></span><br><span class="line">    p.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// fill the blank to make it work</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">p</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line"></span><br><span class="line">    p.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h2 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h2><p><code>ref</code> 与 <code>&amp;</code> 类似，可以用来获取一个值的引用，但是它们的用法有所不同。</p>
+<ol start="6">
+<li><p>🌟🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c</span> = <span class="string">&#x27;中&#x27;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r1</span> = &amp;c;</span><br><span class="line">    <span class="comment">// 填写空白处，但是不要修改其它行的代码</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">__</span> r2 = c;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert_eq!</span>(*r1, *r2);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断两个内存地址的字符串是否相等</span></span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="title function_ invoke__">get_addr</span>(r1),<span class="title function_ invoke__">get_addr</span>(r2));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取传入引用的内存地址的字符串形式</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">get_addr</span>(r: &amp;<span class="type">char</span>) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">format!</span>(<span class="string">&quot;&#123;:p&#125;&quot;</span>, r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c</span> = <span class="string">&#x27;中&#x27;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r1</span> = &amp;c;</span><br><span class="line">    <span class="comment">// 填写空白处，但是不要修改其它行的代码</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">ref</span> r2 = c;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert_eq!</span>(*r1, *r2);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断两个内存地址的字符串是否相等</span></span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="title function_ invoke__">get_addr</span>(r1),<span class="title function_ invoke__">get_addr</span>(r2));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取传入引用的内存地址的字符串形式</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">get_addr</span>(r: &amp;<span class="type">char</span>) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">format!</span>(<span class="string">&quot;&#123;:p&#125;&quot;</span>, r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c</span> = <span class="string">&#x27;中&#x27;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r1</span> = &amp;c;</span><br><span class="line">    <span class="comment">// fill the blank，dont change other code</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">ref</span> r2 = c;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert_eq!</span>(*r1, *r2);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// check the equality of the two address strings</span></span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="title function_ invoke__">get_addr</span>(r1),<span class="title function_ invoke__">get_addr</span>(r2));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// get memory address string</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">get_addr</span>(r: &amp;<span class="type">char</span>) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">format!</span>(<span class="string">&quot;&#123;:p&#125;&quot;</span>, r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h2 id="借用规则"><a href="#借用规则" class="headerlink" title="借用规则"></a>借用规则</h2><ol start="7">
+<li><p>🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 移除代码某个部分，让它工作</span></span><br><span class="line"><span class="comment">// 你不能移除整行的代码！</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r1</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r2</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;, &#123;&#125;&quot;</span>, r1, r2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 移除代码某个部分，让它工作</span></span><br><span class="line"><span class="comment">// 你不能移除整行的代码！</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r1</span> = &amp;s;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r2</span> = &amp;s;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;, &#123;&#125;&quot;</span>, r1, r2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r1</span> = &amp;s;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r2</span> = &amp;s;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;, &#123;&#125;&quot;</span>, r1, r2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h2 id="可变性-1"><a href="#可变性-1" class="headerlink" title="可变性"></a>可变性</h2><ol start="8">
+<li><p>🌟 错误: 从不可变对象借用可变</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 通过修改下面一行代码来修复错误</span></span><br><span class="line">    <span class="keyword">let</span>  <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">borrow_object</span>(&amp;<span class="keyword">mut</span> s)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">borrow_object</span>(s: &amp;<span class="keyword">mut</span> <span class="type">String</span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 通过修改下面一行代码来修复错误</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">borrow_object</span>(&amp;<span class="keyword">mut</span> s)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">borrow_object</span>(s: &amp;<span class="keyword">mut</span> <span class="type">String</span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">//fix error by modifying this line</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">borrow_object</span>(&amp;<span class="keyword">mut</span> s)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">borrow_object</span>(s: &amp;<span class="keyword">mut</span> <span class="type">String</span>) &#123;&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟 Ok: 从可变对象借用不可变</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 下面的代码没有任何错误</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">borrow_object</span>(&amp;s);</span><br><span class="line"></span><br><span class="line">    s.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">borrow_object</span>(s: &amp;<span class="type">String</span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 下面的代码没有任何错误</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">borrow_object</span>(&amp;s);</span><br><span class="line"></span><br><span class="line">    s.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">borrow_object</span>(s: &amp;<span class="type">String</span>) &#123;&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<h2 id="NLL"><a href="#NLL" class="headerlink" title="NLL"></a>NLL</h2><ol start="10">
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 注释掉一行代码让它工作</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r1</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line">    r1.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r2</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line">    r2.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>,r1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 注释掉一行代码让它工作</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r1</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line">    r1.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r2</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line">    r2.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//println!(&quot;&#123;&#125;&quot;,r1);</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r1</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line">    r1.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r2</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line">    r2.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// println!(&quot;&#123;&#125;&quot;,r1);</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r1</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r2</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在下面增加一行代码人为制造编译错误：cannot borrow `s` as mutable more than once at a time</span></span><br><span class="line">    <span class="comment">// 你不能同时使用 r1 和 r2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r1</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r2</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在下面增加一行代码人为制造编译错误：cannot borrow `s` as mutable more than once at a time</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>,r1);</span><br><span class="line">    <span class="comment">// 你不能同时使用 r1 和 r2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, &quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r1</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r2</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// add one line below to make a compiler error: cannot borrow `s` as mutable more than once at a time</span></span><br><span class="line">    <span class="comment">// you can&#x27;t use r1 and r2 at the same time</span></span><br><span class="line">    r1.<span class="title function_ invoke__">push_str</span>(<span class="string">&quot;world&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/Rust/" rel="tag"><i class="fa fa-tag"></i> Rust</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/08/25/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A02-%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B/" rel="prev" title="Rust学习 练习2 基本类型">
+      <i class="fa fa-chevron-left"></i> Rust学习 练习2 基本类型
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/09/02/Rust%E7%BB%83%E4%B9%A0-%E7%BB%83%E4%B9%A04-%E5%A4%8D%E5%90%88%E7%B1%BB%E5%9E%8B/" rel="next" title="Rust练习 练习4 复合类型">
+      Rust练习 练习4 复合类型 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%80%E6%9C%89%E6%9D%83"><span class="nav-number">1.</span> <span class="nav-text">所有权</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E5%8F%98%E6%80%A7"><span class="nav-number">1.1.</span> <span class="nav-text">可变性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%83%A8%E5%88%86move"><span class="nav-number">1.2.</span> <span class="nav-text">部分move</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.2.1.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%83%E4%B9%A0"><span class="nav-number">1.2.2.</span> <span class="nav-text">练习</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E7%94%A8%E5%92%8C%E5%80%9F%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">引用和借用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ref"><span class="nav-number">2.2.</span> <span class="nav-text">ref</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%80%9F%E7%94%A8%E8%A7%84%E5%88%99"><span class="nav-number">2.3.</span> <span class="nav-text">借用规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E5%8F%98%E6%80%A7-1"><span class="nav-number">2.4.</span> <span class="nav-text">可变性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NLL"><span class="nav-number">2.5.</span> <span class="nav-text">NLL</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">60</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.1m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">33:14</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : '62b7fa850d10f3e1dbde080861b78f68',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
