@@ -197,6 +197,281 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/29/%E5%AD%A6%E4%B9%A0-Linux-fs-namei-c%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/29/%E5%AD%A6%E4%B9%A0-Linux-fs-namei-c%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">学习 Linux /fs/namei.c源码分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-29 09:11:29" itemprop="dateCreated datePublished" datetime="2023-07-29T09:11:29+08:00">2023-07-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-08-20 18:35:57" itemprop="dateModified" datetime="2023-08-20T18:35:57+08:00">2023-08-20</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>143k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4:20</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.7/source/fs/namei.c">namei.c - fs&#x2F;namei.c - Linux source code (v6.3.7) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> EMBEDDED_NAME_MAX    (PATH_MAX - offsetof(struct filename, iname))</span></span><br><span class="line"><span class="comment">// 定义 EMBEDDED_NAME_MAX，这是嵌入式文件名的最大长度。长度等于 PATH_MAX（一个路径的最大长度）减去 struct filename 中 iname 字段的偏移量。</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> filename *</span><br><span class="line"><span class="title function_">getname_flags</span><span class="params">(<span class="type">const</span> <span class="type">char</span> __user *filename, <span class="type">int</span> flags, <span class="type">int</span> *empty)</span></span><br><span class="line"><span class="comment">// 这个函数是从用户空间获取文件名，并将其复制到内核空间。函数接受三个参数：用户提供的文件名，一组标志，以及一个指向整数的指针，用于指示路径是否为空。</span></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">filename</span> *<span class="title">result</span>;</span></span><br><span class="line">    <span class="type">char</span> *kname;</span><br><span class="line">    <span class="type">int</span> len;</span><br><span class="line">    <span class="comment">// 定义三个变量：一个指向 struct filename 的指针，一个字符指针，以及一个整数。</span></span><br><span class="line"></span><br><span class="line">    result = audit_reusename(filename);</span><br><span class="line">    <span class="comment">// 尝试重用给定的文件名。如果成功，返回指向重用的文件名的指针。</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (result)</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    <span class="comment">// 如果重用成功，返回结果。</span></span><br><span class="line"></span><br><span class="line">    result = __getname();</span><br><span class="line">    <span class="comment">// 尝试从名字缓存中获取一个新的文件名。</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (unlikely(!result))</span><br><span class="line">        <span class="keyword">return</span> ERR_PTR(-ENOMEM);</span><br><span class="line">    <span class="comment">// 如果无法获取新的文件名（可能是因为内存不足），则返回错误。</span></span><br><span class="line"></span><br><span class="line">    kname = (<span class="type">char</span> *)result-&gt;iname;</span><br><span class="line">    <span class="comment">// 获取新文件名的 iname 字段，这是一个内部的名字。</span></span><br><span class="line"></span><br><span class="line">    result-&gt;name = kname;</span><br><span class="line">    <span class="comment">// 将内部名字赋给外部名字。</span></span><br><span class="line"></span><br><span class="line">    len = strncpy_from_user(kname, filename, EMBEDDED_NAME_MAX);</span><br><span class="line">    <span class="comment">// 尝试从用户空间复制文件名到内核空间。最多复制 EMBEDDED_NAME_MAX 个字符。</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (unlikely(len &lt; <span class="number">0</span>)) &#123;</span><br><span class="line">        __putname(result);</span><br><span class="line">        <span class="comment">// 如果复制失败，释放之前获取的文件名。</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ERR_PTR(len);</span><br><span class="line">        <span class="comment">// 返回错误。</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (unlikely(len == EMBEDDED_NAME_MAX)) &#123;</span><br><span class="line">        <span class="type">const</span> <span class="type">size_t</span> size = offsetof(<span class="keyword">struct</span> filename, iname[<span class="number">1</span>]);</span><br><span class="line">        <span class="comment">// 如果复制的长度等于 EMBEDDED_NAME_MAX，需要重新分配内存。计算新的大小。</span></span><br><span class="line"></span><br><span class="line">        kname = (<span class="type">char</span> *)result;</span><br><span class="line">        <span class="comment">// 保存当前的结果。</span></span><br><span class="line"></span><br><span class="line">        result = kzalloc(size, GFP_KERNEL);</span><br><span class="line">        <span class="comment">// 为新的文件名分配内存。</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (unlikely(!result)) &#123;</span><br><span class="line">            __putname(kname);</span><br><span class="line">            <span class="comment">// 如果分配失败，释放之前的结果。</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(-ENOMEM);</span><br><span class="line">            <span class="comment">// 返回错误。</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        result-&gt;name = kname;</span><br><span class="line">        <span class="comment">// 将名字赋给新的结果。</span></span><br><span class="line"></span><br><span class="line">        len = strncpy_from_user(kname, filename, PATH_MAX);</span><br><span class="line">        <span class="comment">// 从用户空间复制文件名到内核空间。这次复制的最大长度是 PATH_MAX。</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (unlikely(len &lt; <span class="number">0</span>)) &#123;</span><br><span class="line">            __putname(kname);</span><br><span class="line">            <span class="comment">// 如果复制失败，释放之前的结果。</span></span><br><span class="line"></span><br><span class="line">            kfree(result);</span><br><span class="line">            <span class="comment">// 释放新的结果。</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(len);</span><br><span class="line">            <span class="comment">// 返回错误。</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (unlikely(len == PATH_MAX)) &#123;</span><br><span class="line">            __putname(kname);</span><br><span class="line">            <span class="comment">// 如果复制的长度等于 PATH_MAX，释放之前的结果。</span></span><br><span class="line"></span><br><span class="line">            kfree(result);</span><br><span class="line">            <span class="comment">// 释放新的结果。</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(-ENAMETOOLONG);</span><br><span class="line">            <span class="comment">// 返回错误，表示名字过长。</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    result-&gt;refcnt = <span class="number">1</span>;</span><br><span class="line">    <span class="comment">// 设置新的结果的引用计数为 1。</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (unlikely(!len)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (empty)</span><br><span class="line">            *empty = <span class="number">1</span>;</span><br><span class="line">        <span class="comment">// 如果文件名的长度为 0（即文件名为空），设置 *empty 为 1。</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!(flags &amp; LOOKUP_EMPTY)) &#123;</span><br><span class="line">            putname(result);</span><br><span class="line">            <span class="comment">// 如果不允许查找空的文件名，释放结果。</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(-ENOENT);</span><br><span class="line">            <span class="comment">// 返回错误，表示没有这个文件或目录。</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    result-&gt;uptr = filename;</span><br><span class="line">    result-&gt;uptr = filename;</span><br><span class="line">    <span class="comment">// 设置新的结果的用户空间指针为传入的 filename。</span></span><br><span class="line"></span><br><span class="line">    result-&gt;aname = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="comment">// 设置新的结果的审计名字为 NULL。</span></span><br><span class="line"></span><br><span class="line">    audit_getname(result);</span><br><span class="line">    <span class="comment">// 获取新的结果的审计名字。</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">    <span class="comment">// 返回新的结果。</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/07/29/%E5%AD%A6%E4%B9%A0-Linux-fs-namei-c%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/" class="post-title-link" itemprop="url">学习 Linux Mnt Namespace实现</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-18 16:06:21" itemprop="dateCreated datePublished" datetime="2023-07-18T16:06:21+08:00">2023-07-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-19 09:41:26" itemprop="dateModified" datetime="2023-07-19T09:41:26+08:00">2023-07-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>9 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="文件系统层次化"><a href="#文件系统层次化" class="headerlink" title="文件系统层次化"></a>文件系统层次化</h1><p>对 Linux 系统来说一切皆文件，Linux 使用树形的层次化结构来管理所有的文件对象。</p>
+<p>完整的 Linux 文件系统，是由多种设备、多种文件系统组成的一个混合的树形结构。我们首先从一个单独的块设备来分析其树形结构的构造。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-dcache%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-dcache%E5%AE%9E%E7%8E%B0/" class="post-title-link" itemprop="url">学习 Linux dcache实现</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-07-18 15:15:54 / Modified: 16:09:46" itemprop="dateCreated datePublished" datetime="2023-07-18T15:15:54+08:00">2023-07-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>20k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>37 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>一个dentry结构体代表文件系统中的一个目录或文件，vfs使用基于dentry构建的dentry树来管理整个系统的目录树结构。当然，对于大型系统不可能把整个系统的目录树都塞进内存，dentry cache就负责维护系统目录树中最常用的项目，并采用lru的淘汰策略淘汰最近不使用的项目，维持整个dentry cache中项目数量的稳定。</p>
+<h1 id="dentry的三种状态"><a href="#dentry的三种状态" class="headerlink" title="dentry的三种状态"></a>dentry的三种状态</h1>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-dcache%E5%AE%9E%E7%8E%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/16/%E5%AD%A6%E4%B9%A0-Linux-Docker%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -940,326 +1215,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/10/%E5%AD%A6%E4%B9%A0-Linux-tmpfs/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/06/10/%E5%AD%A6%E4%B9%A0-Linux-tmpfs/" class="post-title-link" itemprop="url">学习 Linux tmpfs</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-06-10 20:58:52" itemprop="dateCreated datePublished" datetime="2023-06-10T20:58:52+08:00">2023-06-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-09-01 16:19:28" itemprop="dateModified" datetime="2023-09-01T16:19:28+08:00">2023-09-01</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>98k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2:58</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="tmpfs简介"><a href="#tmpfs简介" class="headerlink" title="tmpfs简介"></a>tmpfs简介</h1><p><strong>tmpfs</strong>（英语：<strong>t</strong>e<strong>mp</strong>orary <strong>f</strong>ile <strong>s</strong>ystem） 是<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E9%A1%9EUnix%E7%B3%BB%E7%B5%B1" title="类Unix系统">类Unix系统</a>上暂存档存储空间的常见名称，通常以挂载文件系统方式实现，并将资料存储在<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%8F%AE%E7%99%BC%E6%80%A7%E8%A8%98%E6%86%B6%E9%AB%94" title="易失性存储器">易失性存储器</a>而非永久存储设备中。和<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/RAM_disk" title="RAM disk">RAM disk</a>的概念近似，但后者会呈现出具有完整文件系统的虚拟磁盘。</p>
-<p>tmpfs的工作原理是，它使用计算机的内存来模拟一个文件系统，就像在硬盘上创建了一个虚拟的文件柜。当你在tmpfs上创建文件或文件夹时，实际上它们是存储在内存中的。这样，访问这些文件会非常快，因为内存的速度比硬盘快得多。但是，需要注意的是，当计算机关闭或重启时，内存中的数据会丢失，所以存储在tmpfs上的文件也会消失。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/06/10/%E5%AD%A6%E4%B9%A0-Linux-tmpfs/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/" class="post-title-link" itemprop="url">论文阅读 How to Get More Value From Your File System Directory Cache</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-06-08 16:21:52" itemprop="dateCreated datePublished" datetime="2023-06-08T16:21:52+08:00">2023-06-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-06-11 22:34:56" itemprop="dateModified" datetime="2023-06-11T22:34:56+08:00">2023-06-11</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文精读</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/%E5%86%85%E6%A0%B8%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">内核安全</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>26k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>47 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><strong>Abstract</strong></p>
-<p>应用程序经常请求文件系统操作来遍历文件系统目录树,例如打开文件或读取文件元数据。因此,在内存中缓存文件系统目录结构和元数据对操作系统内核的性能优化非常重要。</p>
-<p>本文确定了几个设计原则,可以在应用程序和文件系统透明的情况下显著提高命中率并降低命中成本。具体而言,我们的目录缓存设计可以在恒定数量的散列表操作中查找目录,将查找路径与权限检查分离,对访问控制检查的结果进行记忆化,使用签名加速查找,并通过缓存目录完整性降低未命中率。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/06/08/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-How-to-Get-More-Value-From-Your-File-System-Directory-Cache/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/05/C++-%E5%AD%A6%E4%B9%A0-%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98-webserver/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/06/05/C++-%E5%AD%A6%E4%B9%A0-%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98-webserver/" class="post-title-link" itemprop="url">C++学习 项目实战 webserver</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-06-05 12:43:53" itemprop="dateCreated datePublished" datetime="2023-06-05T12:43:53+08:00">2023-06-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-07-28 17:36:40" itemprop="dateModified" datetime="2023-07-28T17:36:40+08:00">2023-07-28</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" itemprop="url" rel="index"><span itemprop="name">项目实战</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>11k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>20 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="阻塞和非阻塞、同步和异步（网络IO）"><a href="#阻塞和非阻塞、同步和异步（网络IO）" class="headerlink" title="阻塞和非阻塞、同步和异步（网络IO）"></a>阻塞和非阻塞、同步和异步（网络IO）</h1><p>典型的一次IO的两个阶段是什么？</p>
-<ul>
-<li><p>数据就绪：根据系统IO操作的就绪</p>
-<ul>
-<li>阻塞 - 调用IO方法的线程进入阻塞状态</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">ssize_t</span> <span class="title">recv</span><span class="params">(<span class="type">int</span> sockfd, <span class="type">void</span>* buf, <span class="type">size_t</span> len,<span class="type">int</span> flags)</span></span>;</span><br><span class="line">interesting</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>非阻塞 - 不会改变进程的状态，通过返回值判断</li>
-</ul>
-</li>
-<li><p>数据读写：根据应用程序和内核的交互方式</p>
-<ul>
-<li><p>同步</p>
-</li>
-<li><p>异步</p>
-</li>
-</ul>
-</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/06/05/C++-%E5%AD%A6%E4%B9%A0-%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98-webserver/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1329,7 +1284,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">61</span>
+          <span class="site-state-item-count">64</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1397,7 +1352,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">33:42</span>
+    <span title="Reading time total">34:36</span>
 </div>
 
 <!--
