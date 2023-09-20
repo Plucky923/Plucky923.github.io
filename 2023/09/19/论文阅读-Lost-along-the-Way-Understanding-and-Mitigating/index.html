@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Abstract 人们发现，在容器工具越来越多地利用主机-容器交互的情况下，由当今容器技术强制实施的文件系统隔离效果较差。这种被削弱的隔离导致了一种路径错误解决 path misresolution(Pamir)漏洞，这种漏洞被认为是高风险的，多年来不断有报告。在本文中，我们提出了第一个系统的研究帕米尔风险和现有的修复相关漏洞。我们的研究表明，尽管我们在修补易受攻击的容器工具和解决风险方面做出了重">
+<meta property="og:type" content="article">
+<meta property="og:title" content="论文阅读 Lost along the Way-Understanding and Mitigating Path-Misresolution Threats to Container Isolation">
+<meta property="og:url" content="http://example.com/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="Abstract 人们发现，在容器工具越来越多地利用主机-容器交互的情况下，由当今容器技术强制实施的文件系统隔离效果较差。这种被削弱的隔离导致了一种路径错误解决 path misresolution(Pamir)漏洞，这种漏洞被认为是高风险的，多年来不断有报告。在本文中，我们提出了第一个系统的研究帕米尔风险和现有的修复相关漏洞。我们的研究表明，尽管我们在修补易受攻击的容器工具和解决风险方面做出了重">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/Figure1.png">
+<meta property="og:image" content="http://example.com/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/Figure2.png">
+<meta property="og:image" content="http://example.com/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/Figure3.png">
+<meta property="og:image" content="http://example.com/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/Figure4.png">
+<meta property="og:image" content="http://example.com/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/Figure5.png">
+<meta property="article:published_time" content="2023-09-19T05:03:47.000Z">
+<meta property="article:modified_time" content="2023-09-20T06:18:21.561Z">
+<meta property="article:author" content="Plucky">
+<meta property="article:tag" content="文件系统">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/Figure1.png">
+
+<link rel="canonical" href="http://example.com/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>论文阅读 Lost along the Way-Understanding and Mitigating Path-Misresolution Threats to Container Isolation | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          论文阅读 Lost along the Way-Understanding and Mitigating Path-Misresolution Threats to Container Isolation
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-09-19 13:03:47" itemprop="dateCreated datePublished" datetime="2023-09-19T13:03:47+08:00">2023-09-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-09-20 14:18:21" itemprop="dateModified" datetime="2023-09-20T14:18:21+08:00">2023-09-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文精读</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/%E5%86%85%E6%A0%B8%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">内核安全</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>19k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>35 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>Abstract</strong></p>
+<p>人们发现，在容器工具越来越多地利用主机-容器交互的情况下，由当今容器技术强制实施的文件系统隔离效果较差。这种被削弱的隔离导致了一种<mark>路径错误解决 path misresolution(Pamir)漏洞</mark>，这种漏洞被认为是高风险的，多年来不断有报告。在本文中，我们提出了第一个系统的研究帕米尔风险和现有的修复相关漏洞。我们的研究表明，尽管我们在修补易受攻击的容器工具和解决风险方面做出了重大努力，但帕米尔漏洞仍在继续被发现，包括我们从修补软件中重新发现的一个新漏洞(CVE-2023-0778)。我们研究的一个关键观点是，由于容器工具严重依赖第三方组件，Pamir风险本质上很难在容器工具级别上预防。虽然应该将安全检查应用于所有组件以调解主机容器交互，但第三方组件开发人员倾向于认为容器工具应该在调用其组件之前执行安全检查，因此不愿意用特定于容器的保护来修补他们的代码。此外，由于今天的容器工具所依赖的大量组件，重新实现它们是不切实际的。</p>
+<p>我们的研究表明，基于内核的文件系统隔离是确保在主机-容器交互期间始终保持隔离的唯一方法。在我们的研究中，我们设计并实现了第一个这样的方法，将文件系统隔离扩展到dentry对象，通过文件系统对主机-容器交互实施访问控制。我们的设计解决了当前容器单向隔离的基本限制，使用精心设计的策略来确保准确和全面的交互控制，并将保护植入到正确的内核位置以最小化性能影响。我们使用模型检查验证了我们的方法，证明了它在消除帕米尔风险方面的有效性。我们的评估进一步表明，我们的方法产生的开销可以忽略不计，大大优于所有现有的Pamir补丁，并保持与所有主流容器工具的兼容性。我们已经发布了我们的代码，并提交了将我们的技术合并到Linux内核中的请求。</p>
+<p><strong>CCS CONCEPTS</strong><br>• Security and privacy → Virtualization and security.</p>
+<p><strong>KEYWORDS</strong><br>cloud native technology, OS-level virtualization, container security</p>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>容器技术保证了安全、经济、灵活和高效的软件部署和开发。这些技术将应用程序的代码、数据和依赖关系打包到容器中，容器利用多个内核机制(如名称空间和cgroups)实现应用程序运行时环境(包括文件系统、网络、进程和其他系统资源)与其他应用程序及其主机操作系统(OS)的轻量级隔离。特别的，容器对文件系统的隔离，<mark>最流行的容器是使用chroot来防止容器内的进程访问主机。</mark>尽管如此，随着CI&#x2F;CD等云原生开发实践的出现，以及它提供的新特性(如复制和卷)，主机-容器交互现在变得必要。</p>
+<p>然而，这种<mark>交互为安全漏洞提供了新的机会</mark>，允许容器化的恶意应用程序打破隔离。更具体地说，这种交互通常是由容器的所有者发起的，目的是将主机资源导入到容器中，或者将容器服务的结果导出回主机。</p>
+<p>然而，目前容器和主机之间的文件系统隔离不足以防止由于此类交互的接口而产生的潜在安全违规。事实上，在过去的6年里，一种路径错误解析(又名Pamir)风险一直存在于这些接口上，并且导致了流行容器工具报告的27个高严重性漏洞中的近一半，包括编排平台(例如Kubernetes)、管理引擎(例如Docker和Podman)和运行时(例如containerd和runc)。</p>
+<p>可以通过在交互期间操纵路径解析来利用这些漏洞，从而实现从容器的逃逸。更令人担忧的是，这些漏洞继续在所有容器工具中暴露出来。</p>
+<p><strong>了解容器工具的帕米尔风险</strong>。在我们的研究中，我们对Pamir风险进行了第一次分析，研究了12个引人注目的漏洞，以及由Pamir风险引起的一系列错误，涉及前面提到的五个最突出的容器工具。为了确定这些漏洞的来源以及解决这些漏洞的步骤，我们从这些容器工具中提取并比较了与漏洞相关的多个调用图。每个调用图都是从这些工具的易受攻击版本中绘制的，并根据GitHub问题进行相关修复。此外，我们还手动分析了GitHub上对修复的评论，以了解它们是如何演变的。</p>
+<p>通过研究这些漏洞和错误的分布，我们发现每个容器工具的社区多年来一直在努力解决Pamir风险。然而，这个问题似乎很难解决，因为现有的修复程序往往是可以规避的，在某些情况下甚至会引入新的漏洞。特别有趣的是，观察到即使经过多次迭代，当安全修复已经改进到给定容器工具的Pamir风险确实可以解决的水平时，升级工具的新功能也会忽略修复并使工具再次暴露于相同的风险，正如我们在Podman中发现的一个新漏洞(CVE-2023-0778)所证明的那样，<mark>其Pamir漏洞之前已经被修补过</mark>。</p>
+<p>我们研究的一个关键观点是，<mark>帕米尔风险在主机应用程序(如容器工具)层面基本上很难预防，因为它们严重依赖第三方组件(库、第三方可执行文件、操作系统接口等)。</mark></p>
+<p>这个问题来自于当今<mark>容器内文件系统的单向隔离</mark>:<strong>当文件系统之外的资源超出容器的名称空间，因此对容器化的应用程序不可见时，主机可执行文件(包括容器工具和它所依赖的组件)在访问容器内文件系统时不会看到任何约束。因此，对主机容器交互的任何安全控制都需要对主机可执行文件及其组件执行的所有与文件系统相关的操作实施。</strong></p>
+<p>当涉及到容器工具使用的第三方组件时，这变得很困难:例如，Kubernetes需要Linux挂载工具来实现卷特性。使这种保护策略几乎不可能实现的原因是，这些组件的开发人员根本没有实现这种特定于容器的控制的动机，而是认为在调用其依赖的组件之前应该由容器工具执行安全检查。</p>
+<p>为了摆脱这种困境，当今容器工具的开发人员提出了各种特别的解决方案，以避免第三方组件的危险行为，例如在交互之前为组件预加载受信任的动态链接库。然而，这些补丁会带来显著的性能负担:例如，修复’ docker cp ‘上的Pamir风险的开销可以达到200%(第6节)。更严重的是，这些补丁是脆弱的，可以通过对组件或其供应链的任何更新来规避甚至完全禁用。一个例子是前面提到的对Docker漏洞CVE-2019-14271的修复，该漏洞在更新glibc时不再有效，该更新允许在上下文切换期间自动重新加载预加载的库。作为最后的手段，一些容器工具的开发人员被迫部分地重新实现不兼容组件的替换。我们的分析表明，这将需要相当大的工程努力，因为每个容器工具的脆弱特征平均与超过1,090个Golang包相关。随着更多的功能被添加到容器工具中，更多的第三方组件变得不可避免，使得这种重新实现变得越来越困难。</p>
+<p><strong>我们的解决方案</strong>。我们对已知Pamir漏洞的系统分析表明，容器工具无法在用户层面有效控制此安全风险。因此，<mark>基于内核的文件系统隔离</mark>成为唯一可行的解决方案，可以全面协调来自不同类型第三方组件的文件系统访问，从而确保在主机-容器交互期间始终保持隔离。然而，由于当前的文件系统隔离设计，这种努力不是微不足道的，它甚至对内核也是透明的。更具体地说，为了最小化中介访问文件系统的开销，当前的设计只是隔离容器和主机之间的挂载点，将容器应用程序的操作限制在其名称空间内。因此，从虚拟文件系统(VFS)中，内核无法判断目录条目(dentry)对象是否属于容器。这使得对文件系统的任何非法访问都难以识别，只要访问请求的路径可以通过VFS转换为dentry对象。此外，即使给定了访问目标信息(无论是否为容器)，设计准确、全面的访问控制策略仍然具有挑战性:例如，<strong>虽然容器工具应该被允许访问容器外部的对象，这个访问请求不应该由容器内部的应用程序引起</strong>(第3.2节)。最后，还需要仔细考虑策略的实施，以避免对系统性能产生任何重大影响，并确保访问的完全中介。</p>
+<p>在我们的研究中，我们设计并实现了针对帕米尔风险的第一个内核端防御。我们的方法，称为<strong>Patrol</strong> (Pamir control)，<mark>将文件系统隔离扩展到dentry对象</mark>，确保主机-容器文件系统相关交互的完全中介。</p>
+<p>为此，<mark>Patrol根据dentry与容器的关系对它们进行标记</mark>，并使用一组精心设计的策略来规范对这些对象的访问。此外，我们还分析了将用户空间路径转换为VFS中的dentry对象的过程，在路径查找函数中确定执行策略的最佳位置，从而确保对主机-容器交互的完整和有效控制。</p>
+<p>我们通过模型检查验证了Patrol的设计，表明它能够完全消除帕米尔风险。我们进一步评估了我们在Docker、Podman和Kubernetes上的实现。我们的研究表明，Patrol在易受攻击的容器工具上的性能大大优于所有用户修复，并且平均只产生不到4%的开销。此外，Patrol与所有主流容器工具完全兼容，并且是完全透明的:它不会影响容器工具、它们所依赖的组件和其他应用程序的操作。我们已经发布了我们的代码，并提交了将我们的技术合并到Linux内核中的请求。</p>
+<p><strong>本文的贡献概述如下:</strong></p>
+<ul>
+<li><p><em>调查结果和结论</em>。我们对高影响的Pamir风险进行了第一次系统研究，并证明了这种风险从根本上是由容器和主机之间的<mark>文件系统隔离不足</mark>造成的，目前的保护无法解决这个问题。作为当今解决方案局限性的证据，我们发现并报告了容器工具中以前已经修补过的新的Pamir漏洞。</p>
+</li>
+<li><p><em>新的防御技术</em>。我们设计了一种新的隔离技术，并有效而全面地解决了在内核内部实现的技术难题。我们的方法已经通过模型检查和主流容器工具的评估得到了验证，证明了新的解决方案比目前提出的任何替代方案都更有效，而且更实用，对性能的影响非常低。</p>
+</li>
+</ul>
+<h1 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h1><h2 id="Virtual-Filesystem"><a href="#Virtual-Filesystem" class="headerlink" title="Virtual Filesystem"></a>Virtual Filesystem</h2><img src="/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/Figure1.png" title alt data-align="center">
+
+<p><mark>“一切都是文件”是Linux的基本理念之一</mark>。不仅普通文件，包括目录、字符设备、块设备、套接字等，都可以被视为文件。这种设计的基础是Linux的虚拟文件系统(VFS)机制。它<mark>为用户程序操作文件提供了统一的接口层</mark>，屏蔽了不同文件系统的差异和操作细节。</p>
+<p><strong>Dentry and Dentry tree.</strong></p>
+<p>Dentry是一种数据结构，表示内核中的文件或目录对象。dentry包含相应文件或目录的名称，可以直接映射文件和目录之间的层次关系。每个dentry都包含指向其父dentry的指针和其子dentry的列表，这使得dentry形成了一个dentry树。VFS使用dentry树来维护文件和目录对象的层次结构。当然，对于大型系统，不可能将文件系统的所有条目都放入内存中。所以树中的这些dentry是引用计数的。Dentry缓存(Dcache)只维护被引用的Dentry，并从Dentry树中删除未引用的Dentry以释放内存。</p>
+<p><strong>Filesystem mounting</strong></p>
+<p>Linux内核构造挂载树来维护系统中的挂载信息。如图1所示，挂载树的叶子是一个名为“mount”的数据结构。mount结构包含指向新文件系统挂载的挂载点dentry的指针，以及指向新文件系统根目录dentry的指针。挂载点的dentry和新文件系统的根目录没有直接的父子关系，但是mount结构充当了连接具有挂载关系的文件系统dentry的桥梁。</p>
+<p><strong>Path lookup</strong></p>
+<p>VFS中最常见的操作是路径查找。内核使用路径查找将路径名从userland转换为内核中相应的dentry对象。通常，对于每个与文件系统相关的系统调用(如open、read、write、stat、mount等)，解析pathname的路径查找是必要的。具体来说，路径查找是遍历路径名并找到路径名中最终组件对应的dentry(我们称之为最终dentry)，其中组件是由’ &#x2F; ‘字符分隔的子字符串。每个查找过程创建一个nameidata对象来存储其中间结果(例如，组件的dentries)。在路径查找开始时，使用该查找过程的起始点初始化nameidata对象中的第一个组件的dentry，该起始点由路径名的第一个字符确定。如果路径名以’ &#x2F; ‘字符开头，则起点是调用进程根目录的dentry。否则，它是进程当前工作目录的dentry。然后，在前一个组件dentry的子组件中查找路径名的每个组件。</p>
+<p>这是通过比较组件的名称与存储在dentry中的名称来完成的。发现的dentry通过内核函数path_to_nameidata保存到nameidata对象中。如果找不到组件的dentry，则路径查找过程将以失败告终。无论路径查找是否成功，在查找过程结束时都会调用内核函数complete_walk来完成路径查找并返回状态码。</p>
+<p>在查找过程中，如果一个dentry表示一个<mark>符号链接</mark>(也就是sym_link)，内核函数trailing_symlink来跟踪此符号链接并提取指向的路径名。</p>
+<p>然后，该路径名替换符号链接以继续路径查找过程。如果一个dentry作为挂载点，那么查找过程将遵循挂载树中相应的“mount”结构来定位表示挂载文件系统根目录的dentry，并继续从该dentry查找组件。</p>
+<p>通常，<mark>起点和挂载点是决定路径查找结果的两个关键元素</mark>。如果进程通过这样的系统调用chroot到达不同的根目录，则更改的查找起始点将把相同的路径名引导到不同的根目录。此外，如果进程将一个新的挂载名称空间与一个孤立的挂载树连接起来，那么路径查找也会得到区别，因为不同的挂载名称空间可能在同一挂载点下呈现不同的挂载视图。</p>
+<h2 id="Container-Filesystem-Isolation"><a href="#Container-Filesystem-Isolation" class="headerlink" title="Container Filesystem Isolation"></a>Container Filesystem Isolation</h2><p>Linux内核同时利用名称空间和类似chroot的功能来隔离容器文件系统。Linux命名空间强制进程级资源隔离。特别是，使用挂载名称空间，可以为每个名称空间创建一个独立的文件系统挂载层次结构。这确保了在每个挂载名称空间中运行的进程都有自己独立的挂载点视图。</p>
+<p>此外，类似chroot的功能可以为进程指定一个新的根目录，限制它们在这个新根目录中可以访问的资源。挂载点的独立视图防止进程访问挂载在其他挂载名称空间中的文件系统，而chroot强制进程只能访问给定目录中的资源。因此，该进程与未经授权的资源完全隔离。</p>
+<p>具体来说，创建和隔离容器文件系统的过程如图1所示。最初，容器工具从容器映像中提取rootfs并将其挂载到给定主机的目录(①)上，例如“&#x2F;var&#x2F;lib&#x2F;docker&#x2F;[storage driver]&#x2F;[ID:sha256]&#x2F;”。</p>
+<p>然后，容器工具调用带有CLONE_NEWNS标志的系统调用克隆，以创建容器的初始进程。这将与该进程一起生成一个新的挂载名称空间，并且容器内的所有进程都加入该名称空间(②)。通常，从调用进程的挂载名称空间克隆一个新的挂载名称空间，这将导致容器的挂载名称空间继承主机的挂载树。只有在这些名称空间中添加的新挂载对其他名称空间是不可见的。</p>
+<p>在这种情况下，容器进程仍然可以遍历主机的文件系统。因此，使用类似chroot的系统调用pivot_root来用容器的rootfs(③)重置这些进程的根目录，以确保进程只能访问rootfs下的文件和目录，包括挂载点。尽管如此，这种隔离仍然是不完整的，许多漏洞可以绕过它。</p>
+<h1 id="INCOMPLETE-FILESYSTEM-ISOLATION"><a href="#INCOMPLETE-FILESYSTEM-ISOLATION" class="headerlink" title="INCOMPLETE FILESYSTEM ISOLATION"></a>INCOMPLETE FILESYSTEM ISOLATION</h1><p>尽管每个容器都有一个独立于主机的文件系统视图，但是它们的文件系统之间的隔离并没有完全完成。在本节中，我们首先澄清威胁模型，然后讨论容器隔离中的Pamir漏洞(bug问题&#x2F; cve)。最后，我们将展示我们从当前针对此类漏洞的行业解决方案中获得的度量和理解。</p>
+<h2 id="Threat-Model"><a href="#Threat-Model" class="headerlink" title="Threat Model"></a>Threat Model</h2><p>我们考虑由容器工具(例如Docker和Kubernetes)管理的基于容器的平台，在这些平台上运行的多租户容器可以共享相同的操作系统。容器工具和平台上的操作系统是可信的，但容易受到攻击。基于容器的平台中的攻击者可以控制多个容器，并试图破坏操作系统或其他租户的容器。而且，攻击者有能力操纵容器中的所有资源，比如文件系统和进程。此外，他们还可以利用合法的接口来提示平台与这些资源进行交互，以便进行越狱。这些合法接口封装了容器工具的功能，如复制、运行和卷。这也是所有其他容器逃逸场景中的典型威胁模型。</p>
+<h2 id="Pamir-Vulnerabilities"><a href="#Pamir-Vulnerabilities" class="headerlink" title="Pamir Vulnerabilities"></a>Pamir Vulnerabilities</h2><p>在主机-容器交互期间，各种容器工具从主机上下文访问容器文件系统。然而，容器在这些工具眼中被认为是不可信的，并且可能欺骗它们访问其文件系统中的恶意有效负载。由于路径错误解析(Pamir)而出现的漏洞反复暴露在这些属性中，并对所有广泛使用的容器工具产生影响，尽管它们是由不同的社区开发的(参见图2)。这些漏洞主要通过两种方式被利用来破坏主机，从而实现信息泄露、特权升级、任意文件操作和其他相关安全问题。</p>
+<p>符号链接解析欺骗是利用Pamir漏洞的方法之一。通常，在主机-容器交互期间，容器工具可以访问容器文件系统中的符号链接，对其进行读或写操作。但是，这个符号链接是在主机上下文中解析的，而不是在容器上下文中解析的。恶意容器中的复杂符号链接可以欺骗容器工具导航到容器文件系统之外，并访问主机上的敏感位置(例如’ &#x2F;etc&#x2F;passwd ‘)。</p>
+<p>恶意容器可以利用具有Pamir漏洞的“卷”特性来遍历主机上的任意文件。“volume”特性用于将卷挂载到容器文件系统中，它可以是主机的目录，以提供持久存储。此外，Kubernetes中的“subPath”属性允许将一个容器使用的卷中的子目录挂载到其他容器中。但是，如果该子目录被恶意容器替换为符号链接，则该符号链接所引用的主机上的任意目录将被挂载到另一个恶意容器中，从而导致Kubernetes“volume”特性中最早的漏洞CVE-2017-1002101。</p>
+<p>虽然Kubernetes已经纠正了这个问题，但类似的攻击面仍然存在于它的依赖组件中，导致类似的漏洞，如CVE-2022-23648和CVE-2021-30465分别在containd和runc中存在。C版本的runc也有相同的漏洞。</p>
+<p>类似的漏洞也存在于“复制”功能中，并允许遍历主机上的文件以及覆盖任何主机的文件。“复制”特性是由容器工具实现的，用于在容器和主机之间复制文件。但是，无论是从容器复制还是向容器复制，无论是源容器还是目标容器都受不信任的容器控制。具体来说，如果恶意符号链接取代了从容器复制的文件，则复制源可能通过该符号链接被带出容器。类似地，替代容器中复制目标的恶意符号链接可能会误导文件被复制到主机上的任意目录，而不是该容器。类似的漏洞CVE-2019-10152和CVE-2019-18466也出现在Podman中，尽管Podman的开发人员受到CVE-2018-15664[30]的启发，努力避免这类漏洞。此外，我们还在Podman的“export volume”功能中发现了一个漏洞CVE-2023-0778，该漏洞遵循相同的原理。</p>
+<p>不受信任的容器控制。具体来说，如果恶意符号链接取代了从容器复制的文件，则复制源可能通过该符号链接被带出容器。类似地，替代容器中复制目标的恶意符号链接可能会误导文件被复制到主机上的任意目录，而不是该容器。类似的漏洞CVE-2019-10152和CVE-2019-18466也出现在Podman中，尽管Podman的开发人员受到CVE-2018-15664的启发，努力避免这类漏洞。此外，我们还在Podman的“export volume”功能中发现了一个漏洞CVE-2023-0778，该漏洞遵循相同的原理。</p>
+<p><strong>诱导非法文件执行</strong>是利用Pamir漏洞的另一种方法。除了可以读写之外，容器中的文件还可以在主机-容器交互期间由主机的进程(例如容器工具)执行。但是，此执行可能会导致容器中的恶意有效负载在主机上下文中起作用。</p>
+<p>尽管所有容器工具都努力避免这种执行，但许多不可预见的执行仍然隐藏在它们的特性中。</p>
+<p>例如，Docker不知道它会在容器中加载一个动态链接的库’ nsswitch ‘ 。</p>
+<p>具体来说，这个库是由一个Golang包所需要和加载的，Docker调用这个包来捆绑复制的文件，但是这个包没有意识到这个加载是在调用系统调用chroot之后发生的。使用sycall chroot是修复漏洞CVE-2018-15664的方法，该漏洞限制了容器内的符号链接解析。然而，通过这种方式，库’ nsswitch ‘也被迫在容器文件系统中解析。但该进程仍然属于主机，从而导致新的漏洞CVE-2019-14271。类似地，Podman中的CVE-2022-1227漏洞源于通过主机上下文中的“Podman top”功能调用容器中的“nsenter”可执行文件。</p>
+<p>此外，值得注意的是，在主机上运行的系统进程不能避免执行来自不受信任容器的篡改文件。这类文件由Cgroupfs提供，作为主机和容器之间共享cgroups信息的交互接口。其中，Cgroupfs中的一个特殊文件’ release_agent ‘将在容器终止后由主机系统进程执行。</p>
+<p>CVE-2022-0492漏洞是该文件被恶意容器破坏的直接结果。通常，容器只能从自己的文件系统中的’ &#x2F;sys&#x2F;fs&#x2F;cgroup ‘访问’ release_agent ‘文件;但是，安全性配置不足的容器可以绕过权限检查并更改此文件。这允许在主机系统上执行’ release_agent ‘文件中的任何恶意负载。</p>
+<h2 id="Understanding-Fixing-Methods"><a href="#Understanding-Fixing-Methods" class="headerlink" title="Understanding Fixing Methods"></a>Understanding Fixing Methods</h2><p>尽管主流容器工具社区进行了许多尝试来解决Pamir漏洞，但它们仍然存在。为了确定这些尝试修复的缺点，我们使用go-callvis开源工具从前面提到的容器工具的脆弱版本和更新版本中提取调用图。通过手工分析相关的调用图和仔细检查GitHub上的所有相关评论，我们能够全面了解这些修复的演变</p>
+<p><strong>观察1 -容器工具的第三方组件阻碍了漏洞的彻底修复</strong></p>
+<p>修复容器工具中的漏洞可能无法消除其依赖组件中的攻击面，这会带来严重的风险。</p>
+<p>为了应对符号链接解析作弊，开发了一个新的包’ secureJoin ‘来取代Golang包’ filepath ‘，目的是通过验证符号链接是否被解析到指定目录(例如，容器的根目录)来实现安全的路径解析。然而，尽管在工程上做出了重大努力来实现这一修复，但作弊的固有风险并未完全消除。这是由于分辨率检查过程和随后的路径相关操作(例如复制或挂载)之间存在竞争条件，这可以通过TOCTTOU攻击来利用恶意符号链接替换已验证的路径。</p>
+<p>具体来说，这种替换是在主机上的容器工具完成解析检查后，攻击者在容器内执行的。这导致各种容器工具中存在一系列漏洞，例如CVE-2018-15664、CVE-2021-30465、CVE-2021-25741、CVE-2022-23648和CVE-2023-0778。</p>
+<p>尽管人们尝试修复容器工具中的漏洞，但它们仍然很容易受到攻击。例如，Podman社区选择在容器的文件系统被Podman访问时暂停容器，因为冻结的容器无法进行竞争。然而，这个修复带来了巨大的开销(参见第6节)，并且已经确定了一个可以绕过它的弱点。</p>
+<p>具体来说，如果两个容器共享一个卷，那么当Podman与冻结的容器交互时，一个容器仍然可以访问卷并进行TOCTTOU攻击。</p>
+<p>此外，Kubernetes、containard和runc社区试图通过原子化解析检查和随后的路径相关操作来消除竞争条件。但是，这些后续操作调用的任何第三方可执行文件都可能破坏这种原子化。具体地说，这种原子化是通过用“&#x2F;proc&#x2F;[pid]&#x2F;fd&#x2F;[fd]”这个魔术链接替换选中的路径来实现的，以供后续操作使用。这个神奇的链接总是指向被检查的路径，但是在Kubernetes的’ volume ‘特性中，解析检查后调用的Linux挂载工具默认会解析这个神奇的链接，并使用解析结果在最后调用sycall挂载。这导致了漏洞CVE-2021-25741，该漏洞只能通过调用带有-no-canonicalize标志的挂载工具来禁用解析来修复。</p>
+<p>Docker社区的修复旨在消除其“复制”特性中的符号链接解析欺骗，但由于第三方包的不可控行为而导致非法执行问题。</p>
+<p>‘copy ‘特性中的修复使用系统调用chroot在访问容器的路径之前进入容器文件系统，确保此路径中的任何符号链接总是在容器中解析。</p>
+<p>然而，被’ copy ‘功能调用的第三方包可能没有意识到chroot会将它们带入不受信任的环境，例如，CVE-2019-14271是由’ nsswitch ‘库意外加载到容器中引起的(参见3.2节)。社区通过在复制开始时加载所有动态库临时修复了此漏洞。GNU C库(glibc)的更新(它对任何容器工具都是透明的)可能会使此修复无效。此更新使glibc库，包括’ nsswitch ‘，在chroot触发上下文切换后自动重新加载。</p>
+<p><strong>观察2 -操作系统接口相关的漏洞很难被容器工具彻底修复</strong></p>
+<p>容器工具无法消除与伪文件系统相关的此类漏洞。</p>
+<p>考虑到漏洞CVE-2019-5736，修复只能阻止攻击后果，而不能消除Procfs中的攻击面。具体地说，此修复旨在生成runc可执行文件的副本，以执行每个主机-容器交互。即使CVE-2019-5736漏洞可以被成功利用，也只是覆盖副本而不是原始副本。此外，Cgroupfs接口相关的漏洞CVE-2022-0492也无法通过容器工具消除。他们的解决方案只是减少容器的特权(即禁用特权用户名空间)，以避免容器修改“release_agent”，但这会影响运行容器的能力。最后，内核补丁对易受攻击的接口实施访问控制，彻底修复了这个漏洞。</p>
+<h2 id="Insight"><a href="#Insight" class="headerlink" title="Insight"></a>Insight</h2><p>用户域中的修复受到容器工具中的第三方组件的阻碍，这些组件无法消除无处不在的Pamir风险的根本原因。从根本上说，帕米尔风险源于不完整的基于内核的隔离。改进这种文件系统隔离是解决这个问题的最佳方案。</p>
+<p><strong>洞察1 -在用户区修复是无效和不切实际的根除帕米尔风险。</strong></p>
+<p>关于Pamir风险，对容器工具的全面检查只能处理容器工具本身的攻击面，而不能处理其相关组件。例如，Kubernetes社区增加了大约3700行代码来执行路径解析检查，这只会减轻CVE-2017-1002101漏洞，同时在其相关组件中暴露相同的攻击面。CVE-2021-30465和CVE-2021-25741等漏洞可以绕过这些检查。容器工具使用特别的解决方案来规避第三方组件中的危险行为，但是这些解决方案很脆弱，很难进行周密的设计。例如，CVE-2019-14271的修复(在3.3节中讨论)是一个临时解决方案。</p>
+<p>为此，开发人员倾向于在相关组件中添加安全检查，但这样的建议通常不被接受。由容器工具社区开发的包’ secureJoin ‘是Golang包’ filepath ‘的扩展，它将路径解析检查添加到包’ filepath ‘(在第3.3节中提到)。然而，Golang社区拒绝将这个包合并到它的标准库中。社区认为这个包只是为容器工具量身定制的，而不是一个可以在其他地方使用的通用功能。</p>
+<p>此外，Golang社区认为，容器工具在调用其库之前应该进行安全检查，并且不认为这是任何Golang库的责任。</p>
+<p>第三方组件请求容器工具负责安全检查，但这些检查并不能消除其中潜在的攻击面，这是一个悖论。重新实现有风险的第三方组件可能成为解决Pamir风险的最后一种方法，但它需要大量的工程努力，并且可能不符合软件工程中的最佳实践。例如，Podman社区修改了40,836行代码来部分实现Podman中的Linux实用程序’ nsenter ‘，仅仅是为了解决’ Podman top ‘功能中的CVE-20221227。此外，还有7,498行代码修改来实现’ docker cp ‘功能中的第三方包’ archive&#x2F;tar ‘的分割功能，在临时修复不再有效后，已弃用该功能以避免CVE-2019-14271。</p>
+<p>实际上，我们对容器工具调用的第三方包的分析强调了重新实现这些组件的不合理性和不可持续性。具体来说，我们利用Golang内置的包管理工具来识别易受攻击特性调用的包，并递归查询网站pkg.go.dev[18]来追踪这些包的供应链。结果表明，目前，超过5,458个Golang包与容器工具相关(我们的网站提供了更多信息)。随着容器工具纳入更多需要管理的第三方组件，数量将不可避免地增加。</p>
+<p><strong>洞察2 -应该增强容器和主机之间基于内核的文件系统隔离，以消除无穷无尽的Pamir漏洞。</strong></p>
+<p>容器和主机之间不完全的基于内核的文件系统隔离是持续存在的Pamir漏洞的根本原因。mount名称空间和pivot_root提供了一定程度的隔离，但它们并不能完全覆盖所有VFS对象，比如dentry，这使得内核在解析了用户空间路径后很难区分dentry对象是否属于容器。这种不完全隔离意味着主机上的进程无法区分容器的文件系统，如果安全检查不限制该进程，则可能将其视为受信任的环境。此外，不完全隔离不会阻止容器的进程通过非法通道(如’ &#x2F;proc&#x2F;self&#x2F;exe ‘)访问主机的文件系统(如漏洞CVE-2019-5736所示)。因此，增强容器和主机之间基于内核的文件系统隔离对于消除Pamir风险至关重要。</p>
+<p>总之，我们认为Pamir风险的根本原因在于内核中不完整的文件系统隔离。因此，为了完全而优雅地消除风险，我们必须重构内核的文件系统隔离机制。具体来说，我们需要将文件系统隔离扩展到VFS中的dentry对象，并确定每个dentry是属于容器文件系统还是属于主机。然后，这种扩展的隔离机制可以基于进程和dentry属性强制执行访问控制策略，以防止容器和主机之间的非法访问。通过实现这些措施，我们可以解决导致Pamir风险的潜在问题，并提高容器环境的整体安全性。</p>
+<img src="/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/Figure2.png" title alt data-align="center">
+
+<h1 id="PATROL"><a href="#PATROL" class="headerlink" title="PATROL"></a>PATROL</h1><p>本文提出了一种名为PAth misresolution conTROL (PATROL)的容器文件系统隔离机制，该机制可以限制行为，防御Pamir攻击。在本节中，我们将详细介绍Patrol的设计，以及它如何以系统的方式消除与文件系统相关的容器逃逸问题。</p>
+<h2 id="Guidelines"><a href="#Guidelines" class="headerlink" title="Guidelines"></a>Guidelines</h2><p>为了有效地增强容器文件系统的隔离性，需要加强挂载名称空间，并加快我们的原型的合并。在实际应用中，我们希望设计能够满足以下要求。</p>
+<p><strong>完整的保护</strong>。要永久解决容器转义中与文件系统相关的漏洞，Patrol必须能够隔离恶意符号链接解析，并对跨名称空间文件访问执行完整的权限检查。</p>
+<p><strong>完整的兼容性</strong>。我们希望为用户应用程序提供透明的保护，这样就不会对容器工具进行任何修改，也不会对容器内运行的用户空间应用程序进行任何修改。并且Patrol与所有系统调用接口应该没有兼容性问题。</p>
+<p><strong>最小的性能损失</strong>。在无服务器计算或功能即服务的背景下，云服务提供商和用户都期望快速部署无服务器功能。此外，预计任何运行时检查都不会显著损害性能。因此，我们的安全增强内核的实现既简单又优雅，同时保持与本机Linux相当的性能。</p>
+<h2 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h2><img src="/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/Figure3.png" title alt data-align="center">
+
+<p>我们的总体目标是保持系统平稳运行，同时尽可能地隔离容器和主机文件系统。</p>
+<p>在Patrol的设计背后，主要思想是增强基于内核的容器文件系统隔离。</p>
+<p>图3说明了与我们扩展的文件系统隔离相关的新设计。通过在每个容器内的dentry上放置标记，Patrol将隔离扩展到VFS对象。我们称这个过程为“渲染”。应该注意的是，主机进程也可以通过容器的文件系统并访问主机的dentry(在3.2节中提到)，因此开始时的静态呈现是不够的。因此，Patrol还执行动态路径查找呈现，并在路径解析期间调节对这些dentry的访问。通过将呈现过程和访问控制集成到Linux路径查找例程中，我们使隔离成为一个完整的部分。这样做的好处是，在构建过程中，Patrol可以非常轻量级和紧凑，尽可能减少冗余代码，并将性能开销降至最低。</p>
+<p><strong>区分容器和主机之间的dentries。</strong></p>
+<p>在容器初始化期间，我们需要识别VFS中容器文件系统的dentry对象，并区分容器文件系统和主机文件系统中的对象。这种识别对于为以后的访问控制建立基础至关重要。呈现是指示条目所属范围的有效方法。</p>
+<p>使用特定的信息，比如容器文件系统的根路径，操作系统可以通过dentry树确定dentry的范围。此外，我们结合了静态初始呈现和动态路径查找呈现机制来完成区分和隔离机制(详见4.3节)。</p>
+<p>然而，许多现有的容器工具提供了一个“共享卷”接口(例如’ docker run -v ‘)，它允许在容器之间或在主机和容器之间共享文件，这使得呈现更加复杂。</p>
+<p>为了解决这个问题，我们定义在考虑实际容器文件访问场景时使用多个安全级别。<u>目标文件可以位于以下三种文件之一:在容器文件系统中，在主机的文件系统上，或者在主机和(多个)容器之间共享。首先，正如我们的威胁模型(第3.1节)所描述的，容器是不可信的。攻击者可以操纵其容器中的所有内容，因此我们必须对每个容器的文件系统应用最严格的访问控制策略。为了将数据持久化到共享卷中，底层实现使用“bind mount”1将主机中的路径绑定到容器。共享卷可以看作是容器文件系统的扩展，但是内容可以由不同的共享方访问。因此，其次，我们应该在运行时设置标签，以区分对共享卷具有访问权限的主题。最后，主机文件具有最低的风险级别(即最高的安全级别)，只能由主机进程访问。</u></p>
+<p><strong>访问控制和策略实施。</strong></p>
+<p>呈现之后，Patrol知道分配给每一方的条目。这允许访问控制措施的实现，最终阻止任何恶意的企图。为了阻止容器逃逸，一个简单的策略是，<u>容器中的任何文件路径都不能在容器文件系统之外被解析</u>。然而，这种简单的访问控制设计是不准确和全面的。例如，属于容器工具的主机进程具有对容器外部对象的访问权限，而该访问请求不应由容器内部的应用程序诱导。因此，我们还需要<u>限制路径解析请求，这些请求来自主机进程，但意味着在容器内产生影响。</u></p>
+<p>我们的访问控制策略(如第4.4节所述)在第4.5节所述的路径查找过程中强制执行。我们的策略包括检查路径解析结果和文件执行权限。这些策略对应于我们设计的两种类型的规则——一种与对象访问有关，另一种与控制传输有关。</p>
+<p>为了确保策略执行不会显著影响系统性能并充分调节访问，我们拦截所有路径解析请求，这是支撑Patrol开发的核心概念。我们将Patrol设计为与x86架构上的Linux内核5.4.1兼容，总共插入大约420个loc，这些loc总是被调用并且足够小。为了确保完全兼容，我们还改进了Patrol的实现，以充分利用内核对特定信息的推理能力(见4.6节)。这意味着它可以在内核中应用，而不会影响上层应用程序。我们使用启发式规则来包含符号链接的解析范围。</p>
+<h2 id="Multi-Stage-Rendering"><a href="#Multi-Stage-Rendering" class="headerlink" title="Multi-Stage Rendering"></a>Multi-Stage Rendering</h2><p>从VFS中，内核无法判断目录条目(dentry)对象是否属于容器。因此，我们在VFS中标记dentries来区分它们。同时，为了识别最终获得的dentry在路径查找过程中是否存在安全风险，这里我们将静态(初始呈现)和动态(路径查找呈现)方法结合起来并使用此多阶段呈现策略来跟踪路径查找过程所跨越的范围，以便以后进行访问控制。</p>
+<p><strong>在不同范围上的初始渲染</strong>。</p>
+<p>我们给出了作用域的定义，它是属于容器或共享卷的一组条目，其功能受我们的安全策略限制。</p>
+<p>我们扩展了<mark>PID命名空间结构</mark>，添加了一个enum变量“security_level”作为安全级别标志。该标志有三个可能的值:<mark>strict (-2)， shared(-1)和normal(0)</mark>，它们分别代表三个范围。为了标记不同的作用域，扩展了’ dentry ‘结构，并添加了PID名称空间指针作为标记，用于区分当前dentry所属的名称空间。PID名称空间中的安全级别标志表示入口的危险级别。由于我们不信任容器，容器中的文件(由dentries引用)应该被标记为最高风险级别(也就是最低安全级别)——“strict”。顾名思义，我们将分别为共享卷和主机中的dentry分配“shared”和“normal”。这种呈现策略的优点是，名称空间可以自然地区分不同的容器，并可用于防止以后在主机和容器之间进行非法访问。</p>
+<p>在容器启动期间，将创建一个相关的文件系统，并为容器的dentry分配一个范围唯一的标记。pivot_root函数用于将容器进程切换到容器rootfs的根目录。此时，我们使用pivot_root的目标目录作为起点，遍历其下的所有dentry。<u>dentry是递归地遍历的，如果一个dentry是挂载点，那么属于挂载文件系统的dentry也会被标记</u>。属于容器的入口的安全级别标志被设置为“strict”。在共享卷的情况下，被绑定挂载的文件系统由主机和容器共享。分配一个新的临时PID名称空间来标记共享卷中的dentry，并将安全级别标志设置为“shared”。</p>
+<p>。仅仅依靠基于初始PID名称空间的dentry标识是不足以进行访问控制的。例如，当主机进程访问并解析容器中的符号链接时，可以获得主机文件的dentry。</p>
+<p>路径查找结果表明主机进程访问了一个主机文件，这似乎是合法的。但是，该进程实际上进入了一个不受信任的容器文件系统，并且通过恶意符号链接诱导了对容器外部的非法访问。</p>
+<p>这将带来重大的安全风险，需要加以控制。</p>
+<p>由于路径查找将跨越主机和容器之间的名称空间，因此应该执行动态路径查找呈现，以确定此查找过程是否进入了具有较低安全级别的名称空间。</p>
+<p><strong>路径查找渲染</strong></p>
+<p>仅仅依靠基于初始PID名称空间的dentry标识是不足以进行访问控制的。例如，当主机进程访问并解析容器中的符号链接时，可以获得主机文件的dentry。</p>
+<p>路径查找结果表明主机进程访问了一个主机文件，这似乎是合法的。但是，该进程实际上进入了一个不受信任的容器文件系统，并且通过恶意符号链接诱导了对容器外部的非法访问。</p>
+<p>这将带来重大的安全风险，需要加以控制。</p>
+<p>由于<mark>路径查找将跨越主机和容器之间的名称空间</mark>，因此应该执行动态路径查找渲染，以确定此查找过程是否进入了具有较低安全级别的名称空间。</p>
+<p>在路径查找过程中，’ nameidata ‘对象用于记录中间结果。因此，我们向该对象添加一个带有PID名称空间标签的成员，以跟踪在每次路径查找中遍历的最危险范围，并使用当前进程的PID名称空间指针在路径查找开始时初始化该标签。此外，我们通过拦截内核函数path_to_nameidata在路径查找的每一步调用来执行动态渲染，以将渲染结果更新为’ nameidata ‘对象。添加到该函数中的呈现过程首先将’ nameidata ‘中的当前标记与刚刚发现的dentry中的标记进行比较，然后将’ nameidata ‘中的标记呈现为具有较低安全级别的标记。这种呈现在每个路径查找过程中都是不可逆的，以确保可以识别从可信环境到不可信环境的访问。我们在图4中展示了示例:这里的子图描述了三种不同类型的路径查找过程中的动态呈现，包括主机进程对容器和共享卷中的资源的访问，以及容器进程对共享卷中的资源的访问。这些图中的每个箭头都描述了查找dentry和调用path_to_nameidata函数的步骤，而箭头的颜色显示了在’ nameidata ‘对象中呈现的安全级别。在这些颜色中，白色表示最高安全级别(“normal”)，黄色阴影表示第二高级别(“shared”)，最低安全级别(“strict”)用实黄色表示。</p>
+<img src="/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/Figure4.png" title alt data-align="center">
+
+<h2 id="Access-Control-Policies"><a href="#Access-Control-Policies" class="headerlink" title="Access Control Policies"></a>Access Control Policies</h2><p>渲染之后，我们可以强制执行由某些标记确定的访问控制。一般的访问控制规则如下。</p>
+<p>由于容器不受信任，因此容器进程肯定不能在主机上读取、写入或执行任何文件，而主机进程也不能执行容器内的文件。共享卷也可以看作是容器文件系统的一部分，因此我们还需要限制主机在这些共享卷上的行为。</p>
+<p>我们参考了基于软件的故障隔离中概述的规则制定指南。根据数据访问和控制流策略设计的原则，制定了两条策略。</p>
+<p><strong>P1 -约束对象访问结果</strong>。</p>
+<p>第一条规则是对路径解析结果进行沙箱处理。只要路径查找进入不受信任范围(无论是从容器开始查找还是稍后进入容器)，路径查找的最终返回值(结果)必须位于此不受信任区域。</p>
+<p><strong>P2 -约束控制转移行为</strong>。</p>
+<p>第二个策略是由不受信任的容器进行的控制流传输必须留在不受信任的区域内。任何受信任区域(具有更高的安全级别)中的进程都不允许执行不受信任范围中的文件。更具体地说，任何从容器的可执行文件派生出来但实际在主机上执行的新进程都应该被阻止，因为控制权已经转移到恶意容器。主机被标识为受信任区域，而所有其他区域对主机来说都是不受信任的，因此不受信任的容器文件系统中的文件不允许由主机执行。</p>
+<h2 id="Path-Lookup-Interception"><a href="#Path-Lookup-Interception" class="headerlink" title="Path Lookup Interception"></a>Path Lookup Interception</h2><p>我们的实现通过在某些内核函数中插入某些检查和放置栅栏来提供安全监视机制，使这两个策略成为一个完整的解决方案。</p>
+<p>我们在路径查找的例程中实施访问控制策略，更具体地说，在内核函数complete_walk中。</p>
+<p>在路径查找过程中，执行流必须经过此函数。complete_walk是一个处理路径查找最终结果的函数。因此，在其中实施访问控制可以有效地覆盖路径查找过程，而不会丢失任何请求。</p>
+<p>为了执行P1, Patrol将检查进程的标记是否与渲染阶段分配给dentry的标记一致。</p>
+<p>如果进程中的PID名称空间指针，’ nameidata ‘中的PID名称空间标记和刚刚获得的dentry中的PID名称空间标记不同，则在函数complete_walk中执行以下细粒度访问控制。如果进程标记的安全级别低于查找过程结束时发现的最终条目的标记，则强制首先阻止访问。当容器进程试图访问主机的文件时，可能会发生这种情况。此外，当最后一个dentry的标记的安全级别不是共享的并且高于’ nameidata ‘对象中的标记时，访问也会被阻止。通过这种方式，P1可以防止符号链接解析作弊的问题(在3.2节中描述)。更具体地说，利用此类漏洞的CVE-2018-15664将启动路径查找，以发现应该从容器复制的文件。如图5(左)所示，在此路径查找进入容器文件系统后，’ nameidate ‘对象被标记为最低安全级别，而容器内恶意符号链接误导路径查找过程，以发现具有最高安全级别的最终dentry。此结果与P1强制执行的禁用情况一致，P1在路径查找结束时被激活，以终止此类非法访问。</p>
+<p>此外，从主机到共享卷的访问(但其结果最终在共享卷之外解析)可以受到P1的限制，因为存在从危险区域到可信区域的访问路径(可能通过符号链接)。</p>
+<img src="/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/Figure5.png" title alt data-align="center">
+
+<p>为了执行P2，我们的防御将在路径查找期间对要打开的目标文件执行执行权限检查。为了更好地促进检查，我们在’ nameidata ‘结构中添加了访问模式标志作为成员，以指示在路径查找之后是否执行。这个访问模式标志是从启动路径查找的系统调用服务例程(如sys_open或sys_execve)的参数中检索和初始化的。如果调用sycall服务例程的进程的PID名称空间和dentry中的PID名称空间标签不一样，patrol开始在complete_walk中检查P2是否满足。一旦进程拥有执行权限，并且该进程的安全级别标志大于dentry中的安全级别标志，就会阻止对dentry的访问。</p>
+<p>图5(右)描述了P2如何阻止利用CVE-2019-14271漏洞的攻击。在攻击过程中，安全级别最高的Docker进程会发起一次路径查找，查找需要执行的动态链接库。但是，最后发现的dentry具有最低的安全级别，这表明该库位于容器中。因此，P2在路径查找的最后被强制执行，以终止将要执行具有较低安全级别的文件(例如，’ nsswitch ‘)的Docker进程。</p>
+<h2 id="Optimizations-for-Compatibility"><a href="#Optimizations-for-Compatibility" class="headerlink" title="Optimizations for Compatibility"></a>Optimizations for Compatibility</h2><p>为了在用户空间应用程序中实现完全透明，我们实现了两种优化方案。</p>
+<p><strong>Pivot_root overloading</strong></p>
+<p>由于pivot_root系统调用是切换到容器文件系统的基本操作，因此Patrol可以从中截取’ new_root ‘参数，以指示严格作用域的根路径。当系统调用被重载时，将执行以下函数。从接收到的参数——目标根的路径开始，它递归地遍历其下所有文件系统的目录条目，并使用当前进程的严格范围标记(在4.3节中描述)来标记相关的条目。只有当调用pivot_root系统调用的进程位于与其父进程不同的挂载名称空间中时，上述重载函数才会生效。</p>
+<p><strong>Symlink containing</strong></p>
+<p>为了更好的可用性和阻止我们严格范围内恶意符号链接的影响，Patrol可以强制执行额外的限制，以确保所有符号链接都在每个严格&#x2F;共享范围的正确根目录下解析，而不是简单地阻止它们。</p>
+<p>这里还重载了内核函数trailing_symlink，用于重置查找起点，这是不能绕过的，因为符号链接应该而且只能通过它来解析。</p>
+<p>我们在PID命名空间结构中添加一个成员’ root_path ‘，它将存储每个作用域的根目录。当调用pivot_root时，Patrol将容器rootfs的根目录设置为’ root_path ‘变量。在trailing_symlink中，Patrol在当前路径查找过程中获取’ nameidata ‘中的命名空间标签，即指向PID命名空间结构的指针;然后，根据’ root_path ‘重置查找起点(在2.1节中描述)。由于我们防御的预期目标是防止符号链接在不可信范围之外被解析，因此我们定义了以下规则:如果在容器中解析符号链接，则查找起点更新为根据标记保存的根路径;如果从容器解析共享卷中的符号链接，则查找起点仍然是保存的根路径;如果从主机进程解析共享卷中的符号链接，则将起点设置为共享卷的挂载点。</p>
+<h1 id="SECURITY-ANALYSIS"><a href="#SECURITY-ANALYSIS" class="headerlink" title="SECURITY ANALYSIS"></a>SECURITY ANALYSIS</h1><p>在本节中，我们将演示我们提出的防御巡逻可以通过形式化分析增强容器的文件系统隔离。具体来说，我们将影响VFS中路径查找结果的操作(例如，系统调用服务例程)建模为一个转换系统，并利用Spin(一种现成的模型检查)工具)来识别具体模型中的帕米尔缺陷。结果表明，Patrol消除了当前容器文件系统隔离中发现的所有缺陷。</p>
+<p>更具体地说，路径查找是通过搜索VFS中的dentry树将路径字符串从用户空间映射到内核空间中相应的dentry的唯一方法。此搜索的起始点由执行路径查找的进程的根目录或当前工作目录决定。如果找到了dentry，则在权限检查通过后，进程可以通过该dentry所指向的inode访问与其关联的文件。为了阻止主机和容器之间的非法访问，Patrol将隔离扩展到dentry，并对Linux的路径解析例程实施访问控制。为了正式评估Patrol的有效性，我们首先建立了一个通用模型来描述与VFS中路径查找相关的状态和状态转换(第5.1节)。</p>
+<p>然后，我们基于一般模型定义实现两个具体模型(一个具有原始路径查找，另一个将Patrol集成到路径查找中)，并使用Spin查找这两个模型中的缺陷(第5.2节)。</p>
+<h1 id="EVALUATION"><a href="#EVALUATION" class="headerlink" title="EVALUATION"></a>EVALUATION</h1><h1 id="DISCUSSION"><a href="#DISCUSSION" class="headerlink" title="DISCUSSION"></a>DISCUSSION</h1><h1 id="RELATED-WORK"><a href="#RELATED-WORK" class="headerlink" title="RELATED WORK"></a>RELATED WORK</h1><h1 id="CONCLUSION"><a href="#CONCLUSION" class="headerlink" title="CONCLUSION"></a>CONCLUSION</h1><p>本文系统地研究了容器和主机之间文件系统不完全隔离及其相互作用所引起的Pamir风险。这种类型的风险对仅通过容器工具进行缓解构成了重大挑战。我们的研究表明，消除Pamir风险的巨大障碍是容器工具使用的第三方组件，但在用户领域没有合理的解决方案来解决这一障碍。此外，我们提出了一种基于内核的文件系统隔离技术，称为Patrol。模型检验表明，Patrol完全消除了帕米尔风险。我们的方法只给内核和容器工具带来很小的性能损失，同时提供了出色的兼容性。我们的发现和新的隔离增强朝着更好地为操作系统级虚拟化设计健壮的隔离迈出了一步。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="tag"><i class="fa fa-tag"></i> 文件系统</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/09/13/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A012-%E5%8C%85%E5%92%8C%E6%A8%A1%E5%9D%97/" rel="prev" title="Rust学习 练习12 包和模块">
+      <i class="fa fa-chevron-left"></i> Rust学习 练习12 包和模块
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Background"><span class="nav-number">2.</span> <span class="nav-text">Background</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Virtual-Filesystem"><span class="nav-number">2.1.</span> <span class="nav-text">Virtual Filesystem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Container-Filesystem-Isolation"><span class="nav-number">2.2.</span> <span class="nav-text">Container Filesystem Isolation</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#INCOMPLETE-FILESYSTEM-ISOLATION"><span class="nav-number">3.</span> <span class="nav-text">INCOMPLETE FILESYSTEM ISOLATION</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Threat-Model"><span class="nav-number">3.1.</span> <span class="nav-text">Threat Model</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pamir-Vulnerabilities"><span class="nav-number">3.2.</span> <span class="nav-text">Pamir Vulnerabilities</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Understanding-Fixing-Methods"><span class="nav-number">3.3.</span> <span class="nav-text">Understanding Fixing Methods</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Insight"><span class="nav-number">3.4.</span> <span class="nav-text">Insight</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PATROL"><span class="nav-number">4.</span> <span class="nav-text">PATROL</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Guidelines"><span class="nav-number">4.1.</span> <span class="nav-text">Guidelines</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Overview"><span class="nav-number">4.2.</span> <span class="nav-text">Overview</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Multi-Stage-Rendering"><span class="nav-number">4.3.</span> <span class="nav-text">Multi-Stage Rendering</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Access-Control-Policies"><span class="nav-number">4.4.</span> <span class="nav-text">Access Control Policies</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Path-Lookup-Interception"><span class="nav-number">4.5.</span> <span class="nav-text">Path Lookup Interception</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Optimizations-for-Compatibility"><span class="nav-number">4.6.</span> <span class="nav-text">Optimizations for Compatibility</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SECURITY-ANALYSIS"><span class="nav-number">5.</span> <span class="nav-text">SECURITY ANALYSIS</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EVALUATION"><span class="nav-number">6.</span> <span class="nav-text">EVALUATION</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DISCUSSION"><span class="nav-number">7.</span> <span class="nav-text">DISCUSSION</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RELATED-WORK"><span class="nav-number">8.</span> <span class="nav-text">RELATED WORK</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CONCLUSION"><span class="nav-number">9.</span> <span class="nav-text">CONCLUSION</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">69</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.3m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">38:25</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : '3979d4bf0ec85a360aef3f139ebc8dfc',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
