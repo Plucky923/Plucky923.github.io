@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="&amp;’static and T: ‘static&#39;static 是一个 Rust 保留的生命周期名称，在之前我们可能已经见过好几次了: 12345678910#![allow(unused)]fn main() &amp;#123;&#x2F;&#x2F; 引用的生命周期是 &amp;#x27;static :let s: &amp;&amp;#x27;static str &#x3D; &quot;hello world&quot;;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust学习 练习15 生命周期进阶">
+<meta property="og:url" content="http://example.com/2023/09/27/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A014-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E8%BF%9B%E9%98%B6/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="&amp;’static and T: ‘static&#39;static 是一个 Rust 保留的生命周期名称，在之前我们可能已经见过好几次了: 12345678910#![allow(unused)]fn main() &amp;#123;&#x2F;&#x2F; 引用的生命周期是 &amp;#x27;static :let s: &amp;&amp;#x27;static str &#x3D; &quot;hello world&quot;;">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-09-27T01:19:11.000Z">
+<meta property="article:modified_time" content="2023-09-27T03:26:14.582Z">
+<meta property="article:author" content="Plucky">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/09/27/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A014-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E8%BF%9B%E9%98%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Rust学习 练习15 生命周期进阶 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/27/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A014-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E8%BF%9B%E9%98%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Rust学习 练习15 生命周期进阶
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-09-27 09:19:11 / Modified: 11:26:14" itemprop="dateCreated datePublished" datetime="2023-09-27T09:19:11+08:00">2023-09-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/" itemprop="url" rel="index"><span itemprop="name">Rust</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/%E7%BB%83%E4%B9%A0%E5%AE%9E%E8%B7%B5/" itemprop="url" rel="index"><span itemprop="name">练习实践</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>15k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>28 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="amp-’static-and-T-‘static"><a href="#amp-’static-and-T-‘static" class="headerlink" title="&amp;’static and T: ‘static"></a>&amp;’static and T: ‘static</h1><p><code>&#39;static</code> 是一个 Rust 保留的生命周期名称，在之前我们可能已经见过好几次了:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#![allow(unused)]</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line"><span class="comment">// 引用的生命周期是 &#x27;static :</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">s</span>: &amp;<span class="symbol">&#x27;static</span> <span class="type">str</span> = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// &#x27;static 也可以用于特征约束中:</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">generic</span>&lt;T&gt;(x: T) <span class="keyword">where</span> T: <span class="symbol">&#x27;static</span> &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>虽然它们都是 <code>&#39;static</code>，但是也稍有不同。</p>
+<h2 id="amp-’static"><a href="#amp-’static" class="headerlink" title="&amp;’static"></a>&amp;’static</h2><p>作为一个引用生命周期，<code>&amp;&#39;static</code> 说明该引用指向的数据可以跟程序活得一样久，但是该引用的生命周期依然有可能被强转为一个更短的生命周期。</p>
+<ol>
+<li>🌟🌟 有好几种方法可以将一个变量标记为 <code>&#39;static</code> 生命周期, 其中两种都是和保存在二进制文件中相关( 例如字符串字面量就是保存在二进制文件中，它的生命周期是 <code>&#39;static</code> )。</li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/* 使用两种方法填空 */</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    __;</span><br><span class="line">    <span class="title function_ invoke__">need_static</span>(v);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">need_static</span>(r : &amp;<span class="symbol">&#x27;static</span> <span class="type">str</span>) &#123;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(r, <span class="string">&quot;hello&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>My Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/* 使用两种方法填空 */</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span> = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">    <span class="title function_ invoke__">need_static</span>(v);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">need_static</span>(r : &amp;<span class="symbol">&#x27;static</span> <span class="type">str</span>) &#123;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(r, <span class="string">&quot;hello&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">const</span> v: &amp;<span class="type">str</span> = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">    <span class="title function_ invoke__">need_static</span>(v);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">need_static</span>(r : &amp;<span class="symbol">&#x27;static</span> <span class="type">str</span>) &#123;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(r, <span class="string">&quot;hello&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><mark>🌟🌟🌟🌟 使用 <code>Box::leak</code> 也可以产生 <code>&#39;static</code> 生命周期</mark></li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Config</span> &#123;</span><br><span class="line">    a: <span class="type">String</span>,</span><br><span class="line">    b: <span class="type">String</span>,</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">mut</span> config: <span class="type">Option</span>&lt;&amp;<span class="keyword">mut</span> Config&gt; = <span class="literal">None</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 让代码工作，但不要修改函数的签名 */</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">init</span>() <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;&amp;<span class="symbol">&#x27;static</span> <span class="keyword">mut</span> Config&gt; &#123;</span><br><span class="line">    <span class="title function_ invoke__">Some</span>(&amp;<span class="keyword">mut</span> Config &#123;</span><br><span class="line">        a: <span class="string">&quot;A&quot;</span>.<span class="title function_ invoke__">to_string</span>(),</span><br><span class="line">        b: <span class="string">&quot;B&quot;</span>.<span class="title function_ invoke__">to_string</span>(),</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">unsafe</span> &#123;</span><br><span class="line">        config = <span class="title function_ invoke__">init</span>();</span><br><span class="line"></span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>,config)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Config</span> &#123;</span><br><span class="line">    a: <span class="type">String</span>,</span><br><span class="line">    b: <span class="type">String</span>,</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">mut</span> config: <span class="type">Option</span>&lt;&amp;<span class="keyword">mut</span> Config&gt; = <span class="literal">None</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">init</span>() <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;&amp;<span class="symbol">&#x27;static</span> <span class="keyword">mut</span> Config&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c</span> = <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(Config &#123;</span><br><span class="line">        a: <span class="string">&quot;A&quot;</span>.<span class="title function_ invoke__">to_string</span>(),</span><br><span class="line">        b: <span class="string">&quot;B&quot;</span>.<span class="title function_ invoke__">to_string</span>(),</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">Some</span>(<span class="type">Box</span>::<span class="title function_ invoke__">leak</span>(c))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">unsafe</span> &#123;</span><br><span class="line">        config = <span class="title function_ invoke__">init</span>();</span><br><span class="line"></span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>,config)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>🌟 <code>&amp;&#39;static</code> 只能说明引用指向的数据是能一直存活的，但是引用本身依然受限于它的作用域</li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 字符串字面量能跟程序活得一样久，因此 `static_string` 的生命周期是 `&#x27;static`</span></span><br><span class="line">        <span class="keyword">let</span> <span class="variable">static_string</span> = <span class="string">&quot;I&#x27;m in read-only memory&quot;</span>;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;static_string: &#123;&#125;&quot;</span>, static_string);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 当 `static_string` 超出作用域时，该引用就无法再被使用，但是引用指向的数据( 字符串字面量 ) 依然保存在二进制 binary 所占用的内存中</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;static_string reference remains alive: &#123;&#125;&quot;</span>, static_string);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>My Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 字符串字面量能跟程序活得一样久，因此 `static_string` 的生命周期是 `&#x27;static`</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">static_string</span> = <span class="string">&quot;I&#x27;m in read-only memory&quot;</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;static_string: &#123;&#125;&quot;</span>, static_string);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 当 `static_string` 超出作用域时，该引用就无法再被使用，但是引用指向的数据( 字符串字面量 ) 依然保存在二进制 binary 所占用的内存中</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;static_string reference remains alive: &#123;&#125;&quot;</span>, static_string);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// Make a `string` literal and print it:</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">static_string</span> = <span class="string">&quot;I&#x27;m in read-only memory&quot;</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;static_string: &#123;&#125;&quot;</span>, static_string);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;static_string reference remains alive: &#123;&#125;&quot;</span>, static_string);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><code>&amp;&#39;static</code> 可以被强转成一个较短的生命周期</li>
+</ol>
+<p><strong>示例</strong></p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 声明一个 static 常量，它拥有 `&#x27;static` 生命周期.</span></span><br><span class="line"><span class="keyword">static</span> NUM: <span class="type">i32</span> = <span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回常量 `Num` 的引用，注意，这里的生命周期从 `&#x27;static` 强转为 `&#x27;a`</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">coerce_static</span>&lt;<span class="symbol">&#x27;a</span>&gt;(_: &amp;<span class="symbol">&#x27;a</span> <span class="type">i32</span>) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;a</span> <span class="type">i32</span> &#123;</span><br><span class="line">    &amp;NUM</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">lifetime_num</span> = <span class="number">9</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">let</span> <span class="variable">coerced_static</span> = <span class="title function_ invoke__">coerce_static</span>(&amp;lifetime_num);</span><br><span class="line"></span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;coerced_static: &#123;&#125;&quot;</span>, coerced_static);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;NUM: &#123;&#125; stays accessible!&quot;</span>, NUM);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="T-‘static"><a href="#T-‘static" class="headerlink" title="T: ‘static"></a>T: ‘static</h2><p>关于 <code>&#39;static</code> 的特征约束详细解释，请参见 <a target="_blank" rel="noopener" href="https://course.rs/advance/lifetime/static.html#t-static">Rust 语言圣经</a>，这里就不再赘述。</p>
+<ol start="5">
+<li><mark>🌟🌟</mark></li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 让代码工作 */</span></span><br><span class="line"><span class="keyword">use</span> std::fmt::<span class="built_in">Debug</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_it</span>&lt;T: <span class="built_in">Debug</span> + <span class="symbol">&#x27;static</span>&gt;( input: T) &#123;</span><br><span class="line">    <span class="built_in">println!</span>( <span class="string">&quot;&#x27;static value passed in is: &#123;:?&#125;&quot;</span>, input );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_it1</span>( input: <span class="keyword">impl</span> <span class="title class_">Debug</span> + <span class="symbol">&#x27;static</span> ) &#123;</span><br><span class="line">    <span class="built_in">println!</span>( <span class="string">&quot;&#x27;static value passed in is: &#123;:?&#125;&quot;</span>, input );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_it2</span>&lt;T: <span class="built_in">Debug</span> + <span class="symbol">&#x27;static</span>&gt;( input: &amp;T) &#123;</span><br><span class="line">    <span class="built_in">println!</span>( <span class="string">&quot;&#x27;static value passed in is: &#123;:?&#125;&quot;</span>, input );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// i 是有所有权的数据，并没有包含任何引用，因此它是 &#x27;static</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">i</span> = <span class="number">5</span>;</span><br><span class="line">    <span class="title function_ invoke__">print_it</span>(i);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 但是 &amp;i 是一个引用，生命周期受限于作用域，因此它不是 &#x27;static</span></span><br><span class="line">    <span class="title function_ invoke__">print_it</span>(&amp;i);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">print_it1</span>(&amp;i);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 但是下面的代码可以正常运行 !</span></span><br><span class="line">    <span class="title function_ invoke__">print_it2</span>(&amp;i);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fmt::<span class="built_in">Debug</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_it</span>&lt;T: <span class="built_in">Debug</span> + <span class="symbol">&#x27;static</span>&gt;( input: T) &#123;</span><br><span class="line">    <span class="built_in">println!</span>( <span class="string">&quot;&#x27;static value passed in is: &#123;:?&#125;&quot;</span>, input );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_it1</span>( input: <span class="keyword">impl</span> <span class="title class_">Debug</span> + <span class="symbol">&#x27;static</span> ) &#123;</span><br><span class="line">    <span class="built_in">println!</span>( <span class="string">&quot;&#x27;static value passed in is: &#123;:?&#125;&quot;</span>, input );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_it2</span>&lt;T: <span class="built_in">Debug</span> + <span class="symbol">&#x27;static</span>&gt;( input: &amp;T) &#123;</span><br><span class="line">    <span class="built_in">println!</span>( <span class="string">&quot;&#x27;static value passed in is: &#123;:?&#125;&quot;</span>, input );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// i is owned and contains no references, thus it&#x27;s &#x27;static:</span></span><br><span class="line">    <span class="keyword">const</span> i:<span class="type">i32</span> = <span class="number">5</span>;</span><br><span class="line">    <span class="title function_ invoke__">print_it</span>(i);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// oops, &amp;i only has the lifetime defined by the scope of</span></span><br><span class="line">    <span class="comment">// main(), so it&#x27;s not &#x27;static:</span></span><br><span class="line">    <span class="title function_ invoke__">print_it</span>(&amp;i);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">print_it1</span>(&amp;i);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// but this one WORKS !</span></span><br><span class="line">    <span class="title function_ invoke__">print_it2</span>(&amp;i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li><mark>🌟🌟🌟</mark></li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fmt::Display;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">  <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">string</span> = <span class="string">&quot;First&quot;</span>.<span class="title function_ invoke__">to_owned</span>();</span><br><span class="line"></span><br><span class="line">  string.<span class="title function_ invoke__">push_str</span>(string.<span class="title function_ invoke__">to_uppercase</span>().<span class="title function_ invoke__">as_str</span>());</span><br><span class="line">  <span class="title function_ invoke__">print_a</span>(&amp;string);</span><br><span class="line">  <span class="title function_ invoke__">print_b</span>(&amp;string);</span><br><span class="line">  <span class="title function_ invoke__">print_c</span>(&amp;string); <span class="comment">// Compilation error</span></span><br><span class="line">  <span class="title function_ invoke__">print_d</span>(&amp;string); <span class="comment">// Compilation error</span></span><br><span class="line">  <span class="title function_ invoke__">print_e</span>(&amp;string);</span><br><span class="line">  <span class="title function_ invoke__">print_f</span>(&amp;string);</span><br><span class="line">  <span class="title function_ invoke__">print_g</span>(&amp;string); <span class="comment">// Compilation error</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_a</span>&lt;T: Display + <span class="symbol">&#x27;static</span>&gt;(t: &amp;T) &#123;</span><br><span class="line">  <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, t);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_b</span>&lt;T&gt;(t: &amp;T)</span><br><span class="line"><span class="keyword">where</span></span><br><span class="line">  T: Display + <span class="symbol">&#x27;static</span>,</span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, t);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_c</span>(t: &amp;<span class="symbol">&#x27;static</span> <span class="keyword">dyn</span> Display) &#123;</span><br><span class="line">  <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, t)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_d</span>(t: &amp;<span class="symbol">&#x27;static</span> <span class="keyword">impl</span> <span class="title class_">Display</span>) &#123;</span><br><span class="line">  <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, t)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_e</span>(t: &amp;(<span class="keyword">dyn</span> Display + <span class="symbol">&#x27;static</span>)) &#123;</span><br><span class="line">  <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, t)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_f</span>(t: &amp;(<span class="keyword">impl</span> <span class="title class_">Display</span> + <span class="symbol">&#x27;static</span>)) &#123;</span><br><span class="line">  <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, t)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_g</span>(t: &amp;<span class="symbol">&#x27;static</span> <span class="type">String</span>) &#123;</span><br><span class="line">  <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, t);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fmt::Display;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">string</span> = <span class="string">&quot;First&quot;</span>.<span class="title function_ invoke__">to_owned</span>();</span><br><span class="line"></span><br><span class="line">    string.<span class="title function_ invoke__">push_str</span>(string.<span class="title function_ invoke__">to_uppercase</span>().<span class="title function_ invoke__">as_str</span>());</span><br><span class="line">    <span class="title function_ invoke__">print_a</span>(&amp;string);</span><br><span class="line">    <span class="title function_ invoke__">print_b</span>(&amp;string);</span><br><span class="line">    <span class="title function_ invoke__">print_c</span>(<span class="type">Box</span>::<span class="title function_ invoke__">leak</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(string.<span class="title function_ invoke__">clone</span>()))); <span class="comment">// Compilation error</span></span><br><span class="line">    <span class="title function_ invoke__">print_d</span>(<span class="type">Box</span>::<span class="title function_ invoke__">leak</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(string.<span class="title function_ invoke__">clone</span>()))); <span class="comment">// Compilation error</span></span><br><span class="line">    <span class="title function_ invoke__">print_e</span>(&amp;string);</span><br><span class="line">    <span class="title function_ invoke__">print_f</span>(&amp;string);</span><br><span class="line">    <span class="title function_ invoke__">print_g</span>(<span class="type">Box</span>::<span class="title function_ invoke__">leak</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(string))); <span class="comment">// Compilation error</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_a</span>&lt;T: Display + <span class="symbol">&#x27;static</span>&gt;(t: &amp;T) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, t);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_b</span>&lt;T&gt;(t: &amp;T)</span><br><span class="line">    <span class="keyword">where</span></span><br><span class="line">        T: Display + <span class="symbol">&#x27;static</span>,</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, t);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_c</span>(t: &amp;<span class="symbol">&#x27;static</span> <span class="keyword">dyn</span> Display) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, t)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_d</span>(t: &amp;<span class="symbol">&#x27;static</span> <span class="keyword">impl</span> <span class="title class_">Display</span>) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, t)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_e</span>(t: &amp;(<span class="keyword">dyn</span> Display + <span class="symbol">&#x27;static</span>)) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, t)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_f</span>(t: &amp;(<span class="keyword">impl</span> <span class="title class_">Display</span> + <span class="symbol">&#x27;static</span>)) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, t)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_g</span>(t: &amp;<span class="symbol">&#x27;static</span> <span class="type">String</span>) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, t);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="深入生命周期"><a href="#深入生命周期" class="headerlink" title="深入生命周期"></a>深入生命周期</h1><h2 id="特征约束"><a href="#特征约束" class="headerlink" title="特征约束"></a>特征约束</h2><p>就像泛型类型可以有约束一样，生命周期也可以有约束 ，如下所示：</p>
+<ul>
+<li><code>T: &#39;a</code>，所有引用在 <code>T</code> 必须超过生命周期 <code>&#39;a</code></li>
+<li><code>T: Trait + &#39;a</code>: <code>T</code> 必须实现特征 <code>Trait</code> 并且所有引用在 <code>T</code> 必须超过生命周期 <code>&#39;a</code></li>
+</ul>
+<p><strong>示例</strong></p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fmt::<span class="built_in">Debug</span>; <span class="comment">// 特征约束使用</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Ref</span>&lt;<span class="symbol">&#x27;a</span>, T: <span class="symbol">&#x27;a</span>&gt;(&amp;<span class="symbol">&#x27;a</span> T);</span><br><span class="line"><span class="comment">// `Ref` 包含对泛型类型 `T` 的引用，该泛型类型具有</span></span><br><span class="line"><span class="comment">// 未知的生命周期 `&#x27;a`. `T` 是约定任何</span></span><br><span class="line"><span class="comment">// 引用在 `T` 必须大于 `&#x27;a` 。此外，在生命周期</span></span><br><span class="line"><span class="comment">// 里 `Ref` 不能超过 `&#x27;a`。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用 `Debug` 特征打印的通用函数。</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print</span>&lt;T&gt;(t: T) <span class="keyword">where</span></span><br><span class="line">    T: <span class="built_in">Debug</span> &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;`print`: t is &#123;:?&#125;&quot;</span>, t);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这里引用 `T` 使用 where `T` 实现</span></span><br><span class="line"><span class="comment">// `Debug` 和所有引用 `T` 都要比 `&#x27;a` 长</span></span><br><span class="line"><span class="comment">// 此外，`&#x27;a`必须要比函数声明周期长</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_ref</span>&lt;<span class="symbol">&#x27;a</span>, T&gt;(t: &amp;<span class="symbol">&#x27;a</span> T) <span class="keyword">where</span></span><br><span class="line">    T: <span class="built_in">Debug</span> + <span class="symbol">&#x27;a</span> &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;`print_ref`: t is &#123;:?&#125;&quot;</span>, t);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">7</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">ref_x</span> = <span class="title function_ invoke__">Ref</span>(&amp;x);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">print_ref</span>(&amp;ref_x);</span><br><span class="line">    <span class="title function_ invoke__">print</span>(ref_x);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>🌟</li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 使用生命周期注释结构体</span></span><br><span class="line"><span class="comment">1. `r` 和 `s` 必须是不同生命周期</span></span><br><span class="line"><span class="comment">2. `s` 的生命周期需要大于 &#x27;r&#x27;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">DoubleRef</span>&lt;T&gt; &#123;</span><br><span class="line">    r: &amp;T,</span><br><span class="line">    s: &amp;T</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>My Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 使用生命周期注释结构体</span></span><br><span class="line"><span class="comment">1. `r` 和 `s` 必须是不同生命周期</span></span><br><span class="line"><span class="comment">2. `s` 的生命周期需要大于 &#x27;r&#x27;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">DoubleRef</span>&lt;<span class="symbol">&#x27;a</span>,<span class="symbol">&#x27;b</span>:<span class="symbol">&#x27;a</span>,T&gt; &#123;</span><br><span class="line">    r: &amp;<span class="symbol">&#x27;a</span> T,</span><br><span class="line">    s: &amp;<span class="symbol">&#x27;b</span> T</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">DoubleRef</span>&lt;<span class="symbol">&#x27;a</span>,<span class="symbol">&#x27;b</span>:<span class="symbol">&#x27;a</span>, T&gt; &#123;</span><br><span class="line">    r: &amp;<span class="symbol">&#x27;a</span> T,</span><br><span class="line">    s: &amp;<span class="symbol">&#x27;b</span> T</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>🌟🌟</li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 添加类型约束使下面代码正常运行 */</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">ImportantExcerpt</span>&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    part: &amp;<span class="symbol">&#x27;a</span> <span class="type">str</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>&gt; ImportantExcerpt&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">announce_and_return_part</span>(&amp;<span class="symbol">&#x27;a</span> <span class="keyword">self</span>, announcement: &amp;<span class="symbol">&#x27;b</span> <span class="type">str</span>) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="type">str</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Attention please: &#123;&#125;&quot;</span>, announcement);</span><br><span class="line">        <span class="keyword">self</span>.part</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>My Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 添加类型约束使下面代码正常运行 */</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">ImportantExcerpt</span>&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    part: &amp;<span class="symbol">&#x27;a</span> <span class="type">str</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;<span class="symbol">&#x27;a</span>:<span class="symbol">&#x27;b</span>, <span class="symbol">&#x27;b</span>&gt; ImportantExcerpt&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">announce_and_return_part</span>(&amp;<span class="symbol">&#x27;a</span> <span class="keyword">self</span>, announcement: &amp;<span class="symbol">&#x27;b</span> <span class="type">str</span>) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="type">str</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Attention please: &#123;&#125;&quot;</span>, announcement);</span><br><span class="line">        <span class="keyword">self</span>.part</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ImportantExcerpt</span>&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    part: &amp;<span class="symbol">&#x27;a</span> <span class="type">str</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;<span class="symbol">&#x27;a</span>: <span class="symbol">&#x27;b</span>, <span class="symbol">&#x27;b</span>&gt; ImportantExcerpt&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">announce_and_return_part</span>(&amp;<span class="symbol">&#x27;a</span> <span class="keyword">self</span>, announcement: &amp;<span class="symbol">&#x27;b</span> <span class="type">str</span>) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="type">str</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Attention please: &#123;&#125;&quot;</span>, announcement);</span><br><span class="line">        <span class="keyword">self</span>.part</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><mark>🌟🌟</mark></li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 添加类型约束使下面代码正常运行 */</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">f</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>&gt;(x: &amp;<span class="symbol">&#x27;a</span> <span class="type">i32</span>, <span class="keyword">mut</span> y: &amp;<span class="symbol">&#x27;b</span> <span class="type">i32</span>) &#123;</span><br><span class="line">    y = x;                      </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r</span>: &amp;<span class="symbol">&#x27;b</span> &amp;<span class="symbol">&#x27;a</span> <span class="type">i32</span> = &amp;&amp;<span class="number">0</span>;   </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">f</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>&gt;(x: &amp;<span class="symbol">&#x27;a</span> <span class="type">i32</span>, <span class="keyword">mut</span> y: &amp;<span class="symbol">&#x27;b</span> <span class="type">i32</span>) <span class="keyword">where</span> <span class="symbol">&#x27;a</span>: <span class="symbol">&#x27;b</span> &#123;</span><br><span class="line">    y = x;                      <span class="comment">// &amp;&#x27;a i32 is a subtype of &amp;&#x27;b i32 because &#x27;a: &#x27;b</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r</span>: &amp;<span class="symbol">&#x27;b</span> &amp;<span class="symbol">&#x27;a</span> <span class="type">i32</span> = &amp;&amp;<span class="number">0</span>;   <span class="comment">// &amp;&#x27;b &amp;&#x27;a i32 is well formed because &#x27;a: &#x27;b</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="HRTB（更高等级特征约束）-Higher-ranked-trait-bounds"><a href="#HRTB（更高等级特征约束）-Higher-ranked-trait-bounds" class="headerlink" title="HRTB（更高等级特征约束）(Higher-ranked trait bounds)"></a>HRTB（更高等级特征约束）(Higher-ranked trait bounds)</h2><p>类型约束可能在生命周期中排名更高。这些约束指定了一个约束对于所有生命周期都为真。例如，诸如此类的约束 <code>for&lt;&#39;a&gt; &amp;&#39;a T: PartialEq&lt;i32&gt;</code> 需要如下实现：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span>&lt;<span class="symbol">&#x27;a</span>&gt; <span class="built_in">PartialEq</span>&lt;<span class="type">i32</span>&gt; <span class="keyword">for</span> &amp;<span class="symbol">&#x27;a</span> T &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后可以用于将一个 <code>&amp;&#39;a T</code> 与任何生命周期进行比较 <code>i32</code> 。</p>
+<p>这里只能使用更高级别的约束，因为引用的生命周期比函数上任何可能的生命周期参数都短。</p>
+<ol start="4">
+<li>🌟🌟🌟</li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 添加 HRTB 使下面代码正常运行！ */</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">call_on_ref_zero</span>&lt;<span class="symbol">&#x27;a</span>, F&gt;(f: F) <span class="keyword">where</span> F: <span class="title function_ invoke__">Fn</span>(&amp;<span class="symbol">&#x27;a</span> <span class="type">i32</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">zero</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="title function_ invoke__">f</span>(&amp;zero);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>My Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 添加 HRTB 使下面代码正常运行！ */</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">call_on_ref_zero</span>&lt;F&gt;(f: F) <span class="keyword">where</span> F: <span class="title function_ invoke__">Fn</span>(&amp; <span class="type">i32</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">zero</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="title function_ invoke__">f</span>(&amp;zero);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">call_on_ref_zero</span>&lt;F&gt;(f: F) <span class="keyword">where</span> <span class="keyword">for</span>&lt;<span class="symbol">&#x27;a</span>&gt; F: <span class="title function_ invoke__">Fn</span>(&amp;<span class="symbol">&#x27;a</span> <span class="type">i32</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">zero</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="title function_ invoke__">f</span>(&amp;zero);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">call_on_ref_zero</span>&lt;F&gt;(f: F) <span class="keyword">where</span> F: <span class="keyword">for</span>&lt;<span class="symbol">&#x27;a</span>&gt; <span class="title function_ invoke__">Fn</span>(&amp;<span class="symbol">&#x27;a</span> <span class="type">i32</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">zero</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="title function_ invoke__">f</span>(&amp;zero);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="NLL（非词汇生命周期）-Non-Lexical-Lifetime"><a href="#NLL（非词汇生命周期）-Non-Lexical-Lifetime" class="headerlink" title="NLL（非词汇生命周期）(Non-Lexical Lifetime)"></a>NLL（非词汇生命周期）(Non-Lexical Lifetime)</h2><p>在解释 NLL 之前，我们先看一段代码：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">   <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r1</span> = &amp;s;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r2</span> = &amp;s;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125; and &#123;&#125;&quot;</span>, r1, r2);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r3</span> = &amp;<span class="keyword">mut</span> s;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, r3);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>根据我们目前的知识，这段代码会因为违反 Rust 中的借用规则而导致错误。</p>
+<p>但是，如果您执行 <code>cargo run</code> ，那么一切都没问题，那么这里发生了什么？</p>
+<p>编译器在作用域结束之前判断不再使用引用的能力称为 <strong>非词法生命周期</strong>（简称 <strong>NLL</strong> ）。</p>
+<p>有了这种能力，编译器就知道最后一次使用引用是什么时候，并根据这些知识优化借用规则。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#![allow(unused)]</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">u</span> = <span class="number">0i32</span>;</span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">v</span> = <span class="number">1i32</span>;</span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">w</span> = <span class="number">2i32</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// lifetime of `a` = α ∪ β ∪ γ</span></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">a</span> = &amp;<span class="keyword">mut</span> u;     <span class="comment">// --+ α. lifetime of `&amp;mut u`  --+ lexical &quot;lifetime&quot; of `&amp;mut u`,`&amp;mut u`, `&amp;mut w` and `a`</span></span><br><span class="line"><span class="title function_ invoke__">use</span>(a);                 <span class="comment">//   |                            |</span></span><br><span class="line">*a = <span class="number">3</span>; <span class="comment">// &lt;-----------------+                            |</span></span><br><span class="line">...                     <span class="comment">//                                |</span></span><br><span class="line">a = &amp;<span class="keyword">mut</span> v;             <span class="comment">// --+ β. lifetime of `&amp;mut v`    |</span></span><br><span class="line"><span class="title function_ invoke__">use</span>(a);                 <span class="comment">//   |                            |</span></span><br><span class="line">*a = <span class="number">4</span>; <span class="comment">// &lt;-----------------+                            |</span></span><br><span class="line">...                     <span class="comment">//                                |</span></span><br><span class="line">a = &amp;<span class="keyword">mut</span> w;             <span class="comment">// --+ γ. lifetime of `&amp;mut w`    |</span></span><br><span class="line"><span class="title function_ invoke__">use</span>(a);                 <span class="comment">//   |                            |</span></span><br><span class="line">*a = <span class="number">5</span>; <span class="comment">// &lt;-----------------+ &lt;--------------------------+</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="再借用"><a href="#再借用" class="headerlink" title="再借用"></a>再借用</h2><p>学习了 NLL 之后，我们现在可以很容易地理解再借用了。</p>
+<p><strong>示例</strong></p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Point</span> &#123;</span><br><span class="line">    x: <span class="type">i32</span>,</span><br><span class="line">    y: <span class="type">i32</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">Point</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">move_to</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, x: <span class="type">i32</span>, y: <span class="type">i32</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.x = x;</span><br><span class="line">        <span class="keyword">self</span>.y = y;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">p</span> = Point &#123; x: <span class="number">0</span>, y: <span class="number">0</span> &#125;;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r</span> = &amp;<span class="keyword">mut</span> p;</span><br><span class="line">    <span class="comment">// 这里是再借用</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">rr</span>: &amp;Point = &amp;*r;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, rr); <span class="comment">// 这里结束再借用</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 再借用结束，现在我们可以继续使用 `r`</span></span><br><span class="line">    r.<span class="title function_ invoke__">move_to</span>(<span class="number">10</span>, <span class="number">10</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, r);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>🌟🌟</li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 通过重新排序一些代码使下面代码正常运行 */</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">data</span> = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">ref1</span> = &amp;<span class="keyword">mut</span> data;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">ref2</span> = &amp;<span class="keyword">mut</span> *ref1;</span><br><span class="line"></span><br><span class="line">    *ref1 += <span class="number">1</span>;</span><br><span class="line">    *ref2 += <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, data);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>My Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 通过重新排序一些代码使下面代码正常运行 */</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">data</span> = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">ref1</span> = &amp;<span class="keyword">mut</span> data;</span><br><span class="line">    *ref1 += <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">ref2</span> = &amp;<span class="keyword">mut</span> *ref1;</span><br><span class="line"></span><br><span class="line">    *ref2 += <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, data);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">data</span> = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">ref1</span> = &amp;<span class="keyword">mut</span> data;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">ref2</span> = &amp;<span class="keyword">mut</span> *ref1;</span><br><span class="line"></span><br><span class="line">    *ref2 += <span class="number">2</span>;    </span><br><span class="line">    *ref1 += <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, data);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="未约束的生命周期"><a href="#未约束的生命周期" class="headerlink" title="未约束的生命周期]"></a>未约束的生命周期]</h2><p>在 <a target="_blank" rel="noopener" href="https://doc.rust-lang.org/nomicon/unbounded-lifetimes.html">Nomicon - Unbounded Lifetimes</a> 中查看更多信息。</p>
+<h2 id="更多省略规则"><a href="#更多省略规则" class="headerlink" title="更多省略规则"></a>更多省略规则</h2><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#![allow(unused)]</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line"><span class="keyword">impl</span>&lt;<span class="symbol">&#x27;a</span>&gt; Reader <span class="keyword">for</span> <span class="title class_">BufReader</span>&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    <span class="comment">// &#x27;a 在以下方法中不使用</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 可以写为：</span></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">Reader</span> <span class="keyword">for</span> <span class="title class_">BufReader</span>&lt;<span class="symbol">&#x27;_</span>&gt; &#123;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#![allow(unused)]</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line"><span class="comment">// Rust 2015</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Ref</span>&lt;<span class="symbol">&#x27;a</span>, T: <span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    field: &amp;<span class="symbol">&#x27;a</span> T</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Rust 2018</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Ref</span>&lt;<span class="symbol">&#x27;a</span>, T&gt; &#123;</span><br><span class="line">    field: &amp;<span class="symbol">&#x27;a</span> T</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="艰难的练习"><a href="#艰难的练习" class="headerlink" title="艰难的练习"></a>艰难的练习</h2><ol start="6">
+<li><mark>🌟🌟🌟🌟</mark></li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 使下面代码正常运行 */</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Interface</span>&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    manager: &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> Manager&lt;<span class="symbol">&#x27;a</span>&gt;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;<span class="symbol">&#x27;a</span>&gt; Interface&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">noop</span>(<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;interface consumed&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Manager</span>&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    text: &amp;<span class="symbol">&#x27;a</span> <span class="type">str</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">List</span>&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    manager: Manager&lt;<span class="symbol">&#x27;a</span>&gt;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;<span class="symbol">&#x27;a</span>&gt; List&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">get_interface</span>(&amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> <span class="keyword">self</span>) <span class="punctuation">-&gt;</span> Interface &#123;</span><br><span class="line">        Interface &#123;</span><br><span class="line">            manager: &amp;<span class="keyword">mut</span> <span class="keyword">self</span>.manager</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">list</span> = List &#123;</span><br><span class="line">        manager: Manager &#123;</span><br><span class="line">            text: <span class="string">&quot;hello&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    list.<span class="title function_ invoke__">get_interface</span>().<span class="title function_ invoke__">noop</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Interface should be dropped here and the borrow released&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">use_list</span>(&amp;list);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">use_list</span>(list: &amp;List) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, list.manager.text);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Answer</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 使下面代码正常运行 */</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Interface</span>&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    manager: &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> Manager&lt;<span class="symbol">&#x27;a</span>&gt;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;<span class="symbol">&#x27;a</span>&gt; Interface&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">noop</span>(<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;interface consumed&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Manager</span>&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    text: &amp;<span class="symbol">&#x27;a</span> <span class="type">str</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">List</span>&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    manager: Manager&lt;<span class="symbol">&#x27;a</span>&gt;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;<span class="symbol">&#x27;a</span>&gt; List&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">get_interface</span>(&amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> <span class="keyword">self</span>) <span class="punctuation">-&gt;</span> Interface &#123;</span><br><span class="line">        Interface &#123;</span><br><span class="line">            manager: &amp;<span class="keyword">mut</span> <span class="keyword">self</span>.manager</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">list</span> = List &#123;</span><br><span class="line">        manager: Manager &#123;</span><br><span class="line">            text: <span class="string">&quot;hello&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    list.<span class="title function_ invoke__">get_interface</span>().<span class="title function_ invoke__">noop</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Interface should be dropped here and the borrow released&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">use_list</span>(&amp;list);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">use_list</span>(list: &amp;List) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, list.manager.text);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/Rust/" rel="tag"><i class="fa fa-tag"></i> Rust</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/09/26/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A013-%E6%A0%BC%E5%BC%8F%E5%8C%96%E8%BE%93%E5%87%BA/" rel="prev" title="Rust学习 练习13 格式化输出">
+      <i class="fa fa-chevron-left"></i> Rust学习 练习13 格式化输出
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/10/07/R4L-%E7%BC%96%E8%AF%91Rust-for-Linux/" rel="next" title="R4L:编译Rust for Linux">
+      R4L:编译Rust for Linux <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#amp-%E2%80%99static-and-T-%E2%80%98static"><span class="nav-number">1.</span> <span class="nav-text">&amp;’static and T: ‘static</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#amp-%E2%80%99static"><span class="nav-number">1.1.</span> <span class="nav-text">&amp;’static</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#T-%E2%80%98static"><span class="nav-number">1.2.</span> <span class="nav-text">T: ‘static</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B7%B1%E5%85%A5%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">2.</span> <span class="nav-text">深入生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E5%BE%81%E7%BA%A6%E6%9D%9F"><span class="nav-number">2.1.</span> <span class="nav-text">特征约束</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HRTB%EF%BC%88%E6%9B%B4%E9%AB%98%E7%AD%89%E7%BA%A7%E7%89%B9%E5%BE%81%E7%BA%A6%E6%9D%9F%EF%BC%89-Higher-ranked-trait-bounds"><span class="nav-number">2.2.</span> <span class="nav-text">HRTB（更高等级特征约束）(Higher-ranked trait bounds)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NLL%EF%BC%88%E9%9D%9E%E8%AF%8D%E6%B1%87%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%EF%BC%89-Non-Lexical-Lifetime"><span class="nav-number">2.3.</span> <span class="nav-text">NLL（非词汇生命周期）(Non-Lexical Lifetime)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%8D%E5%80%9F%E7%94%A8"><span class="nav-number">2.4.</span> <span class="nav-text">再借用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%AA%E7%BA%A6%E6%9D%9F%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">2.5.</span> <span class="nav-text">未约束的生命周期]</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E5%A4%9A%E7%9C%81%E7%95%A5%E8%A7%84%E5%88%99"><span class="nav-number">2.6.</span> <span class="nav-text">更多省略规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%89%B0%E9%9A%BE%E7%9A%84%E7%BB%83%E4%B9%A0"><span class="nav-number">2.7.</span> <span class="nav-text">艰难的练习</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.3m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">39:23</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : 'f7465f18f41c559216a4ecb5d0015ed8',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
