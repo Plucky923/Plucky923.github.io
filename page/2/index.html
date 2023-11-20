@@ -197,6 +197,132 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/09/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A08-%E6%B3%9B%E5%9E%8B%E5%92%8C%E7%89%B9%E5%BE%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/09/09/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A08-%E6%B3%9B%E5%9E%8B%E5%92%8C%E7%89%B9%E5%BE%81/" class="post-title-link" itemprop="url">Rust学习 练习8 泛型和特征</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-09-09 17:05:27" itemprop="dateCreated datePublished" datetime="2023-09-09T17:05:27+08:00">2023-09-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-09-12 19:52:22" itemprop="dateModified" datetime="2023-09-12T19:52:22+08:00">2023-09-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/" itemprop="url" rel="index"><span itemprop="name">Rust</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/%E7%BB%83%E4%B9%A0%E5%AE%9E%E8%B7%B5/" itemprop="url" rel="index"><span itemprop="name">练习实践</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>61k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1:51</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h1><h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><ol>
+<li><p>🌟🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 填空</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">A</span>;          <span class="comment">// 具体的类型 `A`.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">S</span>(A);       <span class="comment">// 具体的类型 `S`.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SGen</span>&lt;T&gt;(T); <span class="comment">// 泛型 `SGen`.</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">reg_fn</span>(_s: S) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">gen_spec_t</span>(_s: SGen&lt;A&gt;) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">gen_spec_i32</span>(_s: SGen&lt;<span class="type">i32</span>&gt;) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">generic</span>&lt;T&gt;(_s: SGen&lt;T&gt;) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 使用非泛型函数</span></span><br><span class="line">    <span class="title function_ invoke__">reg_fn</span>(__);          <span class="comment">// 具体的类型</span></span><br><span class="line">    <span class="title function_ invoke__">gen_spec_t</span>(__);   <span class="comment">// 隐式地指定类型参数  `A`.</span></span><br><span class="line">    <span class="title function_ invoke__">gen_spec_i32</span>(__); <span class="comment">// 隐式地指定类型参数`i32`.</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 显式地指定类型参数 `char`</span></span><br><span class="line">    generic::&lt;<span class="type">char</span>&gt;(__);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 隐式地指定类型参数 `char`.</span></span><br><span class="line">    <span class="title function_ invoke__">generic</span>(__);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 填空</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">A</span>;          <span class="comment">// 具体的类型 `A`.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">S</span>(A);       <span class="comment">// 具体的类型 `S`.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SGen</span>&lt;T&gt;(T); <span class="comment">// 泛型 `SGen`.</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">reg_fn</span>(_s: S) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">gen_spec_t</span>(_s: SGen&lt;A&gt;) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">gen_spec_i32</span>(_s: SGen&lt;<span class="type">i32</span>&gt;) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">generic</span>&lt;T&gt;(_s: SGen&lt;T&gt;) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 使用非泛型函数</span></span><br><span class="line">    <span class="title function_ invoke__">reg_fn</span>(<span class="title function_ invoke__">S</span>(A));          <span class="comment">// 具体的类型</span></span><br><span class="line">    <span class="title function_ invoke__">gen_spec_t</span>(<span class="title function_ invoke__">SGen</span>(A));   <span class="comment">// 隐式地指定类型参数  `A`.</span></span><br><span class="line">    <span class="title function_ invoke__">gen_spec_i32</span>(<span class="title function_ invoke__">SGen</span>(<span class="number">1</span>)); <span class="comment">// 隐式地指定类型参数`i32`.</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 显式地指定类型参数 `char`</span></span><br><span class="line">    generic::&lt;<span class="type">char</span>&gt;(<span class="title function_ invoke__">SGen</span>(<span class="string">&#x27;1&#x27;</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 隐式地指定类型参数 `char`.</span></span><br><span class="line">    <span class="title function_ invoke__">generic</span>(<span class="title function_ invoke__">SGen</span>(<span class="string">&#x27;1&#x27;</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">A</span>;          <span class="comment">// Concrete type `A`.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">S</span>(A);       <span class="comment">// Concrete type `S`.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SGen</span>&lt;T&gt;(T); <span class="comment">// Generic type `SGen`.</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">reg_fn</span>(_s: S) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">gen_spec_t</span>(_s: SGen&lt;A&gt;) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">gen_spec_i32</span>(_s: SGen&lt;<span class="type">i32</span>&gt;) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">generic</span>&lt;T&gt;(_s: SGen&lt;T&gt;) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// Using the non-generic functions</span></span><br><span class="line">    <span class="title function_ invoke__">reg_fn</span>(<span class="title function_ invoke__">S</span>(A));          <span class="comment">// Concrete type.</span></span><br><span class="line">    <span class="title function_ invoke__">gen_spec_t</span>(<span class="title function_ invoke__">SGen</span>(A));   <span class="comment">// Implicitly specified type parameter `A`.</span></span><br><span class="line">    <span class="title function_ invoke__">gen_spec_i32</span>(<span class="title function_ invoke__">SGen</span>(<span class="number">6</span>)); <span class="comment">// Implicitly specified type parameter `i32`.</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Explicitly specified type parameter `char` to `generic()`.</span></span><br><span class="line">    generic::&lt;<span class="type">char</span>&gt;(<span class="title function_ invoke__">SGen</span>(<span class="string">&#x27;a&#x27;</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Implicitly specified type parameter `char` to `generic()`.</span></span><br><span class="line">    <span class="title function_ invoke__">generic</span>(<span class="title function_ invoke__">SGen</span>(<span class="string">&#x27;c&#x27;</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 实现下面的泛型函数 sum</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">sum</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">5</span>, <span class="title function_ invoke__">sum</span>(<span class="number">2i8</span>, <span class="number">3i8</span>));</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">50</span>, <span class="title function_ invoke__">sum</span>(<span class="number">20</span>, <span class="number">30</span>));</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">2.46</span>, <span class="title function_ invoke__">sum</span>(<span class="number">1.23</span>, <span class="number">1.23</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>My Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 实现下面的泛型函数 sum</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">sum</span>&lt;T :std::ops::Add&lt;Output = T&gt;&gt;(val1: T,val2: T) <span class="punctuation">-&gt;</span> T&#123;</span><br><span class="line">    val1+val2</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">5</span>, <span class="title function_ invoke__">sum</span>(<span class="number">2i8</span>, <span class="number">3i8</span>));</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">50</span>, <span class="title function_ invoke__">sum</span>(<span class="number">20</span>, <span class="number">30</span>));</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">2.46</span>, <span class="title function_ invoke__">sum</span>(<span class="number">1.23</span>, <span class="number">1.23</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Answer</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">sum</span>&lt;T:std::ops::Add&lt;Output = T&gt;&gt;(x: T, y: T) <span class="punctuation">-&gt;</span> T &#123;</span><br><span class="line">    x + y</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">5</span>, <span class="title function_ invoke__">sum</span>(<span class="number">2i8</span>, <span class="number">3i8</span>));</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">50</span>, <span class="title function_ invoke__">sum</span>(<span class="number">20</span>, <span class="number">30</span>));</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">2.46</span>, <span class="title function_ invoke__">sum</span>(<span class="number">1.23</span>, <span class="number">1.23</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/09/09/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A08-%E6%B3%9B%E5%9E%8B%E5%92%8C%E7%89%B9%E5%BE%81/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/09/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A07-%E6%96%B9%E6%B3%95%E5%92%8C%E5%85%B3%E8%81%94%E5%87%BD%E6%95%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1228,95 +1354,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/29/%E5%AD%A6%E4%B9%A0-Linux-fs-namei-c%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/07/29/%E5%AD%A6%E4%B9%A0-Linux-fs-namei-c%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">学习 Linux /fs/namei.c源码分析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-07-29 09:11:29" itemprop="dateCreated datePublished" datetime="2023-07-29T09:11:29+08:00">2023-07-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-08-20 18:35:57" itemprop="dateModified" datetime="2023-08-20T18:35:57+08:00">2023-08-20</time>
-              </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>143k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4:20</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.3.7/source/fs/namei.c">namei.c - fs&#x2F;namei.c - Linux source code (v6.3.7) - Bootlin</a></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> EMBEDDED_NAME_MAX    (PATH_MAX - offsetof(struct filename, iname))</span></span><br><span class="line"><span class="comment">// 定义 EMBEDDED_NAME_MAX，这是嵌入式文件名的最大长度。长度等于 PATH_MAX（一个路径的最大长度）减去 struct filename 中 iname 字段的偏移量。</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> filename *</span><br><span class="line"><span class="title function_">getname_flags</span><span class="params">(<span class="type">const</span> <span class="type">char</span> __user *filename, <span class="type">int</span> flags, <span class="type">int</span> *empty)</span></span><br><span class="line"><span class="comment">// 这个函数是从用户空间获取文件名，并将其复制到内核空间。函数接受三个参数：用户提供的文件名，一组标志，以及一个指向整数的指针，用于指示路径是否为空。</span></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">filename</span> *<span class="title">result</span>;</span></span><br><span class="line">    <span class="type">char</span> *kname;</span><br><span class="line">    <span class="type">int</span> len;</span><br><span class="line">    <span class="comment">// 定义三个变量：一个指向 struct filename 的指针，一个字符指针，以及一个整数。</span></span><br><span class="line"></span><br><span class="line">    result = audit_reusename(filename);</span><br><span class="line">    <span class="comment">// 尝试重用给定的文件名。如果成功，返回指向重用的文件名的指针。</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (result)</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    <span class="comment">// 如果重用成功，返回结果。</span></span><br><span class="line"></span><br><span class="line">    result = __getname();</span><br><span class="line">    <span class="comment">// 尝试从名字缓存中获取一个新的文件名。</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (unlikely(!result))</span><br><span class="line">        <span class="keyword">return</span> ERR_PTR(-ENOMEM);</span><br><span class="line">    <span class="comment">// 如果无法获取新的文件名（可能是因为内存不足），则返回错误。</span></span><br><span class="line"></span><br><span class="line">    kname = (<span class="type">char</span> *)result-&gt;iname;</span><br><span class="line">    <span class="comment">// 获取新文件名的 iname 字段，这是一个内部的名字。</span></span><br><span class="line"></span><br><span class="line">    result-&gt;name = kname;</span><br><span class="line">    <span class="comment">// 将内部名字赋给外部名字。</span></span><br><span class="line"></span><br><span class="line">    len = strncpy_from_user(kname, filename, EMBEDDED_NAME_MAX);</span><br><span class="line">    <span class="comment">// 尝试从用户空间复制文件名到内核空间。最多复制 EMBEDDED_NAME_MAX 个字符。</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (unlikely(len &lt; <span class="number">0</span>)) &#123;</span><br><span class="line">        __putname(result);</span><br><span class="line">        <span class="comment">// 如果复制失败，释放之前获取的文件名。</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ERR_PTR(len);</span><br><span class="line">        <span class="comment">// 返回错误。</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (unlikely(len == EMBEDDED_NAME_MAX)) &#123;</span><br><span class="line">        <span class="type">const</span> <span class="type">size_t</span> size = offsetof(<span class="keyword">struct</span> filename, iname[<span class="number">1</span>]);</span><br><span class="line">        <span class="comment">// 如果复制的长度等于 EMBEDDED_NAME_MAX，需要重新分配内存。计算新的大小。</span></span><br><span class="line"></span><br><span class="line">        kname = (<span class="type">char</span> *)result;</span><br><span class="line">        <span class="comment">// 保存当前的结果。</span></span><br><span class="line"></span><br><span class="line">        result = kzalloc(size, GFP_KERNEL);</span><br><span class="line">        <span class="comment">// 为新的文件名分配内存。</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (unlikely(!result)) &#123;</span><br><span class="line">            __putname(kname);</span><br><span class="line">            <span class="comment">// 如果分配失败，释放之前的结果。</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(-ENOMEM);</span><br><span class="line">            <span class="comment">// 返回错误。</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        result-&gt;name = kname;</span><br><span class="line">        <span class="comment">// 将名字赋给新的结果。</span></span><br><span class="line"></span><br><span class="line">        len = strncpy_from_user(kname, filename, PATH_MAX);</span><br><span class="line">        <span class="comment">// 从用户空间复制文件名到内核空间。这次复制的最大长度是 PATH_MAX。</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (unlikely(len &lt; <span class="number">0</span>)) &#123;</span><br><span class="line">            __putname(kname);</span><br><span class="line">            <span class="comment">// 如果复制失败，释放之前的结果。</span></span><br><span class="line"></span><br><span class="line">            kfree(result);</span><br><span class="line">            <span class="comment">// 释放新的结果。</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(len);</span><br><span class="line">            <span class="comment">// 返回错误。</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (unlikely(len == PATH_MAX)) &#123;</span><br><span class="line">            __putname(kname);</span><br><span class="line">            <span class="comment">// 如果复制的长度等于 PATH_MAX，释放之前的结果。</span></span><br><span class="line"></span><br><span class="line">            kfree(result);</span><br><span class="line">            <span class="comment">// 释放新的结果。</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(-ENAMETOOLONG);</span><br><span class="line">            <span class="comment">// 返回错误，表示名字过长。</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    result-&gt;refcnt = <span class="number">1</span>;</span><br><span class="line">    <span class="comment">// 设置新的结果的引用计数为 1。</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (unlikely(!len)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (empty)</span><br><span class="line">            *empty = <span class="number">1</span>;</span><br><span class="line">        <span class="comment">// 如果文件名的长度为 0（即文件名为空），设置 *empty 为 1。</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!(flags &amp; LOOKUP_EMPTY)) &#123;</span><br><span class="line">            putname(result);</span><br><span class="line">            <span class="comment">// 如果不允许查找空的文件名，释放结果。</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(-ENOENT);</span><br><span class="line">            <span class="comment">// 返回错误，表示没有这个文件或目录。</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    result-&gt;uptr = filename;</span><br><span class="line">    result-&gt;uptr = filename;</span><br><span class="line">    <span class="comment">// 设置新的结果的用户空间指针为传入的 filename。</span></span><br><span class="line"></span><br><span class="line">    result-&gt;aname = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="comment">// 设置新的结果的审计名字为 NULL。</span></span><br><span class="line"></span><br><span class="line">    audit_getname(result);</span><br><span class="line">    <span class="comment">// 获取新的结果的审计名字。</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">    <span class="comment">// 返回新的结果。</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/07/29/%E5%AD%A6%E4%B9%A0-Linux-fs-namei-c%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1386,7 +1423,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-count">74</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1454,7 +1491,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">39:23</span>
+    <span title="Reading time total">39:01</span>
 </div>
 
 <!--
