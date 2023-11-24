@@ -25,27 +25,27 @@
 
   <meta name="description" content="简介虚拟文件系统 （VFS） 或虚拟文件系统交换机是更具体的文件系统之上的抽象层。VFS 的目的是允许客户端应用程序以统一的方式访问不同类型的具体文件系统。例如，VFS 可用于透明地访问本地和网络存储设备，而客户端应用程序不会注意到差异。 即对于应用程序透明。它可用于弥Windows，经典Mac OS &#x2F; macOS和Unix文件系统之间的差异，以便应用程序可以访问这些类型的本地文件系统">
 <meta property="og:type" content="article">
-<meta property="og:title" content="学习 Linux VFS虚拟文件系统[1] 简介">
-<meta property="og:url" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/index.html">
+<meta property="og:title" content="学习 Linux VFS虚拟文件系统 简介">
+<meta property="og:url" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
 <meta property="og:site_name" content="Plucky">
 <meta property="og:description" content="简介虚拟文件系统 （VFS） 或虚拟文件系统交换机是更具体的文件系统之上的抽象层。VFS 的目的是允许客户端应用程序以统一的方式访问不同类型的具体文件系统。例如，VFS 可用于透明地访问本地和网络存储设备，而客户端应用程序不会注意到差异。 即对于应用程序透明。它可用于弥Windows，经典Mac OS &#x2F; macOS和Unix文件系统之间的差异，以便应用程序可以访问这些类型的本地文件系统">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/VFS%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84.png">
-<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/VFS%E6%95%B4%E4%BD%93%E5%B1%82%E6%AC%A1.png">
-<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/VFS%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB.png">
-<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/VFS%E4%B8%8E%E8%BF%9B%E7%A8%8B%E4%BA%A4%E4%BA%92.png">
-<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/%E5%90%84%E4%B8%AAVFS%E7%BB%84%E4%BB%B6%E7%9A%84%E7%9B%B8%E4%BA%92%E5%85%B3%E7%B3%BB.png">
-<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/super_block%E6%9E%B6%E6%9E%84.png">
-<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84.png">
-<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/%E6%89%93%E5%BC%80%E6%88%96%E8%80%85%E5%88%9B%E5%BB%BA%E6%96%B0%E6%96%87%E4%BB%B6%E6%B5%81%E7%A8%8B%E5%9B%BE.png">
-<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/link_path_walk%E5%86%85%E6%A0%B8printk.png">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS%E6%95%B4%E4%BD%93%E5%B1%82%E6%AC%A1.png">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB.png">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS%E4%B8%8E%E8%BF%9B%E7%A8%8B%E4%BA%A4%E4%BA%92.png">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/%E5%90%84%E4%B8%AAVFS%E7%BB%84%E4%BB%B6%E7%9A%84%E7%9B%B8%E4%BA%92%E5%85%B3%E7%B3%BB.png">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/super_block%E6%9E%B6%E6%9E%84.png">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84.png">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/%E6%89%93%E5%BC%80%E6%88%96%E8%80%85%E5%88%9B%E5%BB%BA%E6%96%B0%E6%96%87%E4%BB%B6%E6%B5%81%E7%A8%8B%E5%9B%BE.png">
+<meta property="og:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/link_path_walk%E5%86%85%E6%A0%B8printk.png">
 <meta property="article:published_time" content="2023-06-17T07:02:34.000Z">
-<meta property="article:modified_time" content="2023-11-20T02:25:20.547Z">
+<meta property="article:modified_time" content="2023-11-20T08:00:05.516Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/VFS%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84.png">
+<meta name="twitter:image" content="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84.png">
 
-<link rel="canonical" href="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/">
+<link rel="canonical" href="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
 
 
 <script id="page-configurations">
@@ -58,7 +58,7 @@
   };
 </script>
 
-  <title>学习 Linux VFS虚拟文件系统[1] 简介 | Plucky</title>
+  <title>学习 Linux VFS虚拟文件系统 简介 | Plucky</title>
   
 
 
@@ -210,7 +210,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -223,7 +223,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          学习 Linux VFS虚拟文件系统[1] 简介
+          学习 Linux VFS虚拟文件系统 简介
         </h1>
 
         <div class="post-meta">
@@ -240,7 +240,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-20 10:25:20" itemprop="dateModified" datetime="2023-11-20T10:25:20+08:00">2023-11-20</time>
+                <time title="Modified: 2023-11-20 16:00:05" itemprop="dateModified" datetime="2023-11-20T16:00:05+08:00">2023-11-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -313,20 +313,20 @@
 <li><p><strong>设备驱动接口和缓存</strong>：<br>为了与不同类型的硬件设备进行交互，内核提供了设备驱动接口。设备驱动程序负责将文件系统的操作转换为特定硬件设备可以识别的指令。此外，内核还通过缓存技术来加快文件读写的速度。常见的缓存方式有页缓存（page cache）和缓冲区缓存（buffer cache）。</p>
 </li>
 </ol>
-<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/VFS基本结构.png" title alt data-align="center">
+<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS基本结构.png" title alt data-align="center">
 
 <p>通用文件模型由对象组成：<strong>超级块对象、索引节点对象、目录项对象、文件对象。</strong></p>
-<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/VFS整体层次.png" title alt data-align="center">
+<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS整体层次.png" title alt data-align="center">
 
 <h1 id="VFS实现"><a href="#VFS实现" class="headerlink" title="VFS实现"></a>VFS实现</h1><h2 id="VFS数据结构"><a href="#VFS数据结构" class="headerlink" title="VFS数据结构"></a>VFS数据结构</h2><p>图示是旧版本的VFS实现</p>
-<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/VFS数据结构之间的关系.png" title alt width="717">
+<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS数据结构之间的关系.png" title alt width="717">
 
 <p>三个不同进程已打开同一个文件，其中两个进程使用同一个硬链接。在这种情况下，每个进程都使用自己的文件对象，但只需要两个目录项对象，每个硬链接对应一个目录项对象。这两个目录项对象指向同一个索引节点对象，这个索引节点对象标识的是超级块对象以及普通磁盘文件。</p>
-<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/VFS与进程交互.png" title alt data-align="center">
+<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/VFS与进程交互.png" title alt data-align="center">
 
 <p>VFS除了能为所有文件系统的实现提供一个通用接口外，它还具有另一个重要的作用，即提高系统性能。最近最常使用的目录项对象被放在所谓目录项高速缓存（dentry cache）的磁盘高速缓存中，以加速从文件路径名到最后一个路径分量的索引节点的转换过程。</p>
 <p>inode是内核选择用于表示文件内容和相关元数据的方法。理论上，实现这个概念只需要一个数据结构（尽管很长），其中包含了所有必要的数据。实际上，数据分散到一系列较小的、布局清晰的结构中。</p>
-<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/各个VFS组件的相互关系.png" title alt data-align="center">
+<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/各个VFS组件的相互关系.png" title alt data-align="center">
 
 <h3 id="超级块super-block"><a href="#超级块super-block" class="headerlink" title="超级块super_block"></a>超级块super_block</h3><p>存放系统当中已安装文件系统有关信息。对于基于磁盘的文件系统，这类对象通常对应存放在磁盘上的文件系统控制块（每个文件系统都有一个超级块对象）。</p>
 <p>是一个全局的数据结构，不管是什么文件系统都有超级块。VFS也有超级块。</p>
@@ -343,7 +343,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> *<span class="title">next</span>, *<span class="title">prev</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>具体架构如下：</p>
-<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/super_block架构.png" title alt data-align="center">
+<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/super_block架构.png" title alt data-align="center">
 
 <p>尽管每个文件系统在file_system_type中只出现一次，但在所有超级块实例的链表中，可能有几个同一文件系统类型的超级块实例，因为在各个块设备&#x2F;分区上可能存储了同一类型的几个文件系统。例如，大多数系统都有root和home分区，二者可能在不同的分区上，但通常使用相同类型的文件系统。在file_system_type中，同一文件系统类型只需定义一次，但这两个装载点的超级块不同，虽然都使用了同样的文件系统。</p>
 <p>超级块结构的一个重要成员是一个列表，包括相关文件系统中所有修改过的inode（内核相当不敬地称之为<strong>脏</strong>inode）。根据该列表很容易标识已经修改过的文件和目录，以便将其写回到存储介质。回写必须经过协调，保证在一定程度上最小化开销，因为这是一个非常费时的操作（硬盘、软盘驱动器及其他介质与系统其余组件相比，速度很慢）。另一方面，如果写回修改数据的间隔太长也可能有严重后果，因为系统崩溃（或者，就Linux的情形而言，更可能的是停电）会导致不能恢复的数据丢失。内核会周期性扫描脏块的列表，并将修改传输到底层硬件。</p>
@@ -601,7 +601,7 @@
 </ul>
 <hr>
 <h2 id="虚拟文件系统机制原理"><a href="#虚拟文件系统机制原理" class="headerlink" title="虚拟文件系统机制原理"></a>虚拟文件系统机制原理</h2><p>Linux内核当中负责管理和存储文件的模块，即文件系统模块。Linux文件系统的架构视图（用户空间、内核空间、硬件层面）</p>
-<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/文件系统架构.png" title alt data-align="center">
+<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/文件系统架构.png" title alt data-align="center">
 
 <ul>
 <li><p>挂载执行命令：<code>mount -t fstype device dir</code></p>
@@ -769,7 +769,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __init <span class="title function_">mount_root</span><span class="params">(<span class="type">void</span>)</span>  </span><br><span class="line">&#123;  </span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_ROOT_NFS   </span></span><br><span class="line">    <span class="comment">// 如果根文件系统位于 NFS 上,尝试挂载 NFS 根文件系统  </span></span><br><span class="line">    <span class="keyword">if</span> (ROOT_DEV == Root_NFS) &#123;     </span><br><span class="line">        <span class="keyword">if</span> (!mount_nfs_root())         </span><br><span class="line">            printk(KERN_ERR <span class="string">&quot;VFS: Unable to mount root fs via NFS.\n&quot;</span>);     </span><br><span class="line">        <span class="keyword">return</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"><span class="meta">#<span class="keyword">endif</span>  </span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_CIFS_ROOT   </span></span><br><span class="line">    <span class="comment">// 如果根文件系统位于 CIFS(SMB) 上,尝试挂载 CIFS 根文件系统  </span></span><br><span class="line">    <span class="keyword">if</span> (ROOT_DEV == Root_CIFS) &#123;     </span><br><span class="line">        <span class="keyword">if</span> (!mount_cifs_root())         </span><br><span class="line">            printk(KERN_ERR <span class="string">&quot;VFS: Unable to mount root fs via SMB.\n&quot;</span>);     </span><br><span class="line">        <span class="keyword">return</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"><span class="meta">#<span class="keyword">endif</span>  </span></span><br><span class="line">    <span class="keyword">if</span> (ROOT_DEV == <span class="number">0</span> &amp;&amp; root_device_name &amp;&amp; root_fs_names) &#123;   </span><br><span class="line">        <span class="comment">// 如果根设备为空(0),并且命令行指定了根设备名和根文件系统类型,  </span></span><br><span class="line">        <span class="comment">// 尝试挂载一个无块设备的根文件系统(如 initramfs)。  </span></span><br><span class="line">        <span class="keyword">if</span> (mount_nodev_root() == <span class="number">0</span>)     </span><br><span class="line">            <span class="keyword">return</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_BLOCK    </span></span><br><span class="line">    &#123;      </span><br><span class="line">        <span class="comment">// 为根块设备创建一个 /dev/root 节点    </span></span><br><span class="line">        <span class="type">int</span> err = create_dev(<span class="string">&quot;/dev/root&quot;</span>, ROOT_DEV);     </span><br><span class="line">        <span class="keyword">if</span> (err &lt; <span class="number">0</span>)         </span><br><span class="line">            pr_emerg(<span class="string">&quot;Failed to create /dev/root: %d\n&quot;</span>, err);      </span><br><span class="line">        <span class="comment">// 使用 /dev/root 和指定的挂载标志来挂载块设备根文件系统  </span></span><br><span class="line">        mount_block_root(<span class="string">&quot;/dev/root&quot;</span>, root_mountflags);  </span><br><span class="line">    &#125;  </span><br><span class="line"><span class="meta">#<span class="keyword">endif</span>  </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="安装一个普通的文件系统"><a href="#安装一个普通的文件系统" class="headerlink" title="安装一个普通的文件系统"></a>安装一个普通的文件系统</h3><p>一旦完成对根文件系统的初始化，就可以安装其他的文件系统。其中的每一个都有自己的安装点，安装点仅仅是系统目录树中现有的一个目录。</p>
-<h2 id="打开文件或者创建文件"><a href="#打开文件或者创建文件" class="headerlink" title="打开文件或者创建文件"></a>打开文件或者创建文件</h2><img title src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/打开或者创建新文件流程图.png" alt width="723">
+<h2 id="打开文件或者创建文件"><a href="#打开文件或者创建文件" class="headerlink" title="打开文件或者创建文件"></a>打开文件或者创建文件</h2><img title src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/打开或者创建新文件流程图.png" alt width="723">
 
 <p>一个主要操作是根据给定的文件名查找inode，这使得我们首先需要了解有关查找该信息的机制。</p>
 <p>nameidata结构体用来查找函数传递参数数，并保存查找结果。</p>
@@ -828,7 +828,7 @@
 <figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">open</span>()</span><br><span class="line">    └── do_sys_open</span><br><span class="line">        └── do_sys_openat2</span><br><span class="line">            ├── <span class="built_in">get_unused_fd_flags</span>(获取一个未使用的文件描述符)</span><br><span class="line">            ├── <span class="built_in">do_filp_open</span>(打开file f)</span><br><span class="line">            │   ├── <span class="built_in">set_nameidata</span>(初始化nameidata nd存放查找结果)</span><br><span class="line">            │   │    └── __set_nameidata</span><br><span class="line">            │   ├── <span class="built_in">path_openat</span>(打开file)</span><br><span class="line">            │   │    ├── <span class="built_in">alloc_empty_file</span>(初始化一个空的file结构体)</span><br><span class="line">            │   │    ├── <span class="built_in">path_init</span>(初始化nameidata结构体nd，不同系统调用nd-&gt;path不同)</span><br><span class="line">            │   │    ├── <span class="built_in">link_path_walk</span>(处理符号链接)</span><br><span class="line">            │   │    │     ├── lookup_fast</span><br><span class="line">            │   │    │     │     └── __d_lookup_rcu</span><br><span class="line">            │   │    │     │         └── hlist_bl_for_each_entry_rcu</span><br><span class="line">            │   │    │     └── lookup_slow</span><br><span class="line">            │   │    │           └── __lookup_slow</span><br><span class="line">            │   │    │               └── 具体文件系统的lookup函数</span><br><span class="line">            │   │    └── open_last_lookups（创建新文件）</span><br><span class="line">            │   │          ├── <span class="built_in">handle_dots</span>(处理..和.)</span><br><span class="line">            │   │          ├── lookup_fast</span><br><span class="line">            │   │          │     └── __d_lookup_rcu</span><br><span class="line">            │   │          │         └── hlist_bl_for_each_entry_rcu</span><br><span class="line">            │   │          ├── lookup_open</span><br><span class="line">            │   │          │     └── d_lookup</span><br><span class="line">            │   │          │         └── __d_lookup  </span><br><span class="line">            │   │          ├── <span class="built_in">atomic_open</span>(如果支持原子打开操作)      </span><br><span class="line">            │   │          ├── 具体文件的<span class="built_in">lookup</span>(如果目录项仍在查找中)</span><br><span class="line">            │   │          └── 具体文件的<span class="built_in">create</span>(如果目录项的inode为空并且需要创建文件)</span><br><span class="line">            │   │          </span><br><span class="line">            │   └── do_open</span><br><span class="line">            │         └── vfs_open</span><br><span class="line">            │              └── do_dentry_open</span><br><span class="line">            │                   └── 具体文件系统的open</span><br><span class="line">            └── fd_install</span><br></pre></td></tr></table></figure>
 
 <h3 id="Pathname-lookup"><a href="#Pathname-lookup" class="headerlink" title="Pathname lookup"></a>Pathname lookup</h3><p>下面是查找&#x2F;home&#x2F;hust&#x2F;helloworld.txt时，link_path_walk中的循环处理每个组件</p>
-<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F[1]%20%E7%AE%80%E4%BB%8B/link_path_walk内核printk.png" title alt data-align="center">
+<img src="/2023/06/17/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/link_path_walk内核printk.png" title alt data-align="center">
 
 <p>挂载文件系统后，就可以访问该文件系统上的文件。主要有两个步骤：查找名称以查找它指向的inode，然后访问inode</p>
 <h4 id="路径名"><a href="#路径名" class="headerlink" title="路径名"></a>路径名</h4><ul>
@@ -996,7 +996,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">74</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1064,7 +1064,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">39:01</span>
+    <span title="Reading time total">40:07</span>
 </div>
 
 <!--
@@ -1174,7 +1174,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'Blog-talk',
       owner       : 'Plucky923',
       admin       : ['Plucky923'],
-      id          : '3b74afed99d5734e20d64cbc2a961370',
+      id          : '72f25f6fe536ea7cd5e5ab6fbd963676',
         language: 'zh-CH',
       distractionFreeMode: true
     });

@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="分析Linux内核中打开文件的源码 OPEN系统调用open.c - fs&#x2F;open.c - Linux source code (v6.6) - Bootlin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="学习 Linux VFS虚拟文件系统 打开文件">
+<meta property="og:url" content="http://example.com/2023/11/22/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="分析Linux内核中打开文件的源码 OPEN系统调用open.c - fs&#x2F;open.c - Linux source code (v6.6) - Bootlin">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-11-22T02:12:34.000Z">
+<meta property="article:modified_time" content="2023-11-22T08:02:37.224Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/11/22/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>学习 Linux VFS虚拟文件系统 打开文件 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/22/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          学习 Linux VFS虚拟文件系统 打开文件
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-11-22 10:12:34 / Modified: 16:02:37" itemprop="dateCreated datePublished" datetime="2023-11-22T10:12:34+08:00">2023-11-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>12k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>22 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>分析Linux内核中打开文件的源码</p>
+<h1 id="OPEN系统调用"><a href="#OPEN系统调用" class="headerlink" title="OPEN系统调用"></a>OPEN系统调用</h1><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/open.c#L1441">open.c - fs&#x2F;open.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SYSCALL_DEFINE3(open, <span class="type">const</span> <span class="type">char</span> __user *, filename, <span class="type">int</span>, flags, <span class="type">umode_t</span>, mode)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (force_o_largefile())</span><br><span class="line">        flags |= O_LARGEFILE;</span><br><span class="line">    <span class="keyword">return</span> do_sys_open(AT_FDCWD, filename, flags, mode);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>open（） 系统调用打开由 pathname 指定的文件。如果指定的文件不存在，则可以选择（如果在标志中指定了O_CREAT）由 open（） 创建。</p>
+<p>open（） 的返回值是一个文件描述符，一个小的非负整数，是进程的打开文件描述符表中条目的索引。文件描述符用于后续系统调用（read（2）、write（2）、lseek（2）、fcntl（2） 等）来指代打开的文件。成功调用返回的文件描述符将是当前未为进程打开的最低编号的文件描述符。</p>
+<p> 如果 pathname 中给出的路径名是相对路径，而 dirfd 是特殊值 <code>AT_FDCWD</code>，则 pathname 是相对于调用进程的当前工作目录解释的（如 open（））。</p>
+<p>openat2（2）系统调用是 openat（） 的扩展，它提供了 openat（） 特性的超集。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">SYSCALL_DEFINE4(openat, <span class="type">int</span>, dfd, <span class="type">const</span> <span class="type">char</span> __user *, filename, <span class="type">int</span>, flags,</span><br><span class="line">        <span class="type">umode_t</span>, mode)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (force_o_largefile())</span><br><span class="line">        flags |= O_LARGEFILE;</span><br><span class="line">    <span class="keyword">return</span> do_sys_open(dfd, filename, flags, mode);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">SYSCALL_DEFINE4(openat2, <span class="type">int</span>, dfd, <span class="type">const</span> <span class="type">char</span> __user *, filename,</span><br><span class="line">        <span class="keyword">struct</span> open_how __user *, how, <span class="type">size_t</span>, usize)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">open_how</span> <span class="title">tmp</span>;</span></span><br><span class="line"></span><br><span class="line">    BUILD_BUG_ON(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> open_how) &lt; OPEN_HOW_SIZE_VER0);</span><br><span class="line">    BUILD_BUG_ON(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> open_how) != OPEN_HOW_SIZE_LATEST);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (unlikely(usize &lt; OPEN_HOW_SIZE_VER0))</span><br><span class="line">        <span class="keyword">return</span> -EINVAL;</span><br><span class="line"></span><br><span class="line">    err = copy_struct_from_user(&amp;tmp, <span class="keyword">sizeof</span>(tmp), how, usize);</span><br><span class="line">    <span class="keyword">if</span> (err)</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line"></span><br><span class="line">    audit_openat2_how(&amp;tmp);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* O_LARGEFILE is only allowed for non-O_PATH. */</span></span><br><span class="line">    <span class="keyword">if</span> (!(tmp.flags &amp; O_PATH) &amp;&amp; force_o_largefile())</span><br><span class="line">        tmp.flags |= O_LARGEFILE;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> do_sys_openat2(dfd, filename, &amp;tmp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在之后的文章中会详细分析open系统调用，本文主要分析打开文件的源码和VFS中打开文件的流程分析。</p>
+<h1 id="do-sys-open"><a href="#do-sys-open" class="headerlink" title="do_sys_open"></a>do_sys_open</h1><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/open.c#L1434">open.c - fs&#x2F;open.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个名为 do_sys_open 的函数，该函数接受四个参数：dfd（目录文件描述符），filename（文件名），flags（标志）和 mode（模式）</span></span><br><span class="line"><span class="type">long</span> <span class="title function_">do_sys_open</span><span class="params">(<span class="type">int</span> dfd, <span class="type">const</span> <span class="type">char</span> __user *filename, <span class="type">int</span> flags, <span class="type">umode_t</span> mode)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 使用 build_open_how 函数根据 flags 和 mode 参数构造一个 open_how 结构体</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">open_how</span> <span class="title">how</span> =</span> build_open_how(flags, mode);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调用 do_sys_openat2 函数，传入 dfd（目录文件描述符）、filename 和 how 结构体的指针</span></span><br><span class="line">    <span class="keyword">return</span> do_sys_openat2(dfd, filename, &amp;how);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="do-sys-openat2"><a href="#do-sys-openat2" class="headerlink" title="do_sys_openat2"></a>do_sys_openat2</h1><p>  <a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/open.c#L1406">open.c - fs&#x2F;open.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个名为 do_sys_openat2 的静态函数，该函数接受三个参数：dfd（目录文件描述符），filename（文件名）和 how（打开方式结构体指针）</span></span><br><span class="line"><span class="type">static</span> <span class="type">long</span> <span class="title function_">do_sys_openat2</span><span class="params">(<span class="type">int</span> dfd, <span class="type">const</span> <span class="type">char</span> __user *filename,</span></span><br><span class="line"><span class="params">               <span class="keyword">struct</span> open_how *how)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">open_flags</span> <span class="title">op</span>;</span></span><br><span class="line">    <span class="comment">// 使用 build_open_flags 函数根据 how 结构体构造一个 open_flags 结构体，将结果存储在 op 变量中</span></span><br><span class="line">    <span class="type">int</span> fd = build_open_flags(how, &amp;op);</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">filename</span> *<span class="title">tmp</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果 fd 不为 0（表示出错），则返回 fd</span></span><br><span class="line">    <span class="keyword">if</span> (fd)</span><br><span class="line">        <span class="keyword">return</span> fd;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用 getname 函数获取 filename 参数的内核空间副本，并将其存储在 tmp 变量中</span></span><br><span class="line">    tmp = getname(filename);</span><br><span class="line">    <span class="comment">// 如果获取文件名出错，返回错误码</span></span><br><span class="line">    <span class="keyword">if</span> (IS_ERR(tmp))</span><br><span class="line">        <span class="keyword">return</span> PTR_ERR(tmp);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据 how-&gt;flags 获取未使用的文件描述符（fd），并将其存储在 fd 变量中</span></span><br><span class="line">    fd = get_unused_fd_flags(how-&gt;flags);</span><br><span class="line">    <span class="comment">// 如果 fd 大于等于 0（表示未使用的文件描述符可用）</span></span><br><span class="line">    <span class="keyword">if</span> (fd &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 使用 do_filp_open 函数打开文件，传入 dfd（目录文件描述符）、tmp（文件名）和 op（打开方式）参数</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">f</span> =</span> do_filp_open(dfd, tmp, &amp;op);</span><br><span class="line">        <span class="comment">// 如果打开文件出错，释放未使用的文件描述符并返回错误码</span></span><br><span class="line">        <span class="keyword">if</span> (IS_ERR(f)) &#123;</span><br><span class="line">            put_unused_fd(fd);</span><br><span class="line">            fd = PTR_ERR(f);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 如果打开文件成功，调用 fsnotify_open 函数通知相关子系统</span></span><br><span class="line">            fsnotify_open(f);</span><br><span class="line">            <span class="comment">// 调用 fd_install 函数将文件描述符 fd 与打开的文件结构体 f 关联起来</span></span><br><span class="line">            fd_install(fd, f);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 释放 tmp 变量（即 filename 的内核空间副本）</span></span><br><span class="line">    putname(tmp);</span><br><span class="line">    <span class="comment">// 返回文件描述符 fd</span></span><br><span class="line">    <span class="keyword">return</span> fd;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>get_unused_fd_flags获取文件描述符</p>
+<p>getname函数主要功能是在使用文件名之前将其拷贝到内核数据区，正常结束时返回内核分配的空间首地址，出错时返回错误代码</p>
+<p>do_filp_open进行实际打开文件操作</p>
+<h1 id="do-filp-open"><a href="#do-filp-open" class="headerlink" title="do_filp_open"></a>do_filp_open</h1><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/namei.c#L3816">namei.c - fs&#x2F;namei.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个名为 do_filp_open 的函数，该函数接受三个参数：dfd（目录文件描述符），pathname（文件名结构体指针）和 op（打开方式结构体指针）</span></span><br><span class="line"><span class="keyword">struct</span> file *<span class="title function_">do_filp_open</span><span class="params">(<span class="type">int</span> dfd, <span class="keyword">struct</span> filename *pathname,</span></span><br><span class="line"><span class="params">        <span class="type">const</span> <span class="keyword">struct</span> open_flags *op)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">nameidata</span> <span class="title">nd</span>;</span></span><br><span class="line">    <span class="comment">// 从 op 结构体中获取查找标志</span></span><br><span class="line">    <span class="type">int</span> flags = op-&gt;lookup_flags;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">filp</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用 set_nameidata 函数初始化 nd 结构体，传入 dfd（目录文件描述符）、pathname（文件名结构体指针）和 NULL（用于初始化 nd-&gt;intent）</span></span><br><span class="line">    set_nameidata(&amp;nd, dfd, pathname, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="comment">// 使用 path_openat 函数尝试打开文件，传入 nd（名字数据结构体）、op（打开方式结构体）和 flags（查找标志）；使用 LOOKUP_RCU 标志进行 RCU 优化</span></span><br><span class="line">    filp = path_openat(&amp;nd, op, flags | LOOKUP_RCU);</span><br><span class="line">    <span class="comment">// 如果文件打开失败并返回 -ECHILD 错误码，表明 RCU 优化失败，尝试使用非 RCU 优化方式打开文件</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(filp == ERR_PTR(-ECHILD)))</span><br><span class="line">        filp = path_openat(&amp;nd, op, flags);</span><br><span class="line">    <span class="comment">// 如果文件打开失败并返回 -ESTALE 错误码，表明文件系统状态陈旧，尝试使用 LOOKUP_REVAL 标志重新评估文件系统状态并打开文件</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(filp == ERR_PTR(-ESTALE)))</span><br><span class="line">        filp = path_openat(&amp;nd, op, flags | LOOKUP_REVAL);</span><br><span class="line">    <span class="comment">// 通过调用 restore_nameidata 函数恢复名字数据结构体（nd）的状态</span></span><br><span class="line">    restore_nameidata();</span><br><span class="line">    <span class="comment">// 返回文件结构体指针 filp</span></span><br><span class="line">    <span class="keyword">return</span> filp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>set_nameidata初始化nameidata结构体，nameidata结构体存储pathname lookup的中间结果</p>
+<p>path_openat进行实际的打开文件操作</p>
+<h1 id="path-openat"><a href="#path-openat" class="headerlink" title="path_openat"></a>path_openat</h1><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/namei.c#L3777">namei.c - fs&#x2F;namei.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个名为 path_openat 的静态函数，该函数接受三个参数：nd（名字数据结构体指针）、op（打开方式结构体指针）和 flags（打开标志）</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">struct</span> file *<span class="title function_">path_openat</span><span class="params">(<span class="keyword">struct</span> nameidata *nd,</span></span><br><span class="line"><span class="params">            <span class="type">const</span> <span class="keyword">struct</span> open_flags *op, <span class="type">unsigned</span> flags)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">file</span>;</span></span><br><span class="line">    <span class="type">int</span> error;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用 alloc_empty_file 函数分配一个空的文件结构体，传入打开标志和当前进程的认证信息</span></span><br><span class="line">    file = alloc_empty_file(op-&gt;open_flag, current_cred());</span><br><span class="line">    <span class="comment">// 如果分配文件结构体失败，返回错误指针</span></span><br><span class="line">    <span class="keyword">if</span> (IS_ERR(file))</span><br><span class="line">        <span class="keyword">return</span> file;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果文件打开标志包含 __O_TMPFILE，调用 do_tmpfile 函数处理临时文件的打开操作</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(file-&gt;f_flags &amp; __O_TMPFILE)) &#123;</span><br><span class="line">        error = do_tmpfile(nd, flags, op, file);</span><br><span class="line">    <span class="comment">// 如果文件打开标志包含 O_PATH，调用 do_o_path 函数处理 O_PATH 标志的打开操作</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (unlikely(file-&gt;f_flags &amp; O_PATH)) &#123;</span><br><span class="line">        error = do_o_path(nd, flags, file);</span><br><span class="line">    <span class="comment">// 否则，正常处理文件打开操作</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 使用 path_init 函数初始化 nd 结构体，并返回路径名字符串 s</span></span><br><span class="line">        <span class="type">const</span> <span class="type">char</span> *s = path_init(nd, flags);</span><br><span class="line">        <span class="comment">// 循环调用 link_path_walk 和 open_last_lookups 函数，直到路径名解析完成</span></span><br><span class="line">        <span class="keyword">while</span> (!(error = link_path_walk(s, nd)) &amp;&amp;</span><br><span class="line">               (s = open_last_lookups(nd, file, op)) != <span class="literal">NULL</span>)</span><br><span class="line">            ;</span><br><span class="line">        <span class="comment">// 路径名解析完成后，调用 do_open 函数处理文件打开操作</span></span><br><span class="line">        <span class="keyword">if</span> (!error)</span><br><span class="line">            error = do_open(nd, file, op);</span><br><span class="line">        <span class="comment">// 调用 terminate_walk 函数终止路径名解析操作</span></span><br><span class="line">        terminate_walk(nd);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果没有错误发生，返回文件结构体指针</span></span><br><span class="line">    <span class="keyword">if</span> (likely(!error)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (likely(file-&gt;f_mode &amp; FMODE_OPENED))</span><br><span class="line">            <span class="keyword">return</span> file;</span><br><span class="line">        WARN_ON(<span class="number">1</span>);</span><br><span class="line">        error = -EINVAL;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果有错误发生，释放文件结构体并返回错误指针</span></span><br><span class="line">    fput(file);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果错误码为 -EOPENSTALE，根据 flags 参数设置错误码为 -ECHILD 或 -ESTALE</span></span><br><span class="line">    <span class="keyword">if</span> (error == -EOPENSTALE) &#123;</span><br><span class="line">        <span class="keyword">if</span> (flags &amp; LOOKUP_RCU)</span><br><span class="line">            error = -ECHILD;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            error = -ESTALE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ERR_PTR(error);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在path_init中根据pathname是绝对路径还是相对路径进行不同的设置</p>
+<p>之前将nd-&gt;name-&gt;name设置为查找的pathname了</p>
+<p>nd-&gt;path,nd-&gt;inode在查找之前都设置为查找的起点相关的信息，绝对路径则设置为root的，相对路径则设置为当前目录的</p>
+<p>nd-&gt;root如果是绝对路径查找则会设置为fs的根目录，如果是相对路径查找，则不会设置（不确定）</p>
+<p>接下来进入pathname lookup阶段，后面会写文章详细分析pathname lookup</p>
+<p>在pathname lookup阶段，如果找到文件，则do_open在open_last_lookup之后用来打开文件，如果在dcache中找到对应的文件，则vfs_open用于打开文件，如果没有，则在lookup_open中进行具体文件系统的i_op-&gt;lookup或i_op-&gt;create来进行查找或者重新创建文件，在第二种情况下，这个新找到的文件或创建的文件的实际打开操作将由vfs_open执行</p>
+<h1 id="do-open"><a href="#do-open" class="headerlink" title="do_open"></a>do_open</h1><p>在pathname lookup之后，struct nameidata会设置为查找到的最终的结果，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">nameidata</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">path</span>    <span class="title">path</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">qstr</span>    <span class="title">last</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">path</span>    <span class="title">root</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inode</span>    *<span class="title">inode</span>;</span> <span class="comment">/* path.dentry.d_inode */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>    flags, state;</span><br><span class="line">    <span class="type">unsigned</span>    seq, next_seq, m_seq, r_seq;</span><br><span class="line">    <span class="type">int</span>        last_type;</span><br><span class="line">    <span class="type">unsigned</span>    depth;</span><br><span class="line">    <span class="type">int</span>        total_link_count;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">saved</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">path</span> <span class="title">link</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">delayed_call</span> <span class="title">done</span>;</span></span><br><span class="line">        <span class="type">const</span> <span class="type">char</span> *name;</span><br><span class="line">        <span class="type">unsigned</span> seq;</span><br><span class="line">    &#125; *<span class="built_in">stack</span>, internal[EMBEDDED_LEVELS];</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">filename</span>    *<span class="title">name</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">nameidata</span> *<span class="title">saved</span>;</span></span><br><span class="line">    <span class="type">unsigned</span>    root_seq;</span><br><span class="line">    <span class="type">int</span>        dfd;</span><br><span class="line">    <span class="type">vfsuid_t</span>    dir_vfsuid;</span><br><span class="line">    <span class="type">umode_t</span>        dir_mode;</span><br><span class="line">&#125; __randomize_layout; </span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/namei.c#L3596">namei.c - fs&#x2F;namei.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Handle the last step of open()</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">do_open</span><span class="params">(<span class="keyword">struct</span> nameidata *nd,</span></span><br><span class="line"><span class="params">           <span class="keyword">struct</span> file *file, <span class="type">const</span> <span class="keyword">struct</span> open_flags *op)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mnt_idmap</span> *<span class="title">idmap</span>;</span></span><br><span class="line">    <span class="type">int</span> open_flag = op-&gt;open_flag;</span><br><span class="line">    <span class="type">bool</span> do_truncate;</span><br><span class="line">    <span class="type">int</span> acc_mode;</span><br><span class="line">    <span class="type">int</span> error;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!(file-&gt;f_mode &amp; (FMODE_OPENED | FMODE_CREATED))) &#123;</span><br><span class="line">        error = complete_walk(nd);</span><br><span class="line">        <span class="keyword">if</span> (error)</span><br><span class="line">            <span class="keyword">return</span> error;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!(file-&gt;f_mode &amp; FMODE_CREATED))</span><br><span class="line">        audit_inode(nd-&gt;name, nd-&gt;path.dentry, <span class="number">0</span>);</span><br><span class="line">    idmap = mnt_idmap(nd-&gt;path.mnt);</span><br><span class="line">    <span class="keyword">if</span> (open_flag &amp; O_CREAT) &#123;</span><br><span class="line">        <span class="keyword">if</span> ((open_flag &amp; O_EXCL) &amp;&amp; !(file-&gt;f_mode &amp; FMODE_CREATED))</span><br><span class="line">            <span class="keyword">return</span> -EEXIST;</span><br><span class="line">        <span class="keyword">if</span> (d_is_dir(nd-&gt;path.dentry))</span><br><span class="line">            <span class="keyword">return</span> -EISDIR;</span><br><span class="line">        error = may_create_in_sticky(idmap, nd,</span><br><span class="line">                         d_backing_inode(nd-&gt;path.dentry));</span><br><span class="line">        <span class="keyword">if</span> (unlikely(error))</span><br><span class="line">            <span class="keyword">return</span> error;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ((nd-&gt;flags &amp; LOOKUP_DIRECTORY) &amp;&amp; !d_can_lookup(nd-&gt;path.dentry))</span><br><span class="line">        <span class="keyword">return</span> -ENOTDIR;</span><br><span class="line"></span><br><span class="line">    do_truncate = <span class="literal">false</span>;</span><br><span class="line">    acc_mode = op-&gt;acc_mode;</span><br><span class="line">    <span class="keyword">if</span> (file-&gt;f_mode &amp; FMODE_CREATED) &#123;</span><br><span class="line">        <span class="comment">/* Don&#x27;t check for write permission, don&#x27;t truncate */</span></span><br><span class="line">        open_flag &amp;= ~O_TRUNC;</span><br><span class="line">        acc_mode = <span class="number">0</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (d_is_reg(nd-&gt;path.dentry) &amp;&amp; open_flag &amp; O_TRUNC) &#123;</span><br><span class="line">        error = mnt_want_write(nd-&gt;path.mnt);</span><br><span class="line">        <span class="keyword">if</span> (error)</span><br><span class="line">            <span class="keyword">return</span> error;</span><br><span class="line">        do_truncate = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    error = may_open(idmap, &amp;nd-&gt;path, acc_mode, open_flag);</span><br><span class="line">    <span class="keyword">if</span> (!error &amp;&amp; !(file-&gt;f_mode &amp; FMODE_OPENED))</span><br><span class="line">        error = vfs_open(&amp;nd-&gt;path, file);</span><br><span class="line">    <span class="keyword">if</span> (!error)</span><br><span class="line">        error = ima_file_check(file, op-&gt;acc_mode);</span><br><span class="line">    <span class="keyword">if</span> (!error &amp;&amp; do_truncate)</span><br><span class="line">        error = handle_truncate(idmap, file);</span><br><span class="line">    <span class="keyword">if</span> (unlikely(error &gt; <span class="number">0</span>)) &#123;</span><br><span class="line">        WARN_ON(<span class="number">1</span>);</span><br><span class="line">        error = -EINVAL;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (do_truncate)</span><br><span class="line">        mnt_drop_write(nd-&gt;path.mnt);</span><br><span class="line">    <span class="keyword">return</span> error;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>vfs_open进行实际的文件打开操作，对file结构体进行了设置</p>
+<h1 id="vfs-open"><a href="#vfs-open" class="headerlink" title="vfs_open"></a>vfs_open</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * vfs_open - open the file at the given path</span></span><br><span class="line"><span class="comment"> * @path: path to open</span></span><br><span class="line"><span class="comment"> * @file: newly allocated file with f_flag initialized</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">vfs_open</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> path *path, <span class="keyword">struct</span> file *file)</span></span><br><span class="line">&#123;</span><br><span class="line">    file-&gt;f_path = *path;</span><br><span class="line">    <span class="keyword">return</span> do_dentry_open(file, d_backing_inode(path-&gt;dentry), <span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>往下调用了do_dentry_open函数进行对file结构体的设置</p>
+<h1 id="do-dentry-open"><a href="#do-dentry-open" class="headerlink" title="do_dentry_open"></a>do_dentry_open</h1><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/open.c#L873">open.c - fs&#x2F;open.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">do_dentry_open</span><span class="params">(<span class="keyword">struct</span> file *f,</span></span><br><span class="line"><span class="params">              <span class="keyword">struct</span> inode *inode,</span></span><br><span class="line"><span class="params">              <span class="type">int</span> (*open)(<span class="keyword">struct</span> inode *, <span class="keyword">struct</span> file *))</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 声明一个空的文件操作结构</span></span><br><span class="line">    <span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">empty_fops</span> =</span> &#123;&#125;;</span><br><span class="line">    <span class="type">int</span> error;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 增加路径的引用计数</span></span><br><span class="line">    path_get(&amp;f-&gt;f_path);</span><br><span class="line">    <span class="comment">// 设置文件的 inode</span></span><br><span class="line">    f-&gt;f_inode = inode;</span><br><span class="line">    <span class="comment">// 设置文件的地址空间（映射）</span></span><br><span class="line">    f-&gt;f_mapping = inode-&gt;i_mapping;</span><br><span class="line">    <span class="comment">// 从文件的地址空间中获取写回错误样本</span></span><br><span class="line">    f-&gt;f_wb_err = filemap_sample_wb_err(f-&gt;f_mapping);</span><br><span class="line">    <span class="comment">// 从文件中获取超级块错误样本</span></span><br><span class="line">    f-&gt;f_sb_err = file_sample_sb_err(f);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查文件是否以 O_PATH 标志打开，如果是，则设置文件模式和操作</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(f-&gt;f_flags &amp; O_PATH)) &#123;</span><br><span class="line">        f-&gt;f_mode = FMODE_PATH | FMODE_OPENED;</span><br><span class="line">        f-&gt;f_op = &amp;empty_fops;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果文件以读模式打开，增加读取计数</span></span><br><span class="line">    <span class="keyword">if</span> ((f-&gt;f_mode &amp; (FMODE_READ | FMODE_WRITE)) == FMODE_READ) &#123;</span><br><span class="line">        i_readcount_inc(inode);</span><br><span class="line">    <span class="comment">// 如果文件以写模式打开且不是特殊文件，授予写访问权限</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (f-&gt;f_mode &amp; FMODE_WRITE &amp;&amp; !special_file(inode-&gt;i_mode)) &#123;</span><br><span class="line">        error = get_write_access(inode);</span><br><span class="line">        <span class="keyword">if</span> (unlikely(error))</span><br><span class="line">            <span class="keyword">goto</span> cleanup_file;</span><br><span class="line">        error = __mnt_want_write(f-&gt;f_path.mnt);</span><br><span class="line">        <span class="keyword">if</span> (unlikely(error)) &#123;</span><br><span class="line">            put_write_access(inode);</span><br><span class="line">            <span class="keyword">goto</span> cleanup_file;</span><br><span class="line">        &#125;</span><br><span class="line">        f-&gt;f_mode |= FMODE_WRITER;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 为常规文件和目录启用原子位置</span></span><br><span class="line">    <span class="keyword">if</span> (S_ISREG(inode-&gt;i_mode) || S_ISDIR(inode-&gt;i_mode))</span><br><span class="line">        f-&gt;f_mode |= FMODE_ATOMIC_POS;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 设置其他f_mode标志,获取shmem_file_operations作为f_op */</span></span><br><span class="line">    f-&gt;f_op = fops_get(inode-&gt;i_fop);</span><br><span class="line">    <span class="keyword">if</span> (WARN_ON(!f-&gt;f_op)) &#123;</span><br><span class="line">        error = -ENODEV;</span><br><span class="line">        <span class="keyword">goto</span> cleanup_all;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 调用security_file_open()和break_lease() */</span></span><br><span class="line">    error = security_file_open(f);</span><br><span class="line">    <span class="keyword">if</span> (error)</span><br><span class="line">        <span class="keyword">goto</span> cleanup_all;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查文件上是否存在需要中断的活动租约</span></span><br><span class="line">    error = break_lease(file_inode(f), f-&gt;f_flags);</span><br><span class="line">    <span class="keyword">if</span> (error)</span><br><span class="line">        <span class="keyword">goto</span> cleanup_all;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 为寻找、pread 和 pwrite 设置默认文件模式标志</span></span><br><span class="line">    f-&gt;f_mode |= FMODE_LSEEK | FMODE_PREAD | FMODE_PWRITE;</span><br><span class="line">    <span class="comment">// 使用文件操作提供的 open 函数，如果未提供，则使用默认值</span></span><br><span class="line">    <span class="keyword">if</span> (!open)</span><br><span class="line">        open = f-&gt;f_op-&gt;open;</span><br><span class="line">    <span class="keyword">if</span> (open) &#123;</span><br><span class="line">        error = open(inode, f);</span><br><span class="line">        <span class="keyword">if</span> (error)</span><br><span class="line">            <span class="keyword">goto</span> cleanup_all;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 设置文件模式标志以表示文件已打开</span></span><br><span class="line">    f-&gt;f_mode |= FMODE_OPENED;</span><br><span class="line">    <span class="comment">// 根据相应操作的可用性设置读写能力</span></span><br><span class="line">    <span class="keyword">if</span> ((f-&gt;f_mode &amp; FMODE_READ) &amp;&amp;</span><br><span class="line">         likely(f-&gt;f_op-&gt;read || f-&gt;f_op-&gt;read_iter))</span><br><span class="line">        f-&gt;f_mode |= FMODE_CAN_READ;</span><br><span class="line">    <span class="keyword">if</span> ((f-&gt;f_mode &amp; FMODE_WRITE) &amp;&amp;</span><br><span class="line">         likely(f-&gt;f_op-&gt;write || f-&gt;f_op-&gt;write_iter))</span><br><span class="line">        f-&gt;f_mode |= FMODE_CAN_WRITE;</span><br><span class="line">    <span class="comment">// 如果 llseek 操作不可用，则禁用寻找</span></span><br><span class="line">    <span class="keyword">if</span> ((f-&gt;f_mode &amp; FMODE_LSEEK) &amp;&amp; !f-&gt;f_op-&gt;llseek)</span><br><span class="line">        f-&gt;f_mode &amp;= ~FMODE_LSEEK;</span><br><span class="line">    <span class="comment">// 如果地址空间操作支持，则启用直接 I/O</span></span><br><span class="line">    <span class="keyword">if</span> (f-&gt;f_mapping-&gt;a_ops &amp;&amp; f-&gt;f_mapping-&gt;a_ops-&gt;direct_IO)</span><br><span class="line">        f-&gt;f_mode |= FMODE_CAN_ODIRECT;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 清除不必要的打开标志</span></span><br><span class="line">    f-&gt;f_flags &amp;= ~(O_CREAT | O_EXCL | O_NOCTTY | O_TRUNC);</span><br><span class="line">    <span class="comment">// 为文件设置 iocb 标志</span></span><br><span class="line">    f-&gt;f_iocb_flags = iocb_flags(f);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化文件的预读状态</span></span><br><span class="line">    file_ra_state_init(&amp;f-&gt;f_ra, f-&gt;f_mapping-&gt;host-&gt;i_mapping);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果请求 O_DIRECT 但不支持，则返回错误</span></span><br><span class="line">    <span class="keyword">if</span> ((f-&gt;f_flags &amp; O_DIRECT) &amp;&amp; !(f-&gt;f_mode &amp; FMODE_CAN_ODIRECT))</span><br><span class="line">        <span class="keyword">return</span> -EINVAL;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果文件以写模式打开，请确保不使用巨大的页面缓存</span></span><br><span class="line">    <span class="keyword">if</span> (f-&gt;f_mode &amp; FMODE_WRITE) &#123;</span><br><span class="line">        smp_mb(); <span class="comment">// 为后续操作确保内存排序</span></span><br><span class="line">        <span class="comment">// 检查页面缓存中是否有任何巨大的页面</span></span><br><span class="line">        <span class="keyword">if</span> (filemap_nr_thps(inode-&gt;i_mapping)) &#123;</span><br><span class="line">            <span class="class"><span class="keyword">struct</span> <span class="title">address_space</span> *<span class="title">mapping</span> =</span> inode-&gt;i_mapping;</span><br><span class="line">            <span class="comment">// 锁定页面缓存并使其无效</span></span><br><span class="line">            filemap_invalidate_lock(inode-&gt;i_mapping);</span><br><span class="line">            <span class="comment">// 取消映射文件的内存范围</span></span><br><span class="line">            unmap_mapping_range(mapping, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">            <span class="comment">// 截断页面缓存中的 inode 页面</span></span><br><span class="line">            truncate_inode_pages(mapping, <span class="number">0</span>);</span><br><span class="line">            <span class="comment">// 解锁页面缓存</span></span><br><span class="line">            filemap_invalidate_unlock(inode-&gt;i_mapping);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">cleanup_all:</span><br><span class="line">    <span class="comment">// 检查无效的正错误代码并重置为 -EINVAL</span></span><br><span class="line">    <span class="keyword">if</span> (WARN_ON_ONCE(error &gt; <span class="number">0</span>))</span><br><span class="line">        error = -EINVAL;</span><br><span class="line">    <span class="comment">// 释放文件操作结构</span></span><br><span class="line">    fops_put(f-&gt;f_op);</span><br><span class="line">    <span class="comment">// 释放文件访问</span></span><br><span class="line">    put_file_access(f);</span><br><span class="line">cleanup_file:</span><br><span class="line">    <span class="comment">// 减少路径的引用计数并清除文件的路径和 inode</span></span><br><span class="line">    path_put(&amp;f-&gt;f_path);</span><br><span class="line">    f-&gt;f_path.mnt = <span class="literal">NULL</span>;</span><br><span class="line">    f-&gt;f_path.dentry = <span class="literal">NULL</span>;</span><br><span class="line">    f-&gt;f_inode = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">return</span> error;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="f-gt-f-op-gt-open"><a href="#f-gt-f-op-gt-open" class="headerlink" title="f-&gt;f_op-&gt;open"></a>f-&gt;f_op-&gt;open</h1><p>具体文件系统的文件打开操作函数file_operations</p>
+<hr>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/open.2.html#top_of_page">open(2) - Linux manual page — open（2） - Linux 手册页 (man7.org)</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/11/22/%E5%AD%A6%E4%B9%A0-Linux-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/" rel="prev" title="学习 Linux 文件系统 实现原理">
+      <i class="fa fa-chevron-left"></i> 学习 Linux 文件系统 实现原理
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/11/22/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-pathname-lookup/" rel="next" title="学习 Linux VFS虚拟文件系统 pathname lookup">
+      学习 Linux VFS虚拟文件系统 pathname lookup <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#OPEN%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">OPEN系统调用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#do-sys-open"><span class="nav-number">2.</span> <span class="nav-text">do_sys_open</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#do-sys-openat2"><span class="nav-number">3.</span> <span class="nav-text">do_sys_openat2</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#do-filp-open"><span class="nav-number">4.</span> <span class="nav-text">do_filp_open</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#path-openat"><span class="nav-number">5.</span> <span class="nav-text">path_openat</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#do-open"><span class="nav-number">6.</span> <span class="nav-text">do_open</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#vfs-open"><span class="nav-number">7.</span> <span class="nav-text">vfs_open</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#do-dentry-open"><span class="nav-number">8.</span> <span class="nav-text">do_dentry_open</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#f-gt-f-op-gt-open"><span class="nav-number">9.</span> <span class="nav-text">f-&gt;f_op-&gt;open</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">10.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.3m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">40:07</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : 'b708aea3bc2bcb0a0b423d7b5a8a9fce',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>

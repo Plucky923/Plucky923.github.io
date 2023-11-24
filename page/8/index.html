@@ -197,6 +197,406 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/06/%E5%AD%A6%E4%B9%A0%20Ubuntu%E6%BA%90%E7%A0%81-proc-meminfo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/04/06/%E5%AD%A6%E4%B9%A0%20Ubuntu%E6%BA%90%E7%A0%81-proc-meminfo/" class="post-title-link" itemprop="url">Ubuntu源码 /proc/meminfo</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-04-06 14:56:58 / Modified: 15:26:56" itemprop="dateCreated datePublished" datetime="2023-04-06T14:56:58+08:00">2023-04-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ubuntu%E6%BA%90%E7%A0%81/" itemprop="url" rel="index"><span itemprop="name">Ubuntu源码</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.8k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">MemTotal</span>:        <span class="number">3982192</span> kB 系统总内存大小</span><br><span class="line"><span class="attribute">MemFree</span>:          <span class="number">333280</span> kB 系统中未使用的内存大小</span><br><span class="line"><span class="attribute">MemAvailable</span>:    <span class="number">2062852</span> kB 系统中可供分配的内存大小，包括缓存和缓冲区</span><br><span class="line"><span class="attribute">Buffers</span>:          <span class="number">149848</span> kB 用于文件I/O的临时存储区域的大小</span><br><span class="line"><span class="attribute">Cached</span>:          <span class="number">1762576</span> kB 被操作系统缓存的文件大小</span><br><span class="line"><span class="attribute">SwapCached</span>:          <span class="number">356</span> kB 已被交换且在内存中的数据大小</span><br><span class="line"><span class="attribute">Active</span>:          <span class="number">1183472</span> kB 正在使用或最近被使用过的内存大小</span><br><span class="line"><span class="attribute">Inactive</span>:        <span class="number">1406216</span> kB 最近没有被使用的内存大小</span><br><span class="line"><span class="attribute">Active</span>(anon):       <span class="number">2988</span> kB 活动匿名内存大小，不包括文件</span><br><span class="line"><span class="attribute">Inactive</span>(anon):   <span class="number">723692</span> kB 非活动匿名内存大小，不包括文件</span><br><span class="line"><span class="attribute">Active</span>(file):    <span class="number">1180484</span> kB 活动文件内存大小</span><br><span class="line"><span class="attribute">Inactive</span>(file):   <span class="number">682524</span> kB 非活动文件内存大小</span><br><span class="line"><span class="attribute">Unevictable</span>:           <span class="number">0</span> kB 无法驱逐的内存大小</span><br><span class="line"><span class="attribute">Mlocked</span>:               <span class="number">0</span> kB 锁定在内存中的内存大小</span><br><span class="line"><span class="attribute">SwapTotal</span>:       <span class="number">3991548</span> kB 系统总交换空间大小</span><br><span class="line"><span class="attribute">SwapFree</span>:        <span class="number">3987928</span> kB 系统交换空间空闲内存</span><br><span class="line"><span class="attribute">Zswap</span>:                 <span class="number">0</span> kB 使用 zswap 的压缩交换缓存大小</span><br><span class="line"><span class="attribute">Zswapped</span>:              <span class="number">0</span> kB 使用 zswap 的压缩交换缓存大小</span><br><span class="line"><span class="attribute">Dirty</span>:               <span class="number">180</span> kB 等待写回磁盘的内存大小</span><br><span class="line"><span class="attribute">Writeback</span>:             <span class="number">0</span> kB 正在写回磁盘的内存大小</span><br><span class="line"><span class="attribute">AnonPages</span>:        <span class="number">676928</span> kB 未映射到文件的匿名内存大小</span><br><span class="line"><span class="attribute">Mapped</span>:           <span class="number">339472</span> kB 映射到文件的内存大小</span><br><span class="line"><span class="attribute">Shmem</span>:             <span class="number">55032</span> kB 共享内存大小</span><br><span class="line"><span class="attribute">KReclaimable</span>:     <span class="number">142032</span> kB 可回收的内核内存大小</span><br><span class="line"><span class="attribute">Slab</span>:             <span class="number">417952</span> kB 内核数据结构缓存的大小</span><br><span class="line"><span class="attribute">SReclaimable</span>:     <span class="number">142032</span> kB 可回收的 Slab 内存大小</span><br><span class="line"><span class="attribute">SUnreclaim</span>:       <span class="number">275920</span> kB 不可回收的 Slab 内存大小</span><br><span class="line"><span class="attribute">KernelStack</span>:       <span class="number">11180</span> kB 内核栈使用的内存大小</span><br><span class="line"><span class="attribute">PageTables</span>:        <span class="number">16944</span> kB 页表使用的内存大小</span><br><span class="line"><span class="attribute">NFS_Unstable</span>:          <span class="number">0</span> kB NFS 不稳定页缓存的大小</span><br><span class="line"><span class="attribute">Bounce</span>:                <span class="number">0</span> kB 用于块设备 I/O 的跳跃缓冲区大小</span><br><span class="line"><span class="attribute">WritebackTmp</span>:          <span class="number">0</span> kB 临时写回内存大小</span><br><span class="line"><span class="attribute">CommitLimit</span>:     <span class="number">5982644</span> kB 基于内存和交换空间的提交限制</span><br><span class="line"><span class="attribute">Committed_AS</span>:    <span class="number">4906744</span> kB 已提交的内存大小，包括内存和交换空间</span><br><span class="line"><span class="attribute">VmallocTotal</span>: <span class="number">34359738367</span>kB 虚拟内存分配的总量，这是系统可以使用的虚拟内存总量</span><br><span class="line"><span class="attribute">VmallocUsed</span>:      <span class="number">251220</span> kB 已使用的虚拟内存量</span><br><span class="line"><span class="attribute">VmallocChunk</span>:          <span class="number">0</span> kB 最大连续虚拟内存空闲区域的大小</span><br><span class="line"><span class="attribute">Percpu</span>:           <span class="number">134656</span> kB 每个 CPU 的内存使用量，这个值是每个 CPU 的 per-CPU 区域的大小之和</span><br><span class="line"><span class="attribute">HardwareCorrupted</span>:     <span class="number">0</span> kB 由硬件错误导致的损坏内存量</span><br><span class="line"><span class="attribute">AnonHugePages</span>:      <span class="number">4096</span> kB 用于匿名映射的大内存页的总量，这些映射不会关联到任何文件</span><br><span class="line"><span class="attribute">ShmemHugePages</span>:        <span class="number">0</span> kB 用于共享内存（shmem）的大内存页的总量</span><br><span class="line"><span class="attribute">ShmemPmdMapped</span>:        <span class="number">0</span> kB 已映射到共享内存的PMD大小，PMD 是页中间目录的缩写</span><br><span class="line"><span class="attribute">FileHugePages</span>:         <span class="number">0</span> kB 用于文件映射的大内存页的总量</span><br><span class="line"><span class="attribute">FilePmdMapped</span>:         <span class="number">0</span> kB 已映射到文件的 PMD 大小</span><br><span class="line"><span class="attribute">HugePages_Total</span>:       <span class="number">0</span>    系统配置的大内存页的总数</span><br><span class="line"><span class="attribute">HugePages_Free</span>:        <span class="number">0</span>    当前可用的大内存页的数量</span><br><span class="line"><span class="attribute">HugePages_Rsvd</span>:        <span class="number">0</span>    已预留（保留）但尚未使用的大内存页的数量</span><br><span class="line"><span class="attribute">HugePages_Surp</span>:        <span class="number">0</span>    超出系统需求的大内存页的数量，这些页可以在需要时立即分配给应用程序</span><br><span class="line"><span class="attribute">Hugepagesize</span>:       <span class="number">2048</span> kB 系统配置的大内存页的大小</span><br><span class="line"><span class="attribute">Hugetlb</span>:               <span class="number">0</span> kB 当前使用的 hugetlb 内存池的总大小，hugetlb 是大内存页的缩写</span><br><span class="line"><span class="attribute">DirectMap4k</span>:      <span class="number">202624</span> kB 使用 <span class="number">4</span>KB 大小的页映射的物理内存大小</span><br><span class="line"><span class="attribute">DirectMap2M</span>:     <span class="number">3991552</span> kB 使用 <span class="number">2</span>MB 大小的页映射的物理内存大小</span><br><span class="line"><span class="attribute">DirectMap1G</span>:     <span class="number">2097152</span> kB 使用 <span class="number">1</span>GB 大小的页映射的物理内存大小</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/05/MIT6-S081-Operating-System-Engineering-Lecture04-Page-Tables/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/04/05/MIT6-S081-Operating-System-Engineering-Lecture04-Page-Tables/" class="post-title-link" itemprop="url">MIT6 S081 Operating System Engineering Lecture04 Page Tables</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-04-05 17:03:11" itemprop="dateCreated datePublished" datetime="2023-04-05T17:03:11+08:00">2023-04-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-04-14 19:30:30" itemprop="dateModified" datetime="2023-04-14T19:30:30+08:00">2023-04-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">课程学习</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/MIT6-S081-Operating-System-Engineering/" itemprop="url" rel="index"><span itemprop="name">MIT6.S081 Operating System Engineering</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>13k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>24 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Topic"><a href="#Topic" class="headerlink" title="Topic"></a>Topic</h1><ul>
+<li><p><strong>Address Spaces</strong></p>
+</li>
+<li><p><strong>支持虚拟内存的硬件</strong></p>
+</li>
+<li><p><strong>XV中的虚拟内存代码</strong></p>
+</li>
+</ul>
+<h1 id="Address-Spaces"><a href="#Address-Spaces" class="headerlink" title="Address Spaces"></a>Address Spaces</h1>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/04/05/MIT6-S081-Operating-System-Engineering-Lecture04-Page-Tables/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/02/MIT6-S081-Operating-System-Engineering-Lecture03-OS-Organization-and-System-Call/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/04/02/MIT6-S081-Operating-System-Engineering-Lecture03-OS-Organization-and-System-Call/" class="post-title-link" itemprop="url">MIT6 S081 Operating System Engineering Lecture03 OS Organization and System Call</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-04-02 14:44:05" itemprop="dateCreated datePublished" datetime="2023-04-02T14:44:05+08:00">2023-04-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-04-06 16:24:13" itemprop="dateModified" datetime="2023-04-06T16:24:13+08:00">2023-04-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">课程学习</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/MIT6-S081-Operating-System-Engineering/" itemprop="url" rel="index"><span itemprop="name">MIT6.S081 Operating System Engineering</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>9.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>17 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Topic"><a href="#Topic" class="headerlink" title="Topic"></a>Topic</h1><ul>
+<li><p><strong>Isolation</strong>:Isolation是设计操作系统组织结构的驱动力</p>
+</li>
+<li><p><strong>System Call</strong>:System call是你的应用程序能够转换到内核执行的基本方法</p>
+</li>
+<li><p><strong>Kernel mode&#x2F;user mode</strong></p>
+</li>
+</ul>
+<h1 id="Isolation"><a href="#Isolation" class="headerlink" title="Isolation"></a>Isolation</h1>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/04/02/MIT6-S081-Operating-System-Engineering-Lecture03-OS-Organization-and-System-Call/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/31/MIT6-S081-Operating-System-Engineering-Lecture01-Intrduction-and-Examples/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/03/31/MIT6-S081-Operating-System-Engineering-Lecture01-Intrduction-and-Examples/" class="post-title-link" itemprop="url">MIT6.S081 Operating System Engineering Lecture01 Intrduction and Examples</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-03-31 14:19:09" itemprop="dateCreated datePublished" datetime="2023-03-31T14:19:09+08:00">2023-03-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-04-06 15:00:08" itemprop="dateModified" datetime="2023-04-06T15:00:08+08:00">2023-04-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">课程学习</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/MIT6-S081-Operating-System-Engineering/" itemprop="url" rel="index"><span itemprop="name">MIT6.S081 Operating System Engineering</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>9.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>18 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="课程目标"><a href="#课程目标" class="headerlink" title="课程目标"></a>课程目标</h2><ul>
+<li><p>理解操作系统的设计和实现。理解整体结构和具体代码。</p>
+</li>
+<li><p>通过XV6操作系统获得实际动手经验。扩展操作系统，修改并提升操作系统的相关经验，并且能够通过操作系统接口，编写系统软件</p>
+</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/03/31/MIT6-S081-Operating-System-Engineering-Lecture01-Intrduction-and-Examples/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -651,7 +1051,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">74</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -719,7 +1119,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">39:01</span>
+    <span title="Reading time total">40:07</span>
 </div>
 
 <!--

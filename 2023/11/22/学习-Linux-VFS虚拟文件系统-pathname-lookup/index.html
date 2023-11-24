@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="pathname lookuppathname lookup在VFS中，是调用次数最多的操作，在各种系统调用中都可以看到pathname lookup在发挥作用。 在进程需要操作文件时，它会将文件路径名传递给某些系统调用，例如open(),mkdir(),rename(),stat()等等">
+<meta property="og:type" content="article">
+<meta property="og:title" content="学习 Linux VFS虚拟文件系统 pathname lookup">
+<meta property="og:url" content="http://example.com/2023/11/22/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-pathname-lookup/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="pathname lookuppathname lookup在VFS中，是调用次数最多的操作，在各种系统调用中都可以看到pathname lookup在发挥作用。 在进程需要操作文件时，它会将文件路径名传递给某些系统调用，例如open(),mkdir(),rename(),stat()等等">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-11-22T07:18:21.000Z">
+<meta property="article:modified_time" content="2023-11-23T03:39:18.028Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/11/22/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-pathname-lookup/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>学习 Linux VFS虚拟文件系统 pathname lookup | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/22/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-pathname-lookup/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          学习 Linux VFS虚拟文件系统 pathname lookup
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-11-22 15:18:21" itemprop="dateCreated datePublished" datetime="2023-11-22T15:18:21+08:00">2023-11-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-11-23 11:39:18" itemprop="dateModified" datetime="2023-11-23T11:39:18+08:00">2023-11-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>18k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>33 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="pathname-lookup"><a href="#pathname-lookup" class="headerlink" title="pathname lookup"></a>pathname lookup</h1><p>pathname lookup在VFS中，是调用次数最多的操作，在各种系统调用中都可以看到pathname lookup在发挥作用。</p>
+<p>在进程需要操作文件时，它会将文件路径名传递给某些系统调用，例如open(),mkdir(),rename(),stat()等等</p>
+<p>首先path_init(),之后调用link_path_walk(),最后调用terminate_walk()</p>
+<ul>
+<li>path_init()函数</li>
+</ul>
+<p>初始化nameidata结构体，确定pathname lookup的起点。</p>
+<ul>
+<li>link_path_walk()函数</li>
+</ul>
+<p>仅走到设置nd-&gt;last和nd-&gt;last_type的最终路径组件，最后一个组件仍然需要调用方来解决，调用方分别是:<code>path_lookupat()</code>,<code>path_parentat()</code>,<code>path_openat()</code>。</p>
+<ol>
+<li>path_lookupat()</li>
+</ol>
+<p>当有对象需要时调用，比如stat(),chmod()，它本质上是调用walk_componet()处理最终的路径名组件。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/namei.c#L2473">namei.c - fs&#x2F;namei.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Returns 0 and nd will be valid on success; Retuns error, otherwise. */</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">path_lookupat</span><span class="params">(<span class="keyword">struct</span> nameidata *nd, <span class="type">unsigned</span> flags, <span class="keyword">struct</span> path *path)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *s = path_init(nd, flags);</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (unlikely(flags &amp; LOOKUP_DOWN) &amp;&amp; !IS_ERR(s)) &#123;</span><br><span class="line">        err = handle_lookup_down(nd);</span><br><span class="line">        <span class="keyword">if</span> (unlikely(err &lt; <span class="number">0</span>))</span><br><span class="line">            s = ERR_PTR(err);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (!(err = link_path_walk(s, nd)) &amp;&amp;</span><br><span class="line">           (s = lookup_last(nd)) != <span class="literal">NULL</span>)</span><br><span class="line">        ;</span><br><span class="line">    <span class="keyword">if</span> (!err &amp;&amp; unlikely(nd-&gt;flags &amp; LOOKUP_MOUNTPOINT)) &#123;</span><br><span class="line">        err = handle_lookup_down(nd);</span><br><span class="line">        nd-&gt;state &amp;= ~ND_JUMPED; <span class="comment">// no d_weak_revalidate(), please...</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!err)</span><br><span class="line">        err = complete_walk(nd);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!err &amp;&amp; nd-&gt;flags &amp; LOOKUP_DIRECTORY)</span><br><span class="line">        <span class="keyword">if</span> (!d_can_lookup(nd-&gt;path.dentry))</span><br><span class="line">            err = -ENOTDIR;</span><br><span class="line">    <span class="keyword">if</span> (!err) &#123;</span><br><span class="line">        *path = nd-&gt;path;</span><br><span class="line">        nd-&gt;path.mnt = <span class="literal">NULL</span>;</span><br><span class="line">        nd-&gt;path.dentry = <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    terminate_walk(nd);</span><br><span class="line">    <span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>path_parentat()</li>
+</ol>
+<p>只是将父目录和最终的路径名组件返回给调用方，调用方的目标是创建名称（filename_create()),删除或者重命名名称(user_path_parent())</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/namei.c#L2529">namei.c - fs&#x2F;namei.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Returns 0 and nd will be valid on success; Retuns error, otherwise. */</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">path_parentat</span><span class="params">(<span class="keyword">struct</span> nameidata *nd, <span class="type">unsigned</span> flags,</span></span><br><span class="line"><span class="params">                <span class="keyword">struct</span> path *parent)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *s = path_init(nd, flags);</span><br><span class="line">    <span class="type">int</span> err = link_path_walk(s, nd);</span><br><span class="line">    <span class="keyword">if</span> (!err)</span><br><span class="line">        err = complete_walk(nd);</span><br><span class="line">    <span class="keyword">if</span> (!err) &#123;</span><br><span class="line">        *parent = nd-&gt;path;</span><br><span class="line">        nd-&gt;path.mnt = <span class="literal">NULL</span>;</span><br><span class="line">        nd-&gt;path.dentry = <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    terminate_walk(nd);</span><br><span class="line">    <span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>path_openat()</li>
+</ol>
+<p>用于open系统调用</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/namei.c#L3792">namei.c - fs&#x2F;namei.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">struct</span> file *<span class="title function_">path_openat</span><span class="params">(<span class="keyword">struct</span> nameidata *nd,</span></span><br><span class="line"><span class="params">            <span class="type">const</span> <span class="keyword">struct</span> open_flags *op, <span class="type">unsigned</span> flags)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">file</span>;</span></span><br><span class="line">    <span class="type">int</span> error;</span><br><span class="line"></span><br><span class="line">    file = alloc_empty_file(op-&gt;open_flag, current_cred());</span><br><span class="line">    <span class="keyword">if</span> (IS_ERR(file))</span><br><span class="line">        <span class="keyword">return</span> file;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (unlikely(file-&gt;f_flags &amp; __O_TMPFILE)) &#123;</span><br><span class="line">        error = do_tmpfile(nd, flags, op, file);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (unlikely(file-&gt;f_flags &amp; O_PATH)) &#123;</span><br><span class="line">        error = do_o_path(nd, flags, file);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="type">const</span> <span class="type">char</span> *s = path_init(nd, flags);</span><br><span class="line">        <span class="keyword">while</span> (!(error = link_path_walk(s, nd)) &amp;&amp;</span><br><span class="line">               (s = open_last_lookups(nd, file, op)) != <span class="literal">NULL</span>)</span><br><span class="line">            ;</span><br><span class="line">        <span class="keyword">if</span> (!error)</span><br><span class="line">            error = do_open(nd, file, op);</span><br><span class="line">        terminate_walk(nd);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (likely(!error)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (likely(file-&gt;f_mode &amp; FMODE_OPENED))</span><br><span class="line">            <span class="keyword">return</span> file;</span><br><span class="line">        WARN_ON(<span class="number">1</span>);</span><br><span class="line">        error = -EINVAL;</span><br><span class="line">    &#125;</span><br><span class="line">    fput(file);</span><br><span class="line">    <span class="keyword">if</span> (error == -EOPENSTALE) &#123;</span><br><span class="line">        <span class="keyword">if</span> (flags &amp; LOOKUP_RCU)</span><br><span class="line">            error = -ECHILD;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            error = -ESTALE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ERR_PTR(error);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="路径名"><a href="#路径名" class="headerlink" title="路径名"></a>路径名</h1><p>路径名有时是文件名，用于表示文件系统中的对象，包含两种元素，斜杠和多个字符的序列，组件是一个或多个非&#x2F;&#x2F;的序列。这形成了两种路径，以斜杠开头的是绝对路径，从文件系统的根目录开始。其他的都是相对路径，从当前目录开始，或者从给定的<code>*at()</code>系统调用比如openat系统调用的文件描述符指定的其他位置开始。</p>
+<p>路径可以分为两部分：最终组件和其他内容。</p>
+<ul>
+<li><p>其他内容必须表示已存在的目录，否则将发生错误，例如<code>ENOENT</code>或者<code>ENODIR</code>.。</p>
+</li>
+<li><p>最终组件很重要。</p>
+<p>不同的系统调用以完全不同的方式解释最终组件，比如有的系统调用创建它，有的不会创建它，而且最终组件可能不存在，可能只是空路径名或者只是斜杠的路径名。</p>
+<ul>
+<li><p>“.”或者“..”的处理方式与其他的组件完全不同</p>
+</li>
+<li><p>以斜杠结尾的路径名，比如”&#x2F;tmp&#x2F;foo&#x2F;“，则很可能将其的最终组件视为空的。在很多情况下，空的最终组件是对的，比如rmdir和mkdir创建或删除一个目录，他们需要使用以&#x2F;结尾的路径名。</p>
+</li>
+<li><p>假设有一个路径<code>/home/user/documents/</code>，根据这个规则，<code>documents</code> 必须是一个已存在的目录，否则路径解析会失败。如果<code>documents</code>是一个文件而不是目录，或者<code>documents</code>根本不存在，并且也没有计划创建它，那么这个路径就是无法成功解析的。</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>Linux 路径名遍历代码（主要是在 <code>fs/namei.c</code> 中）处理所有这些问题：将路径分解为组件，将“其他所有内容”与最终组件完全分开处理，并检查是否在不允许的地方不使用尾部斜杠。它还解决了并发访问的重要问题。并发访问的问题在之后再讨论。</p>
+<p>当一个进程正在查找路径名时，另一个进程可能会进行影响该查找的更改。</p>
+<p>一个相当极端的情况是，如果将“a&#x2F;b”重命名为“a&#x2F;c&#x2F;b”，而另一个进程正在查找“a&#x2F;b&#x2F;..”，则该进程可能会在“a&#x2F;c”上成功解析。大多数种族都更加微妙，路径名查找的很大一部分任务是防止它们产生破坏性影响。</p>
+<h1 id="nameidata"><a href="#nameidata" class="headerlink" title="nameidata"></a>nameidata</h1><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/namei.c#L568">namei.c - fs&#x2F;namei.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">nameidata</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">path</span>    <span class="title">path</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">qstr</span>    <span class="title">last</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">path</span>    <span class="title">root</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inode</span>    *<span class="title">inode</span>;</span> <span class="comment">/* path.dentry.d_inode */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>    flags, state;</span><br><span class="line">    <span class="type">unsigned</span>    seq, next_seq, m_seq, r_seq;</span><br><span class="line">    <span class="type">int</span>        last_type;</span><br><span class="line">    <span class="type">unsigned</span>    depth;</span><br><span class="line">    <span class="type">int</span>        total_link_count;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">saved</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">path</span> <span class="title">link</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">delayed_call</span> <span class="title">done</span>;</span></span><br><span class="line">        <span class="type">const</span> <span class="type">char</span> *name;</span><br><span class="line">        <span class="type">unsigned</span> seq;</span><br><span class="line">    &#125; *<span class="built_in">stack</span>, internal[EMBEDDED_LEVELS];</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">filename</span>    *<span class="title">name</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">nameidata</span> *<span class="title">saved</span>;</span></span><br><span class="line">    <span class="type">unsigned</span>    root_seq;</span><br><span class="line">    <span class="type">int</span>        dfd;</span><br><span class="line">    <span class="type">vfsuid_t</span>    dir_vfsuid;</span><br><span class="line">    <span class="type">umode_t</span>        dir_mode;</span><br><span class="line">&#125; __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<p>在pathname lookup的过程中，当前状态存储在一个struct nameidata中，namei是将name转换为inode的名称。struct nameidata中的重要字段：</p>
+<ul>
+<li>struct path path</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/include/linux/path.h#L8">path.h - include&#x2F;linux&#x2F;path.h - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">path</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">vfsmount</span> *<span class="title">mnt</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">dentry</span>;</span></span><br><span class="line">&#125; __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<p><code>path</code> 包含 <code>struct vfsmount</code> （嵌入在 <code>struct mount</code> 中)和 <code>struct dentry</code> 。这些共同记录了pathname lookup的当前状态。它们从引用起点（当前工作目录、根目录或由文件描述符标识的其他目录）开始，并在每个步骤中更新。始终持有<code>d_lockref</code> 和<code>mnt_count</code> 。</p>
+<ul>
+<li>stuct qstr last</li>
+</ul>
+<p>这是一个字符串和字符串长度，是路径名中的下一个组件的信息。</p>
+<ul>
+<li>int last_type</li>
+</ul>
+<p><code>LAST_ROOT</code>,<code>LAST_DOT</code>,<code>LAST_DOTDOT</code>,<code>LAST_NORM</code>其中之一，仅当类型为LAST_NORM时，last字段才有效。</p>
+<ul>
+<li>struct path root</li>
+</ul>
+<p>用于保存对文件系统有效根目录的引用，通常不需要这个引用，因此仅在首次使用此字段或者请求非标准根时才分配此字段。</p>
+<p>当以下两个条件成立时需要根：</p>
+<ol>
+<li><p>路径名或符号链接以“&#x2F;”开头。</p>
+</li>
+<li><p>使用”..“时</p>
+</li>
+</ol>
+<hr>
+<p>暂时忽略符号链接的处理，现在可以将link_path_walk()描述为：</p>
+<p>给定路径(name)和nameidata结构(nd)，检查当前目录是否具有执行权限，然后更新last_type和last，并且进入到下一个组件上，如果这是最后一个组件则返回，否则调用walk_component()，然后循环下一个组件的处理，下一个组件的处理也是一样的。</p>
+<p>这些组件中的每一个，或调用他们的函数，对于最后一个组件，如果不是LAST_NORM，查找的目标时创建某些内容，则last_type除了LAST_TYPE之外的任何值都会出错。例如，如果path_parentat()报告LAST_DOTDOT，则调用方不会尝试创建这个名称并通过测试last.name[last.len]，如果在最终组件之外有任何字符，则它必须是尾部斜杠。</p>
+<h1 id="walk-componet"><a href="#walk-componet" class="headerlink" title="walk_componet"></a>walk_componet</h1><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/namei.c#L1985">namei.c - fs&#x2F;namei.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="type">char</span> *<span class="title function_">walk_component</span><span class="params">(<span class="keyword">struct</span> nameidata *nd, <span class="type">int</span> flags)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">dentry</span>;</span></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * &quot;.&quot; and &quot;..&quot; are special - &quot;..&quot; especially so because it has</span></span><br><span class="line"><span class="comment">     * to be able to know about the current root directory and</span></span><br><span class="line"><span class="comment">     * parent relationships.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(nd-&gt;last_type != LAST_NORM)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!(flags &amp; WALK_MORE) &amp;&amp; nd-&gt;depth)</span><br><span class="line">            put_link(nd);</span><br><span class="line">        <span class="keyword">return</span> handle_dots(nd, nd-&gt;last_type);</span><br><span class="line">    &#125;</span><br><span class="line">    dentry = lookup_fast(nd);</span><br><span class="line">    <span class="keyword">if</span> (IS_ERR(dentry))</span><br><span class="line">        <span class="keyword">return</span> ERR_CAST(dentry);</span><br><span class="line">    <span class="keyword">if</span> (unlikely(!dentry)) &#123;</span><br><span class="line">        dentry = lookup_slow(&amp;nd-&gt;last, nd-&gt;path.dentry, nd-&gt;flags);</span><br><span class="line">        <span class="keyword">if</span> (IS_ERR(dentry))</span><br><span class="line">            <span class="keyword">return</span> ERR_CAST(dentry);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!(flags &amp; WALK_MORE) &amp;&amp; nd-&gt;depth)</span><br><span class="line">        put_link(nd);</span><br><span class="line">    <span class="keyword">return</span> step_into(nd, flags, dentry);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果组件是LAST_DOT或LAST_DOTDOT则会调用handle_dots()。如果是LAST_NORM，首先调用lookup_fast()在dcache中查找，如果没找到，则会调用lookup_slow()，在文件系统中找到一个答案。</p>
+<p>作为调用walk_component()的最后一步，step_into()，可以直接从walk_component()调用或者从handle_dots()调用step_into()。</p>
+<p>step_into()会调用handle_mounts()来检查和处理挂载点。如果存在符号链接，step_into()会调用pick_link()来处理它。</p>
+<h1 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h1><p>现在通过源码来分析上述的内容，符号链接的处理在后文再详细讨论。  </p>
+<h2 id="path-init"><a href="#path-init" class="headerlink" title="path_init"></a>path_init</h2><p>在path_init中对nameidata的初始起点进行设置。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/namei.c#L2350">namei.c - fs&#x2F;namei.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* must be paired with terminate_walk() */</span></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="type">char</span> *<span class="title function_">path_init</span><span class="params">(<span class="keyword">struct</span> nameidata *nd, <span class="type">unsigned</span> flags)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> error;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *s = nd-&gt;name-&gt;name;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* LOOKUP_CACHED requires RCU, ask caller to retry */</span></span><br><span class="line">    <span class="keyword">if</span> ((flags &amp; (LOOKUP_RCU | LOOKUP_CACHED)) == LOOKUP_CACHED)</span><br><span class="line">        <span class="keyword">return</span> ERR_PTR(-EAGAIN);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!*s)</span><br><span class="line">        flags &amp;= ~LOOKUP_RCU;</span><br><span class="line">    <span class="keyword">if</span> (flags &amp; LOOKUP_RCU)</span><br><span class="line">        rcu_read_lock();</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        nd-&gt;seq = nd-&gt;next_seq = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    nd-&gt;flags = flags;</span><br><span class="line">    nd-&gt;state |= ND_JUMPED;</span><br><span class="line"></span><br><span class="line">    nd-&gt;m_seq = __read_seqcount_begin(&amp;mount_lock.seqcount);</span><br><span class="line">    nd-&gt;r_seq = __read_seqcount_begin(&amp;rename_lock.seqcount);</span><br><span class="line">    smp_rmb();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (nd-&gt;state &amp; ND_ROOT_PRESET) &#123;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">root</span> =</span> nd-&gt;root.dentry;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">inode</span> =</span> root-&gt;d_inode;</span><br><span class="line">        <span class="keyword">if</span> (*s &amp;&amp; unlikely(!d_can_lookup(root)))</span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(-ENOTDIR);</span><br><span class="line">        nd-&gt;path = nd-&gt;root;</span><br><span class="line">        nd-&gt;inode = inode;</span><br><span class="line">        <span class="keyword">if</span> (flags &amp; LOOKUP_RCU) &#123;</span><br><span class="line">            nd-&gt;seq = read_seqcount_begin(&amp;nd-&gt;path.dentry-&gt;d_seq);</span><br><span class="line">            nd-&gt;root_seq = nd-&gt;seq;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            path_get(&amp;nd-&gt;path);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> s;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    nd-&gt;root.mnt = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Absolute pathname -- fetch the root (LOOKUP_IN_ROOT uses nd-&gt;dfd). */</span></span><br><span class="line">    <span class="keyword">if</span> (*s == <span class="string">&#x27;/&#x27;</span> &amp;&amp; !(flags &amp; LOOKUP_IN_ROOT)) &#123;</span><br><span class="line">        error = nd_jump_root(nd);</span><br><span class="line">        <span class="keyword">if</span> (unlikely(error))</span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(error);</span><br><span class="line">        <span class="keyword">return</span> s;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Relative pathname -- get the starting-point it is relative to. */</span></span><br><span class="line">    <span class="keyword">if</span> (nd-&gt;dfd == AT_FDCWD) &#123;</span><br><span class="line">        <span class="keyword">if</span> (flags &amp; LOOKUP_RCU) &#123;</span><br><span class="line">            <span class="class"><span class="keyword">struct</span> <span class="title">fs_struct</span> *<span class="title">fs</span> =</span> current-&gt;fs;</span><br><span class="line">            <span class="type">unsigned</span> seq;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">do</span> &#123;</span><br><span class="line">                seq = read_seqcount_begin(&amp;fs-&gt;seq);</span><br><span class="line">                nd-&gt;path = fs-&gt;pwd;</span><br><span class="line">                nd-&gt;inode = nd-&gt;path.dentry-&gt;d_inode;</span><br><span class="line">                nd-&gt;seq = __read_seqcount_begin(&amp;nd-&gt;path.dentry-&gt;d_seq);</span><br><span class="line">            &#125; <span class="keyword">while</span> (read_seqcount_retry(&amp;fs-&gt;seq, seq));</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            get_fs_pwd(current-&gt;fs, &amp;nd-&gt;path);</span><br><span class="line">            nd-&gt;inode = nd-&gt;path.dentry-&gt;d_inode;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">/* Caller must check execute permissions on the starting path component */</span></span><br><span class="line">        <span class="keyword">struct</span> fd f = fdget_raw(nd-&gt;dfd);</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">dentry</span>;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!f.file)</span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(-EBADF);</span><br><span class="line"></span><br><span class="line">        dentry = f.file-&gt;f_path.dentry;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (*s &amp;&amp; unlikely(!d_can_lookup(dentry))) &#123;</span><br><span class="line">            fdput(f);</span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(-ENOTDIR);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        nd-&gt;path = f.file-&gt;f_path;</span><br><span class="line">        <span class="keyword">if</span> (flags &amp; LOOKUP_RCU) &#123;</span><br><span class="line">            nd-&gt;inode = nd-&gt;path.dentry-&gt;d_inode;</span><br><span class="line">            nd-&gt;seq = read_seqcount_begin(&amp;nd-&gt;path.dentry-&gt;d_seq);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            path_get(&amp;nd-&gt;path);</span><br><span class="line">            nd-&gt;inode = nd-&gt;path.dentry-&gt;d_inode;</span><br><span class="line">        &#125;</span><br><span class="line">        fdput(f);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* For scoped-lookups we need to set the root to the dirfd as well. */</span></span><br><span class="line">    <span class="keyword">if</span> (flags &amp; LOOKUP_IS_SCOPED) &#123;</span><br><span class="line">        nd-&gt;root = nd-&gt;path;</span><br><span class="line">        <span class="keyword">if</span> (flags &amp; LOOKUP_RCU) &#123;</span><br><span class="line">            nd-&gt;root_seq = nd-&gt;seq;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            path_get(&amp;nd-&gt;root);</span><br><span class="line">            nd-&gt;state |= ND_ROOT_GRABBED;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这段代码中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (*s == <span class="string">&#x27;/&#x27;</span> &amp;&amp; !(flags &amp; LOOKUP_IN_ROOT)) &#123;</span><br><span class="line">    error = nd_jump_root(nd);</span><br><span class="line">    <span class="keyword">if</span> (unlikely(error))</span><br><span class="line">        <span class="keyword">return</span> ERR_PTR(error);</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先判断s的首个字符为&#x2F;时，即为绝对路径查找时，在nd_jump_root中设置对应的nameidata结构体</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/namei.c#L959">namei.c - fs&#x2F;namei.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">nd_jump_root</span><span class="params">(<span class="keyword">struct</span> nameidata *nd)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (unlikely(nd-&gt;flags &amp; LOOKUP_BENEATH))</span><br><span class="line">        <span class="keyword">return</span> -EXDEV;</span><br><span class="line">    <span class="keyword">if</span> (unlikely(nd-&gt;flags &amp; LOOKUP_NO_XDEV)) &#123;</span><br><span class="line">        <span class="comment">/* Absolute path arguments to path_init() are allowed. */</span></span><br><span class="line">        <span class="keyword">if</span> (nd-&gt;path.mnt != <span class="literal">NULL</span> &amp;&amp; nd-&gt;path.mnt != nd-&gt;root.mnt)</span><br><span class="line">            <span class="keyword">return</span> -EXDEV;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!nd-&gt;root.mnt) &#123;</span><br><span class="line">        <span class="type">int</span> error = set_root(nd);</span><br><span class="line">        <span class="keyword">if</span> (error)</span><br><span class="line">            <span class="keyword">return</span> error;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (nd-&gt;flags &amp; LOOKUP_RCU) &#123;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">d</span>;</span></span><br><span class="line">        nd-&gt;path = nd-&gt;root;</span><br><span class="line">        d = nd-&gt;path.dentry;</span><br><span class="line">        nd-&gt;inode = d-&gt;d_inode;</span><br><span class="line">        nd-&gt;seq = nd-&gt;root_seq;</span><br><span class="line">        <span class="keyword">if</span> (read_seqcount_retry(&amp;d-&gt;d_seq, nd-&gt;seq))</span><br><span class="line">            <span class="keyword">return</span> -ECHILD;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        path_put(&amp;nd-&gt;path);</span><br><span class="line">        nd-&gt;path = nd-&gt;root;</span><br><span class="line">        path_get(&amp;nd-&gt;path);</span><br><span class="line">        nd-&gt;inode = nd-&gt;path.dentry-&gt;d_inode;</span><br><span class="line">    &#125;</span><br><span class="line">    nd-&gt;state |= ND_JUMPED;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/namei.c#L932">namei.c - fs&#x2F;namei.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">set_root</span><span class="params">(<span class="keyword">struct</span> nameidata *nd)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fs_struct</span> *<span class="title">fs</span> =</span> current-&gt;fs;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Jumping to the real root in a scoped-lookup is a BUG in namei, but we</span></span><br><span class="line"><span class="comment">     * still have to ensure it doesn&#x27;t happen because it will cause a breakout</span></span><br><span class="line"><span class="comment">     * from the dirfd.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">if</span> (WARN_ON(nd-&gt;flags &amp; LOOKUP_IS_SCOPED))</span><br><span class="line">        <span class="keyword">return</span> -ENOTRECOVERABLE;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (nd-&gt;flags &amp; LOOKUP_RCU) &#123;</span><br><span class="line">        <span class="type">unsigned</span> seq;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            seq = read_seqcount_begin(&amp;fs-&gt;seq);</span><br><span class="line">            nd-&gt;root = fs-&gt;root;</span><br><span class="line">            nd-&gt;root_seq = __read_seqcount_begin(&amp;nd-&gt;root.dentry-&gt;d_seq);</span><br><span class="line">        &#125; <span class="keyword">while</span> (read_seqcount_retry(&amp;fs-&gt;seq, seq));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        get_fs_root(fs, &amp;nd-&gt;root);</span><br><span class="line">        nd-&gt;state |= ND_ROOT_GRABBED;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到设置了相应的nd-&gt;root和相应的nd-&gt;path即查找起点为根目录。</p>
+<p>然后看到下面这段代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Relative pathname -- get the starting-point it is relative to. */</span></span><br><span class="line">   <span class="keyword">if</span> (nd-&gt;dfd == AT_FDCWD) &#123;</span><br><span class="line">       <span class="keyword">if</span> (flags &amp; LOOKUP_RCU) &#123;</span><br><span class="line">           <span class="class"><span class="keyword">struct</span> <span class="title">fs_struct</span> *<span class="title">fs</span> =</span> current-&gt;fs;</span><br><span class="line">           <span class="type">unsigned</span> seq;</span><br><span class="line"></span><br><span class="line">           <span class="keyword">do</span> &#123;</span><br><span class="line">               seq = read_seqcount_begin(&amp;fs-&gt;seq);</span><br><span class="line">               nd-&gt;path = fs-&gt;pwd;</span><br><span class="line">               nd-&gt;inode = nd-&gt;path.dentry-&gt;d_inode;</span><br><span class="line">               nd-&gt;seq = __read_seqcount_begin(&amp;nd-&gt;path.dentry-&gt;d_seq);</span><br><span class="line">           &#125; <span class="keyword">while</span> (read_seqcount_retry(&amp;fs-&gt;seq, seq));</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           get_fs_pwd(current-&gt;fs, &amp;nd-&gt;path);</span><br><span class="line">           nd-&gt;inode = nd-&gt;path.dentry-&gt;d_inode;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">       <span class="comment">/* Caller must check execute permissions on the starting path component */</span></span><br><span class="line">       <span class="keyword">struct</span> fd f = fdget_raw(nd-&gt;dfd);</span><br><span class="line">       <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">dentry</span>;</span></span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (!f.file)</span><br><span class="line">           <span class="keyword">return</span> ERR_PTR(-EBADF);</span><br><span class="line"></span><br><span class="line">       dentry = f.file-&gt;f_path.dentry;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (*s &amp;&amp; unlikely(!d_can_lookup(dentry))) &#123;</span><br><span class="line">           fdput(f);</span><br><span class="line">           <span class="keyword">return</span> ERR_PTR(-ENOTDIR);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       nd-&gt;path = f.file-&gt;f_path;</span><br><span class="line">       <span class="keyword">if</span> (flags &amp; LOOKUP_RCU) &#123;</span><br><span class="line">           nd-&gt;inode = nd-&gt;path.dentry-&gt;d_inode;</span><br><span class="line">           nd-&gt;seq = read_seqcount_begin(&amp;nd-&gt;path.dentry-&gt;d_seq);</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           path_get(&amp;nd-&gt;path);</span><br><span class="line">           nd-&gt;inode = nd-&gt;path.dentry-&gt;d_inode;</span><br><span class="line">       &#125;</span><br><span class="line">       fdput(f);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果在初始查找的文件描述符中，即相对查找的起点路径。</p>
+<p>如果设置为AT_FDCWD，即从当前目录开始查找，或者设置为对应的文件描述符的目录。</p>
+<p>根据不同的情况进行相应的设置，将nameidata结构体设置为对应的起点。</p>
+<h2 id="link-path-walk"><a href="#link-path-walk" class="headerlink" title="link_path_walk"></a>link_path_walk</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Name resolution.</span></span><br><span class="line"><span class="comment"> * This is the basic name resolution function, turning a pathname into</span></span><br><span class="line"><span class="comment"> * the final dentry. We expect &#x27;base&#x27; to be positive and a directory.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Returns 0 and nd will have valid dentry and mnt on success.</span></span><br><span class="line"><span class="comment"> * Returns error and drops reference to input namei data on failure.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">link_path_walk</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *name, <span class="keyword">struct</span> nameidata *nd)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> depth = <span class="number">0</span>; <span class="comment">// depth &lt;= nd-&gt;depth</span></span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line"></span><br><span class="line">    nd-&gt;last_type = LAST_ROOT;</span><br><span class="line">    nd-&gt;flags |= LOOKUP_PARENT;</span><br><span class="line">    <span class="keyword">if</span> (IS_ERR(name))</span><br><span class="line">        <span class="keyword">return</span> PTR_ERR(name);</span><br><span class="line">    <span class="keyword">while</span> (*name==<span class="string">&#x27;/&#x27;</span>)</span><br><span class="line">        name++;</span><br><span class="line">    <span class="keyword">if</span> (!*name) &#123;</span><br><span class="line">        nd-&gt;dir_mode = <span class="number">0</span>; <span class="comment">// short-circuit the &#x27;hardening&#x27; idiocy</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* At this point we know we have a real path component. */</span></span><br><span class="line">    <span class="keyword">for</span>(;;) &#123;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">mnt_idmap</span> *<span class="title">idmap</span>;</span></span><br><span class="line">        <span class="type">const</span> <span class="type">char</span> *link;</span><br><span class="line">        u64 hash_len;</span><br><span class="line">        <span class="type">int</span> type;</span><br><span class="line"></span><br><span class="line">        idmap = mnt_idmap(nd-&gt;path.mnt);</span><br><span class="line">        err = may_lookup(idmap, nd);</span><br><span class="line">        <span class="keyword">if</span> (err)</span><br><span class="line">            <span class="keyword">return</span> err;</span><br><span class="line"></span><br><span class="line">        hash_len = hash_name(nd-&gt;path.dentry, name);</span><br><span class="line"></span><br><span class="line">        type = LAST_NORM;</span><br><span class="line">        <span class="keyword">if</span> (name[<span class="number">0</span>] == <span class="string">&#x27;.&#x27;</span>) <span class="keyword">switch</span> (hashlen_len(hash_len)) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">                <span class="keyword">if</span> (name[<span class="number">1</span>] == <span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                    type = LAST_DOTDOT;</span><br><span class="line">                    nd-&gt;state |= ND_JUMPED;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">                type = LAST_DOT;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (likely(type == LAST_NORM)) &#123;</span><br><span class="line">            <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">parent</span> =</span> nd-&gt;path.dentry;</span><br><span class="line">            nd-&gt;state &amp;= ~ND_JUMPED;</span><br><span class="line">            <span class="keyword">if</span> (unlikely(parent-&gt;d_flags &amp; DCACHE_OP_HASH)) &#123;</span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">qstr</span> <span class="title">this</span> =</span> &#123; &#123; .hash_len = hash_len &#125;, .name = name &#125;;</span><br><span class="line">                err = parent-&gt;d_op-&gt;d_hash(parent, &amp;this);</span><br><span class="line">                <span class="keyword">if</span> (err &lt; <span class="number">0</span>)</span><br><span class="line">                    <span class="keyword">return</span> err;</span><br><span class="line">                hash_len = this.hash_len;</span><br><span class="line">                name = this.name;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        nd-&gt;last.hash_len = hash_len;</span><br><span class="line">        nd-&gt;last.name = name;</span><br><span class="line">        nd-&gt;last_type = type;</span><br><span class="line"></span><br><span class="line">        name += hashlen_len(hash_len);</span><br><span class="line">        <span class="keyword">if</span> (!*name)</span><br><span class="line">            <span class="keyword">goto</span> OK;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * If it wasn&#x27;t NUL, we know it was &#x27;/&#x27;. Skip that</span></span><br><span class="line"><span class="comment">         * slash, and continue until no more slashes.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            name++;</span><br><span class="line">        &#125; <span class="keyword">while</span> (unlikely(*name == <span class="string">&#x27;/&#x27;</span>));</span><br><span class="line">        <span class="keyword">if</span> (unlikely(!*name)) &#123;</span><br><span class="line">OK:</span><br><span class="line">            <span class="comment">/* pathname or trailing symlink, done */</span></span><br><span class="line">            <span class="keyword">if</span> (!depth) &#123;</span><br><span class="line">                nd-&gt;dir_vfsuid = i_uid_into_vfsuid(idmap, nd-&gt;inode);</span><br><span class="line">                nd-&gt;dir_mode = nd-&gt;inode-&gt;i_mode;</span><br><span class="line">                nd-&gt;flags &amp;= ~LOOKUP_PARENT;</span><br><span class="line">                <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">/* last component of nested symlink */</span></span><br><span class="line">            name = nd-&gt;<span class="built_in">stack</span>[--depth].name;</span><br><span class="line">            link = walk_component(nd, <span class="number">0</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">/* not the last component */</span></span><br><span class="line">            link = walk_component(nd, WALK_MORE);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (unlikely(link)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (IS_ERR(link))</span><br><span class="line">                <span class="keyword">return</span> PTR_ERR(link);</span><br><span class="line">            <span class="comment">/* a symlink to follow */</span></span><br><span class="line">            nd-&gt;<span class="built_in">stack</span>[depth++].name = name;</span><br><span class="line">            name = link;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (unlikely(!d_can_lookup(nd-&gt;path.dentry))) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nd-&gt;flags &amp; LOOKUP_RCU) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!try_to_unlazy(nd))</span><br><span class="line">                    <span class="keyword">return</span> -ECHILD;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> -ENOTDIR;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">nd-&gt;last_type = LAST_ROOT;</span><br><span class="line">nd-&gt;flags |= LOOKUP_PARENT;</span><br><span class="line"><span class="keyword">if</span> (IS_ERR(name))</span><br><span class="line">    <span class="keyword">return</span> PTR_ERR(name);</span><br><span class="line"><span class="keyword">while</span> (*name==<span class="string">&#x27;/&#x27;</span>)</span><br><span class="line">    name++;</span><br><span class="line"><span class="keyword">if</span> (!*name) &#123;</span><br><span class="line">    nd-&gt;dir_mode = <span class="number">0</span>; <span class="comment">// short-circuit the &#x27;hardening&#x27; idiocy</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先对last_type进行设置，并且跳过pathname初始的&#x2F;，即可以获取第一个组件。然后进入下面的循环对组件进行处理。</p>
+<hr>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* At this point we know we have a real path component. */</span></span><br><span class="line">    <span class="keyword">for</span>(;;) &#123;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">mnt_idmap</span> *<span class="title">idmap</span>;</span></span><br><span class="line">        <span class="type">const</span> <span class="type">char</span> *link;</span><br><span class="line">        u64 hash_len;</span><br><span class="line">        <span class="type">int</span> type;</span><br><span class="line"></span><br><span class="line">        idmap = mnt_idmap(nd-&gt;path.mnt);</span><br><span class="line">        err = may_lookup(idmap, nd);</span><br><span class="line">        <span class="keyword">if</span> (err)</span><br><span class="line">            <span class="keyword">return</span> err;</span><br><span class="line"></span><br><span class="line">        hash_len = hash_name(nd-&gt;path.dentry, name);</span><br><span class="line"></span><br><span class="line">        type = LAST_NORM;</span><br><span class="line">        <span class="keyword">if</span> (name[<span class="number">0</span>] == <span class="string">&#x27;.&#x27;</span>) <span class="keyword">switch</span> (hashlen_len(hash_len)) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">                <span class="keyword">if</span> (name[<span class="number">1</span>] == <span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                    type = LAST_DOTDOT;</span><br><span class="line">                    nd-&gt;state |= ND_JUMPED;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">                type = LAST_DOT;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (likely(type == LAST_NORM)) &#123;</span><br><span class="line">            <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">parent</span> =</span> nd-&gt;path.dentry;</span><br><span class="line">            nd-&gt;state &amp;= ~ND_JUMPED;</span><br><span class="line">            <span class="keyword">if</span> (unlikely(parent-&gt;d_flags &amp; DCACHE_OP_HASH)) &#123;</span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">qstr</span> <span class="title">this</span> =</span> &#123; &#123; .hash_len = hash_len &#125;, .name = name &#125;;</span><br><span class="line">                err = parent-&gt;d_op-&gt;d_hash(parent, &amp;this);</span><br><span class="line">                <span class="keyword">if</span> (err &lt; <span class="number">0</span>)</span><br><span class="line">                    <span class="keyword">return</span> err;</span><br><span class="line">                hash_len = this.hash_len;</span><br><span class="line">                name = this.name;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        nd-&gt;last.hash_len = hash_len;</span><br><span class="line">        nd-&gt;last.name = name;</span><br><span class="line">        nd-&gt;last_type = type;</span><br><span class="line"></span><br><span class="line">        name += hashlen_len(hash_len);</span><br><span class="line">        <span class="keyword">if</span> (!*name)</span><br><span class="line">            <span class="keyword">goto</span> OK;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * If it wasn&#x27;t NUL, we know it was &#x27;/&#x27;. Skip that</span></span><br><span class="line"><span class="comment">         * slash, and continue until no more slashes.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            name++;</span><br><span class="line">        &#125; <span class="keyword">while</span> (unlikely(*name == <span class="string">&#x27;/&#x27;</span>));</span><br><span class="line">        <span class="keyword">if</span> (unlikely(!*name)) &#123;</span><br><span class="line">OK:</span><br><span class="line">            <span class="comment">/* pathname or trailing symlink, done */</span></span><br><span class="line">            <span class="keyword">if</span> (!depth) &#123;</span><br><span class="line">                nd-&gt;dir_vfsuid = i_uid_into_vfsuid(idmap, nd-&gt;inode);</span><br><span class="line">                nd-&gt;dir_mode = nd-&gt;inode-&gt;i_mode;</span><br><span class="line">                nd-&gt;flags &amp;= ~LOOKUP_PARENT;</span><br><span class="line">                <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">/* last component of nested symlink */</span></span><br><span class="line">            name = nd-&gt;<span class="built_in">stack</span>[--depth].name;</span><br><span class="line">            link = walk_component(nd, <span class="number">0</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">/* not the last component */</span></span><br><span class="line">            link = walk_component(nd, WALK_MORE);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (unlikely(link)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (IS_ERR(link))</span><br><span class="line">                <span class="keyword">return</span> PTR_ERR(link);</span><br><span class="line">            <span class="comment">/* a symlink to follow */</span></span><br><span class="line">            nd-&gt;<span class="built_in">stack</span>[depth++].name = name;</span><br><span class="line">            name = link;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (unlikely(!d_can_lookup(nd-&gt;path.dentry))) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nd-&gt;flags &amp; LOOKUP_RCU) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!try_to_unlazy(nd))</span><br><span class="line">                    <span class="keyword">return</span> -ECHILD;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> -ENOTDIR;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先看到这段代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">        hash_len = hash_name(nd-&gt;path.dentry, name);</span><br><span class="line"></span><br><span class="line">type = LAST_NORM;</span><br><span class="line"><span class="keyword">if</span> (name[<span class="number">0</span>] == <span class="string">&#x27;.&#x27;</span>) <span class="keyword">switch</span> (hashlen_len(hash_len)) &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">        <span class="keyword">if</span> (name[<span class="number">1</span>] == <span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">            type = LAST_DOTDOT;</span><br><span class="line">            nd-&gt;state |= ND_JUMPED;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        type = LAST_DOT;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先对第一个组件,hash_name计算第一个组件的长度和hash。</p>
+<p>如果第一个组件的第一个字符为<code>.</code>，则判断它是<code>.</code>还是<code>..</code>，并对他们的type进行对应的设置。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">if</span> (likely(type == LAST_NORM)) &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">parent</span> =</span> nd-&gt;path.dentry;</span><br><span class="line">    nd-&gt;state &amp;= ~ND_JUMPED;</span><br><span class="line">    <span class="keyword">if</span> (unlikely(parent-&gt;d_flags &amp; DCACHE_OP_HASH)) &#123;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">qstr</span> <span class="title">this</span> =</span> &#123; &#123; .hash_len = hash_len &#125;, .name = name &#125;;</span><br><span class="line">        err = parent-&gt;d_op-&gt;d_hash(parent, &amp;this);</span><br><span class="line">        <span class="keyword">if</span> (err &lt; <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">return</span> err;</span><br><span class="line">        hash_len = this.hash_len;</span><br><span class="line">        name = this.name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果对组件的判断，判断不是<code>.</code>或者<code>..</code>,那么它的type为LAST_NORM</p>
+<p>然后看到相应的处理，首先设置了一个<code>parent</code>为nd-&gt;path.dentry，因为如果我们查找下一个组件的dentry的话，现在的path中dentry就是下个组件的parent。</p>
+<p>然后对一些值进行设置，其中的值都是根据当前组件设置的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">nd-&gt;last.hash_len = hash_len;</span><br><span class="line">nd-&gt;last.name = name;</span><br><span class="line">nd-&gt;last_type = type;</span><br><span class="line"></span><br><span class="line">name += hashlen_len(hash_len);</span><br></pre></td></tr></table></figure>
+
+<p>对last的值进行处理，last设置为下面要处理的组件的信息。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/11/22/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6/" rel="prev" title="学习 Linux VFS虚拟文件系统 打开文件">
+      <i class="fa fa-chevron-left"></i> 学习 Linux VFS虚拟文件系统 打开文件
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#pathname-lookup"><span class="nav-number">1.</span> <span class="nav-text">pathname lookup</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B7%AF%E5%BE%84%E5%90%8D"><span class="nav-number">2.</span> <span class="nav-text">路径名</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#nameidata"><span class="nav-number">3.</span> <span class="nav-text">nameidata</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#walk-componet"><span class="nav-number">4.</span> <span class="nav-text">walk_componet</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">5.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#path-init"><span class="nav-number">5.1.</span> <span class="nav-text">path_init</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#link-path-walk"><span class="nav-number">5.2.</span> <span class="nav-text">link_path_walk</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.3m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">40:07</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : 'ff1a26f23c3271b9c65fd4e0c7f06807',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
