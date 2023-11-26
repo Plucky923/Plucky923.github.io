@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="摘要 Rust的发明是为了帮助开发人员构建高度安全的系统。它带有各种编程结构，强调安全性和对内存布局的控制。Rust强制执行关于类型系统和所有权模型的严格规则，以启用对所有空间和时间安全错误的编译时检查。尽管在安全性上有这种优势，Rust的类型系统施加的限制使得表达某些设计或计算变得困难或低效。为了简化他们的编程，开发人员经常包含来自不安全的Rust或用其他语言编写的外部库的不可信代码。可悲的是，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="论文阅读 TRUST: A Compilation Framework for In-process Isolation to Protect Safe Rust against Untrusted Code">
+<meta property="og:url" content="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="摘要 Rust的发明是为了帮助开发人员构建高度安全的系统。它带有各种编程结构，强调安全性和对内存布局的控制。Rust强制执行关于类型系统和所有权模型的严格规则，以启用对所有空间和时间安全错误的编译时检查。尽管在安全性上有这种优势，Rust的类型系统施加的限制使得表达某些设计或计算变得困难或低效。为了简化他们的编程，开发人员经常包含来自不安全的Rust或用其他语言编写的外部库的不可信代码。可悲的是，">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE1.png">
+<meta property="og:image" content="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE2.png">
+<meta property="og:image" content="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE3.png">
+<meta property="og:image" content="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE4.png">
+<meta property="og:image" content="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E8%A1%A81.png">
+<meta property="og:image" content="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE5.png">
+<meta property="og:image" content="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE6.png">
+<meta property="og:image" content="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE7.png">
+<meta property="og:image" content="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE8.png">
+<meta property="article:published_time" content="2023-11-26T03:47:35.000Z">
+<meta property="article:modified_time" content="2023-11-26T06:34:33.193Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE1.png">
+
+<link rel="canonical" href="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>论文阅读 TRUST: A Compilation Framework for In-process Isolation to Protect Safe Rust against Untrusted Code | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          论文阅读 TRUST: A Compilation Framework for In-process Isolation to Protect Safe Rust against Untrusted Code
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-11-26 11:47:35 / Modified: 14:34:33" itemprop="dateCreated datePublished" datetime="2023-11-26T11:47:35+08:00">2023-11-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文精读</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/RUST/" itemprop="url" rel="index"><span itemprop="name">RUST</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>16k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>29 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>摘要</strong></p>
+<p>Rust的发明是为了帮助开发人员构建高度安全的系统。它带有各种编程结构，强调安全性和对内存布局的控制。Rust强制执行关于类型系统和所有权模型的严格规则，以启用对所有空间和时间安全错误的编译时检查。尽管在安全性上有这种优势，Rust的类型系统施加的限制使得表达某些设计或计算变得困难或低效。为了简化他们的编程，开发人员经常包含来自不安全的Rust或用其他语言编写的外部库的不可信代码。可悲的是，为了灵活性或效率而采用这种不可信代码的编程实践破坏了安全Rust所提供的强大安全保证。本文提出了一个编译框架TRUST，它通过进程内隔离为Rust提供安全的可信保护，防止程序中存在不可信的代码。它的主要策略是在一个隔离的内存区域中分配对象，该区域可以被安全的Rust访问，但限制不受信任的人写入。</p>
+<p>为了实现这一点，TRUST采用了软件故障隔离和x86保护密钥。它可以直接应用于任何Rust代码，而不需要手动更改。我们的实验表明，在Rust中运行11个广泛使用的crate时，TRUST是有效和高效的，平均只产生7.55%的运行时开销和13.30%的内存开销。</p>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>几十年来，C&#x2F; C++一直是主流语言，但它们是不安全的，因为其宽松的语义允许许多未定义的行为，这些行为通常表现为无数安全关键的普遍错误，如缓冲区溢出、free后使用和其他内存可利用错误。语言Rust是为了解决C&#x2F; C++固有的安全问题而发明的，它引入了新的语法和语义，如指针所有权、生命周期和借用。该语言的特点和构造被精心设计为可以很容易静态分析以保证安全性，因此很少或者根本不需要进行运行时的完整性检查。</p>
+<p>然而，尽管Rust具有强大的静态安全保证，但其严格的语义和保证规则可能会限制表现力和性能。</p>
+<p>因此，为了实用性，Rust通过允许程序员包含不受信任的代码来放宽其严格的安全规则，这些代码可以在编译时免于严格的完整性检查。不可信代码的一个来源是Rust中的代码段，称为unsafe代码块，它们通常包含少量对低级编码或性能至关重要的操作，例如原始指针操作和未受保护的类型转换。</p>
+<p>这些封装在Rust不安全块中的操作是用Rust之外的另一种语言编写的，称为不安全Rust，它不一定遵守真正Rust(最好是安全Rust)语言的所有安全规则。作为不可信代码的另一个来源，程序员使用用未知语言编写的外部库来节省开发成本。将这些不受信任的代码与安全Rust结合起来的编程实践确实在表达能力和效率方面带来了各种好处，但显然会破坏安全Rust的强大安全保证，因为在与安全Rust代码相同的地址空间中运行不受信任的代码会使整个程序处于暴露于不安全块或外部库的危险之中。</p>
+<p>在本文中，我们的目标是阐明使用不受信任的代码源进行Rust编程的潜在安全风险，并提出我们的编译框架TRUST，该框架旨在通过进程内隔离来降低风险，其中Rust代码通过TRUST转换，将不安全的块和外部库函数与安全的Rust代码部分隔离开来，我们将在后面称之为安全块。我们选择了进程内方案，因为它通常被认为比进程间隔离方案更有效，因为隔离需要昂贵的操作系统干预来支持虚拟化。事实上，以前已经开发了几种进程内方案，以如此高效地解决此风险，但它们有一些限制，例如缺乏rust感知的程序分析，需要昂贵的上下文切换，或者依赖于开发人员注释。</p>
+<p>通过将不安全的块和外部库与安全块隔离开来，TRUST可以防止这些不可信代码中的漏洞在没有适当权限的情况下破坏安全Rust的关键数据。为了实现Rust应用程序的进程内隔离，TRUST首先将内存划分为安全和不安全两个区域，其中分别包含安全对象和不安全对象。然后，TRUST区分Rust代码块对这些区域的访问权限。它允许安全块访问这两个区域。相反，在默认情况下，它拒绝任何不安全块和外部库对安全区域的访问，尽管根据其安全策略，一些不受信任的代码块可能被授予有限的读取安全区域的权限。这里值得注意的是，TRUST可以通过确定将哪些对象分配给两个区域来对Rust程序中的每个单独对象执行访问控制。也就是说，对于保密性和完整性具有最高优先级的安全堆栈&#x2F;堆对象，TRUST将其分配到安全区域，以限制任何不受信任的代码对其的访问，除了一些不受信任的块在特殊情况下获得对安全对象的读权限。所有其他物品将被归类为不安全物品，并置于不安全区域。</p>
+<p>为了自动插装Rust代码以实现进程内隔离，我们对Rust框架进行了修改，包括前端用于IR生成，后端用于二进制生成。当Rust代码被用于进程内隔离时，TRUST应用不同的技术来处理不安全的块和外部库，因为前者可以作为源代码提供给TRUST，而后者则假定只能以二进制形式提供。</p>
+<p>给定不安全块的源代码，TRUST应用软件故障隔离。首先，为了在代码中处理不安全的堆对象，TRUST识别它们的分配站点，并用对自定义分配器的调用替换这些站点，该分配器使用预定义的地址范围在不安全区域中分配内存对象。接下来，对于不安全的堆栈对象，TRUST将代码转换为在位于不安全区域的特殊堆栈中单独分配它们。最后，不安全块中的所有内存操作都用屏蔽来阻止区域外的访问。相反，为了处理二进制形式的外部库，TRUST应用了一种基于英特尔内存保护密钥(MPK)的隔离技术，因为我们必须保守地假设所有这些库函数都是不安全的，并且只使用不安全的对象。因此，TRUST为安全区域和不安全区域的内存页分配单独的密钥，并在每次执行流进出外部库时切换访问权限。</p>
+<p>我们通过扩展Rust编译器及其运行时库实现了TRUST。为了评估效率，我们使用了15个广泛使用的crate，包括Rust标准库的核心组件。实验结果表明:TRUST使测试库的运行速度平均降低了12.65%。</p>
+<p>我们通过比较XRust和Sandcrust这两种现有技术来进一步评估TRUST。实验结果表明，TRUST比XRust快3倍，比Sandcrust快2倍以上。</p>
+<h1 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h1><p><strong>Rust中的所有权。</strong></p>
+<p><mark>Rust的所有权策略使编译器能够静态地避免内存安全错误</mark>。在Rust程序中，内存对象必须在执行期间一次由一个变量独占地拥有。当程序需要复制或移动指向内存对象的指针时，所有权必须永久地转移到新变量或临时借用。所有权策略严格，零容忍，适用于数据表示、抽象和算法设计。例如，Rust有树形的链接数据结构，完全不允许实现像双链表这样的可变数据结构。为了解决这个严格的策略，Rust引入了不安全的Rust，这是一种允许一些宽松的性能和表达规则的方言。与用安全Rust编写的程序不同，用不安全Rust编写的程序可以操作原始指针、调用外部库函数或使用可变的全局变量。事实上，Rust程序通常由多种形式的不安全Rust代码组成。一个代码块可以用关键字unsafe包装，或者当函数用相同的关键字注释时，可以用不安全的Rust编写整个函数。尽管在Rust中，不安全块通常指的是前者，但为了简洁起见，我们滥用了这个术语来指代用不安全Rust编写的任何代码。</p>
+<p><strong>智能指针。</strong></p>
+<p>智能指针是一个广泛使用的概念，其中指针被表示为包含内存地址和元数据的复合数据类型。最常见的是，元数据要么是指针预期指向的地址范围，要么是指针的能力。Rust中的许多标准库使用这些智能指针来确保在编译时无法静态检查的内存安全。</p>
+<p>由于这个原因，对智能指针元数据的操作被认为是不安全的，因此只能在不安全的块中进行。</p>
+<p><strong>内存保护键（MPK）。</strong></p>
+<p>英特尔MPK，也被称为用户空间保护密钥(PKU)，是英特尔提供的一种单线程硬件机制，用于帮助维护组中的内存页面权限。使用MPK，每个页被分配一个4位的值，称为pkey，表示该页所属的组。具有MPK的处理器有一个称为pkru的特殊寄存器，它确定当前进程对每个页组的权限。可以使用特殊指令rdpkru和wrpkru来调查和更新权限。使用进程内寄存器的权限快速切换促使许多早期研究将其用于进程内隔离，就像TRUST用于隔离外部库一样。特别是，TRUST为每个组件创建单独的内存区域，使用MPK密钥和PKRU来授予和撤销访问权限，并采用现有机制来保护这种基于MPK的保护免受目标攻击。例如，TRUST使用静态分析和精心设计的入口&#x2F;出口门，如ERIM和Hodor所示。此外，TRUST监视和hooks系统调用，以进一步防止外部库逃避隔离，这是另一篇文章《PKU Pitfalls》中提出的建议。</p>
+<h1 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h1><p>本节给出一些示例，说明不可信代码中的漏洞会破坏安全Rust的内存安全性，介绍进程内隔离机制如何提供帮助，并讨论现有机制的局限性。</p>
+<h2 id="Vulnerabilities-in-Untrusted-Code"><a href="#Vulnerabilities-in-Untrusted-Code" class="headerlink" title="Vulnerabilities in Untrusted Code"></a>Vulnerabilities in Untrusted Code</h2><p>只要安全的Rust代码和不受信任的代码在同一进程中运行，无论编译时分析多么仔细，Rust程序总是容易受到内存安全漏洞的攻击。作为不可信代码的一类，用不安全Rust编写的不安全块超出了专为安全Rust设计的分析范围。在处理另一类不受信任的代码(外部库)时，这种分析甚至更无用，这些代码可以用任何语言编写，包括C&#x2F; C++等不安全的语言。这种编译时分析在保证不可信代码的内存安全方面的无能，可能会为不可信代码的错误打开损坏安全代码中的关键内存对象的方便之门。</p>
+<p>图1显示了一个Rust程序，其中指针在安全块中定义，并在不安全块中使用。该示例在第4行和第9行分配两个堆栈对象，并分别获取针对第7行和第11行对象的原始指针。</p>
+<p><img src="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE1.png"></p>
+<p>原始指针在同一行递增，然后用于修改第8行和第12行中的堆栈对象。这个例子中的问题是程序使用了一个全局变量offset_in，这个变量可以在外部的任何地方修改。在偏移量计算中使用全局变量使程序容易受到攻击。在第8行和第14行，攻击者操纵offset_in可以控制写入哪个地址，甚至可以到达安全对象。</p>
+<p><img src="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE2.png"></p>
+<p>图2显示了从CVE-2021-28879中引用的zip crate中提取的另一个示例，其中self。Index可以设置为大于self的值。Len(第7行)，导致size_hint函数中的整数溢出(第13行)。破坏size_hint的返回值会导致在第8行调用的__iterator_get_unchecked(i)错误地将迭代器返回到对象a之外的内存位置。当再次使用已消耗的Zip迭代器时，攻击者可能会利用这一点创建缓冲区溢出，如图3所示。</p>
+<p><img src="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE3.png"></p>
+<p>图4是一个外部库调用的示例，它可能会破坏执行堆栈上安全对象的内存安全性。由此产生的漏洞类似于C&#x2F; C++中的格式字符串错误。它从堆栈中读取的信息与未定义的字符串转换参数(例如printw(“%s%s%s”))一样多。这样的错误可能为攻击者利用外部库代码从堆栈中读取尽可能多的信息并将其打印到标准输出铺平了道路。</p>
+<p><img src="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE4.png"></p>
+<h2 id="Mitigation-by-In-Process-Isolation"><a href="#Mitigation-by-In-Process-Isolation" class="headerlink" title="Mitigation by In-Process Isolation"></a>Mitigation by In-Process Isolation</h2><p>Rust程序由两段不同的代码组成:一段不受信任的代码，其中包含前面讨论过的潜在漏洞和要保护的安全块免受此类攻击。进程内隔离将安全块及其相关数据与代码的其余部分隔离开来，即隔离不受信任的代码，这是解决程序内这种保护问题的自然选择。TRUST自动识别不受不可信代码保护的对象，并应用进程内隔离机制，以确保不可信代码无法访问它们。</p>
+<p>XRust和Fidelius Charm在运行时采用与TRUST类似的方法。XRust使开发人员能够使用SFI隔离不安全的块。所有被程序员标记为不安全的内存访问指令都使用边界检查来执行设计的策略。不安全块只能访问由XRust的附加内存管理接口分配的不安全对象。它们后来表明，可以通过过程间数据流分析自动插入额外的内存管理接口。</p>
+<p>它们还引入了SFI的替代方案，即基于保护页的保护，它以安全性换取性能。Fidelius Charm专门用于从Rust程序隔离不受信任的外部库的进程内隔离。对内核进行了扩展，以提供用于切换特权级别的系统调用接口。受保护的Rust程序在进入或离开外部代码块时使用该接口切换特权级别。对于每个请求，内核扩展通过更新页表属性来更改对包含安全对象的某些内存页的访问权限。</p>
+<p>因此，开发人员有责任使用接口来增强他们的程序，以保护敏感数据对象。</p>
+<h2 id="Limitations-of-Existing-Mechanisms"><a href="#Limitations-of-Existing-Mechanisms" class="headerlink" title="Limitations of Existing Mechanisms"></a>Limitations of Existing Mechanisms</h2><p>即使以组合的形式，这些工具也不足以严格限制对不可信代码的攻击，更不用说现有的机制都不能隔离外部库和不安全的块，如表1所示。首先，大多数机制需要手动更改程序。Fidelius Charm和Sandcrust没有演示任何自动转换，而是将其作为开发人员的任务。XRust使用现有的数据流分析来自动转换程序，但是自动转换不考虑Rust使用的堆分配器和智能指针的包装器。其次，在进入和离开隔离的不受信任代码上下文时，现有机制需要昂贵的上下文切换。XRust没有明确地解决外部库引入的不安全问题，而且Fidelius Charm在每次上下文切换时都会更改页表项的属性。这个上下文切换是预期会出现较长的延迟，因为必须更新许多页表项的属性，并且必须刷新相应的项。第三，Fidelius Charm(现有的用于外部库的进程内隔离机制)不能保证堆栈指针的完整性。存在许多现有的进程内隔离机制，其中默认上下文具有较低的特权，进程临时进入具有较高特权的上下文。与这些不同，Fidelius Charm和TRUST创建一个具有较低特权的上下文，并暂时完全控制注册内容。</p>
+<p><img src="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E8%A1%A81.png"></p>
+<p>这使得包含堆栈指针的寄存器不受保护，攻击者可能伪造一个伪造的堆栈，并使堆栈指针以它为目标，从而影响安全块的行为。</p>
+<p>最后，沙箱还必须考虑堆栈对象，因为攻击者破坏堆栈对象可能会误导安全Rust违反内存安全。</p>
+<p><strong>手工分析和转换</strong>。</p>
+<p>现有机制需要手动更改程序。开发人员应该识别不受信任代码使用的对象，并使用新提出的内存管理功能来处理它们。XRust是一个例外，因为它演示了如何使用现有的数据流分析来检测涉及不安全对象的内存操作，但是XRust的应用主要需要手动更改代码，正如我们在XRust的开放实现中发现的那样。例如，为了加强图1中所示的早期示例，开发人员应该注意到vector在不安全块中使用，并更改代码以从不安全区域分配内存。如果不这样做，XRust将无法识别不安全，并将向量放置在安全区域。</p>
+<p><strong>沙箱外部库的低效率</strong>。</p>
+<p>在进入或离开外部库时，现有机制具有很高的上下文切换开销。Sandcrust使用一个运行在不同虚拟地址空间的独立进程为主进程提供外部库服务。rust编写的代码可以使用进程间通信(IPC)来调用外部库函数，而不是其原始形式，即简单的函数调用。这个远程过程调用明显地增加了开销，因为参数和返回值必须通过IPC传递。此外，开发人员还负责手动翻译程序，即交付外部库需要的任何数据对象，或者向外部库进行更新或从外部库进行更新。Fidelius Charm不需要IPC，但程序仍然需要请求OS内核进行上下文切换。不幸的是，这个对内核的调用仍然是昂贵的，因为它更新页表以更改进程对其内存页的权限。页表的更新改变了Rust程序页面的属性，从而使相应的翻译暂置缓冲区(TLB)条目无效，并增加了TLB缺失率。</p>
+<h1 id="Threat-Model-and-Assumptions"><a href="#Threat-Model-and-Assumptions" class="headerlink" title="Threat Model and Assumptions"></a>Threat Model and Assumptions</h1><p>我们对不受信任的代码不做任何假设，其中包括不安全的块和外部库。TRUST的可信计算基础(TCB)在运行时包括三个组件，它们是我们假定可信的安全块、Rust运行时和TRUST运行时。不受信任的代码可能具有内存损坏漏洞或攻击者可以将其链接起来进行任意内存访问的随机漏洞系列。这样的攻击者还可以组成一个小工具链，在不受信任的代码上下文中执行任意代码。我们认为远程攻击者知道受害者程序运行的不受信任代码中的这些漏洞。攻击者利用漏洞破坏安全对象，破坏安全块的行为。意识到Rust程序使用的外部库中的漏洞的攻击者可能会利用它们来访问原本仅用于Rust安全使用的特权内存。开发人员应该知道这些假设和使用TRust的好处，以确保只在安全块中使用对安全性至关重要的内存对象。如果上述假设成立，TRUST保证外部代码不能读取或写入仅由受信任代码使用的安全对象。</p>
+<h1 id="Design-and-Implementation"><a href="#Design-and-Implementation" class="headerlink" title="Design and Implementation"></a>Design and Implementation</h1><p>TRUST认为任何内存对象都是不安全的，如果它被用在由不安全Rust块和外部函数接口(FFI)组成的不受信任的代码中，通过FFI，用其他语言(如C&#x2F; C++)编写的外部库代码可以与Rust结合使用。TRUST可以静态地证明不受信任代码影响的对象被归类为安全对象。TRUST将不安全的对象隔离在单独的区域中，这样在不受信任的代码中进行利用就不会影响到该区域之外。只有安全块允许访问这两个内存区域，而外部代码不能读取或写入安全对象，并且不安全块不能写入安全对象。要隔离不受信任的代码，TRUST会在编译时分析和转换Rust程序，并使用其运行时库运行生成的程序。</p>
+<p><strong>分析和转换</strong>。</p>
+<p>TRUST首先在从Rust源代码到LLVM IR的编译过程中收集Rust特有的属性。这些属性包括指示LLVM IR指令是否属于不安全块的不安全信息，以及指示给定函数是否属于外部函数接口(FFI)的函数API信息。编译后的LLVM IR代码然后传递到点对和价值流分析阶段。此阶段识别不安全内存操作中使用的指针，并执行必要的操作来隔离它们。</p>
+<p>它将访问不安全堆栈对象的指令标记为稍后重新定位，并将堆指针分配调用重新路由到不安全分配器。然后，这个阶段的输出被传递给LLVM编译器，LLVM编译器运行几次来完成TRUST的静态操作。最后阶段首先将所有不安全堆栈指针重定位到不安全对象堆栈，最后在外部库调用周围插入入口和出口。</p>
+<p><strong>运行时</strong>。</p>
+<p>要为转换后的程序提供服务并正确隔离不受信任的代码，TRUST会挂钩多个系统服务并维护每个线程的元数据。来自不受信任代码的堆分配器调用被重路由到另一个不安全的堆分配器，该分配器使用不安全区域中的块为请求提供服务。TRUST进一步挂钩来自外部库的内存管理系统调用，以防止它们更改页表属性。它还增加了pthread来初始化或销毁其他线程的堆栈。</p>
+<p><strong>挑战</strong>。</p>
+<p>在设计TRUST时，我们遇到了三个值得注意的挑战。首先，安全Rust的内存安全性在编译时并不是完全可以证明的。对于编译器无法推断的内存访问，比如对堆对象的访问，Rust使用智能指针在运行时动态地确保空间和时间安全。因此，在不安全块中操作指针或智能指针元数据可能会导致安全块中的内存安全错误。在识别可能不安全的对象或指针使用时，TRUST必须考虑它们的元数据。其次，与不安全块不同，外部库不能用SFI隔离。这些外部库假定以可执行二进制文件(如共享对象或静态库)的形式交付。无论编写外部库的语言是什么，TRUST都不能在编译时对它们进行分析和转换。一些研究表明，SFI可以应用于二进制程序，但会产生相对较高的开销。出于这个原因，TRUST转而依赖于Intel MPK机制来隔离外部库并限制它们的内存访问。最后，Rust通过Alloc crate分配堆内存，并通过智能指针和容器crate(如Box、Vec、String)处理堆指针，这对指向和价值流分析构成了挑战。Rust没有直接调用堆分配器来获取内存，而是依靠这些crate来调用分配器并创建智能指针。</p>
+<p>Alloc crate公开了__rust_alloc、__rust_realloc、__rust_alloc_zeroed等函数，包装了相应的堆分配器接口。使用这种设计，所有堆指针(安全和不安全)似乎只混叠了少数源和单个接收器。TRUST通过利用价值流分析为不安全指针的分配构造调用堆栈来处理此问题。然后，它创建调用堆栈的克隆，并将其重路由到不安全的分配器。</p>
+<h2 id="Points-to-Analysis"><a href="#Points-to-Analysis" class="headerlink" title="Points-to Analysis"></a>Points-to Analysis</h2><p>TRUST在中级IR (MIR)和LLVM IR级别分析Rust程序，以找到不安全对象的分配位置。TRUST认为分配站点是安全的，如果发现从该站点到不安全块中的内存访问指令的流或到外部的流，则将该分配站点分类为不安全的外部库。只有当TRUST可以可靠地断定从分配站点获得的指针永远不会流向外部库并用于在不安全块中写入时，分配站点才保持安全，这一点我们将在本节的其余部分中描述。</p>
+<p><strong>MIR-level Analysis</strong></p>
+<p>TRUST将每个LLVM IR指令与该指令所属的块关联起来，以便在Rust编译器将程序从MIR转换为LLVM IR时进行后续分析。Rust编译器首先将源代码翻译成MIR，并在该级别执行特定于Rust的静态分析。例如，与所有权相关的规则主要在该级别进行检查。出于这个原因，每个MIR指令都被标记为它所属的块，要么是安全的，要么是不安全的。然而，当程序被翻译成LLVM IR时，这个标签不保留，因为Rust编译器不需要确定哪个块是生成LLVM IR指令的。相反，TRUST需要区分从不安全块生成的LLVM IR指令进行分析。为此，TRUST扩展了Rust编译器，将不安全元数据附加到生成的LLVM-IR指令上。</p>
+<p><strong>Points-to Analysis</strong></p>
+<p>TRUST执行点到分析，将内存分配位置(即alloca、对malloc的调用或类似)分为安全和不安全。我们将分配指令视为指针的来源，同时也考虑到堆栈对象。上下文敏感的价值流分析SVF&#x2F;SUPA支持我们的点对分析，以提高精度。TRUST迭代地执行自下而上的价值流和点对分析，以获得精确而合理的点对关系，并使用结果对分配地点进行分类。这种自下而上的分析是一个图遍历问题，其中节点是指针，边是使用它们的指令。在这个意义上，点到分析下的程序可以被看作是SVF&#x2F;SUP定义的价值流图(VFG)。如果分配站点产生一个指向不安全块中至少一条指令的指针，则将其归类为不安全的。否则，分配位置被分类为安全，这意味着它位于安全块内，并且它产生的指针不会在不安全块中被操作或使用。即使在安全和不安全块之间共享内存对象，也会从不安全区域分配对象，因为指针的分配位置变得不安全。此策略使得TRUST从安全区域分配对象的决策是合理的，也就是说，不受信任的代码可能访问的内存对象总是从不安全区域分配。</p>
+<p>这种方法的一个缺点是，如果由于分析点的精确度有限，TRUST无法将一个只有安全代码访问的内存对象与另一个不安全的对象区分开来，则该对象可能被归类为不安全的对象。</p>
+<p><strong>Modifying SVF</strong></p>
+<p>SVF不处理一些LLVM IR指令，比如InsertValueInst和ExtractValueInst, Rust严重依赖于它们来打包和解包智能指针。SVF将任何进入InsertValueInst的指针视为进入黑洞，因为该指令产生一个简单的打包结构体，它不是指针。类似地，从ExtractValueInst中产生的任何指针似乎都来自黑洞。</p>
+<p>我们修改了SVF，将这些情况处理为与getelementptr相关的指令，然后是加载或存储。此外，SVF不处理用于指针运算的IntToPtr和PtrToInt指令。我们通过修改SVF来创建从PtrToInt指令到IntToPtr指令的虚链接，使用虚指针强制转换，SVF将其视为指针拷贝，因为这些指令通常非常接近。</p>
+<p><strong>Working budget</strong></p>
+<p>尽管上下文敏感的分析是精确的，但是对于大型程序来说，它的代价是非常昂贵的。</p>
+<p>因此，SVF将工作预算定义为给定节点的上下文和边返回遍历的最大数量。</p>
+<p>此外，我们不分析所有指针，而只考虑不安全块中使用的指针作为候选指针。对于每个候选指针，我们迭代地向后遍历VFG，直到遵循所有可能的路径，直到上下文预算耗尽或我们到达可能的分配地点。在预算耗尽的情况下，我们不是终止正在考虑的指针的遍历，而是放松精确性，并回落到受边缘预算约束的流敏感分析。用户可以通过向TRUST提供上下文和流预算参数来进行分析，从而在准确性和时间之间进行权衡。我们将在§6.2中进一步讨论这种设计对分析的完整性和可靠性的影响。</p>
+<p><strong>Handling Smart Pointers</strong></p>
+<p>我们发现，即使pointto分析没有报告不安全块中指针的任何修改，由于Rust运行时的设计，指针的使用也可能变得不安全。Rust中的一些指针是用智能指针类型来表示的，这些智能指针类型包含一些用于多种目的的属性，包括在运行时进行动态边界检查。操作这些属性可能导致在安全块内进行超出边界的内存访问，因为使用损坏属性的动态边界检查无法找到问题，如示例(图5)所示。</p>
+<p>我们的分析克服了这一点，如果分配对象的任何字段可能在不安全块中被操纵，并将相应的分配站点标记为不安全，则将聚合分配站点视为不安全的。</p>
+<p><img src="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE5.png"></p>
+<p><strong>Allowlisting Crates</strong></p>
+<p>在分析不安全指针时，TRUST认为某些不安全的块来自某些允许列出的crate(例如，libstd, libballoc, libcore)是安全的。换句话说，在不安全块中单独使用这些crate中的指针并不会使其成为候选对象对点进行分析或重新定位。我们发现这是一个必要而合理的设计选择，原因有二。首先，Rust的核心大部分是与内核同步的，需要系统调用和低级操作，这些操作必须封装在不安全的块中。如果我们认为所有这些都是不可信的，那么Rust程序将实际上没有安全对象，这使得TRUST无效。其次，最近的一项研究表明，这种关键的板条箱可以被正式验证。核心运行时中的不安全块不能使用安全的Rust来编写，但是静态地验证它们的正确性，因此仍然可以使用一些可用机制来安全可信。这支持了我们将它们包含在allowlist中的决定。请注意，尽管进行了静态验证，但仍然需要信任，因为并非每个不受信任的代码都可以从目标静态验证中受益。</p>
+<h2 id="Function-Cloning-to-Improve-Precision"><a href="#Function-Cloning-to-Improve-Precision" class="headerlink" title="Function Cloning to Improve Precision"></a>Function Cloning to Improve Precision</h2><p>如前所述，TRUST面临的挑战之一是LLVM IR级别的堆分配站点数量很少。所有的堆指针似乎都来自LLVM IR中的包装器函数中的少数分配点，这导致现有的价值流分析§5.1得出结论，所有指针共享发现的少数源和汇。TRUST通过根据上下文自动克隆处理安全对象和不安全对象的函数来解决这个问题，从而提高分析点的精度。</p>
+<p>这是通过以下三个步骤完成的。</p>
+<p><strong>Step 1. Assigning Call Site-IDs to VGF Nodes.</strong></p>
+<p>TRUST的VFG基于SUPA为每个呼叫站点创建了两组虚拟节点，即in-nodes和out-nodes。内节点将调用的实际指针参数连接到被调用方的形式形参，而外节点包括通过实际返回语句返回或存储在任何接受的参数中的任何指针的副本。内节点和外节点都被分配了相同的调用站点id (cs-ID)，而cs-ID又与调用方和被调用方函数相关联。如果callee不接受指针参数，它所关联的所有调用站点都将具有空的内节点。对于返回的指针和输出节点也是如此</p>
+<p><strong>Step 2. Finding Clone Candidates.</strong></p>
+<p>TRUST通过向后遍历在点到分析期间获得的VFG来找到要克隆的函数，直到它到达一个调用堆分配的站点(即malloc)。它将在遍历过程中遇到的内节点和外节点的cs- id推入一个称为调用站点堆栈的堆栈。然后，它解决了呼叫站点堆栈上的平衡括号问题，其中具有匹配cs- id的进出节点对被删除，因为它们对实际分配路径没有贡献，留下不平衡的内节点和出节点的cs- id。最后，它还删除了节点内的cs- id，因为这些cs- id表示调用方函数，但是TRUST的目标是用导致不安全分配器的克隆函数替换被调用方。其余一组连续的节点外cs- id跟踪到堆分配站点。所有与这些剩余cs- id关联的被调用函数都是克隆的，克隆的版本具有__不安全的前缀名称和一个额外的参数。</p>
+<p><strong>Step 3. Transforming the Call Sites.</strong></p>
+<p>在克隆函数之后，TRUST通过递归地转换适当的调用位置来重建分配路径。如果调用站点的cs-ID仍在调用站点堆栈中，则TRUST将替换调用站点，并调用被调用函数的克隆。附加参数是位向量，其中每个位表示相应的调用站点是否必须路由到不安全分配器。对于被调用方是虚拟表成员的间接调用，使用的不是附加参数，而是通过线程特定数据结构中的unsafe_flag项传播的位标志。图6显示了这种克隆如何帮助提高分析的准确性。最初，所有指针(安全的和不安全的)都是从安全分配器分配的(绿色虚线表示的路径)。在通过TRUST进行克隆之后，不安全指针将从不安全分配器进行明确的分配(棕色虚线表示的路径)。</p>
+<p><img src="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE6.png"></p>
+<h2 id="Instrumenting-Memory-Accesses-for-SFI"><a href="#Instrumenting-Memory-Accesses-for-SFI" class="headerlink" title="Instrumenting Memory Accesses for SFI"></a>Instrumenting Memory Accesses for SFI</h2><p>TRUST将存储指令置于不安全块中，以防止它们直接破坏安全对象。特别是，TRUST会插入掩码地址的指令在这些存储指令之前，强制指令只写入不安全区域，如图7所示。插入指令使用的静态边界是在程序启动时确定的。此外，TRUST还在安全块中设置了一些存储指令，以解决混乱的代理问题。如前所述，一些智能指针是在不安全区域上分配的，因为它们是在不安全块中合法修改的。这将使它们的元数据暴露给攻击者任意破坏，这种破坏可能会混淆使用元数据进行边界检查的安全块。TRUST会自动识别安全块内的易受攻击的指针流，并插入边界检查，确保指针落在不安全区域内。为了找到易受攻击的指针流，TRUST使用了值流图。TRUST首先在值流图中找到从不安全指针到安全块中存储指令的路径。沿着这样的路径，TRUST插入一个边界检查，以确保不安全指针指向不安全区域，如图8所示。最后，常用的内存修改函数(如memset、memcpy和memmove)是专门处理的，而不是在其中插装。</p>
+<p>在调用站点，TRUST插入一个边界检查，以确保如果目标指针不安全，则要写入的整个内存范围都包含在不安全区域中。</p>
+<p><img src="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE7.png"></p>
+<h2 id="Unsafe-Object-Stack"><a href="#Unsafe-Object-Stack" class="headerlink" title="Unsafe Object Stack"></a>Unsafe Object Stack</h2><p>TRUST将程序转换为三个堆栈。第一种是默认堆栈，它只包含受TRUST保护的程序上的安全堆栈对象。另外两个是用于容纳不安全堆栈对象的堆栈。我们将其中一个外部库称为不安全执行堆栈，并在§5.5中进一步描述。受SafeStack的启发，我们将程序转换为将不安全对象存储在另一个称为不安全对象堆栈的堆栈上。SafeStack通过将潜在的易受攻击的缓冲区移动到一个单独的区域来减轻基于堆栈的缓冲区溢出攻击，在这个区域中，它们不会再次被利用，也不会导致更危险的攻击，例如控制流劫持。我们将指向这些堆栈的指针存储在线程特定的元数据对象中，而该对象的地址又保存在指定的寄存器r15中。编译器被增强为将寄存器放在一边，而不是将其用于寄存器分配，并且TRUST运行时使用不安全堆栈的地址初始化r15。</p>
+<p>因此，对堆栈对象的所有不安全内存访问指令都转换为使用r15而不是具有正确偏移量的rsp。或者，TRUST可以使用%gs或%fs代替r15，以避免由于潜在的寄存器溢出而导致的性能下降。Intel的FSGSBASE指令允许程序直接访问fs&#x2F;gs段寄存器，如果一个寄存器不用于其他目的，TRUST可以使用其中一个来代替r15。</p>
+<p><img src="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE8.png"></p>
+<h2 id="Instrumenting-External-Library-Calls"><a href="#Instrumenting-External-Library-Calls" class="headerlink" title="Instrumenting External Library Calls"></a>Instrumenting External Library Calls</h2><p>TRUST在外部库调用之前和之后插入入口和出口，以便使用Intel MPK隔离外部库。外部函数，即被调用者，最初负责将堆栈指针保存在其堆栈上并恢复它，攻击者可以从头创建一个假堆栈，并在返回Rust代码时设置堆栈指针。这些门更新pkru寄存器，以便在外部库运行时临时限制内存访问权限，切换堆栈指针，因此外部库使用不安全的堆栈，并将堆栈指针保存在受保护的内存中，以便在从外部库返回后检索。它们还为TRUST运行时编写线程特定数据结构的适当数据项(参见§5.6)。</p>
+<p><strong>Entry Gate</strong></p>
+<p>在入口门中，程序将安全堆栈指针(rsp)保存在位于特殊区域(始终可读)的线程特定数据结构中。它将数据结构中的域条目更新为1，以表明程序在外部库的上下文中运行，然后pkru寄存器撤销对安全内存区域(pkey 0)的读写权限，以及对始终可读的特殊区域(pkey 2)的写权限。最后，rsp被设置为指向外部库的不安全执行堆栈。</p>
+<p><strong>Exit Gate</strong></p>
+<p>从外部库返回时，程序进行一个简单的调用，将r15的内容与入口门先前保存的内容进行匹配。如果不匹配，TRUST认为这是违规，并将r15寄存器重置为正确的值。这个检查很重要，因为攻击者可能会误导TRUST在不安全的堆栈上执行安全块，如上所述。接下来，它将安全区域和特殊页(r15寄存器内容在进入时保存在其上)的访问权限更新为可读写。</p>
+<p>此时，对安全区域的写权限已经恢复，因此TRUST将特定于线程的数据的域条目值更新为0。最后，它将保存的安全堆栈指针从偏移量加载到r15，并更新RSP。</p>
+<p><strong>Comparison to SFI</strong></p>
+<p>一个潜在的替代我们的设计选择，使用MPK，是SFI。先前的研究已经报道，甚至可以将SFI应用于二进制程序，并且理论上也可以将SFI用于我们的目的。我们选择使用MPK的理由是运行外部库时域更改的频率和内存访问指令的数量。SFI的性能开销主要与内存指令的总数有关，因为每个内存指令都必须使用绑定检查。相反，MPK的开销与转换次数有关。</p>
+<p>在隔离外部库时，我们希望有相对较少的转换，而每个库调用可能有许多内存指令。</p>
+<h2 id="TRUST-Runtime"><a href="#TRUST-Runtime" class="headerlink" title="TRUST Runtime"></a>TRUST Runtime</h2><p>TRUST运行时由安全区域中用于TRUST的每个线程元数据存储、处理不安全对象分配的附加堆分配器、挂钩到内存管理系统调用以禁止外部库更改页面属性，以及挂钩到为新线程初始化TRUST运行时的pthread组成。不安全区域建立后，这些组件的工作原理如下。首先，不安全堆分配器和系统调用挂钩确保不受信任代码分配的任何对象或页面都位于不安全区域。不这样做不会破坏安全性，因为不受信任的代码被禁止单独访问安全区域，从而导致误报。其次，pthread钩子为TRUST准备新线程所需的额外堆栈，并在线程终止时销毁它们。第三，检测代码和运行时使用每个线程的元数据来存储特定于trust的数据，必须保护这些数据不受不受信任的代码的攻击。第四，系统调用挂钩防止不受信任的代码更改页面属性，而基于mpc的TRUST隔离依赖于页面属性。</p>
+<p><strong>Establishing the Unsafe Region</strong></p>
+<p>当程序开始时，TRUST通过从操作系统获得足够多的虚拟页面来建立不安全区域，在我们的实现中，这些页面的总大小为4GB。这些页面使用标志MAP_FIXED进行映射，并配置为具有不安全区域的pkey。正如我们后面所描述的，对不安全区域上的内存块或页面的任何需求都将使用这些映射来满足。在启动时映射不安全区域的方法自动确保剩余的安全块总是从安全区域获取块或页面，因为操作系统不会映射已经映射的页面，除非明确请求。值得注意的是，如果程序预期使用超过4GB的不安全对象，则可以增加保留地址范围的大小，并且这样做不会产生性能或内存开销。请求操作系统内核保留更多内存只会设置更多的虚拟页，并且只有实际分配的虚拟页才会映射到物理页。如果操作系统内核支持一种不同的方式，TRUST可以用来保留一个特定的虚拟地址范围，而不需要创建一个固定的映射，那就更好了，但是据我们所知，我们的原型所运行的Linux内核没有这样的功能。</p>
+<p><strong>TRUST Metadata</strong></p>
+<p>TRUST为每个线程维护一个元数据存储，以保存特定于TRUST的数据，并表示TRUST运行时其他组件的特权级别(例如，安全、不安全或外部)。元数据有一个表示其特权级别的位标志，称为外部。外部位将在程序进入外部库时设置，并在退出时取消设置。元数据还包括安全堆栈指针的字段，TRUST使用它来验证其出口门上的堆栈指针完整性，如§5.5所述。</p>
+<p><strong>The Unsafe Heap Allocator</strong></p>
+<p>TRUST使用额外的，修改堆分配器，使用mimalloc 1.7.0[30]管理不安全区域上的堆。来自不可信代码的堆分配请求通过函数克隆(§5.2)重定向到这里，这个分配器用来自不安全区域的块来服务请求。修改后的分配器通过从已建立的不安全区域获取堆的新页面来管理其在不安全区域上的堆。对于大块的请求(通常直接使用mmap)也使用不安全区域页面进行处理。程序以两种方式使用这个不安全堆。TRUST从源代码编译的不安全块被转换为在需要时显式调用不安全堆分配器。</p>
+<p>相反，外部库不能转换，因为它们是作为可执行二进制文件交付的。因此，TRUST还向安全堆分配器插入一个钩子，以选择性地将堆分配器调用路由到不安全分配器。</p>
+<p>TRUST使用其元数据中的外部字段(我们在本节前面介绍过)来确定调用哪个堆分配器。该字段由§5.5中描述的入口和出口门维护，并且这个钩子使用这个位来确定当前上下文。请注意，虽然该位通过放置在安全区域内来防止针对不受信任代码的攻击，但恶意损坏该位并不会破坏TRUST的安全保证。这种损坏的预期结果是将安全对象分配给不受信任的代码，从而导致误报。对于堆内存的重新分配和释放，运行时库检查有问题的指针是位于安全区域还是不安全区域，并相应地重路由调用。</p>
+<p><strong>Hooking System Calls</strong></p>
+<p>运行时挂钩内存管理系统调用(例如，mmap, mprotect或mremap)来禁止外部库任意操作页面属性。特别是，TRUST确保调用映射的内存的起始地址和结束地址位于上述与不安全区域对应的虚拟地址范围内。运行时还会从安全块重定向对mmap、mremap的调用，试图从指定的不安全区域地址空间映射内存。来自外部代码的类似请求分别被重定向到mmap和mremap的不安全分配器malloc或realloc。mprotect钩子拒绝来自外部库的任何试图禁止它修改页面属性的尝试，包括pkey。此外，外部库会使用ERIM中提出的算法静态检查是否存在更新pkru的指令。</p>
+<p><strong>Hooking pthread</strong></p>
+<p>运行时库挂钩线程创建库，以分配不安全的堆栈和线程特定的数据结构。对于由安全块创建的新线程，挂钩的pthread函数将特定于线程的数据分配到适当的区域。然后，它在不安全区域中分配不安全堆栈，并将它们的指针写入线程特定数据结构的相应条目中。最后，它用指向线程特定数据结构的指针更新r15寄存器，并让执行继续进行。</p>
+<p><strong>Hooking More System Calls</strong></p>
+<p>TRUST运行时必须钩住更多的系统调用来防御最近的一项研究列举的攻击。例如，sigreturn是一个系统调用，可以通过破坏堆栈上的pkru寄存器的内容来绕过传统的基于pku的进程内隔离技术。TRUST可以通过在系统调用之前存储pkru来防止这种情况，这样任何篡改寄存器的尝试都将无效。类似地，TRUST可以自然地采用早期研究发现的钩子，以进一步加强安全Rust免受利用脆弱的外部库的更多攻击。除此之外，运行时还必须勾起更多的系统调用来阻止隔离绕过，如先前的研究所述。Jenny已经展示了我们如何使用seccomp和ptrace全面过滤系统调用，因此我们可以将TRUST运行时和Jenny结合起来以达到完整性。根据Jenny报告的开销，使用Jenny产生的额外开销预计在5%以下。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/" rel="prev" title="学习 Linux Mnt_Namespace实现">
+      <i class="fa fa-chevron-left"></i> 学习 Linux Mnt_Namespace实现
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Background"><span class="nav-number">2.</span> <span class="nav-text">Background</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Motivation"><span class="nav-number">3.</span> <span class="nav-text">Motivation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Vulnerabilities-in-Untrusted-Code"><span class="nav-number">3.1.</span> <span class="nav-text">Vulnerabilities in Untrusted Code</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mitigation-by-In-Process-Isolation"><span class="nav-number">3.2.</span> <span class="nav-text">Mitigation by In-Process Isolation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Limitations-of-Existing-Mechanisms"><span class="nav-number">3.3.</span> <span class="nav-text">Limitations of Existing Mechanisms</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Threat-Model-and-Assumptions"><span class="nav-number">4.</span> <span class="nav-text">Threat Model and Assumptions</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Design-and-Implementation"><span class="nav-number">5.</span> <span class="nav-text">Design and Implementation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Points-to-Analysis"><span class="nav-number">5.1.</span> <span class="nav-text">Points-to Analysis</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Function-Cloning-to-Improve-Precision"><span class="nav-number">5.2.</span> <span class="nav-text">Function Cloning to Improve Precision</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Instrumenting-Memory-Accesses-for-SFI"><span class="nav-number">5.3.</span> <span class="nav-text">Instrumenting Memory Accesses for SFI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Unsafe-Object-Stack"><span class="nav-number">5.4.</span> <span class="nav-text">Unsafe Object Stack</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Instrumenting-External-Library-Calls"><span class="nav-number">5.5.</span> <span class="nav-text">Instrumenting External Library Calls</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TRUST-Runtime"><span class="nav-number">5.6.</span> <span class="nav-text">TRUST Runtime</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.4m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">40:58</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : 'f6f129baf4a16b46ba7cc891c5573d44',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>

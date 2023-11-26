@@ -23,28 +23,28 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="文件系统层次化对 Linux 系统来说一切皆文件，Linux 使用树形的层次化结构来管理所有的文件对象。 完整的 Linux 文件系统，是由多种设备、多种文件系统组成的一个混合的树形结构。我们首先从一个单独的块设备来分析其树形结构的构造。">
+  <meta name="description" content="基本介绍Linux使用namespace来表示从不同进程角度所见的视图。 不同的namespace的进程看到的资源或者进程表是不一样的，相同namespace中的不同进程看到的是同样的资源。 task_struct就是Linux的进程控制块(PCB)，存放进程的信息。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="学习 Linux Mnt Namespace实现">
-<meta property="og:url" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:title" content="学习 Linux Mnt_Namespace实现">
+<meta property="og:url" content="http://example.com/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/index.html">
 <meta property="og:site_name" content="Plucky">
-<meta property="og:description" content="文件系统层次化对 Linux 系统来说一切皆文件，Linux 使用树形的层次化结构来管理所有的文件对象。 完整的 Linux 文件系统，是由多种设备、多种文件系统组成的一个混合的树形结构。我们首先从一个单独的块设备来分析其树形结构的构造。">
+<meta property="og:description" content="基本介绍Linux使用namespace来表示从不同进程角度所见的视图。 不同的namespace的进程看到的资源或者进程表是不一样的，相同namespace中的不同进程看到的是同样的资源。 task_struct就是Linux的进程控制块(PCB)，存放进程的信息。">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/bdev_tree.png">
-<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mount_struct.png">
-<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree.png">
-<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_mmp.png">
-<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_mdev.png">
-<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_path.png">
-<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_chroot.png">
-<meta property="og:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_ns.png">
-<meta property="article:published_time" content="2023-07-18T08:06:21.000Z">
-<meta property="article:modified_time" content="2023-07-19T01:41:26.981Z">
+<meta property="og:image" content="http://example.com/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/bdev_tree.png">
+<meta property="og:image" content="http://example.com/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mount_struct.png">
+<meta property="og:image" content="http://example.com/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree.png">
+<meta property="og:image" content="http://example.com/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_mmp.png">
+<meta property="og:image" content="http://example.com/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_mdev.png">
+<meta property="og:image" content="http://example.com/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_path.png">
+<meta property="og:image" content="http://example.com/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_chroot.png">
+<meta property="og:image" content="http://example.com/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_ns.png">
+<meta property="article:published_time" content="2023-11-24T08:06:21.000Z">
+<meta property="article:modified_time" content="2023-11-24T06:44:42.251Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/bdev_tree.png">
+<meta name="twitter:image" content="http://example.com/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/bdev_tree.png">
 
-<link rel="canonical" href="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/">
+<link rel="canonical" href="http://example.com/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/">
 
 
 <script id="page-configurations">
@@ -57,7 +57,7 @@
   };
 </script>
 
-  <title>学习 Linux Mnt Namespace实现 | Plucky</title>
+  <title>学习 Linux Mnt_Namespace实现 | Plucky</title>
   
 
 
@@ -209,7 +209,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -222,7 +222,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          学习 Linux Mnt Namespace实现
+          学习 Linux Mnt_Namespace实现
         </h1>
 
         <div class="post-meta">
@@ -231,16 +231,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2023-07-18 16:06:21" itemprop="dateCreated datePublished" datetime="2023-07-18T16:06:21+08:00">2023-07-18</time>
+              <time title="Created: 2023-11-24 16:06:21 / Modified: 14:44:42" itemprop="dateCreated datePublished" datetime="2023-11-24T16:06:21+08:00">2023-11-24</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-07-19 09:41:26" itemprop="dateModified" datetime="2023-07-19T09:41:26+08:00">2023-07-19</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -264,14 +258,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.9k</span>
+              <span>7.4k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>9 mins.</span>
+              <span>13 mins.</span>
             </span>
 
         </div>
@@ -283,9 +277,27 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="文件系统层次化"><a href="#文件系统层次化" class="headerlink" title="文件系统层次化"></a>文件系统层次化</h1><p>对 Linux 系统来说一切皆文件，Linux 使用树形的层次化结构来管理所有的文件对象。</p>
+        <h1 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h1><p>Linux使用namespace来表示从不同进程角度所见的视图。 不同的namespace的进程看到的资源或者进程表是不一样的，相同namespace中的不同进程看到的是同样的资源。</p>
+<p>task_struct就是Linux的进程控制块(PCB)，存放进程的信息。</p>
+<p>每个task都有一个指针指向一个namespace，存放在task_struct-&gt;nsproxy中，<mark>同一个container的所有进程指向的namespace是相同的</mark>，<mark>不同container的进程所指向的namepsace是不同的</mark>。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/include/linux/sched.h#L743">sched.h - include&#x2F;linux&#x2F;sched.h - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> &#123;</span></span><br><span class="line">    <span class="comment">/* Namespaces: */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">nsproxy</span>         *<span class="title">nsproxy</span>;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/include/linux/nsproxy.h#L31">nsproxy.h - include&#x2F;linux&#x2F;nsproxy.h - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * A structure to contain pointers to all per-process</span></span><br><span class="line"><span class="comment"> * namespaces - fs (mount), uts, network, sysvipc, etc.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * The pid namespace is an exception -- it&#x27;s accessed using</span></span><br><span class="line"><span class="comment"> * task_active_pid_ns.  The pid namespace here is the</span></span><br><span class="line"><span class="comment"> * namespace that children will use.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &#x27;count&#x27; is the number of tasks holding a reference.</span></span><br><span class="line"><span class="comment"> * The count for each namespace, then, will be the number</span></span><br><span class="line"><span class="comment"> * of nsproxies pointing to it, not the number of tasks.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * The nsproxy is shared by tasks which share all namespaces.</span></span><br><span class="line"><span class="comment"> * As soon as a single namespace is cloned or unshared, the</span></span><br><span class="line"><span class="comment"> * nsproxy is copied.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">nsproxy</span> &#123;</span></span><br><span class="line">    <span class="type">refcount_t</span> count;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">uts_namespace</span> *<span class="title">uts_ns</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ipc_namespace</span> *<span class="title">ipc_ns</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mnt_namespace</span> *<span class="title">mnt_ns</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pid_namespace</span> *<span class="title">pid_ns_for_children</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">net</span>          *<span class="title">net_ns</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">time_namespace</span> *<span class="title">time_ns</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">time_namespace</span> *<span class="title">time_ns_for_children</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_namespace</span> *<span class="title">cgroup_ns</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">extern</span> <span class="class"><span class="keyword">struct</span> <span class="title">nsproxy</span> <span class="title">init_nsproxy</span>;</span></span><br></pre></td></tr></table></figure>
+
+<p>有一些新的namespace还在实现中，比如<a target="_blank" rel="noopener" href="https://lwn.net/Articles/564854/">Device namespaces [LWN.net]</a></p>
+<h1 id="mnt-namespace"><a href="#mnt-namespace" class="headerlink" title="mnt_namespace"></a>mnt_namespace</h1><p>mnt namespace为进程提供独立的文件系统视图。当clone（）函数中带有CLONE_NEWNS标志时，新的mnt ns在子进程中被创建，新的mnt ns是一份父mnt ns的拷贝， 但是在子进程中调用mount安装的文件系统，将独立于父进程的mnt ns，只出现在新的mnt ns上（如果考虑到<a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/filesystems/sharedsubtree.txt">shared subtree</a>，情况会复杂许多）。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/mount.h#L8">mount.h - fs&#x2F;mount.h - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mnt_namespace</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">ns_common</span>	<span class="title">ns</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">mount</span> *	<span class="title">root</span>;</span>  <span class="comment">// 当前namespace下的根文件系统</span></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * Traversal and modification of .list is protected by either</span></span><br><span class="line"><span class="comment">	 * - taking namespace_sem for write, OR</span></span><br><span class="line"><span class="comment">	 * - taking namespace_sem for read AND taking .ns_lock.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>	<span class="title">list</span>;</span>  <span class="comment">// 当前namespace下的文件系统列表（vfsmount list）</span></span><br><span class="line">	<span class="type">spinlock_t</span>		ns_lock;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">user_namespace</span>	*<span class="title">user_ns</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">ucounts</span>		*<span class="title">ucounts</span>;</span></span><br><span class="line">	u64			seq;	<span class="comment">/* Sequence number to prevent loops */</span></span><br><span class="line">	<span class="type">wait_queue_head_t</span> poll;</span><br><span class="line">	u64 event;</span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span>		mounts; <span class="comment">/* # of mounts in the namespace */</span></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span>		pending_mounts;</span><br><span class="line">&#125; __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<p>由于mnt_namespace的核心是提供文件系统视图，所以与struct vfsmount（代表一个安装的文件系统）紧密相关。而理解struct vfsmount，也是理解mnt_namespace的关键。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/include/linux/mount.h#L70">mount.h - include&#x2F;linux&#x2F;mount.h - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">vfsmount</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">mnt_root</span>;</span>	<span class="comment">/* root of the mounted tree */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">super_block</span> *<span class="title">mnt_sb</span>;</span>	<span class="comment">/* pointer to superblock */</span></span><br><span class="line">	<span class="type">int</span> mnt_flags;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">mnt_idmap</span> *<span class="title">mnt_idmap</span>;</span></span><br><span class="line">&#125; __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<h1 id="文件系统层次化"><a href="#文件系统层次化" class="headerlink" title="文件系统层次化"></a>文件系统层次化</h1><p>对 Linux 系统来说一切皆文件，Linux 使用树形的层次化结构来管理所有的文件对象。</p>
 <p>完整的 Linux 文件系统，是由多种设备、多种文件系统组成的一个混合的树形结构。我们首先从一个单独的块设备来分析其树形结构的构造。</p>
-<h2 id="块设备的层次化（superblock-x2F-inode-x2F-dentry）"><a href="#块设备的层次化（superblock-x2F-inode-x2F-dentry）" class="headerlink" title="块设备的层次化（superblock&#x2F;inode&#x2F;dentry）"></a>块设备的层次化（superblock&#x2F;inode&#x2F;dentry）</h2><img src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/bdev_tree.png" title alt data-align="center">
+<h2 id="块设备的层次化（superblock-x2F-inode-x2F-dentry）"><a href="#块设备的层次化（superblock-x2F-inode-x2F-dentry）" class="headerlink" title="块设备的层次化（superblock&#x2F;inode&#x2F;dentry）"></a>块设备的层次化（superblock&#x2F;inode&#x2F;dentry）</h2><img src="/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/bdev_tree.png" title alt data-align="center">
 
 <p>在Linux内核中，<code>struct super_block</code> 是一个重要的数据结构，用于代表文件系统的超级块。超级块包含了文件系统的元数据，例如文件系统类型、块大小、空闲块和inode的数量等。每个在内存中挂载的文件系统都有一个对应的 <code>struct super_block</code> 实例。</p>
 <p><code>struct block_device</code> 是另一个重要的数据结构，用于表示块设备，如硬盘。这个结构体包含了关于块设备的信息，如设备的大小、读写方法、驱动程序引用等。</p>
@@ -322,14 +334,14 @@
 <p>通过挂载，我们可以将多个设备和文件系统组织成一个复杂的、统一的、连续的文件系统，这对用户来说是透明的，使得他们可以轻松地管理和访问文件，而不需要关心文件实际上存储在哪个设备上。</p>
 <ul>
 <li><p>mount&#x2F;vfsmount</p>
-<img src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mount_struct.png" title alt data-align="center">
+<img src="/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mount_struct.png" title alt data-align="center">
 
 <p>在Linux系统中，<code>struct mount</code> 结构是用来表示和管理挂载点的。当你将一个设备（我们可以称之为子设备）的文件系统挂载到另一个设备（我们可以称之为父设备）的特定目录时，系统会创建一个 <code>struct mount</code> 结构来跟踪这个挂载操作。</p>
 <p><code>struct mount</code> 结构包含了管理和维护挂载点所需的所有信息。例如，它可以帮助系统知道当访问挂载点时，应当将文件操作（如打开文件、读取文件等）重定向到子设备的哪个文件或目录。</p>
 <p>在文件系统树中，<code>struct mount</code> 结构实际上表现为一个链接，连接了父设备的挂载点和子设备的文件系统树的根。当你通过父设备的文件系统路径访问子设备的文件或目录时，<code>struct mount</code> 结构就会起作用，它会将你的请求引导到正确的设备和文件。</p>
 </li>
 <li><p>mount tree</p>
-<img src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree.png" title alt data-align="center">
+<img src="/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree.png" title alt data-align="center">
 
 <p>在Linux系统中，通过使用<code>struct mount</code>结构，一个子设备的文件系统（也就是一棵子设备树）可以被挂载到父设备树的一个特定<code>dentry</code>节点上。这个<code>dentry</code>节点代表父设备文件系统中的一个目录，它将作为挂载点来访问子设备文件系统。</p>
 <p>当一个<code>dentry</code>变成挂载点时，系统会给它设置一个标志，这个标志叫做<code>DCACHE_MOUNTED</code>。这个标志告诉系统，当访问这个<code>dentry</code>时，实际上应该访问子设备的文件系统，而不是原本在父设备上的内容。因此，一旦<code>dentry</code>成为挂载点，原本在该目录下的内容就不能被直接访问了，取而代之的是子设备文件系统根节点下的内容。</p>
@@ -338,7 +350,7 @@
 <p>Linux 拥有非常灵活的挂载规则：</p>
 <ul>
 <li><p>一个设备可以被挂载多次：</p>
-<img src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_mmp.png" title alt data-align="center">
+<img src="/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_mmp.png" title alt data-align="center">
 
 <p>可以看到同一个子设备树，同时被两个 <code>struct mount</code> 结构所引用，被挂载到父设备树的两处不同的 <code>dentry</code> 处。</p>
 <blockquote>
@@ -346,33 +358,37 @@
 </blockquote>
 </li>
 <li><p>一个挂载点可以挂载多个设备：</p>
-<img src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_mdev.png" title alt data-align="center">
+<img src="/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_mdev.png" title alt data-align="center">
 
 <p>还可以对父设备树的同一个文件夹 <code>dentry</code> 进行多次挂载，最后路径查找时生效的是最后一次挂载的子设备树。</p>
 </li>
 </ul>
 </li>
 <li><p>path</p>
-<img src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_path.png" title alt data-align="center">
+<img src="/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_path.png" title alt data-align="center">
 
 <p>因为 Linux 提供的灵活的挂载规则，所以我们如果要标识一个路径 <code>struct path</code> 的话需要两个元素：<code>vfsmount</code> 和 <code>dentry</code>。</p>
 <p>可以看到两个路径 <code>struct path</code> 最后引用到了同一 <code>inode</code>，但是路径 <code>path</code> 是不一样的，因为 <code>path</code> 指向的 <code>vfsmount</code> 是不一样的。</p>
 </li>
 <li><p>chroot</p>
 <p>Linux 还支持每个进程拥有不同的根目录，使用 <code>chroot()</code> 系统调用可以把当前进程的根目录设置为整棵文件系统树中的任何 <code>path</code>。</p>
-<img title src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_chroot.png" alt data-align="center"></li>
+<img title src="/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_chroot.png" alt data-align="center"></li>
 </ul>
 <h2 id="多名空间的层次化（mnt-namespace）"><a href="#多名空间的层次化（mnt-namespace）" class="headerlink" title="多名空间的层次化（mnt_namespace）"></a>多名空间的层次化（mnt_namespace）</h2><p>Linux 系统为了支持 <code>mnt_namespace</code>，必须将单一的 <code>mount</code> 树扩展成多棵 <code>mount</code> 树。让我们先解释一下什么是 <code>namespace</code> 和 <code>mnt_namespace</code>。</p>
 <p><code>Namespace</code> 是 Linux 提供的一种机制，它可以将系统资源划分为多个独立的视图或环境。每个 <code>namespace</code> 都有自己的一组资源，对资源的改变不会影响到其他的 <code>namespace</code>。这种机制在容器技术中尤其重要，因为它使每个容器都可以有自己独立的系统视图，就像在自己的系统中一样。</p>
 <p><code>mnt_namespace</code> 是 <code>namespace</code> 的一种，它是用来隔离文件系统挂载点的。每个 <code>mnt_namespace</code> 都有自己的 <code>mount</code> 树，这意味着在一个 <code>namespace</code> 中挂载或卸载的文件系统不会影响到其他的 <code>namespace</code>。</p>
 <p>举个例子，如果你在一个 <code>namespace</code> 中挂载了一个 USB 驱动器，那么这个驱动器仅在该 <code>namespace</code> 内可见。在其他 <code>namespace</code> 中，你将看不到这个驱动器，除非你在那个 <code>namespace</code> 中也执行了挂载操作。</p>
 <p>因此，通过每个 <code>mnt_namespace</code> 拥有一棵独立的 <code>mount</code> 树，Linux 系统能为每个 <code>namespace</code> 提供独立的文件系统视图，从而实现更强大、更灵活的资源隔离功能。</p>
-<img src="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_ns.png" title alt data-align="center">
+<img src="/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/mnt_tree_ns.png" title alt data-align="center">
+
+
 
 <h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
 <li><p><a target="_blank" rel="noopener" href="https://tinylab.org/mnt-namespace/">Mnt Namespace 详解 - 泰晓科技 (tinylab.org)</a></p>
 </li>
 <li><p>GPT-4</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://hustcat.github.io/namespace-implement-1/">Linux Namespace分析——mnt namespace的实现与应用 (hustcat.github.io)</a></p>
 </li>
 </ul>
 
@@ -390,12 +406,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/07/18/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%20dentry%E8%AF%A6%E8%A7%A3%E5%92%8Cdcache%E5%AE%9E%E7%8E%B0/" rel="prev" title="学习 Linux VFS虚拟文件系统 dentry详解和dcache实现">
-      <i class="fa fa-chevron-left"></i> 学习 Linux VFS虚拟文件系统 dentry详解和dcache实现
+    <a href="/2023/11/24/Rust%E5%AD%A6%E4%B9%A0-%E6%89%80%E6%9C%89%E6%9D%83/" rel="prev" title="Rust学习 所有权">
+      <i class="fa fa-chevron-left"></i> Rust学习 所有权
     </a></div>
       <div class="post-nav-item">
-    <a href="/2023/07/29/%E5%AD%A6%E4%B9%A0-Linux-fs-namei-c%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="next" title="学习 Linux /fs/namei.c源码分析">
-      学习 Linux /fs/namei.c源码分析 <i class="fa fa-chevron-right"></i>
+    <a href="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/" rel="next" title="论文阅读 TRUST: A Compilation Framework for In-process Isolation to Protect Safe Rust against Untrusted Code">
+      论文阅读 TRUST: A Compilation Framework for In-process Isolation to Protect Safe Rust against Untrusted Code <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -456,7 +472,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B1%82%E6%AC%A1%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">文件系统层次化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9D%97%E8%AE%BE%E5%A4%87%E7%9A%84%E5%B1%82%E6%AC%A1%E5%8C%96%EF%BC%88superblock-x2F-inode-x2F-dentry%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">块设备的层次化（superblock&#x2F;inode&#x2F;dentry）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E8%AE%BE%E5%A4%87%E7%9A%84%E5%B1%82%E6%AC%A1%E5%8C%96%EF%BC%88mount-x2F-vfsmount%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">多设备的层次化（mount&#x2F;vfsmount）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E5%90%8D%E7%A9%BA%E9%97%B4%E7%9A%84%E5%B1%82%E6%AC%A1%E5%8C%96%EF%BC%88mnt-namespace%EF%BC%89"><span class="nav-number">1.3.</span> <span class="nav-text">多名空间的层次化（mnt_namespace）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">2.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">基本介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mnt-namespace"><span class="nav-number">2.</span> <span class="nav-text">mnt_namespace</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B1%82%E6%AC%A1%E5%8C%96"><span class="nav-number">3.</span> <span class="nav-text">文件系统层次化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9D%97%E8%AE%BE%E5%A4%87%E7%9A%84%E5%B1%82%E6%AC%A1%E5%8C%96%EF%BC%88superblock-x2F-inode-x2F-dentry%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">块设备的层次化（superblock&#x2F;inode&#x2F;dentry）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E8%AE%BE%E5%A4%87%E7%9A%84%E5%B1%82%E6%AC%A1%E5%8C%96%EF%BC%88mount-x2F-vfsmount%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">多设备的层次化（mount&#x2F;vfsmount）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E5%90%8D%E7%A9%BA%E9%97%B4%E7%9A%84%E5%B1%82%E6%AC%A1%E5%8C%96%EF%BC%88mnt-namespace%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">多名空间的层次化（mnt_namespace）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -470,14 +486,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-count">80</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -532,13 +548,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">1.3m</span>
+    <span title="Symbols count total">1.4m</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">40:07</span>
+    <span title="Reading time total">40:58</span>
 </div>
 
 <!--
@@ -648,7 +664,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'Blog-talk',
       owner       : 'Plucky923',
       admin       : ['Plucky923'],
-      id          : 'cbc2faf5c90c7c12d94c4c33ddc4e948',
+      id          : 'e0ac089a4e75b2cc56819a2b71620054',
         language: 'zh-CH',
       distractionFreeMode: true
     });

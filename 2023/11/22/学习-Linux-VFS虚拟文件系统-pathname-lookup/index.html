@@ -31,7 +31,7 @@
 <meta property="og:description" content="pathname lookuppathname lookup在VFS中，是调用次数最多的操作，在各种系统调用中都可以看到pathname lookup在发挥作用。 在进程需要操作文件时，它会将文件路径名传递给某些系统调用，例如open(),mkdir(),rename(),stat()等等">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-22T07:18:21.000Z">
-<meta property="article:modified_time" content="2023-11-23T03:39:18.028Z">
+<meta property="article:modified_time" content="2023-11-26T08:54:10.892Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
 
@@ -230,7 +230,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-23 11:39:18" itemprop="dateModified" datetime="2023-11-23T11:39:18+08:00">2023-11-23</time>
+                <time title="Modified: 2023-11-26 16:54:10" itemprop="dateModified" datetime="2023-11-26T16:54:10+08:00">2023-11-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -255,14 +255,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>18k</span>
+              <span>28k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>33 mins.</span>
+              <span>51 mins.</span>
             </span>
 
         </div>
@@ -406,9 +406,103 @@
 <p>如果对组件的判断，判断不是<code>.</code>或者<code>..</code>,那么它的type为LAST_NORM</p>
 <p>然后看到相应的处理，首先设置了一个<code>parent</code>为nd-&gt;path.dentry，因为如果我们查找下一个组件的dentry的话，现在的path中dentry就是下个组件的parent。</p>
 <p>然后对一些值进行设置，其中的值都是根据当前组件设置的。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">nd-&gt;last.hash_len = hash_len;</span><br><span class="line">nd-&gt;last.name = name;</span><br><span class="line">nd-&gt;last_type = type;</span><br><span class="line"></span><br><span class="line">name += hashlen_len(hash_len);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">        nd-&gt;last.hash_len = hash_len;</span><br><span class="line">        nd-&gt;last.name = name;</span><br><span class="line">        nd-&gt;last_type = type;</span><br><span class="line"></span><br><span class="line">        name += hashlen_len(hash_len);</span><br><span class="line">        <span class="keyword">if</span> (!*name)</span><br><span class="line">            <span class="keyword">goto</span> OK;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * If it wasn&#x27;t NUL, we know it was &#x27;/&#x27;. Skip that</span></span><br><span class="line"><span class="comment">         * slash, and continue until no more slashes.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            name++;</span><br><span class="line">        &#125; <span class="keyword">while</span> (unlikely(*name == <span class="string">&#x27;/&#x27;</span>));</span><br><span class="line">        <span class="keyword">if</span> (unlikely(!*name)) &#123;</span><br><span class="line">OK:</span><br><span class="line">            <span class="comment">/* pathname or trailing symlink, done */</span></span><br><span class="line">            <span class="keyword">if</span> (!depth) &#123;</span><br><span class="line">                nd-&gt;dir_vfsuid = i_uid_into_vfsuid(idmap, nd-&gt;inode);</span><br><span class="line">                nd-&gt;dir_mode = nd-&gt;inode-&gt;i_mode;</span><br><span class="line">                nd-&gt;flags &amp;= ~LOOKUP_PARENT;</span><br><span class="line">                <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">/* last component of nested symlink */</span></span><br><span class="line">            name = nd-&gt;<span class="built_in">stack</span>[--depth].name;</span><br><span class="line">            link = walk_component(nd, <span class="number">0</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">/* not the last component */</span></span><br><span class="line">            link = walk_component(nd, WALK_MORE);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
 
 <p>对last的值进行处理，last设置为下面要处理的组件的信息。</p>
+<p>如果name指针往后移了一个组件的长度之后，判断是否是NULL，如果不是NULL则肯定是&#x2F;，跳过&#x2F;之后进行下一步操作继续判断name是否为NULL。</p>
+<p>也就是说如果name指针为NULL时进行的操作为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">            <span class="comment">/* pathname or trailing symlink, done */</span></span><br><span class="line"><span class="keyword">if</span> (!depth) &#123;</span><br><span class="line">    nd-&gt;dir_vfsuid = i_uid_into_vfsuid(idmap, nd-&gt;inode);</span><br><span class="line">    nd-&gt;dir_mode = nd-&gt;inode-&gt;i_mode;</span><br><span class="line">    nd-&gt;flags &amp;= ~LOOKUP_PARENT;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* last component of nested symlink */</span></span><br><span class="line">name = nd-&gt;<span class="built_in">stack</span>[--depth].name;</span><br><span class="line">link = walk_component(nd, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<p>如果name指针不是NULL时进行的操作为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* not the last component */</span></span><br><span class="line">link = walk_component(nd, WALK_MORE);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>如果name指针不是NULL也代表现在处理的组件不是最后一个组件。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="type">char</span> *<span class="title function_">walk_component</span><span class="params">(<span class="keyword">struct</span> nameidata *nd, <span class="type">int</span> flags)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> *<span class="title">dentry</span>;</span></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * &quot;.&quot; and &quot;..&quot; are special - &quot;..&quot; especially so because it has</span></span><br><span class="line"><span class="comment">     * to be able to know about the current root directory and</span></span><br><span class="line"><span class="comment">     * parent relationships.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(nd-&gt;last_type != LAST_NORM)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!(flags &amp; WALK_MORE) &amp;&amp; nd-&gt;depth)</span><br><span class="line">            put_link(nd);</span><br><span class="line">        <span class="keyword">return</span> handle_dots(nd, nd-&gt;last_type);</span><br><span class="line">    &#125;</span><br><span class="line">    dentry = lookup_fast(nd);</span><br><span class="line">    <span class="keyword">if</span> (IS_ERR(dentry))</span><br><span class="line">        <span class="keyword">return</span> ERR_CAST(dentry);</span><br><span class="line">    <span class="keyword">if</span> (unlikely(!dentry)) &#123;</span><br><span class="line">        dentry = lookup_slow(&amp;nd-&gt;last, nd-&gt;path.dentry, nd-&gt;flags);</span><br><span class="line">        <span class="keyword">if</span> (IS_ERR(dentry))</span><br><span class="line">            <span class="keyword">return</span> ERR_CAST(dentry);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!(flags &amp; WALK_MORE) &amp;&amp; nd-&gt;depth)</span><br><span class="line">        put_link(nd);</span><br><span class="line">    <span class="keyword">return</span> step_into(nd, flags, dentry);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果nd-&gt;last_type不是LAST_NORM的话，则要处理的组件是<code>.</code>或<code>..</code>,进入handle_dots()进行处理。</p>
+<p>如果nd-&gt;last_type是LAST_NORM首先调用lookup_fast函数，从dcache中查找组件的dentry。</p>
+<p>如果lookup_fast没找到，则会根据当前查找的dentry的inode，去对应的文件系统中查找。</p>
+<p>比如：如果是绝对路径查找，在查找第一个组件时，lookup_fast没找到，则会根据path_init设置的nd-&gt;path.dentry的inode来进入具体的文件系统来查找。</p>
+<p>如果经过lookup_slow和lookup_fast查找到了正确的dentry，则会进行下一步操作，step_into()</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6/source/fs/namei.c#L1835">namei.c - fs&#x2F;namei.c - Linux source code (v6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Do we need to follow links? We _really_ want to be able</span></span><br><span class="line"><span class="comment"> * to do this check without having to look at inode-&gt;i_op,</span></span><br><span class="line"><span class="comment"> * so we keep a cache of &quot;no, this doesn&#x27;t need follow_link&quot;</span></span><br><span class="line"><span class="comment"> * for the common case.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">NOTE:</span> dentry must be what nd-&gt;next_seq had been sampled from.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="type">char</span> *<span class="title function_">step_into</span><span class="params">(<span class="keyword">struct</span> nameidata *nd, <span class="type">int</span> flags,</span></span><br><span class="line"><span class="params">             <span class="keyword">struct</span> dentry *dentry)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">path</span> <span class="title">path</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">inode</span>;</span></span><br><span class="line">    <span class="type">int</span> err = handle_mounts(nd, dentry, &amp;path);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (err &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> ERR_PTR(err);</span><br><span class="line">    inode = path.dentry-&gt;d_inode;</span><br><span class="line">    <span class="keyword">if</span> (likely(!d_is_symlink(path.dentry)) ||</span><br><span class="line">       ((flags &amp; WALK_TRAILING) &amp;&amp; !(nd-&gt;flags &amp; LOOKUP_FOLLOW)) ||</span><br><span class="line">       (flags &amp; WALK_NOFOLLOW)) &#123;</span><br><span class="line">        <span class="comment">/* not a symlink or should not follow */</span></span><br><span class="line">        <span class="keyword">if</span> (nd-&gt;flags &amp; LOOKUP_RCU) &#123;</span><br><span class="line">            <span class="keyword">if</span> (read_seqcount_retry(&amp;path.dentry-&gt;d_seq, nd-&gt;next_seq))</span><br><span class="line">                <span class="keyword">return</span> ERR_PTR(-ECHILD);</span><br><span class="line">            <span class="keyword">if</span> (unlikely(!inode))</span><br><span class="line">                <span class="keyword">return</span> ERR_PTR(-ENOENT);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            dput(nd-&gt;path.dentry);</span><br><span class="line">            <span class="keyword">if</span> (nd-&gt;path.mnt != path.mnt)</span><br><span class="line">                mntput(nd-&gt;path.mnt);</span><br><span class="line">        &#125;</span><br><span class="line">        nd-&gt;path = path;</span><br><span class="line">        nd-&gt;inode = inode;</span><br><span class="line">        nd-&gt;seq = nd-&gt;next_seq;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (nd-&gt;flags &amp; LOOKUP_RCU) &#123;</span><br><span class="line">        <span class="comment">/* make sure that d_is_symlink above matches inode */</span></span><br><span class="line">        <span class="keyword">if</span> (read_seqcount_retry(&amp;path.dentry-&gt;d_seq, nd-&gt;next_seq))</span><br><span class="line">            <span class="keyword">return</span> ERR_PTR(-ECHILD);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (path.mnt == nd-&gt;path.mnt)</span><br><span class="line">            mntget(path.mnt);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> pick_link(nd, &amp;path, inode, flags);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在step_into()中首先调用了handle_mounts()处理挂载点，如果在上面的walk_component()中找到的dentry是一个挂载点，则会进入到对应的文件系统中。</p>
+<p>下面判断这个dentry是不是一个符号链接。如果是符号链接则会调用pick_link()对符号链接进行处理，如果不是符号链接，则会将nameidata更新为查找到的组件的信息，然后返回NULL。</p>
+<p>如果是符号链接则会返回符号链接的字符串，后文详细讨论符号链接的处理。</p>
+<p>现在假设我们查找到的组件不是符号链接，这个时候会返回一个NULL，一步步返回link_path_walk()</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">        <span class="keyword">if</span> (unlikely(link)) &#123;</span><br><span class="line">    <span class="keyword">if</span> (IS_ERR(link))</span><br><span class="line">        <span class="keyword">return</span> PTR_ERR(link);</span><br><span class="line">    <span class="comment">/* a symlink to follow */</span></span><br><span class="line">    nd-&gt;<span class="built_in">stack</span>[depth++].name = name;</span><br><span class="line">    name = link;</span><br><span class="line">    <span class="keyword">continue</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (unlikely(!d_can_lookup(nd-&gt;path.dentry))) &#123;</span><br><span class="line">    <span class="keyword">if</span> (nd-&gt;flags &amp; LOOKUP_RCU) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!try_to_unlazy(nd))</span><br><span class="line">            <span class="keyword">return</span> -ECHILD;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> -ENOTDIR;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为刚才我们的link返回的是一个NULL，所以不需要更新name，如果是符号链接的话，link则将会是一个字符串，我们需要将name更新为link，因为link是NULL，所以我们只需要对现在查找到的节点进行验证然后进行下一步循环。</p>
+<p>比如说我们是绝对路径查找，查找的路径名为&#x2F;usr&#x2F;my&#x2F;helloworld.txt，在第一轮循环之后，nameidata的相关信息从根目录的信息更新为了usr的相关信息，而下一轮循环中，name的指针指向了m，也就是下一轮处理的name为my&#x2F;helloworld.txt，接下来会一步步循环处理直到处理到最后一个组件。</p>
+<p>如果处理到最后一个组件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">            <span class="comment">/* pathname or trailing symlink, done */</span></span><br><span class="line"><span class="keyword">if</span> (!depth) &#123;</span><br><span class="line">    nd-&gt;dir_vfsuid = i_uid_into_vfsuid(idmap, nd-&gt;inode);</span><br><span class="line">    nd-&gt;dir_mode = nd-&gt;inode-&gt;i_mode;</span><br><span class="line">    nd-&gt;flags &amp;= ~LOOKUP_PARENT;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* last component of nested symlink */</span></span><br><span class="line">name = nd-&gt;<span class="built_in">stack</span>[--depth].name;</span><br><span class="line">link = walk_component(nd, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<p>则会进行上述的操作。</p>
+<p>我们在走到一个符号链接的时候，depth会+1，而处理完一个符号链接，depth会-1。</p>
+<p>继续看下面的代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">            <span class="keyword">if</span> (unlikely(!*name)) &#123;</span><br><span class="line">OK:</span><br><span class="line">            <span class="comment">/* pathname or trailing symlink, done */</span></span><br><span class="line">            <span class="keyword">if</span> (!depth) &#123;</span><br><span class="line">                nd-&gt;dir_vfsuid = i_uid_into_vfsuid(idmap, nd-&gt;inode);</span><br><span class="line">                nd-&gt;dir_mode = nd-&gt;inode-&gt;i_mode;</span><br><span class="line">                nd-&gt;flags &amp;= ~LOOKUP_PARENT;</span><br><span class="line">                <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">/* last component of nested symlink */</span></span><br><span class="line">            name = nd-&gt;<span class="built_in">stack</span>[--depth].name;  <span class="comment">// 在这里说明已经处理完一个符号链接</span></span><br><span class="line">            link = walk_component(nd, <span class="number">0</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">/* not the last component */</span></span><br><span class="line">            link = walk_component(nd, WALK_MORE);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (unlikely(link)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (IS_ERR(link))</span><br><span class="line">                <span class="keyword">return</span> PTR_ERR(link);</span><br><span class="line">            <span class="comment">/* a symlink to follow */</span></span><br><span class="line">            nd-&gt;<span class="built_in">stack</span>[depth++].name = name;  <span class="comment">// 在这里说明遇到了一个符号链接</span></span><br><span class="line">            name = link;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果所有符号链接都处理完成，并且是最后一个组件，则会返回0，最后一个组件会留给调用者进行处理。</p>
+<p>最后的nameidata中的path是倒数第二个组件的相关信息，last是最后一个组件的相关信息。</p>
+<h2 id="符号链接处理"><a href="#符号链接处理" class="headerlink" title="符号链接处理"></a>符号链接处理</h2><p>为了理解符号链接的处理，首先要理解几个基本问题：符号链接栈，符号链接缓存的生命周期，这将帮助我们理解符号链接的整体递归处理和对最终组件进行的特殊处理。</p>
+<h3 id="符号链接栈"><a href="#符号链接栈" class="headerlink" title="符号链接栈"></a>符号链接栈</h3><p><mark>只有两种文件系统对象可以有效的出现在最终组件之前的路径中：目录和符号链接</mark></p>
+<p>处理目录非常简单：解释为路径上下一个组件的新起点。</p>
+<p>处理符号链接需要更多的操作。</p>
+<p>可以通过编辑路径名成来处理符号链接。如果一个组件引用了符号链接，则将该组件替换为链接的正文。如果该正文是一个以“&#x2F;”开头的绝对路径，则丢弃路径前面的所有部分。也就是说比如我要查找&#x2F;home&#x2F;user&#x2F;project&#x2F;symlinks&#x2F;src&#x2F;main.cpp ，然后现在有一个符号链接&#x2F;home&#x2F;user&#x2F;project&#x2F;symlinks&#x2F;src -&gt; &#x2F;home&#x2F;data&#x2F;123123&#x2F;456,那么最终找到的文件是&#x2F;home&#x2F;data&#x2F;123123&#x2F;456&#x2F;main.cpp。</p>
+<p>但是在pathname lookup的过程中，丢弃之前的路径没有必要，因为走到下面的路径的时候就不会再回头看之前的路径了。所以重要的是跟踪所有剩余的组件，他们也可以单独保存起来，不需要将他们连接起来，也就是单独存储每一个组件而不是存储成一个用&#x2F;链接起来的字符串也是可以的。</p>
+<p>因为一个符号链接可以很容易的引用另一个符号链接，然后引用的另一个符号链接还可以轻松的引用第三个符号链接，所以再查找的过程中，首先要将第一个符号链接前查找的剩余组件保存，而第二个符号链接查找前的剩余组件我们也要保存起来，依次类推，我们可能需要保存多个路径的剩余组件，这也对应我们上面的代码分析，nd-&gt;stack[depth]操作。每个组件将在需要处理完的路径处理完之后进行处理，这些剩余的路径保存在栈中。</p>
+<p>而保存剩余路径的栈的长度是有限的。为了限制单个路径查找中可以出现的符号链接数。首先可以避免出现循环，如果符号链接直接引用自己或者通过中介引用自己，那么符号链接就永远没法完成，所以要返回错误。第二个原因是<code>Because it&#39;s a latency and DoS issue too. We need to react well to true loops, but also to &quot;very deep&quot; non-loops. It&#39;s not about memory use, it&#39;s about users triggering unreasonable CPU resources.</code></p>
+<p>Linux 对任何路径名的长度施加了限制： <code>PATH_MAX</code> ，即 4096。此限制的原因有很多;不要让内核在一条路径上花费太多时间就是其中之一。使用符号链接，可以有效地生成更长的路径，因此出于同样的原因需要某种限制。</p>
+<p>Linux 在任何一个路径查找中最多施加了 40 个 （MAXSYMLINKS） 符号链接的限制。它之前对递归的最大深度施加了 8 个限制，但当实现单独的堆栈时，这个限制提高到 40，所以现在只有一个限制。</p>
+<p>我们在上文中遇到的 <code>nameidata</code> 结构包含一个小堆栈，可用于存储最多两个符号链接的剩余部分。在许多情况下，这就足够了。如果不是，则分配一个单独的堆栈，其中包含 40 个符号链接的空间。路径名查找永远不会超过该堆栈，因为一旦检测到第 40 个符号链接，就会返回错误。</p>
+<h3 id="符号链接缓存的生命周期"><a href="#符号链接缓存的生命周期" class="headerlink" title="符号链接缓存的生命周期"></a>符号链接缓存的生命周期</h3><p>与其他文件系统资源一样（比如inode和dentry），符号链接也有缓存，以避免重复访问外部存储，成本高昂。</p>
+<p>对于RCU-walk来说，能够找到并且暂时保留这些缓存的条目非常重要，这样就不需要进入到REF-walk中。</p>
+<p>虽然每个文件系统都可以自由选择，但是符号链接通常存储在两个位置之一。</p>
+<ul>
+<li>inode - 一般存储短符号链接。</li>
+</ul>
+<p>当文件系统分配一个inode结构体时，它通常会分配额外的空间来存储私有数据（内核中常见的 <a target="_blank" rel="noopener" href="https://lwn.net/Articles/446317/">object-oriented design pattern 面向对象设计</a>。这有时候会包含符号链接的空间。</p>
+<p>当符号链接存储在inode中时，符号链接与inode具有相同的生命周期，而inode本身受RCU或者dentry上的引用计数保护，这意味pathname lookup用于安全访问dcache和icache的机制就足以安全的访问某些符号链接cache，在这些情况下，inode中的i_link指针设置为指向符号链接的存储位置，并且在需要时可以直接访问它。</p>
+<ul>
+<li>page cache - 一般存储文件的内容</li>
+</ul>
+<p>符号链接中的路径名可以看作是符号链接的内容，并且可以像文件内容一样轻松地存储在page cache中。</p>
+<ul>
+<li>文件系统分配临时内存</li>
+</ul>
+<p>当上面两种情况都不合适时，下一个最有可能的情况是文件系统将分配一些临时内存，并在需要时将符号链接内容复制或构造到该内存中。</p>
+<p>当符号链接存储在page cache或者其他地方时，情况就不是那么简单了。对于dentry和inode的引用并不意味着对这个inode的page cache的引用，甚至rcu_read_lock()不足以确保页面是否会消失。因此对于这种符号链接，pathname lookup要求文见系统提供稳定的引用，并且重要的是在完成引用时释放该引用。</p>
+<p>即使在RCU遍历模式下，通常也可以引用page cache，它确实需要对内存进行更改，但是最好避免这种情况。</p>
+<p>分配空间将符号链接复制到文件系统中，可以用GFP_ATOMIC成功分配内存而不需要推出RCU遍历。如果文件系统在RCU模式不能成功获取引用，则必须返回-ECHILD并且调用unlazy_walk()，退出到REF模式中，在该模式下，允许文件系统sleep。</p>
+<p>发生上面所述的地方是inode的方法i_op-&gt;get_link()。这个方法在RCU和REF中都可以调用，在RCU中dentry*参数是NULL，-&gt;get_link()会返回-ECHILD来退出到RCU模式。就像i_op-&gt;permission()方法，-&gt;get_link()需要注意它的所有数据是否可以安全访问同时不保留引用计数。一个回调函数struct delayed_called将传递给-&gt;get_link()：文件系统可以通过set_delayed_call()来设置自己的put_link()函数和参数。之后，当VFS想释放符号链接时，它将调用do_delayed_call()来调用带有参数的回调函数。</p>
+<p>为了在遍历时删除对每个符号链接的引用，无论是在RCU还是在REF中，符号链接栈都需要包含以下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">saved</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">path</span> <span class="title">link</span>;</span> <span class="comment">//对上一个路径的引用</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">delayed_call</span> <span class="title">done</span>;</span> <span class="comment">//以后调用</span></span><br><span class="line">        <span class="type">const</span> <span class="type">char</span> *name; <span class="comment">//对上一个名称的引用</span></span><br><span class="line">        <span class="type">unsigned</span> seq; <span class="comment">//允许path安全的从RCU切换到REF</span></span><br><span class="line">    &#125; *<span class="built_in">stack</span></span><br></pre></td></tr></table></figure>
+
+<p>这意味着符号链接栈中的每个条目都需要保存五个指针和一个整数，指针指向路径剩余的组件，它是符号链接被完全解析完之后，要继续walk的组件。在 64 位系统上，每个条目大约有 40 个字节;有 40 个条目，它总共加起来有 1600 个字节，不到半页。</p>
+<h3 id="遍历符号链接"><a href="#遍历符号链接" class="headerlink" title="遍历符号链接"></a>遍历符号链接</h3><p> 在link_path_walk()的主循环中迭代所有的组件和非最终组件的符号链接，在处理符号链接时，name指针指向一个新的符号链接或者从栈中恢复之前的剩余组件，具体分析看link_path_walk的部分。</p>
+<p>找到符号链接后，walk_component()通过step_into()调用pick_link()，pick_link()从文件系统中返回符号链接，如果操作成功，之前路径的name将会压入栈中，新的值会作为name继续遍历，当新的name遍历完之后，旧的name会从堆栈中恢复，遍历继续进行。</p>
+<p>当最后符号链接的最后一个组件是符号链接时，最方便的做法是，在walk_component()中找到符号链接时，立即将其压入栈中，walk_component()</p>
+<p>在遍历组件时，当发现符号链接时，最方便的方法是将新的符号链接引用立即推到 <code>walk_component()</code> 中的堆栈上；<code>walk_component()</code> 也是需要查看旧符号链接的最后一段代码，因为它遍历的是最后一个组件。因此，对于 <code>walk_component()</code> 来说，在推送新符号链接的引用信息之前释放旧的符号链接并弹出引用非常方便。这由三个标志进行引导：<code>WALK_NOFOLLOW</code>，如果找到符号链接，则禁止跟踪它；<code>WALK_MORE</code>，表示现在释放当前符号链接还为时过早；<code>WALK_TRAILING</code>，表示它位于查找的最后一个组件上，因此我们将检查用户空间标志 <code>LOOKUP_FOLLOW</code> 以决定是否跟踪它（如果它是一个符号链接），并调用 <code>may_follow_link()</code> 来检查我们是否有权限跟踪它。</p>
+<h3 id="没有最终组件的符号链接"><a href="#没有最终组件的符号链接" class="headerlink" title="没有最终组件的符号链接"></a>没有最终组件的符号链接</h3><p>一种特殊情况的符号链接需要进一步分析，这种情况会导致pick_link()返回NULL</p>
+<ol>
+<li><p><strong>指向“&#x2F;”的符号链接</strong>：</p>
+<ul>
+<li>当一个符号链接的内容仅仅是“&#x2F;”（根目录）时，系统通过<code>pick_link()</code>函数会识别出这种特殊情况。</li>
+<li>在这种情况下，<code>nameidata</code>（一个用于记录路径信息的结构体）会被重置为指向文件系统的有效根目录。</li>
+<li>因为路径中没有任何其他组件，所以<code>pick_link()</code>函数返回NULL，表示符号链接已经被处理完，可以释放相关的资源。</li>
+</ul>
+</li>
+<li><p><strong>&#x2F;proc中的“魔术链接”（magic links）</strong>：</p>
+<ul>
+<li>在Linux中，<code>/proc</code>是一个虚拟文件系统，主要用于访问内核和进程信息。</li>
+<li>每一个打开的文件描述符在<code>/proc</code>中都有一个对应的表示，看起来像一个符号链接。但实际上，这些“链接”是对目标文件的直接引用，而不仅仅是文件名。</li>
+<li>当读取这些“链接”时，返回的是可能指向同一个文件的名称，除非该文件已经被删除或被其他挂载点覆盖。</li>
+<li>当系统尝试解析这些“魔术链接”时，它不会像处理常规符号链接那样返回一个字符串名称。相反，它会直接更新<code>nameidata</code>以指向目标文件，然后返回NULL。这样，<code>pick_link()</code>函数再次返回NULL，因为没有更多的路径组件需要处理。</li>
+</ul>
+</li>
+</ol>
 
     </div>
 
@@ -427,7 +521,10 @@
     <a href="/2023/11/22/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6/" rel="prev" title="学习 Linux VFS虚拟文件系统 打开文件">
       <i class="fa fa-chevron-left"></i> 学习 Linux VFS虚拟文件系统 打开文件
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2023/11/24/Rust%E5%AD%A6%E4%B9%A0-%E6%89%80%E6%9C%89%E6%9D%83/" rel="next" title="Rust学习 所有权">
+      Rust学习 所有权 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -487,7 +584,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#pathname-lookup"><span class="nav-number">1.</span> <span class="nav-text">pathname lookup</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B7%AF%E5%BE%84%E5%90%8D"><span class="nav-number">2.</span> <span class="nav-text">路径名</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#nameidata"><span class="nav-number">3.</span> <span class="nav-text">nameidata</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#walk-componet"><span class="nav-number">4.</span> <span class="nav-text">walk_componet</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">5.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#path-init"><span class="nav-number">5.1.</span> <span class="nav-text">path_init</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#link-path-walk"><span class="nav-number">5.2.</span> <span class="nav-text">link_path_walk</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#pathname-lookup"><span class="nav-number">1.</span> <span class="nav-text">pathname lookup</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B7%AF%E5%BE%84%E5%90%8D"><span class="nav-number">2.</span> <span class="nav-text">路径名</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#nameidata"><span class="nav-number">3.</span> <span class="nav-text">nameidata</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#walk-componet"><span class="nav-number">4.</span> <span class="nav-text">walk_componet</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">5.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#path-init"><span class="nav-number">5.1.</span> <span class="nav-text">path_init</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#link-path-walk"><span class="nav-number">5.2.</span> <span class="nav-text">link_path_walk</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5%E5%A4%84%E7%90%86"><span class="nav-number">5.3.</span> <span class="nav-text">符号链接处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5%E6%A0%88"><span class="nav-number">5.3.1.</span> <span class="nav-text">符号链接栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5%E7%BC%93%E5%AD%98%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">5.3.2.</span> <span class="nav-text">符号链接缓存的生命周期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%8D%E5%8E%86%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5"><span class="nav-number">5.3.3.</span> <span class="nav-text">遍历符号链接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B2%A1%E6%9C%89%E6%9C%80%E7%BB%88%E7%BB%84%E4%BB%B6%E7%9A%84%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5"><span class="nav-number">5.3.4.</span> <span class="nav-text">没有最终组件的符号链接</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -501,14 +598,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-count">80</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -563,13 +660,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">1.3m</span>
+    <span title="Symbols count total">1.4m</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">40:07</span>
+    <span title="Reading time total">40:58</span>
 </div>
 
 <!--
