@@ -40,7 +40,7 @@
 <meta property="og:image" content="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE7.png">
 <meta property="og:image" content="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE8.png">
 <meta property="article:published_time" content="2023-11-26T03:47:35.000Z">
-<meta property="article:modified_time" content="2023-11-26T06:34:33.193Z">
+<meta property="article:modified_time" content="2023-11-26T13:37:56.939Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE1.png">
@@ -234,7 +234,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2023-11-26 11:47:35 / Modified: 14:34:33" itemprop="dateCreated datePublished" datetime="2023-11-26T11:47:35+08:00">2023-11-26</time>
+              <time title="Created: 2023-11-26 11:47:35 / Modified: 21:37:56" itemprop="dateCreated datePublished" datetime="2023-11-26T11:47:35+08:00">2023-11-26</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -308,7 +308,7 @@
 <p><img src="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE1.png"></p>
 <p>原始指针在同一行递增，然后用于修改第8行和第12行中的堆栈对象。这个例子中的问题是程序使用了一个全局变量offset_in，这个变量可以在外部的任何地方修改。在偏移量计算中使用全局变量使程序容易受到攻击。在第8行和第14行，攻击者操纵offset_in可以控制写入哪个地址，甚至可以到达安全对象。</p>
 <p><img src="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE2.png"></p>
-<p>图2显示了从CVE-2021-28879中引用的zip crate中提取的另一个示例，其中self。Index可以设置为大于self的值。Len(第7行)，导致size_hint函数中的整数溢出(第13行)。破坏size_hint的返回值会导致在第8行调用的__iterator_get_unchecked(i)错误地将迭代器返回到对象a之外的内存位置。当再次使用已消耗的Zip迭代器时，攻击者可能会利用这一点创建缓冲区溢出，如图3所示。</p>
+<p>图2显示了从CVE-2021-28879中引用的zip crate中提取的另一个示例，其中self。self.index可以设置为大于self.len的值(第7行)，导致size_hint函数中的整数溢出(第13行)。破坏size_hint的返回值会导致在第8行调用的__iterator_get_unchecked(i)错误地将迭代器返回到对象a之外的内存位置。当再次使用已消耗的Zip迭代器时，攻击者可能会利用这一点创建缓冲区溢出，如图3所示。</p>
 <p><img src="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE3.png"></p>
 <p>图4是一个外部库调用的示例，它可能会破坏执行堆栈上安全对象的内存安全性。由此产生的漏洞类似于C&#x2F; C++中的格式字符串错误。它从堆栈中读取的信息与未定义的字符串转换参数(例如printw(“%s%s%s”))一样多。这样的错误可能为攻击者利用外部库代码从堆栈中读取尽可能多的信息并将其打印到标准输出铺平了道路。</p>
 <p><img src="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/%E5%9B%BE4.png"></p>
@@ -410,7 +410,10 @@
     <a href="/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/" rel="prev" title="学习 Linux Mnt_Namespace实现">
       <i class="fa fa-chevron-left"></i> 学习 Linux Mnt_Namespace实现
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2023/11/28/%E6%9C%8D%E5%8A%A1%E5%99%A8frpc%E9%85%8D%E7%BD%AE%E4%BB%A5%E5%8F%8A%E5%BC%80%E6%9C%BA%E8%87%AA%E5%90%AF%E9%85%8D%E7%BD%AE/" rel="next" title="服务器frpc配置以及开机自启配置">
+      服务器frpc配置以及开机自启配置 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -484,7 +487,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-count">82</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -552,7 +555,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">40:58</span>
+    <span title="Reading time total">41:01</span>
 </div>
 
 <!--
