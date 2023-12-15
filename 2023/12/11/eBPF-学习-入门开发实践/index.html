@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="eunomia-bpf: Simplifying and enhancing eBPF development and deployment - eunomia 转载，记录学习此教程 在 eBPF 中使用 fentry 监测捕获 unlink 系统调用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="eBPF 学习 入门开发实践">
+<meta property="og:url" content="http://example.com/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-%E5%85%A5%E9%97%A8%E5%BC%80%E5%8F%91%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="eunomia-bpf: Simplifying and enhancing eBPF development and deployment - eunomia 转载，记录学习此教程 在 eBPF 中使用 fentry 监测捕获 unlink 系统调用">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-11T08:44:22.000Z">
+<meta property="article:modified_time" content="2023-12-15T06:58:19.050Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-%E5%85%A5%E9%97%A8%E5%BC%80%E5%8F%91%E5%AE%9E%E8%B7%B5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>eBPF 学习 入门开发实践 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-%E5%85%A5%E9%97%A8%E5%BC%80%E5%8F%91%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          eBPF 学习 入门开发实践
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-11 16:44:22" itemprop="dateCreated datePublished" datetime="2023-12-11T16:44:22+08:00">2023-12-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-12-15 14:58:19" itemprop="dateModified" datetime="2023-12-15T14:58:19+08:00">2023-12-15</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>16 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://eunomia.dev/zh/">eunomia-bpf: Simplifying and enhancing eBPF development and deployment - eunomia</a></p>
+<p>转载，记录学习此教程</p>
+<h1 id="在-eBPF-中使用-fentry-监测捕获-unlink-系统调用"><a href="#在-eBPF-中使用-fentry-监测捕获-unlink-系统调用" class="headerlink" title="在 eBPF 中使用 fentry 监测捕获 unlink 系统调用"></a>在 eBPF 中使用 fentry 监测捕获 unlink 系统调用</h1><h2 id="Fentry"><a href="#Fentry" class="headerlink" title="Fentry"></a>Fentry</h2><p>fentry（function entry）和 fexit（function exit）是 eBPF（扩展的伯克利包过滤器）中的两种探针类型，用于在 Linux 内核函数的入口和退出处进行跟踪。它们允许开发者在内核函数执行的特定阶段收集信息、修改参数或观察返回值。这种跟踪和监控功能在性能分析、故障排查和安全分析等场景中非常有用。</p>
+<p>与 kprobes 相比，fentry 和 fexit 程序有更高的性能和可用性。在这个例子中，我们可以直接访问函数的指针参数，就像在普通的 C 代码中一样，而不需要使用各种读取帮助程序。fexit 和 kretprobe 程序最大的区别在于，fexit 程序可以访问函数的输入参数和返回值，而 kretprobe 只能访问返回值。从 5.5 内核开始，fentry 和 fexit 对 eBPF 程序可用。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;vmlinux.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_helpers.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_tracing.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">char</span> LICENSE[] SEC(<span class="string">&quot;license&quot;</span>) = <span class="string">&quot;Dual BSD/GPL&quot;</span>;</span><br><span class="line"></span><br><span class="line">SEC(<span class="string">&quot;fentry/do_unlinkat&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">BPF_PROG</span><span class="params">(do_unlinkat, <span class="type">int</span> dfd, <span class="keyword">struct</span> filename *name)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">pid_t</span> pid;</span><br><span class="line"></span><br><span class="line">    pid = bpf_get_current_pid_tgid() &gt;&gt; <span class="number">32</span>;</span><br><span class="line">    bpf_printk(<span class="string">&quot;fentry: pid = %d, filename = %s\n&quot;</span>, pid, name-&gt;name);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">SEC(<span class="string">&quot;fexit/do_unlinkat&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">BPF_PROG</span><span class="params">(do_unlinkat_exit, <span class="type">int</span> dfd, <span class="keyword">struct</span> filename *name, <span class="type">long</span> ret)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">pid_t</span> pid;</span><br><span class="line"></span><br><span class="line">    pid = bpf_get_current_pid_tgid() &gt;&gt; <span class="number">32</span>;</span><br><span class="line">    bpf_printk(<span class="string">&quot;fexit: pid = %d, filename = %s, ret = %ld\n&quot;</span>, pid, name-&gt;name, ret);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段程序是用 C 语言编写的 eBPF（扩展的伯克利包过滤器）程序，它使用 BPF 的 fentry 和 fexit 探针来跟踪 Linux 内核函数 <code>do_unlinkat</code>。在这个教程中，我们将以这段程序作为示例，让您学会如何在 eBPF 中使用 fentry 监测捕获 unlink 系统调用。</p>
+<p>程序包含以下部分：</p>
+<ol>
+<li>包含头文件：包括 vmlinux.h（用于访问内核数据结构）、bpf&#x2F;bpf_helpers.h（包含eBPF帮助函数）、bpf&#x2F;bpf_tracing.h（用于eBPF跟踪相关功能）。</li>
+<li>定义许可证：这里定义了一个名为 <code>LICENSE</code> 的字符数组，包含许可证信息“Dual BSD&#x2F;GPL”。</li>
+<li>定义 fentry 探针：我们定义了一个名为 <code>BPF_PROG(do_unlinkat)</code> 的 fentry 探针，该探针在 <code>do_unlinkat</code> 函数的入口处被触发。这个探针获取当前进程的 PID（进程ID）并将其与文件名一起打印到内核日志。</li>
+<li>使用 <code>bpf_get_current_pid_tgid</code> 和 <code>bpf_printk</code> 函数获取调用 do_unlinkat 的进程的 ID、文件名和返回值，并在内核日志中打印出来。</li>
+<li>定义 fexit 探针：我们还定义了一个名为 <code>BPF_PROG(do_unlinkat_exit)</code> 的 fexit 探针，该探针在 <code>do_unlinkat</code> 函数的退出处被触发。与 fentry 探针类似，这个探针也会获取当前进程的 PID 并将其与文件名和返回值一起打印到内核日志。</li>
+</ol>
+<p>编译运行上述代码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ecc fentry-link.bpf.c</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ecli run package.json</span><br></pre></td></tr></table></figure>
+
+<p>在另一个窗口中</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">touch test_file</span><br><span class="line">rm test_file</span><br><span class="line">touch test_file2</span><br><span class="line">rm test_file2</span><br></pre></td></tr></table></figure>
+
+<p>运行这段程序后，可以通过查看 <code>/sys/kernel/debug/tracing/trace_pipe</code> 文件来查看 eBPF 程序的输出</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cat /sys/kernel/debug/tracing/trace_pipe</span><br></pre></td></tr></table></figure>
+
+<p>结果如下：</p>
+<blockquote>
+<p>          rm-9648    [000] d..21  6939.311202: bpf_trace_printk: fentry: pid &#x3D; 9648, filename &#x3D; test_file</p>
+<pre><code>      rm-9648    [000] d..21  6939.311323: bpf_trace_printk: fexit: pid = 9648, filename = test_file, ret = 0
+
+      rm-9650    [002] d..21  6939.319099: bpf_trace_printk: fentry: pid = 9650, filename = test_file2
+
+      rm-9650    [002] d..21  6939.319204: bpf_trace_printk: fexit: pid = 9650, filename = test_file2, ret = 0
+</code></pre>
+</blockquote>
+<h1 id="在-eBPF-中捕获进程打开文件的系统调用集合，使用全局变量过滤进程-pid"><a href="#在-eBPF-中捕获进程打开文件的系统调用集合，使用全局变量过滤进程-pid" class="headerlink" title="在 eBPF 中捕获进程打开文件的系统调用集合，使用全局变量过滤进程 pid"></a>在 eBPF 中捕获进程打开文件的系统调用集合，使用全局变量过滤进程 pid</h1><p>在 Linux 系统中，进程与文件之间的交互是通过系统调用来实现的。系统调用是用户态程序与内核态程序之间的接口，它们允许用户态程序请求内核执行特定操作。我们关注的是 sys_openat 系统调用，它用于打开文件。</p>
+<p>当进程打开一个文件时，它会向内核发出 sys_openat 系统调用，并传递相关参数（例如文件路径、打开模式等）。内核会处理这个请求，并返回一个文件描述符（file descriptor），这个描述符将在后续的文件操作中用作引用。通过捕获 sys_openat 系统调用，我们可以了解进程在什么时候以及如何打开文件。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vmlinux.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_helpers.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/// @description &quot;Process ID to trace&quot;</span></span><br><span class="line"><span class="type">const</span> <span class="keyword">volatile</span> <span class="type">int</span> pid_target = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">SEC(<span class="string">&quot;tracepoint/syscalls/sys_enter_openat&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">tracepoint__syscalls__sys_enter_openat</span><span class="params">(<span class="keyword">struct</span> trace_event_raw_sys_enter* ctx)</span></span><br><span class="line">&#123;</span><br><span class="line">    u64 id = bpf_get_current_pid_tgid();</span><br><span class="line">    u32 pid = id &gt;&gt; <span class="number">32</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (pid_target &amp;&amp; pid_target != pid)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="comment">// Use bpf_printk to print the process information</span></span><br><span class="line">    bpf_printk(<span class="string">&quot;Process ID: %d enter sys openat\n&quot;</span>, pid);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// &quot;Trace open family syscalls.&quot;</span></span><br><span class="line"><span class="type">char</span> LICENSE[] SEC(<span class="string">&quot;license&quot;</span>) = <span class="string">&quot;GPL&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这段 eBPF 程序实现了：</p>
+<ol>
+<li>引入头文件： 包含了内核数据结构的定义， 包含了 eBPF 程序所需的辅助函数。</li>
+<li>定义全局变量 <code>pid_target</code>，用于过滤指定进程 ID。这里设为 0 表示捕获所有进程的 sys_openat 调用。</li>
+<li>使用 <code>SEC</code> 宏定义一个 eBPF 程序，关联到 tracepoint “tracepoint&#x2F;syscalls&#x2F;sys_enter_openat”。这个 tracepoint 会在进程发起 <code>sys_openat</code> 系统调用时触发。</li>
+<li>实现 eBPF 程序 <code>tracepoint__syscalls__sys_enter_openat</code>，它接收一个类型为 <code>struct trace_event_raw_sys_enter</code> 的参数 <code>ctx</code>。这个结构体包含了关于系统调用的信息。</li>
+<li>使用 <code>bpf_get_current_pid_tgid()</code> 函数获取当前进程的 PID 和 TID（线程 ID）。由于我们只关心 PID，所以将其值右移 32 位赋值给 <code>u32</code> 类型的变量 <code>pid</code>。</li>
+<li>检查 <code>pid_target</code> 变量是否与当前进程的 pid 相等。如果 <code>pid_target</code> 不为 0 且与当前进程的 pid 不相等，则返回 <code>false</code>，不对该进程的 <code>sys_openat</code> 调用进行捕获。</li>
+<li>使用 <code>bpf_printk()</code> 函数打印捕获到的进程 ID 和 <code>sys_openat</code> 调用的相关信息。这些信息可以在用户空间通过 BPF 工具查看。</li>
+<li>将程序许可证设置为 “GPL”，这是运行 eBPF 程序的必要条件。</li>
+</ol>
+<p>这个 eBPF 程序可以通过 libbpf 或 eunomia-bpf 等工具加载到内核并执行。它将捕获指定进程（或所有进程）的 sys_openat 系统调用，并在用户空间输出相关信息。</p>
+<p>编译运行上述代码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ecc opensnoop.bpf.c</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ecli run package.json</span><br></pre></td></tr></table></figure>
+
+<p>运行这段程序后，可以通过查看 <code>/sys/kernel/debug/tracing/trace_pipe</code> 文件来查看 eBPF 程序的输出</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cat /sys/kernel/debug/tracing/trace_pipe</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下</p>
+<blockquote>
+<p>systemd-oomd-837     [003] d..31  7527.833623: bpf_trace_printk: Process ID: 837 enter sys openat</p>
+<p>systemd-oomd-837     [003] d..31  7527.833685: bpf_trace_printk: Process ID: 837 enter sys openat</p>
+<p>systemd-oomd-837     [003] d..31  7527.833741: bpf_trace_printk: Process ID: 837 enter sys openat</p>
+<p>systemd-oomd-837     [003] d..31  7527.833798: bpf_trace_printk: Process ID: 837 enter sys openat</p>
+<p>systemd-oomd-837     [003] d..31  7527.834180: bpf_trace_printk: Process ID: 837 enter sys openat</p>
+<p>   node-4070    [001] d..31  7527.938561: bpf_trace_printk: Process ID: 4070 enter sys openat</p>
+<p>   node-4070    [001] d..31  7528.032286: bpf_trace_printk: Process ID: 4070 enter sys openat</p>
+<p>systemd-oomd-837     [003] d..31  7528.083291: bpf_trace_printk: Process ID: 837 enter sys openat    node-4070    [001] d..31  7528.139436: bpf_trace_printk: Process ID: 4070 enter sys openat</p>
+</blockquote>
+<h2 id="使用全局变量在-eBPF-中过滤进程-pid"><a href="#使用全局变量在-eBPF-中过滤进程-pid" class="headerlink" title="使用全局变量在 eBPF 中过滤进程 pid"></a>使用全局变量在 eBPF 中过滤进程 pid</h2><p>全局变量在 eBPF 程序中充当一种数据共享机制，它们允许用户态程序与 eBPF 程序之间进行数据交互。这在过滤特定条件或修改 eBPF 程序行为时非常有用。这种设计使得用户态程序能够在运行时动态地控制 eBPF 程序的行为。</p>
+<p>在我们的例子中，全局变量 <code>pid_target</code> 用于过滤进程 PID。用户态程序可以设置此变量的值，以便在 eBPF 程序中只捕获与指定 PID 相关的 <code>sys_openat</code> 系统调用。</p>
+<p>使用全局变量的原理是，全局变量在 eBPF 程序的数据段（data section）中定义并存储。当 eBPF 程序加载到内核并执行时，这些全局变量会保持在内核中，可以通过 BPF 系统调用进行访问。用户态程序可以使用 BPF 系统调用中的某些特性，如 <code>bpf_obj_get_info_by_fd</code> 和 <code>bpf_obj_get_info</code>，获取 eBPF 对象的信息，包括全局变量的位置和值。</p>
+<p>可以通过执行 ecli -h 命令来查看 opensnoop 的帮助信息：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ecli package.json -h</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>ecli subcommands, including run, push, pull</p>
+<p>Usage: ecli [PROG] [EXTRA_ARGS]… [COMMAND]</p>
+<p>Commands:<br>  run     run ebpf program<br>  client  Client operations<br>  push    Operations about pushing image to registry<br>  pull    Operations about pulling image from registry<br>  help    Print this message or the help of the given subcommand(s)</p>
+<p>Arguments:<br>  [PROG]           Not preferred. Only for compatibility to older versions. Ebpf program URL or local path, set it <code>-</code> to read the program from stdin<br>  [EXTRA_ARGS]…  Not preferred. Only for compatibility to older versions. Extra args to the program; For wasm program, it will be passed directly to it; For JSON program, it will be passed to the generated argument parser</p>
+<p>Options:<br>  -h, –help  Print help</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ../ecli package.json  -- --pid_target 1</span><br></pre></td></tr></table></figure>
+
+<p>运行这段程序之后查看<code>/sys/kernel/debug/tracing/trace_pipe</code></p>
+<p>结果如下</p>
+<blockquote>
+<p>     systemd-1       [000] d..31  8535.716974: bpf_trace_printk: Process ID: 1 enter sys openat</p>
+<p>      systemd-1       [000] d..31  8535.717130: bpf_trace_printk: Process ID: 1 enter sys openat</p>
+<p> systemd-1       [000] d..31  8535.717193: bpf_trace_printk: Process ID: 1 enter sys openat</p>
+<p> systemd-1       [000] d..31  8535.717262: bpf_trace_printk: Process ID: 1 enter sys openat</p>
+<p> systemd-1       [000] d..31  8563.312586: bpf_trace_printk: Process ID: 1 enter sys openat</p>
+</blockquote>
+<p>可以看到只过滤了PID为1的进程</p>
+<h1 id="uprobe-捕获-bash-的-readline-函数调用"><a href="#uprobe-捕获-bash-的-readline-函数调用" class="headerlink" title="uprobe 捕获 bash 的 readline 函数调用"></a>uprobe 捕获 bash 的 readline 函数调用</h1><h2 id="什么是uprobe"><a href="#什么是uprobe" class="headerlink" title="什么是uprobe"></a>什么是uprobe</h2><p>uprobe是一种用户空间探针，uprobe探针允许在用户空间程序中动态插桩，插桩位置包括：函数入口、特定偏移处，以及函数返回处。当我们定义uprobe时，内核会在附加的指令上创建快速断点指令（x86机器上为int3指令），当程序执行到该指令时，内核将触发事件，程序陷入到内核态，并以回调函数的方式调用探针函数，执行完探针函数再返回到用户态继续执行后序的指令。</p>
+<p>uprobe基于文件，当一个二进制文件中的一个函数被跟踪时，所有使用到这个文件的进程都会被插桩，包括那些尚未启动的进程，这样就可以在全系统范围内跟踪系统调用。</p>
+<p>uprobe适用于在用户态去解析一些内核态探针无法解析的流量，例如http2流量（报文header被编码，内核无法解码），https流量（加密流量，内核无法解密）。</p>
+<h2 id="使用-uprobe-捕获-bash-的-readline-函数调用"><a href="#使用-uprobe-捕获-bash-的-readline-函数调用" class="headerlink" title="使用 uprobe 捕获 bash 的 readline 函数调用"></a>使用 uprobe 捕获 bash 的 readline 函数调用</h2><p>uprobe 是一种用于捕获用户空间函数调用的 eBPF 的探针，我们可以通过它来捕获用户空间程序调用的系统函数。</p>
+<p>例如，我们可以使用 uprobe 来捕获 bash 的 readline 函数调用，从而获取用户在 bash 中输入的命令行。示例代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vmlinux.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_helpers.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_tracing.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TASK_COMM_LEN 16</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAX_LINE_SIZE 80</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Format of u[ret]probe section definition supporting auto-attach:</span></span><br><span class="line"><span class="comment"> * u[ret]probe/binary:function[+offset]</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * binary can be an absolute/relative path or a filename; the latter is resolved to a</span></span><br><span class="line"><span class="comment"> * full binary path via bpf_program__attach_uprobe_opts.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Specifying uprobe+ ensures we carry out strict matching; either &quot;uprobe&quot; must be</span></span><br><span class="line"><span class="comment"> * specified (and auto-attach is not possible) or the above format is specified for</span></span><br><span class="line"><span class="comment"> * auto-attach.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">SEC(<span class="string">&quot;uretprobe//bin/bash:readline&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">BPF_KRETPROBE</span><span class="params">(printret, <span class="type">const</span> <span class="type">void</span> *ret)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> str[MAX_LINE_SIZE];</span><br><span class="line">    <span class="type">char</span> comm[TASK_COMM_LEN];</span><br><span class="line">    u32 pid;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!ret)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    bpf_get_current_comm(&amp;comm, <span class="keyword">sizeof</span>(comm));</span><br><span class="line"></span><br><span class="line">    pid = bpf_get_current_pid_tgid() &gt;&gt; <span class="number">32</span>;</span><br><span class="line">    bpf_probe_read_user_str(str, <span class="keyword">sizeof</span>(str), ret);</span><br><span class="line"></span><br><span class="line">    bpf_printk(<span class="string">&quot;PID %d (%s) read: %s &quot;</span>, pid, comm, str);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">char</span> LICENSE[] SEC(<span class="string">&quot;license&quot;</span>) = <span class="string">&quot;GPL&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码的作用是在 bash 的 readline 函数返回时执行指定的 BPF_KRETPROBE 函数，即 printret 函数。</p>
+<p>在 printret 函数中，我们首先获取了调用 readline 函数的进程的进程名称和进程 ID，然后通过 bpf_probe_read_user_str 函数读取了用户输入的命令行字符串，最后通过 bpf_printk 函数打印出进程 ID、进程名称和输入的命令行字符串。</p>
+<p>除此之外，我们还需要通过 SEC 宏来定义 uprobe 探针，并使用 BPF_KRETPROBE 宏来定义探针函数。</p>
+<p>在 SEC 宏中，我们需要指定 uprobe 的类型、要捕获的二进制文件的路径和要捕获的函数名称。例如，上面的代码中的 SEC 宏的定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SEC(<span class="string">&quot;uprobe//bin/bash:readline&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这表示我们要捕获的是 &#x2F;bin&#x2F;bash 二进制文件中的 readline 函数。</p>
+<p>接下来，我们需要使用 BPF_KRETPROBE 宏来定义探针函数，例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BPF_KRETPROBE(printret, <span class="type">const</span> <span class="type">void</span> *ret)</span><br></pre></td></tr></table></figure>
+
+<p>这里的 printret 是探针函数的名称，const void *ret 是探针函数的参数，它代表被捕获的函数的返回值。</p>
+<p>然后，我们使用了 bpf_get_current_comm 函数获取当前任务的名称，并将其存储在 comm 数组中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bpf_get_current_comm(&amp;comm, <span class="keyword">sizeof</span>(comm));</span><br></pre></td></tr></table></figure>
+
+<p>使用 bpf_get_current_pid_tgid 函数获取当前进程的 PID，并将其存储在 pid 变量中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pid = bpf_get_current_pid_tgid() &gt;&gt; <span class="number">32</span>;</span><br></pre></td></tr></table></figure>
+
+<p>使用 bpf_probe_read_user_str 函数从用户空间读取 readline 函数的返回值，并将其存储在 str 数组中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bpf_probe_read_user_str(str, <span class="keyword">sizeof</span>(str), ret);</span><br></pre></td></tr></table></figure>
+
+<p>最后使用 bpf_printk 函数输出 PID、任务名称和用户输入的字符串。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bpf_printk(<span class="string">&quot;PID %d (%s) read: %s &quot;</span>, pid, comm, str);</span><br></pre></td></tr></table></figure>
+
+<p>编译运行以上代码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ecc bashreadline.bpf.c</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ecli run package.json</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cat /sys/kernel/debug/tracing/trace_pipe</span><br></pre></td></tr></table></figure>
+
+<p>打开另一个终端随便运行一个ls命令，可以看到文件的输出</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="string">...</span>&gt;-11864   [014] d.<span class="string">.21</span>  9263.415769: bpf_trace_printk: PID 11864 <span class="params">(bash)</span> read: <span class="keyword">ls</span> </span><br></pre></td></tr></table></figure>
+
+<h2 id="捕获进程发送信号的系统调用集合，使用-hash-map-保存状态"><a href="#捕获进程发送信号的系统调用集合，使用-hash-map-保存状态" class="headerlink" title="捕获进程发送信号的系统调用集合，使用 hash map 保存状态"></a>捕获进程发送信号的系统调用集合，使用 hash map 保存状态</h2>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-kprobes%E5%8F%8A%E7%9B%91%E5%90%ACunlink%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" rel="prev" title="eBPF 学习 kprobes及监听unlink系统调用">
+      <i class="fa fa-chevron-left"></i> eBPF 学习 kprobes及监听unlink系统调用
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/12/12/Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E8%A1%A8%E5%8F%8A%E5%85%A8%E9%83%A8%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E5%88%86%E6%9E%90/" rel="next" title="Linux系统调用表">
+      Linux系统调用表 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9C%A8-eBPF-%E4%B8%AD%E4%BD%BF%E7%94%A8-fentry-%E7%9B%91%E6%B5%8B%E6%8D%95%E8%8E%B7-unlink-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">在 eBPF 中使用 fentry 监测捕获 unlink 系统调用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Fentry"><span class="nav-number">1.1.</span> <span class="nav-text">Fentry</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81"><span class="nav-number">1.2.</span> <span class="nav-text">代码</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9C%A8-eBPF-%E4%B8%AD%E6%8D%95%E8%8E%B7%E8%BF%9B%E7%A8%8B%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E9%9B%86%E5%90%88%EF%BC%8C%E4%BD%BF%E7%94%A8%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%E8%BF%87%E6%BB%A4%E8%BF%9B%E7%A8%8B-pid"><span class="nav-number">2.</span> <span class="nav-text">在 eBPF 中捕获进程打开文件的系统调用集合，使用全局变量过滤进程 pid</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%E5%9C%A8-eBPF-%E4%B8%AD%E8%BF%87%E6%BB%A4%E8%BF%9B%E7%A8%8B-pid"><span class="nav-number">2.1.</span> <span class="nav-text">使用全局变量在 eBPF 中过滤进程 pid</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#uprobe-%E6%8D%95%E8%8E%B7-bash-%E7%9A%84-readline-%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">uprobe 捕获 bash 的 readline 函数调用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFuprobe"><span class="nav-number">3.1.</span> <span class="nav-text">什么是uprobe</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-uprobe-%E6%8D%95%E8%8E%B7-bash-%E7%9A%84-readline-%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8"><span class="nav-number">3.2.</span> <span class="nav-text">使用 uprobe 捕获 bash 的 readline 函数调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8D%95%E8%8E%B7%E8%BF%9B%E7%A8%8B%E5%8F%91%E9%80%81%E4%BF%A1%E5%8F%B7%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E9%9B%86%E5%90%88%EF%BC%8C%E4%BD%BF%E7%94%A8-hash-map-%E4%BF%9D%E5%AD%98%E7%8A%B6%E6%80%81"><span class="nav-number">3.3.</span> <span class="nav-text">捕获进程发送信号的系统调用集合，使用 hash map 保存状态</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">89</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.4m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">42:16</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : 'a60ec7110f8f8b2e3dc7d2b54e63157a',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>

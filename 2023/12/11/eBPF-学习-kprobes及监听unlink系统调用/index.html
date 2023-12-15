@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Tracepoint跟踪点（tracepoints）是内核静态插桩技术，在技术上只是放置在内核源代码中的跟踪函数，实际上就是在源码中插入的一些带有控制条件的探测点，这些探测点允许事后再添加处理函数。比如在内核中，最常见的静态跟踪方法就是 printk，即输出日志。又比如：在系统调用、调度程序事件、文件系统操作和磁盘 I&#x2F;O 的开始和结束时都有跟踪点。跟踪点于 2009 年在 Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="eBPF 学习 kprobes及监听unlink系统调用">
+<meta property="og:url" content="http://example.com/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-kprobes%E5%8F%8A%E7%9B%91%E5%90%ACunlink%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="Tracepoint跟踪点（tracepoints）是内核静态插桩技术，在技术上只是放置在内核源代码中的跟踪函数，实际上就是在源码中插入的一些带有控制条件的探测点，这些探测点允许事后再添加处理函数。比如在内核中，最常见的静态跟踪方法就是 printk，即输出日志。又比如：在系统调用、调度程序事件、文件系统操作和磁盘 I&#x2F;O 的开始和结束时都有跟踪点。跟踪点于 2009 年在 Linux">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-11T07:44:45.000Z">
+<meta property="article:modified_time" content="2023-12-15T06:58:00.433Z">
+<meta property="article:author" content="Plucky">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="eBPF">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-kprobes%E5%8F%8A%E7%9B%91%E5%90%ACunlink%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>eBPF 学习 kprobes及监听unlink系统调用 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-kprobes%E5%8F%8A%E7%9B%91%E5%90%ACunlink%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          eBPF 学习 kprobes及监听unlink系统调用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-11 15:44:45" itemprop="dateCreated datePublished" datetime="2023-12-11T15:44:45+08:00">2023-12-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-12-15 14:58:00" itemprop="dateModified" datetime="2023-12-15T14:58:00+08:00">2023-12-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/eBPF/" itemprop="url" rel="index"><span itemprop="name">eBPF</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>5.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>10 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Tracepoint"><a href="#Tracepoint" class="headerlink" title="Tracepoint"></a>Tracepoint</h1><p>跟踪点（tracepoints）是内核静态插桩技术，在技术上只是放置在内核源代码中的跟踪函数，实际上就是在源码中插入的一些带有控制条件的探测点，这些探测点允许事后再添加处理函数。比如在内核中，最常见的静态跟踪方法就是 <code>printk</code>，即输出日志。又比如：在系统调用、调度程序事件、文件系统操作和磁盘 I&#x2F;O 的开始和结束时都有跟踪点。跟踪点于 2009 年在 Linux 2.6.32 版本中首次提供。跟踪点是一种稳定的 API，数量有限。</p>
+<h1 id="kprobes"><a href="#kprobes" class="headerlink" title="kprobes"></a>kprobes</h1><p>如果需要知道内核函数是否被调用、被调用上下文、入参以及返回值，比较简单的方法是加printk，但是效率低，因为要重新编译。</p>
+<p>在调试中可以通过两种方式使用kprobe：</p>
+<ul>
+<li><p>第一种是编写内核模块，向内核注册探测点，探测函数根据需要自行定制，但是使用不方便；</p>
+</li>
+<li><p>第二种是使用kprobes in ftrace，这种方式结合kprobe和ftrace，可以通过kprobe来优化ftrace跟踪函数。</p>
+</li>
+</ul>
+<p>首先kprobe是最基本的探测方式，是实现后两种的基础，它可以在任意的位置放置探测点（就连函数内部的某条指令处也可以），它提供了探测点的调用前、调用后和内存访问出错3种回调方式，分别是pre_handler、post_handler和fault_handler，其中pre_handler函数将在被探测指令被执行前回调，post_handler会在被探测指令执行完毕后回调（注意不是被探测函数），fault_handler会在内存访问出错时被调用；jprobe基于kprobe实现，它用于获取被探测函数的入参值；最后kretprobe从名字种就可以看出其用途了，它同样基于kprobe实现，用于获取被探测函数的返回值。</p>
+<p>开发人员在内核或者模块的调试过程中，往往会需要要知道其中的一些函数有无被调用、何时被调用、执行是否正确以及函数的入参和返回值是什么等等。比较简单的做法是在内核代码对应的函数中添加日志打印信息，但这种方式往往需要重新编译内核或模块，重新启动设备之类的，操作较为复杂甚至可能会破坏原有的代码执行过程。</p>
+<p>而利用 kprobes 技术，用户可以定义自己的回调函数，然后在内核或者模块中几乎所有的函数中（有些函数是不可探测的，例如kprobes自身的相关实现函数，后文会有详细说明）动态地插入探测点，当内核执行流程执行到指定的探测函数时，会调用该回调函数，用户即可收集所需的信息了，同时内核最后还会回到原本的正常执行流程。如果用户已经收集足够的信息，不再需要继续探测，则同样可以动态地移除探测点。因此 kprobes 技术具有对内核执行流程影响小和操作方便的优点。</p>
+<p>kprobes 技术包括的3种探测手段分别时 kprobe、jprobe 和 kretprobe。首先 kprobe 是最基本的探测方式，是实现后两种的基础，它可以在任意的位置放置探测点（就连函数内部的某条指令处也可以），它提供了探测点的调用前、调用后和内存访问出错3种回调方式，分别是 <code>pre_handler</code>、<code>post_handler</code> 和 <code>fault_handler</code>，其中 <code>pre_handler</code> 函数将在被探测指令被执行前回调，<code>post_handler</code> 会在被探测指令执行完毕后回调（注意不是被探测函数），<code>fault_handler</code> 会在内存访问出错时被调用；jprobe 基于 kprobe 实现，它用于获取被探测函数的入参值；最后 kretprobe 从名字中就可以看出其用途了，它同样基于 kprobe 实现，用于获取被探测函数的返回值。</p>
+<p>kprobes 的技术原理并不仅仅包含纯软件的实现方案，它也需要硬件架构提供支持。其中涉及硬件架构相关的是 CPU 的异常处理和单步调试技术，前者用于让程序的执行流程陷入到用户注册的回调函数中去，而后者则用于单步执行被探测点指令，因此并不是所有的架构均支持 kprobes。目前 kprobes 技术已经支持多种架构，包括 i386、x86_64、ppc64、ia64、sparc64、arm、ppc 和 mips（有些架构实现可能并不完全，具体可参考内核的 Documentation&#x2F;kprobes.txt）。</p>
+<h1 id="使用特点与限制"><a href="#使用特点与限制" class="headerlink" title="使用特点与限制"></a>使用特点与限制</h1><p>kprobes 的特点与使用限制：</p>
+<ol>
+<li>kprobes 允许在同一个被探测位置注册多个 kprobe，但是目前 jprobe 却不可以；同时也不允许以其他的 jprobe 回调函数和 kprobe 的 <code>post_handler</code> 回调函数作为被探测点。</li>
+<li>一般情况下，可以探测内核中的任何函数，包括中断处理函数。不过在 kernel&#x2F;kprobes.c 和 arch&#x2F;*&#x2F;kernel&#x2F;kprobes.c 程序中用于实现 kprobes 自身的函数是不允许被探测的，另外还有<code>do_page_fault</code> 和 <code>notifier_call_chain</code>；</li>
+<li>如果以一个内联函数为探测点，则 kprobes 可能无法保证对该函数的所有实例都注册探测点。由于 gcc 可能会自动将某些函数优化为内联函数，因此可能无法达到用户预期的探测效果；</li>
+<li>一个探测点的回调函数可能会修改被探测函数的运行上下文，例如通过修改内核的数据结构或者保存与<code>struct pt_regs</code>结构体中的触发探测器之前寄存器信息。因此 kprobes 可以被用来安装 bug 修复代码或者注入故障测试代码；</li>
+<li>kprobes 会避免在处理探测点函数时再次调用另一个探测点的回调函数，例如在<code>printk()</code>函数上注册了探测点，而在它的回调函数中可能会再次调用<code>printk</code>函数，此时将不再触发<code>printk</code>探测点的回调，仅仅是增加了<code>kprobe</code>结构体中<code>nmissed</code>字段的数值；</li>
+<li>在 kprobes 的注册和注销过程中不会使用 mutex 锁和动态的申请内存；</li>
+<li>kprobes 回调函数的运行期间是关闭内核抢占的，同时也可能在关闭中断的情况下执行，具体要视CPU架构而定。因此不论在何种情况下，在回调函数中不要调用会放弃 CPU 的函数（如信号量、mutex 锁等）；</li>
+<li>kretprobe 通过替换返回地址为预定义的 trampoline 的地址来实现，因此栈回溯和 gcc 内嵌函数<code>__builtin_return_address()</code>调用将返回 trampoline 的地址而不是真正的被探测函数的返回地址；</li>
+<li>如果一个函数的调用次数和返回次数不相等，则在类似这样的函数上注册 kretprobe 将可能不会达到预期的效果，例如<code>do_exit()</code>函数会存在问题，而<code>do_execve()</code>函数和<code>do_fork()</code>函数不会；</li>
+<li>当在进入和退出一个函数时，如果 CPU 运行在非当前任务所有的栈上，那么往该函数上注册 kretprobe 可能会导致不可预料的后果，因此，kprobes 不支持在 X86_64 的结构下为<code>__switch_to()</code>函数注册 kretprobe，将直接返回<code>-EINVAL</code>。</li>
+</ol>
+<h1 id="eBPF的kprobe示例"><a href="#eBPF的kprobe示例" class="headerlink" title="eBPF的kprobe示例"></a>eBPF的kprobe示例</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;vmlinux.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_helpers.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_tracing.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_core_read.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">char</span> LICENSE[] SEC(<span class="string">&quot;license&quot;</span>) = <span class="string">&quot;Dual BSD/GPL&quot;</span>;</span><br><span class="line"></span><br><span class="line">SEC(<span class="string">&quot;kprobe/do_unlinkat&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">BPF_KPROBE</span><span class="params">(do_unlinkat, <span class="type">int</span> dfd, <span class="keyword">struct</span> filename *name)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">pid_t</span> pid;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *filename;</span><br><span class="line"></span><br><span class="line">    pid = bpf_get_current_pid_tgid() &gt;&gt; <span class="number">32</span>;</span><br><span class="line">    filename = BPF_CORE_READ(name, name);</span><br><span class="line">    bpf_printk(<span class="string">&quot;KPROBE ENTRY pid = %d, filename = %s\n&quot;</span>, pid, filename);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">SEC(<span class="string">&quot;kretprobe/do_unlinkat&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">BPF_KRETPROBE</span><span class="params">(do_unlinkat_exit, <span class="type">long</span> ret)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">pid_t</span> pid;</span><br><span class="line"></span><br><span class="line">    pid = bpf_get_current_pid_tgid() &gt;&gt; <span class="number">32</span>;</span><br><span class="line">    bpf_printk(<span class="string">&quot;KPROBE EXIT: pid = %d, ret = %ld\n&quot;</span>, pid, ret);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译运行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ecc kprobe-link.bpf.c</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ecli run package.json</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">touch test1</span><br><span class="line">rm test1</span><br><span class="line">touch test2</span><br><span class="line">rm test2</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cat /sys/kernel/debug/tracing/trace_pipe</span><br></pre></td></tr></table></figure>
+
+<p>应该可以看到如下输出：</p>
+<blockquote>
+<p>           rm-8879    [012] d..31  4264.198611: bpf_trace_printk: KPROBE ENTRY pid &#x3D; 8879, filename &#x3D; test1</p>
+<pre><code>      rm-8879    [012] d..31  4264.198718: bpf_trace_printk: KPROBE EXIT: pid = 8879, ret = 0
+
+      rm-8881    [012] d..31  4264.206302: bpf_trace_printk: KPROBE ENTRY pid = 8881, filename = test2
+
+      rm-8881    [012] d..31  4264.206380: bpf_trace_printk: KPROBE EXIT: pid = 8881, ret = 0
+</code></pre>
+</blockquote>
+<h1 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h1><ul>
+<li>首先，我们导入必要的头文件，如 vmlinux.h，bpf_helpers.h，bpf_tracing.h 和 bpf_core_read.h。接着，我们定义许可证，以允许程序在内核中运行。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;vmlinux.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_helpers.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_tracing.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_core_read.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">char</span> LICENSE[] SEC(<span class="string">&quot;license&quot;</span>) = <span class="string">&quot;Dual BSD/GPL&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>接下来，我们定义一个名为<code>BPF_KPROBE(do_unlinkat)</code>的 kprobe，当进入<code>do_unlinkat</code>函数时，它会被触发。该函数接受两个参数：<code>dfd</code>（文件描述符）和<code>name</code>（文件名结构体指针）。在这个 kprobe 中，我们获取当前进程的 PID（进程标识符），然后读取文件名。最后，我们使用<code>bpf_printk</code>函数在内核日志中打印 PID 和文件名。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">SEC(<span class="string">&quot;kprobe/do_unlinkat&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">BPF_KPROBE</span><span class="params">(do_unlinkat, <span class="type">int</span> dfd, <span class="keyword">struct</span> filename *name)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">pid_t</span> pid;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *filename;</span><br><span class="line"></span><br><span class="line">    pid = bpf_get_current_pid_tgid() &gt;&gt; <span class="number">32</span>;</span><br><span class="line">    filename = BPF_CORE_READ(name, name);</span><br><span class="line">    bpf_printk(<span class="string">&quot;KPROBE ENTRY pid = %d, filename = %s\n&quot;</span>, pid, filename);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>接下来，我们定义一个名为<code>BPF_KRETPROBE(do_unlinkat_exit)</code>的 kretprobe，当从<code>do_unlinkat</code>函数退出时，它会被触发。这个 kretprobe 的目的是捕获函数的返回值（ret）。我们再次获取当前进程的 PID，并使用<code>bpf_printk</code>函数在内核日志中打印 PID 和返回值。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">SEC(&quot;kretprobe/do_unlinkat&quot;)</span><br><span class="line">int BPF_KRETPROBE(do_unlinkat_exit, long ret)</span><br><span class="line">&#123;</span><br><span class="line">    pid_t pid;</span><br><span class="line"></span><br><span class="line">    pid = bpf_get_current_pid_tgid() &gt;&gt; 32;</span><br><span class="line">    bpf_printk(&quot;KPROBE EXIT: pid = %d, ret = %ld\n&quot;, pid, ret);</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a target="_blank" rel="noopener" href="https://github.com/eunomia-bpf/bpf-developer-tutorial/blob/main/src/2-kprobe-unlink/README.md">bpf-developer-tutorial&#x2F;src&#x2F;2-kprobe-unlink&#x2F;README.md at main · eunomia-bpf&#x2F;bpf-developer-tutorial (github.com)</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
+              <a href="/tags/eBPF/" rel="tag"><i class="fa fa-tag"></i> eBPF</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8AHelloWorld/" rel="prev" title="eBPF 学习 开发环境搭建及HelloWorld">
+      <i class="fa fa-chevron-left"></i> eBPF 学习 开发环境搭建及HelloWorld
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-%E5%85%A5%E9%97%A8%E5%BC%80%E5%8F%91%E5%AE%9E%E8%B7%B5/" rel="next" title="eBPF 学习 入门开发实践">
+      eBPF 学习 入门开发实践 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Tracepoint"><span class="nav-number">1.</span> <span class="nav-text">Tracepoint</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#kprobes"><span class="nav-number">2.</span> <span class="nav-text">kprobes</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%89%B9%E7%82%B9%E4%B8%8E%E9%99%90%E5%88%B6"><span class="nav-number">3.</span> <span class="nav-text">使用特点与限制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#eBPF%E7%9A%84kprobe%E7%A4%BA%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">eBPF的kprobe示例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">5.</span> <span class="nav-text">代码分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">89</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.4m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">42:16</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : '42dbdc660dec95c1c641cf5c9bc64a4b',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
