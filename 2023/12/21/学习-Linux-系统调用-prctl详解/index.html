@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="prctl(2) - Linux manual page (man7.org) sys.c - kernel&#x2F;sys.c - Linux source code (v6.6.7) - Bootlin prctl具体用法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="学习 Linux 系统调用 prctl详解">
+<meta property="og:url" content="http://example.com/2023/12/21/%E5%AD%A6%E4%B9%A0-Linux-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8-prctl%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="prctl(2) - Linux manual page (man7.org) sys.c - kernel&#x2F;sys.c - Linux source code (v6.6.7) - Bootlin prctl具体用法">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-21T07:09:07.000Z">
+<meta property="article:modified_time" content="2023-12-22T01:19:47.060Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/21/%E5%AD%A6%E4%B9%A0-Linux-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8-prctl%E8%AF%A6%E8%A7%A3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>学习 Linux 系统调用 prctl详解 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/21/%E5%AD%A6%E4%B9%A0-Linux-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8-prctl%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          学习 Linux 系统调用 prctl详解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-21 15:09:07" itemprop="dateCreated datePublished" datetime="2023-12-21T15:09:07+08:00">2023-12-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-12-22 09:19:47" itemprop="dateModified" datetime="2023-12-22T09:19:47+08:00">2023-12-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" itemprop="url" rel="index"><span itemprop="name">系统调用</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>19k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>34 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/prctl.2.html">prctl(2) - Linux manual page (man7.org)</a></p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.7/source/kernel/sys.c#L2432">sys.c - kernel&#x2F;sys.c - Linux source code (v6.6.7) - Bootlin</a></p>
+<h1 id="prctl具体用法"><a href="#prctl具体用法" class="headerlink" title="prctl具体用法"></a>prctl具体用法</h1><p><code>prctl</code>是一个系统调用，用于控制和修改进程的行为的各个方面。</p>
+<p>以下是<code>prctl</code>函数的基本原型：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/prctl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">prctl</span><span class="params">(<span class="type">int</span> option, <span class="type">unsigned</span> <span class="type">long</span> arg2, <span class="type">unsigned</span> <span class="type">long</span> arg3, <span class="type">unsigned</span> <span class="type">long</span> arg4, <span class="type">unsigned</span> <span class="type">long</span> arg5)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>调用prctl时，第一个参数option描述了要执行的操作</p>
+<ol>
+<li><strong>PR_CAP_AMBIENT</strong></li>
+</ol>
+<p>根据<code>arg2</code>的值读取或更改调用线程的ambient capability set，该值必须是以下之一：</p>
+<ul>
+<li><strong>PR_CAP_AMBIENT_RAISE</strong></li>
+</ul>
+<p><code>PR_CAP_AMBIENT_RAISE</code>将<code>arg3</code>中指定的功能添加到ambient set中。指定的能力必须已经存在于进程的permitted set中和inheritable set中。如果设置了SECBIT_NO_CAP_AMBIENT_RAISE 安全位，则不允许执行此操作。</p>
+<ul>
+<li><strong>PR_CAP_AMBIENT_LOWER</strong></li>
+</ul>
+<p><code>PR_CAP_AMBIENT_LOWER</code>从ambient set中删除<code>arg3</code>中指定的功能。</p>
+<ul>
+<li><strong>PR_CAP_AMBIENT_IS_SET</strong></li>
+</ul>
+<p><code>PR_CAP_AMBIENT_IS_SET</code>如果 arg3 中的功能位于ambient set中，则 prctl() 调用返回 1，否则返回 0。</p>
+<ul>
+<li><p><strong>PR_CAP_AMBIENT_CLEAR_ALL</strong></p>
+<p><code>PR_CAP_AMBIENT_CLEAR_ALL</code>所有功能都将从ambient set中删除。此操作需要将 arg3 设置为零。</p>
+</li>
+</ul>
+<p>在上述所有操作中，arg4和arg5必须指定为0。</p>
+<ol start="2">
+<li><strong>PR_CAPBSET_READ</strong></li>
+</ol>
+<p>如果 arg2 中指定的功能位于调用线程的capability bounding set中，则返回（作为函数结果）1；如果不在，则返回 0。capability bounding set指示进程是否可以在后续调用 execve(2) 时通过文件允许的能力集接收能力。如果 arg2 中指定的功能无效，则调用将失败并显示错误 EINVAL。</p>
+<ol start="3">
+<li><strong>PR_CAPBSET_DROP</strong></li>
+</ol>
+<p>如果调用线程在其user namespace中具有 CAP_SETPCAP 功能，则从调用线程的capability bounding set中删除 arg2 指定的功能。调用线程的任何子线程都将继承新减少的bounding set。</p>
+<p>如果调用线程没有 CAP_SETPCAP，则调用失败并显示错误：EPERM；如果 arg2 不代表有效功能，则为 EINVAL；如果内核中未启用file capabilities，则为 EINVAL，在这种情况下不支持capability bounding set。</p>
+<ol start="4">
+<li><strong>PR_SET_CHILD_SUBREAPER</strong></li>
+</ol>
+<p>如果 arg2 非零，则设置调用进程的“child subreaper”属性；如果 arg2 为零，则取消设置该属性。</p>
+<p>child subreaper为其后代进程履行 init(1) 的角色。当一个进程成为孤立进程（即，其直接父进程终止）时，该进程将被重新指定为最近的仍然存在的ancestor subreaper。随后，在孤立进程中调用 getppid(2) 现在将返回 subreaper 进程的 PID，并且当孤儿进程终止时，subreaper 进程将收到 SIGCHLD 信号，并且能够在该进程上 wait(2)进程发现其终止状态。</p>
+<p>fork(2) 和clone(2) 创建的子级不会继承“child subreaper”属性的设置。该设置在 execve(2) 中保留。</p>
+<p> 建立child subreaper进程在会话管理框架中很有用，其中进程的分层组由child subreaper进程管理，当其中一个进程（例如，双分叉守护进程）终止时，需要通知child subreaper进程（也许以便它可以重新启动）那个过程）。出于类似的原因，某些 init(1) 框架（例如 systemd(1)）采用 subreaper 进程。</p>
+<ol start="5">
+<li><strong>PR_GET_CHILD_SUBREAPER</strong></li>
+</ol>
+<p>返回调用者的“child subreaper”设置，位于 (int *) arg2 指向的位置。</p>
+<ol start="6">
+<li><strong><mark>PR_SET_DUMPABLE</mark></strong></li>
+</ol>
+<p>设置“可转储”属性的状态，该属性确定在传递默认行为是生成核心转储的信号时是否为调用进程生成核心转储。</p>
+<p> 在 Linux 2.6.12 及之前，arg2 必须为 0（SUID_DUMP_DISABLE，进程不可转储）或 1（SUID_DUMP_USER，进程可转储）。</p>
+<p>在 Linux 2.6.13 和 Linux 2.6.17 之间，值 2 也是允许的，这会导致通常不会转储的任何二进制文件转储为只能由 root 读取；出于安全原因，此功能已被删除。</p>
+<p> 通常，“dumpable”属性设置为 1。但是，在以下情况下，它会重置为文件 &#x2F;proc&#x2F;sys&#x2F;fs&#x2F;suid_dumpable 中包含的当前值（默认值为 0）：</p>
+<p>• 进程的有效用户或组ID 已更改。</p>
+<p>• 进程的文件系统用户或组ID 已更改（请参阅<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/credentials.7.html">credentials(7) - Linux manual page (man7.org)</a>）。</p>
+<p>• 进程执行（execve(2)）set-user-ID 或set-group-ID 程序，导致有效用户ID 或有效组ID 的更改。</p>
+<p>• 进程执行(execve(2)) 具有文件功能的程序（请参阅<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/capabilities.7.html">capabilities(7) - Linux manual page (man7.org)</a>），但前提是所获得的允许的功能超过了该进程已允许的功能。</p>
+<p>不可转储的进程无法通过 ptrace(2) PTRACE_ATTACH 附加；有关更多详细信息，请参阅<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/ptrace.2.html">ptrace(2) - Linux manual page (man7.org)</a>。</p>
+<p><mark>如果进程不可转储，则进程的 &#x2F;proc&#x2F;pid 目录中文件的所有权将受到影响</mark>，如<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man5/proc.5.html">proc(5) - Linux manual page (man7.org)</a>中所述。</p>
+<ol start="7">
+<li><strong>PR_GET_DUMPABLE</strong></li>
+</ol>
+<p>返回（作为函数结果）调用进程的可转储属性的当前状态。</p>
+<ol start="8">
+<li><strong>PR_SET_ENDIAN</strong></li>
+</ol>
+<p>（自 Linux 2.6.18 起，仅限 PowerPC）将调用进程的字节序设置为 arg2 中给定的值，该值应为以下值之一：<code>PR_ENDIAN_BIG</code>、<code>PR_ENDIAN_LITTLE</code> 或 <code>PR_ENDIAN_PPC_LITTLE</code>（PowerPC 伪小字节序）。</p>
+<ol start="9">
+<li><strong>PR_GET_ENDIAN</strong></li>
+</ol>
+<p>（自 Linux 2.6.18 起，仅限 PowerPC）返回调用进程的字节序，位于 (int *) arg2 指向的位置。</p>
+<ol start="10">
+<li><strong>PR_SET_FP_MODE</strong></li>
+</ol>
+<p>（自 Linux 4.0 起，仅在 MIPS 上） 在 MIPS 架构上，可以使用 ABI 构建用户空间代码，该 ABI 允许与具有更严格的浮点 (FP) 要求的代码链接。</p>
+<ol start="11">
+<li><strong>PR_GET_FP_MODE</strong></li>
+</ol>
+<p>(自 Linux 4.0 起，仅在 MIPS 上) 返回（作为函数结果）当前浮点模式,成功时，调用返回一个表示当前浮点模式的位掩码。</p>
+<ol start="12">
+<li><strong>PR_SET_FPEMU</strong></li>
+</ol>
+<p>（自 Linux 2.4.18、2.5.9 起，仅在 ia64 上）将浮点仿真控制位设置为 arg2。传递 PR_FPEMU_NOPRINT 以静默模拟浮点操作访问，或传递 PR_FPEMU_SIGFPE 以不模拟浮点操作并发送 SIGFPE。</p>
+<ol start="13">
+<li><strong>PR_GET_FPEMU</strong></li>
+</ol>
+<p>（自 Linux 2.4.18、2.5.9 起，仅在 ia64 上）返回浮点仿真控制位，位于 (int *) arg2 指向的位置。</p>
+<ol start="14">
+<li><strong>PR_SET_FPEXC</strong></li>
+</ol>
+<p>自 Linux 2.4.21、2.5.32 起，仅在 PowerPC 上）将浮点异常模式设置为 arg2。通过 PR_FP_EXC_SW_ENABLE 使用 FPEXC 进行 FP 异常使能，PR_FP_EXC_DIV 进行浮点除以零，PR_FP_EXC_OVF 进行浮点溢出，PR_FP_EXC_UND 进行浮点下溢，PR_FP_EXC_RES 进行浮点不精确结果，PR_FP_EXC_INV 进行浮点无效操作，PR_FP_EXC_DISABLED对于禁用 FP 异常，PR_FP_EXC_NONRECOV 表示异步不可恢复异常模式，PR_FP_EXC_ASYNC 表示异步可恢复异常模式，PR_FP_EXC_PRECISE 表示精确异常模式。</p>
+<ol start="15">
+<li><strong>PR_GET_FPEXC</strong></li>
+</ol>
+<p>（自 Linux 2.4.21、2.5.32 起，仅在 PowerPC 上）返回浮点异常模式，位于 (int *) arg2 指向的位置。</p>
+<ol start="16">
+<li><strong>PR_SET_IO_FLUSHER</strong></li>
+</ol>
+<p>(自 Linux 5.6 起) 如果用户进程涉及block层或文件系统 I&#x2F;O 路径，并且可以在处理 I&#x2F;O 请求时分配内存，则必须将 arg2 设置为 1。这将使进程处于 IO_FLUSHER 状态，这使得它可以在分配内存时进行特殊处理以取得进展。如果arg2为0，进程将清除IO_FLUSHER状态，并使用默认行为。</p>
+<p> 调用进程必须具有 <code>CAP_SYS_RESOURCE</code> 能力。,arg3、arg4 和 arg5 必须为零。</p>
+<p>IO_FLUSHER 状态由通过 fork(2) 创建的子进程继承，并在 execve(2) 中保留。</p>
+<p>IO_FLUSHER 应用程序的示例包括 FUSE 守护程序、SCSI 设备模拟守护程序以及执行错误处理（如多路径路径恢复应用程序）的守护程序。</p>
+<ol start="17">
+<li><strong>PR_GET_IO_FLUSHER</strong></li>
+</ol>
+<p>（自 Linux 5.6 起）返回（作为函数结果）调用者的 IO_FLUSHER 状态。值为1表示调用者处于IO_FLUSHER状态； 0表示调用者不处于IO_FLUSHER状态。调用进程必须具有 <code>CAP_SYS_RESOURCE</code>能力。arg2、arg3、arg4 和 arg5 必须为零。</p>
+<ol start="18">
+<li><strong>PR_SET_KEEPCAPS</strong></li>
+</ol>
+<p>（自 Linux 2.2.18 起）设置调用线程的“keep capabilities”标志的状态。该标志的作用在<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/capabilities.7.html">capabilities(7) - Linux manual page (man7.org)</a>中描述。 arg2 必须为 0（清除标志）或 1（设置标志）。在后续调用 execve(2) 时，“keep capabilities”值将重置为 0。</p>
+<ol start="19">
+<li><strong>PR_GET_KEEPCAPS</strong></li>
+</ol>
+<p>（自 Linux 2.2.18 起）返回（作为函数结果）调用线程的“keep capabilities”标志的当前状态。</p>
+<ol start="20">
+<li><strong>PR_MCE_KILL</strong></li>
+</ol>
+<p>(自 Linux 2.6.32 起) 为调用线程设置机器检查内存损坏终止策略。如果 arg2 为 PR_MCE_KILL_CLEAR，则清除线程内存损坏终止策略并使用系统范围的默认值。 （系统范围的默认值由 &#x2F;proc&#x2F;sys&#x2F;vm&#x2F;memory_failure_early_kill 定义。）如果 arg2 是 PR_MCE_KILL_SET，则使用特定于线程的内存损坏终止策略。在这种情况下，arg3 定义策略是早期终止 (PR_MCE_KILL_EARLY)、晚期终止 (PR_MCE_KILL_LATE) 还是系统范围默认值 (PR_MCE_KILL_DEFAULT)。早期终止意味着一旦在其地址空间内检测到硬件内存损坏，线程就会收到 SIGBUS 信号。在晚期终止模式下，仅当进程访问损坏的页面时才会终止该进程。有关 SIGBUS 信号的更多信息，参阅<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/sigaction.2.html">sigaction(2) - Linux manual page (man7.org)</a>。该政策由子进程继承。为了将来的兼容性，剩余未使用的 prctl() 参数必须为零。</p>
+<ol start="21">
+<li><strong>PR_MCE_KILL_GET</strong></li>
+</ol>
+<p>（自 Linux 2.6.32 起）返回（作为函数结果）当前per-process machine检查终止策略。所有未使用的 prctl() 参数必须为零。</p>
+<ol start="22">
+<li><strong>PR_SET_MM</strong></li>
+</ol>
+<p>（自 Linux 3.3 起）修改调用进程的某些内核内存映射描述符字段。通常这些字段由内核和动态加载器设置（有关更多信息，请参阅<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man8/ld.so.8.html">ld.so(8) - Linux manual page (man7.org)</a>），常规应用程序不应使用此功能。然而，在某些情况下，例如自修改程序，程序可能会发现更改自己的内存映射很有用。</p>
+<p> 调用进程必须具有<code>CAP_SYS_RESOURCE</code>能力。 arg2 中的值是以下选项之一，而 arg3 为该选项提供新值。如果未使用，arg4 和 arg5 参数必须为零。</p>
+<p>在 Linux 3.10 之前，只有在启用 CONFIG_CHECKPOINT_RESTORE 选项的情况下构建内核时，此功能才可用。</p>
+<ul>
+<li><strong>PR_SET_MM_START_CODE</strong></li>
+</ul>
+<p>设置程序文本可以在其上运行的地址。相应的内存区域必须可读且可执行，但不可写或可共享。</p>
+<ul>
+<li><strong>PR_SET_MM_END_CODE</strong></li>
+</ul>
+<p>设置程序文本可以运行的地址。相应的内存区域必须可读且可执行，但不可写或不可共享。</p>
+<ul>
+<li><strong>PR_SET_MM_START_DATA</strong></li>
+</ul>
+<p>设置above放置初始化和未初始化（bss）数据的地址。相应的内存区域必须可读可写，但不可执行或不可共享。</p>
+<ul>
+<li><strong>PR_SET_MM_END_DATA</strong></li>
+</ul>
+<p>设置below放置初始化和未初始化（bss）数据的地址。相应的内存区域必须可读可写，但不可执行或不可共享。</p>
+<ul>
+<li><strong>PR_SET_MM_START_STACK</strong></li>
+</ul>
+<p>设置堆栈的起始地址。相应的内存区域必须可读可写。</p>
+<ul>
+<li><strong>PR_SET_MM_START_BRK</strong></li>
+</ul>
+<p>设置可以通过 brk(2) 调用扩展程序堆的地址。该地址必须大于当前程序数据段的结束地址。此外，生成的堆的大小和数据段的大小之和不能超过 RLIMIT_DATA 资源限制。</p>
+<ul>
+<li><strong>PR_SET_MM_BRK</strong></li>
+</ul>
+<p>设置当前 brk(2) 值。地址的要求与 PR_SET_MM_START_BRK 选项相同。</p>
+<p>自 Linux 3.5 起，以下选项可用。</p>
+<ul>
+<li><strong>PR_SET_MM_ARG_START</strong></li>
+</ul>
+<p>设置程序命令行所在的地址。</p>
+<ul>
+<li><strong>PR_SET_MM_ENV_START</strong></li>
+</ul>
+<p>设置程序环境所在的地址。</p>
+<ul>
+<li><strong>PR_SET_MM_ENV_END</strong></li>
+</ul>
+<p>设置程序环境所在的地址。</p>
+<p>通过 PR_SET_MM_ARG_START、PR_SET_MM_ARG_END、PR_SET_MM_ENV_START 和 PR_SET_MM_ENV_END 传递的地址应属于进程堆栈区域。因此，相应的内存区域必须可读、可写，并且（取决于内核配置）设置了 MAP_GROWSDOWN 属性。</p>
+<ul>
+<li><strong>PR_SET_MM_AUXV</strong></li>
+</ul>
+<p>设置新的辅助向量。 arg3 参数应提供向量的地址。 arg4 是向量的大小。</p>
+<ul>
+<li><strong>PR_SET_MM_EXE_FILE</strong></li>
+</ul>
+<p>用指向 arg3 参数中提供的文件描述符标识的新可执行文件的新符号链接取代 &#x2F;proc&#x2F;pid&#x2F;exe 符号链接。文件描述符应该通过常规的 open(2) 调用来获取。要更改符号链接，需要取消映射所有现有的可执行内存区域，包括内核本身创建的内存区域（例如内核通常为 ELF .text 部分创建至少一个可执行内存区域）。</p>
+<p>在Linux 4.9及更早版本中，PR_SET_MM_EXE_FILE操作在进程的生命周期中只能执行一次；尝试第二次执行该操作会导致错误 EPERM。出于安全原因强制执行此限制，后来被认为是似是而非的，并且在 Linux 4.10 中删除了该限制，因为某些用户空间应用程序需要多次执行此操作。</p>
+<p>自 Linux 3.18 起，以下选项可用。</p>
+<ul>
+<li><strong>PR_SET_MM_MAP</strong></li>
+</ul>
+<p>通过传入 struct prctl_mm_map（&lt;linux&#x2F;prctl.h&gt;中定义）提供对所有地址的一次性访问。 arg4 参数应提供结构的大小。</p>
+<ul>
+<li><strong>PR_SET_MM_MAP_SIZE</strong></li>
+</ul>
+<p>返回内核期望的 struct prctl_mm_map 的大小。这允许用户空间找到兼容的结构。 arg4 参数应该是一个指向 unsigned int 的指针。仅当内核是在启用 CONFIG_CHECKPOINT_RESTORE 选项的情况下构建时，此功能才可用。</p>
+<ol start="23">
+<li><strong>PR_SET_VMA</strong></li>
+</ol>
+<p>自 Linux 5.17 起）为从 arg3 中指定的地址开始并跨越 arg4 中指定的大小的虚拟内存区域设置 arg2 中指定的属性。 arg5 指定要设置的属性的值。</p>
+<p>请注意，将属性分配给虚拟内存区域可能会由于该属性值的差异而阻止其与相邻虚拟内存区域合并。</p>
+<p>目前，arg2 必须是以下之一：</p>
+<ul>
+<li><strong>PR_SET_VMA_ANON_NAME</strong></li>
+</ul>
+<p>PR_SET_VMA_ANON_NAME 设置匿名虚拟内存区域的名称。 arg5 应该是指向包含名称的以 null 结尾的字符串的指针。包含空字节的名称长度不能超过 80 个字节。如果 arg5 为 NULL，则相应匿名虚拟内存区域的名称将被重置。该名称只能包含可打印的 ASCII 字符（包括空格），“[”、“]”、“\”、“$”和“&#96;”除外。</p>
+<ol start="24">
+<li><strong>PR_MPX_ENABLE_MANAGEMENT</strong>,<strong>PR_MPX_DISABLE_MANAGEMENT</strong></li>
+</ol>
+<p>（自 Linux 3.19 起，在 Linux 5.4 中删除；仅在 x86 上）启用或禁用内存保护扩展 (MPX) 边界表的内核管理。 arg2、arg3、arg4 和 arg5 参数必须为零。</p>
+<p>MPX 是一种硬件辅助机制，用于对指针执行边界检查。</p>
+<p>它由一组存储边界信息的寄存器和一组特殊指令前缀组成，这些前缀告诉 CPU 应该对哪些指令执行边界强制。</p>
+<p>这些寄存器的数量有限，当指针多于寄存器时，它们的内容必须“溢出”到一组表中。这些表称为“边界表”，MPX prctl() 操作控制内核是否管理它们的分配和释放。</p>
+<p>当启用管理时，内核将接管边界表的分配和释放。</p>
+<p>它通过捕获首次使用缺失边界表时导致的 #BR 异常来实现此目的，并且不是将异常传递到用户空间，而是分配表并使用新表的位置填充边界目录。</p>
+<p>对于释放，内核检查是否存在未分配内存的边界表，如果存在则释放它们。</p>
+<p>在使用 PR_MPX_ENABLE_MANAGEMENT 启用 MPX 管理之前，应用程序必须首先为边界目录分配用户空间缓冲区，并将该目录的位置放入 bndcfgu 寄存器中。</p>
+<p>如果 CPU 或内核不支持 MPX，这些调用将会失败。通过 CONFIG_X86_INTEL_MPX 配置选项启用对 MPX 的内核支持。您可以通过查找 mpx CPUID 位来检查 CPU 是否支持 MPX，例如使用以下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/cpuinfo | grep &#x27; mpx &#x27;</span><br></pre></td></tr></table></figure>
+
+<p>启用 MPX 时，线程可能无法切入或切出长（64 位）模式。 进程中的所有线程都会受到这些调用的影响。 fork(2) 的子级继承 MPX 管理的状态。在 execve(2) 期间，MPX 管理重置为是否已调用 PR_MPX_DISABLE_MANAGEMENT 的状态。</p>
+<p>有关 Intel MPX 的更多信息，请参阅内核源文件 Documentation&#x2F;x86&#x2F;intel_mpx.txt。</p>
+<ol start="25">
+<li><strong>PR_SET_NAME</strong></li>
+</ol>
+<p>自 Linux 2.6.9 起）使用 (char *) arg2 指向的位置中的值设置调用线程的名称。</p>
+<p>该名称最长可达 16 个字节，包括终止空字节。 （如果字符串的长度（包括终止空字节）超过 16 个字节，则该字符串将被静默截断。）这与可以通过 pthread_setname_np(3) 设置并使用 pthread_getname_np(3) 检索的属性相同。该属性同样可以通过 &#x2F;proc&#x2F;self&#x2F;task&#x2F;tid&#x2F;comm 访问，其中 tid 是调用线程的线程 ID，由 gettid(2) 返回。</p>
+<ol start="26">
+<li><strong>PR_GET_NAME</strong></li>
+</ol>
+<p>返回调用线程的名称，位于 (char *) arg2 指向的缓冲区中。缓冲区应允许最多 16 个字节的空间；返回的字符串将以空字符结尾。</p>
+<ol start="27">
+<li><strong>PR_SET_NO_NEW_PRIVS</strong></li>
+</ol>
+<p>（自 Linux 3.5 起）将调用线程的 no_new_privs 属性设置为 arg2 中的值。当 no_new_privs 设置为 1 时，execve(2) 承诺不会授予执行任何没有 execve(2) 调用就无法完成的操作的权限（例如，呈现 set-user-ID 和 set-group-ID 模式位） ，并且文件功能不起作用）。 no_new_privs 属性一旦设置，就无法取消设置。该属性的设置由 fork(2) 和 clone(2) 创建的子级继承，并在 execve(2) 中保留。</p>
+<p> Linux 4.10 开始，可以通过 &#x2F;proc&#x2F;pid&#x2F;status 文件中的 NoNewPrivs 字段查看线程的 no_new_privs 属性的值。</p>
+<p> 有关详细信息，请参阅内核源文件 Documentation&#x2F;userspace-api&#x2F;no_new_privs.rst（或 Linux 4.13 之前的 Documentation&#x2F;prctl&#x2F;no_new_privs.txt）</p>
+<ol start="28">
+<li><strong>PR_GET_NO_NEW_PRIVS</strong></li>
+</ol>
+<p>（自 Linux 3.5 起）返回（作为函数结果）调用线程的 no_new_privs 属性的值。值 0 表示常规 execve(2) 行为。值 1 表示 execve(2) 将在上述特权限制模式下运行。</p>
+<ol start="29">
+<li><strong>PR_PAC_RESET_KEYS</strong></li>
+</ol>
+<p>（自 Linux 5.0 起，仅在 arm64 上）将线程的指针身份验证密钥安全地重置为内核生成的新随机值。</p>
+<p> 要重置的键集由 arg2 指定，它必须是以下零个或多个的逻辑或：</p>
+<ul>
+<li><strong>PR_PAC_APIAKEY</strong></li>
+</ul>
+<p>指令认证密钥A</p>
+<ul>
+<li><strong>PR_PAC_APIBKEY</strong></li>
+</ul>
+<p>指令认证密钥B</p>
+<ul>
+<li><strong>PR_PAC_APDAKEY</strong></li>
+</ul>
+<p>数据认证密钥 A</p>
+<ul>
+<li><strong>PR_PAC_APDBKEY</strong></li>
+</ul>
+<p>数据认证密钥 B</p>
+<ul>
+<li><strong>PR_PAC_APGAKEY</strong></li>
+</ul>
+<p>用身份验证“A”密钥</p>
+<p>作为一种特殊情况，如果 arg2 为零，则所有键都会重置。由于将来可能会添加新密钥，因此建议在建立干净的执行上下文时完全擦除现有密钥的方法。请注意，无需使用 PR_PAC_RESET_KEYS 来准备调用 execve(2)，因为 execve(2) 会重置所有指针身份验证密钥。 其余参数 arg3、arg4 和 arg5 必须全部为零。 如果参数无效，特别是如果 arg2 包含无法识别的设置位或对应于该平台上不可用的密钥的设置位，则调用将失败并显示错误 EINVAL。</p>
+<p> 警告：由于编译器或运行时环境可能正在使用部分或全部密钥，因此成功的 PR_PAC_RESET_KEYS 可能会导致调用进程崩溃。安全使用它的条件很复杂并且依赖于系统。除非您知道自己在做什么，否则不要使用它</p>
+<p>有关详细信息，请参阅内核源文件 Documentation&#x2F;arm64&#x2F;pointer-authentication.rst（或 Linux 5.3 之前的 Documentation&#x2F;arm64&#x2F;pointer-authentication.txt）。</p>
+<ol start="30">
+<li><strong>PR_SET_PDEATHSIG</strong></li>
+</ol>
+<p>(自 Linux 2.1.57 起) 将调用进程的父死亡信号设置为 arg2（1..NSIG-1 范围内的信号值，或清除 0）。这是当其父进程死亡时调用进程将收到的信号。</p>
+<p>警告：在这种情况下，“父进程”被认为是创建该进程的线程。换句话说，信号将在该线程终止时发送（例如通过 pthread_exit(3)），而不是在父进程中的所有线程终止之后发送。</p>
+<p>父死亡信号在父线程随后终止时以及调用者随后重新定位到的每个subreaper进程（参见上面 PR_SET_CHILD_SUBREAPER 的描述）终止时发送。如果父线程和所有祖先subreaper在 PR_SET_PDEATHSIG 操作时已经终止，则不会向调用者发送父线程死亡信号。</p>
+<p>父死亡信号是进程定向的（请参阅 <a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/signal.7.html">signal(7) - Linux manual page (man7.org)</a>），并且如果子进程使用 sigaction(2) SA_SIGINFO 标志安装处理程序，则处理程序的 siginfo_t 参数的 si_pid 字段包含终止父进程的 PID过程。</p>
+<p>为 fork(2) 的子进程清除父进程死亡信号设置。当执行 set-user-ID 或 set-group-ID 二进制文件或具有关联功能的二进制文件时（自 Linux 2.4.36 &#x2F; 2.6.23 起），它也会被清除（请参阅<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/capabilities.7.html">capabilities(7) - Linux manual page (man7.org)</a>）；否则，该值将在 execve(2) 中保留。当更改以下任何线程凭据时，父死亡信号设置也会被清除：有效用户 ID、有效组 ID、文件系统用户 ID 或文件系统组 ID。</p>
+<ol start="31">
+<li><strong>PR_GET_PDEATHSIG</strong></li>
+</ol>
+<p>(自 Linux 2.3.15 起) 返回父进程死亡信号的当前值，位于 (int *) arg2 指向的位置。</p>
+<ol start="32">
+<li><strong>PR_SET_PTRACER</strong></li>
+</ol>
+<p>（自 Linux 3.4 起）仅当 Yama LSM 启用且处于模式 1（“受限 ptrace”，通过 &#x2F;proc&#x2F;sys&#x2F;kernel&#x2F;yama&#x2F;ptrace_scope 可见）时才有意义。当“ptracer 进程 ID”在 arg2 中传递时，调用者声明 ptracer 进程可以 ptrace(2) 调用进程，就好像它是直接进程祖先一样。每个 PR_SET_PTRACER 操作都会替换之前的“ptracer 进程 ID”。使用 PR_SET_PTRACER 并将 arg2 设置为 0 会清除调用者的“ptracer 进程 ID”。如果 arg2 为 PR_SET_PTRACER_ANY，则对调用进程有效禁用 Yama 引入的 ptrace 限制。</p>
+<p> 有关更多信息，请参阅内核源文件 Documentation&#x2F;admin-guide&#x2F;LSM&#x2F;Yama.rst（或 Linux 4.13 之前的 Documentation&#x2F;security&#x2F;Yama.txt）。</p>
+<ol start="33">
+<li><strong>PR_SET_SECCOMP</strong></li>
+</ol>
+<p>(自 Linux 2.6.23 起) 返回（作为函数结果）调用线程的安全计算模式。</p>
+<p>如果调用方不处于安全计算模式，则该操作返回0；如果调用者处于严格安全计算模式，则 prctl() 调用将导致向进程发送 SIGKILL 信号。如果调用者处于过滤器模式，并且 seccomp 过滤器允许此系统调用，则返回 2；否则，进程将被 SIGKILL 信号终止。</p>
+<p>仅当内核配置为启用 CONFIG_SECCOMP 时，此操作才可用。</p>
+<p>从Linux 3.8开始，&#x2F;proc&#x2F;pid&#x2F;status文件的Seccomp字段提供了获取相同信息的方法，而不存在进程被杀死的风险</p>
+<ol start="34">
+<li><strong>PR_SET_SECUREBITS</strong></li>
+</ol>
+<p>（自 Linux 2.6.26 起）将调用线程的“securebits”标志设置为 arg2 中提供的值。</p>
+<ol start="35">
+<li><strong>PR_GET_SPECULATION_CTRL</strong></li>
+</ol>
+<p>（自 Linux 4.17 起）返回（作为函数结果）arg2 中指定的speculation错误特征的状态。目前，此参数唯一允许的值为 PR_SPEC_STORE_BYPASS （否则调用将失败并出现错误 ENODEV）。</p>
+<p>返回值使用位 0-3，其含义如下：</p>
+<ul>
+<li><strong>PR_SPEC_PRCTL</strong></li>
+</ul>
+<p>可以通过 PR_SET_SPECULATION_CTRL 按线程控制Mitigation。</p>
+<ul>
+<li><strong>PR_SPEC_ENABLE</strong></li>
+</ul>
+<p>speculation功能已启用，mitigation功能已禁用。</p>
+<ul>
+<li><strong>PR_SPEC_DISABLE</strong></li>
+</ul>
+<p>speculation功能已禁用，mitigation功能已启用。</p>
+<ul>
+<li><strong>PR_SPEC_FORCE_DISABLE</strong></li>
+</ul>
+<p>PR_SPEC_FORCE_DISABLE 与 PR_SPEC_DISABLE 相同，但无法撤消。</p>
+<ul>
+<li><strong>PR_SPEC_DISABLE_NOEXEC</strong></li>
+</ul>
+<p>（自 Linux 5.1 起）与 PR_SPEC_DISABLE 相同，但状态将在 execve(2) 上清除。 如果所有位均为 0，则 CPU 不会受到speculation misfeature的影响。</p>
+<p> 如果设置了 PR_SPEC_PRCTL，则可以使用per-thread控制mitigation措施。如果未设置，用于推测错误功能的 prctl() 将失败。arg3、arg4 和 arg5 参数必须指定为 0；否则调用会失败并显示错误 EINVAL。</p>
+<ol start="36">
+<li><strong>PR_SET_SPECULATION_CTRL</strong></li>
+</ol>
+<p>（自 Linux 4.17 起）设置 arg2 中指定的推测错误功能的状态。speculation-misfeature设置是每个线程的属性</p>
+<p>目前，arg2 必须是以下之一：</p>
+<ul>
+<li><strong>PR_SPEC_STORE_BYPASS</strong></li>
+</ul>
+<p>设置speculative store bypass misfeature的状态。</p>
+<ul>
+<li><strong>PR_SPEC_INDIRECT_BRANCH</strong></li>
+</ul>
+<p>（自 Linux 4.20 起）设置间接分支speculation misfeature的状态。</p>
+<p>如果 arg2 不具有上述值之一，则调用将失败并出现错误 ENODEV。arg3 参数用于传入控制值，该值是以下之一：</p>
+<ul>
+<li><strong>PR_SPEC_ENABLE</strong></li>
+</ul>
+<p>speculation feature已开启，mitigation已禁用</p>
+<ul>
+<li><strong>PR_SPEC_DISABLE</strong></li>
+</ul>
+<p>speculation feature已禁用，mitigation已开启</p>
+<ul>
+<li><strong>PR_SPEC_FORCE_DISABLE</strong></li>
+</ul>
+<p>PR_SPEC_FORCE_DISABLE 与 PR_SPEC_DISABLE 相同，但无法撤消。具有相同 arg2 值的后续 prctl(arg2, PR_SPEC_ENABLE) 将失败并出现错误 EPERM。</p>
+<ul>
+<li><strong>PR_SPEC_DISABLE_NOEXEC</strong></li>
+</ul>
+<p>（自 Linux 5.1 起）与 PR_SPEC_DISABLE 相同，但状态将在 execve(2) 上清除。目前仅支持 arg2 等于 PR_SPEC_STORE_BYPASS。 arg3 中任何不支持的值都将导致调用失败并出现错误 ERANGE。</p>
+<p>arg4 和 arg5 参数必须指定为 0；否则调用会失败并显示错误 EINVAL。</p>
+<p>speculation feature还可以通过 spec_store_bypass_disable 启动参数进行控制。此参数可能会强制执行只读策略，这将导致 prctl() 调用失败并出现错误 ENXIO。有关更多详细信息，请参阅内核源文件 Documentation&#x2F;admin-guide&#x2F;kernel-parameters.txt。</p>
+<ol start="37">
+<li><strong>PR_SVE_SET_VL</strong></li>
+</ol>
+<p>（自 Linux 4.15 起，仅在 arm64 上）配置线程的 SVE 矢量长度，由 (int) arg2 指定。参数 arg3、arg4 和 arg5 将被忽略。</p>
+<p>与 PR_SVE_VL_LEN_MASK 对应的 arg2 位必须设置为所需的向量长度（以字节为单位）。这被解释为上限：内核将选择不超过指定值的最大可用向量长度。特别是，为 PR_SVE_VL_LEN_MASK 位指定 SVE_VL_MAX（在  中定义）会请求最大支持的向量长度。</p>
+<p> 此外，arg2 的其他位必须设置为以下标志组合之一：</p>
+<ul>
+<li>0</li>
+</ul>
+<p>立即执行更改。在线程中的下一个 execve(2) 中，向量长度将重置为 &#x2F;proc&#x2F;sys&#x2F;abi&#x2F;sve_default_vector_length 中配置的值。</p>
+<ul>
+<li><p><strong>PR_SVE_VL_INHERIT</strong></p>
+<p>立即执行更改。随后的 execve(2) 调用将保留新的向量长度。</p>
+</li>
+<li><p><strong>PR_SVE_SET_VL_ONEXEC</strong></p>
+</li>
+</ul>
+<p>推迟更改，以便在线程中的下一个 execve(2) 时执行更改。进一步的 execve(2) 调用会将向量长度重置为 &#x2F;proc&#x2F;sys&#x2F;abi&#x2F;sve_default_vector_length 中配置的值。</p>
+<ul>
+<li><strong>PR_SVE_SET_VL_ONEXEC | PR_SVE_VL_INHERIT</strong></li>
+</ul>
+<p>推迟更改，以便在线程中的下一个 execve(2) 时执行更改。进一步的 execve(2) 调用将保留新的向量长度。</p>
+<p>在所有情况下，任何先前待处理的延迟更改都会被取消。</p>
+<p>如果平台不支持 SVE，如果 arg2 无法识别或无效，或者与 PR_SVE_VL_LEN_MASK 对应的 arg2 位中的值超出 SVE_VL_MIN..SVE_VL_MAX 范围或不是 16 的倍数，则调用会失败并返回错误 EINVAL。</p>
+<p>成功后，将返回一个描述所选配置的非负值。如果 PR_SVE_SET_VL_ONEXEC 包含在 arg2 中，则返回值描述的配置将在下一次 execve(2) 时生效。否则，当 PR_SVE_SET_VL 调用返回时，配置已生效。无论哪种情况，该值的编码方式都与 PR_SVE_GET_VL 的返回值相同。请注意，PR_SVE_SET_VL_ONEXEC 对应的返回值中没有显式标志。</p>
+<p>配置（包括任何挂起的延迟更改）在 fork(2) 和 clone(2) 之间继承。</p>
+<p> 更多信息请参见内核源文件Documentation&#x2F;arm64&#x2F;sve.rst（或Linux 5.3之前的Documentation&#x2F;arm64&#x2F;sve.txt）。</p>
+<p>警告：由于编译器或运行时环境可能正在使用 SVE，因此在没有 PR_SVE_SET_VL_ONEXEC 标志的情况下使用此调用可能会导致调用进程崩溃。安全使用它的条件很复杂并且依赖于系统。除非您真正知道自己在做什么，否则不要使用它。</p>
+<ol start="38">
+<li><strong>PR_SVE_GET_VL</strong></li>
+</ol>
+<p>（自Linux 4.15起，仅在arm64上）获取线程当前的SVE向量长度配置。</p>
+<p>参数 arg2、arg3、arg4 和 arg5 将被忽略。</p>
+<p>如果内核和平台支持 SVE，则此操作始终会成功，并返回描述当前配置的非负值。 PR_SVE_VL_LEN_MASK 对应的位包含当前配置的向量长度（以字节为单位）。 PR_SVE_VL_INHERIT 对应的位指示向量长度是否将在 execve(2) 之间继承。</p>
+<p> 请注意，无法确定是否存在尚未生效的挂起向量长度更改。</p>
+<p>更多信息请参见内核源文件Documentation&#x2F;arm64&#x2F;sve.rst（或Linux 5.3之前的Documentation&#x2F;arm64&#x2F;sve.txt）。</p>
+<ol start="39">
+<li><strong>PR_SET_SYSCALL_USER_DISPATCH</strong></li>
+</ol>
+<p>（自 Linux 5.11 起，仅限 x86）为调用线程配置 Syscall 用户调度机制。</p>
+<p>此机制允许应用程序有选择地拦截系统调用，以便可以在应用程序本身内处理它们。拦截采用线程定向的 SIGSYS 信号的形式，该信号在线程进行系统调用时传递给线程。如果被拦截，系统调用将不会被内核执行。</p>
+<p> 要启用此机制，arg2 应设置为 PR_SYS_DISPATCH_ON。一旦启用，将根据用户空间提供的控制变量有选择地拦截进一步的系统调用。在这种情况下，arg3 和 arg4 分别标识进程地址空间中单个连续内存区域的偏移量和长度，无论控制变量如何，始终允许执行系统调用。（通常，该区域包括包含 C 库的内存区域。）</p>
+<p>arg5 指向一个字符大小的变量，它是一个快速开关，用于允许&#x2F;阻止系统调用执行，而无需执行另一个系统调用来重新配置系统调用用户调度。该控制变量可以设置为 SYSCALL_DISPATCH_FILTER_BLOCK 以阻止系统调用执行，也可以设置为 SYSCALL_DISPATCH_FILTER_ALLOW 以暂时允许它们执行。内核会在每个系统调用条目上检查该值，任何意外值都会在那时引发无法捕获的 SIGSYS，从而终止应用程序。</p>
+<p> 当系统调用被拦截时，内核会向触发线程发送一个线程定向的 SIGSYS 信号。与信号关联的 siginfo_t 结构（请参阅<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/sigaction.2.html">sigaction(2) - Linux manual page (man7.org)</a>）中将设置各种字段：</p>
+<ul>
+<li><p>si_signo 将包含SIGSYS。</p>
+</li>
+<li><p>si_call_addr 将显示系统调用指令的地址。</p>
+</li>
+<li><p>si_syscall 和si_arch 将指示尝试了哪个系统调用。</p>
+</li>
+<li><p>si_code 将包含SYS_USER_DISPATCH。</p>
+</li>
+<li><p>si_errno 将设置为0。</p>
+</li>
+</ul>
+<p>程序计数器将如同发生了系统调用一样（即程序计数器不会指向系统调用指令）。</p>
+<p>当信号处理程序返回内核时，系统调用立即完成并返回到调用线程，而不实际执行。</p>
+<p>如果有必要（即，在用户空间上模拟系统调用时），信号处理程序应通过修改存储在信号处理程序的 ucontext 参数中的寄存器上下文，将系统调用返回值设置为正常值。有关详细信息，请参阅 <a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/sigaction.2.html">sigaction(2) - Linux manual page (man7.org)</a>、<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/sigaction.2.html">sigaction(2) - Linux manual page (man7.org)</a> 和 <a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man3/getcontext.3.html">getcontext(3) - Linux manual page (man7.org)</a>。</p>
+<p> 如果 arg2 设置为 PR_SYS_DISPATCH_OFF，则对该线程禁用系统调用用户调度。其余参数必须设置为 0。</p>
+<p> 该设置不会在 fork(2)、clone(2) 或 execve(2) 中保留。</p>
+<p> 有关更多信息，请参阅内核源文件 Documentation&#x2F;admin-guide&#x2F;syscall-user-dispatch.rst</p>
+<ol start="40">
+<li><strong>PR_SET_TAGGED_ADDR_CTRL</strong></li>
+</ol>
+<p>（自 Linux 5.4 起，仅在 arm64 上）控制对将标记的用户空间地址传递到内核的支持（即位 56-63 不全为零的地址）。</p>
+<p> 支持级别由 arg2 选择，可以是以下之一：</p>
+<ul>
+<li><strong>0</strong></li>
+</ul>
+<p>为内核取消引用而传递的地址必须取消标记。</p>
+<ul>
+<li><strong>PR_TAGGED_ADDR_ENABLE</strong></li>
+</ul>
+<p>为了被内核取消引用而传递的地址可以被标记，但下面总结的例外情况。</p>
+<p>其余参数 arg3、arg4 和 arg5 必须全部为零。</p>
+<p>成功时，为调用线程设置 arg2 中指定的模式，并且返回值为 0。如果参数无效，则无法识别 arg2 中指定的模式，或者内核不支持此功能或通过 &#x2F;proc&#x2F;sys&#x2F;abi&#x2F;tagged_addr_disabled禁用此功能，调用失败并出现错误 EINVAL。</p>
+<p>特别是，如果 prctl(PR_SET_TAGGED_ADDR_CTRL, 0, 0, 0, 0) 因 EINVAL 失败，则传递到内核的所有地址都必须取消标记。</p>
+<p> 无论设置哪种模式，传递到某些接口的地址必须始终未标记：</p>
+<ul>
+<li><p>brk(2)、mmap(2)、shmat(2)、shmdt(2) 和 mremap(2) 的 new_address 参数。（在 Linux 5.6 之前，这些已接受的标记地址，但行为可能不是您所期望的。不要依赖它。）</p>
+</li>
+<li><p>polymorphic接口，接受指向强制转换为 void * 或其他泛型类型的任意类型的指针，特别是 prctl()、ioctl(2) 和一般的 setsockopt(2)（仅某些特定的 setsockopt(2) 选项允许标记地址） ）。从一个内核版本迁移到更高版本的内核版本时，此排除列表可能会缩小。虽然内核可能会出于向后兼容性的原因做出一些保证，但出于新软件的目的，未指定将标记地址传递给这些接口的效果。此调用设置的模式在 fork(2) 和 clone(2) 之间继承。该模式由 execve(2) 重置为 0（即，用户&#x2F;内核 ABI 中不允许标记地址）。 有关更多信息，请参阅内核源文件 Documentation&#x2F;arm64&#x2F;tagged-address-abi.rst。</p>
+<p>警告：此调用主要供运行时环境使用。在其他地方成功调用 PR_SET_TAGGED_ADDR_CTRL 可能会使调用进程崩溃。安全使用它的条件很复杂并且依赖于系统。除非您知道自己在做什么，否则不要使用它。</p>
+</li>
+</ul>
+<ol start="41">
+<li><strong>PR_GET_TAGGED_ADDR_CTRL</strong></li>
+</ol>
+<p>（自 Linux 5.4 起，仅在 arm64 上）返回调用线程的当前标记地址模式。 参数 arg2、arg3、arg4 和 arg5 必须全部为零。</p>
+<p>如果参数无效或者内核禁用或不支持此功能，则调用将失败并显示 EINVAL。特别是，如果 prctl(PR_GET_TAGGED_ADDR_CTRL, 0, 0, 0, 0) 因 EINVAL 失败，则该功能肯定不受支持，或者通过 &#x2F;proc&#x2F;sys&#x2F;abi&#x2F;tagged_addr_disabled 禁用。在这种情况下，传递给内核的所有地址都必须取消标记。否则，调用返回一个描述当前标记地址模式的非负值，其编码方式与 PR_SET_TAGGED_ADDR_CTRL 的 arg2 参数相同。</p>
+<p> 有关更多信息，请参阅内核源文件 Documentation&#x2F;arm64&#x2F;tagged-address-abi.rst。</p>
+<ol start="42">
+<li><strong>PR_TASK_PERF_EVENTS_DISABLE</strong></li>
+</ol>
+<p>（自 Linux 2.6.31 起）禁用附加到调用进程的所有性能计数器，无论计数器是由该进程还是另一个进程创建。调用进程为其他进程创建的性能计数器不受影响。有关性能计数器的更多信息，请参阅 Linux 内核源文件 tools&#x2F;perf&#x2F;design.txt。</p>
+<p>最初称为 PR_TASK_PERF_COUNTERS_DISABLE；在 Linux 2.6.32 中重命名（保留相同的数值）。</p>
+<ol start="43">
+<li><strong>PR_TASK_PERF_EVENTS_ENABLE</strong></li>
+</ol>
+<p>（自 Linux 2.6.31 起）与 PR_TASK_PERF_EVENTS_DISABLE 相反；启用附加到调用进程的性能计数器。最初称为 PR_TASK_PERF_COUNTERS_ENABLE；在 Linux 2.6.32 中重命名。</p>
+<ol start="44">
+<li><strong>PR_SET_THP_DISABLE</strong></li>
+</ol>
+<p>（自 Linux 3.15 起）设置调用线程的“THP 禁用”标志的状态。如果 arg2 具有非零值，则设置该标志，否则将其清除。设置此标志提供了一种为无法修改代码的作业禁用透明大页的方法，并且不能选择使用带有 madvise(2) 的 malloc 挂钩（即静态分配数据）。 “THP disable”标志的设置由通过 fork(2) 创建的子进程继承，并在 execve(2) 中保留。</p>
+<ol start="45">
+<li><strong>PR_GET_THP_DISABLE</strong></li>
+</ol>
+<p>（自 Linux 3.15 起）返回（作为函数结果）调用线程的“THP disable”标志的当前设置：如果设置了该标志，则为 1；如果未设置，则为 0。</p>
+<ol start="46">
+<li><strong>PR_GET_TID_ADDRESS</strong></li>
+</ol>
+<p>（自 Linux 3.5 起）返回由 set_tid_address(2) 和 clone(2) CLONE_CHILD_CLEARTID 标志设置的clear_child_tid 地址，位于 (int **) arg2 指向的位置。仅当内核是在启用 CONFIG_CHECKPOINT_RESTORE 选项的情况下构建时，此功能才可用。请注意，由于 prctl() 系统调用没有 AMD64 x32 和 MIPS n32 ABI 的兼容实现，并且内核使用内核的指针大小写出指针，因此该操作需要 8 个（而不是 4 个）的用户空间缓冲区。 ) 这些 ABI 上的字节。</p>
+<ol start="47">
+<li><strong>PR_SET_TIMERSLACK</strong></li>
+</ol>
+<p>（自 Linux 2.6.28 起） 每个线程都有两个关联的计时器松弛值：“默认”值和“当前”值。此操作为调用线程设置“当前”计时器裕量值。 arg2 是一个无符号长整型值，则最大“当前”值为 ULONG_MAX，最小“当前”值为 1。如果 arg2 中提供的纳秒值大于零，则“当前”值将设置为此值。如果 arg2 等于 0，则“当前”定时器裕量将重置为线程的“默认”定时器裕量值。内核使用“当前”计时器裕量对彼此接近的调用线程的计时器到期时间进行分组；因此，线程的计时器到期可能会延迟指定的纳秒数（但永远不会提前到期）。</p>
+<p>对定时器到期进行分组可以通过最大限度地减少 CPU 唤醒来帮助降低系统功耗。</p>
+<p>受计时器松弛影响的计时器到期时间是由 select(2)、pselect(2)、poll(2)、ppoll(2)、epoll_wait(2)、epoll_pwait(2)、clock_nanosleep(2)、nanosleep(2) 设置的计时器到期时间和 futex(2)（以及通过 futex 实现的库函数，包括 pthread_cond_timedwait(3)、pthread_mutex_timedlock(3)、pthread_rwlock_timedrdlock(3)、pthread_rwlock_timedwrlock(3) 和 sem_timedwait(3)）。</p>
+<p>计时器裕量不适用于在实时调度策略下调度的线程（请参阅 sched_setscheduler(2)）。</p>
+<p>当创建新线程时，两个计时器松弛值将与创建线程的“当前”值相同。此后，线程可以通过 PR_SET_TIMERSLACK 调整其“当前”计时器松弛值。 “默认”值无法更改。所有进程的祖先 init (PID 1) 的计时器裕量值为 50,000 纳秒（50 微秒）。计时器松弛值由通过 fork(2) 创建的子进程继承，并在 execve(2) 中保留。</p>
+<p> 从 Linux 4.6 开始，任何进程的“当前”计时器松弛值都可以通过文件 &#x2F;proc&#x2F;pid&#x2F;timerslack_ns 进行检查和更改。</p>
+<ol start="48">
+<li><strong>PR_GET_TIMERSLACK</strong></li>
+</ol>
+<p>（自 Linux 2.6.28 起）返回（作为函数结果）调用线程的“当前”计时器松弛值。</p>
+<ol start="49">
+<li><strong>PR_SET_TIMING</strong></li>
+</ol>
+<p>（自 Linux 2.6.0 起）通过将 PR_TIMING_STATISTICAL 或 PR_TIMING_TIMESTAMP 传递给 arg2，设置是使用（正常、传统）统计进程计时还是基于精确时间戳的进程计时。 PR_TIMING_TIMESTAMP 当前尚未实现（尝试设置此模式将产生错误 EINVAL）。</p>
+<ol start="50">
+<li><strong>PR_GET_TIMING</strong></li>
+</ol>
+<p>(自 Linux 2.6.0 起) 返回（作为函数结果）当前正在使用哪个进程计时方法。</p>
+<ol start="51">
+<li><strong>PR_SET_TSC</strong></li>
+</ol>
+<p>（自 Linux 2.6.26 起，仅限 x86）设置标志的状态，确定时间戳计数器是否可以由进程读取。将 PR_TSC_ENABLE 传递给 arg2 以允许读取它，或将 PR_TSC_SIGSEGV 传递给 arg2 以在进程尝试读取时间戳计数器时生成 SIGSEGV。</p>
+<ol start="52">
+<li><strong>PR_GET_TSC</strong></li>
+</ol>
+<p>（自 Linux 2.6.26 起，仅限 x86）返回标志的状态，确定时间戳计数器是否可以读取，位于 (int *) arg2 指向的位置。</p>
+<ol start="53">
+<li><strong>PR_SET_UNALIGN</strong></li>
+</ol>
+<p>（仅适用于：ia64，自 Linux 2.3.48 起；parisc，自 Linux 2.6.15 起；PowerPC，自 Linux 2.6.18 起；Alpha，自 Linux 2.6.22 起；sh，自 Linux 2.6.34 起；tile，自 Linux 3.12 起) 将未对齐的访问控制位设置为 arg2。传递 PR_UNALIGN_NOPRINT 以静默方式修复未对齐的用户访问，或传递 PR_UNALIGN_SIGBUS 以在未对齐的用户访问上生成 SIGBUS。 Alpha 还支持值为 4 且没有相应命名常量的附加标志，该标志指示内核不要修复未对齐的访问（类似于在 Tru64 上的 setsysinfo() 系统调用的 SSI_NVPAIRS 操作中提供 UAC_NOFIX 标志）。</p>
+<ol start="54">
+<li><strong>PR_GET_UNALIGN</strong></li>
+</ol>
+<p>(有关版本和体系结构的信息，请参阅 PR_SET_UNALIGN。）返回 (unsigned int *) arg2 指向的位置中未对齐的访问控制位。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/15/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90-CVE-2019-5736/" rel="prev" title="漏洞分析 CVE-2019-5736">
+      <i class="fa fa-chevron-left"></i> 漏洞分析 CVE-2019-5736
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/12/22/%E5%AD%A6%E4%B9%A0-Linux-%E4%BD%BF%E7%94%A8%E5%B7%A5%E5%85%B7%E8%BF%9B%E8%A1%8C%E5%86%85%E5%AD%98%E5%8F%96%E8%AF%81-LiME-volatility3/" rel="next" title="学习 Linux 使用工具进行内存取证|LiME|volatility3">
+      学习 Linux 使用工具进行内存取证|LiME|volatility3 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#prctl%E5%85%B7%E4%BD%93%E7%94%A8%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">prctl具体用法</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">91</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.5m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">44:31</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : '92662c83f5730998ab92751b90a868d6',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
