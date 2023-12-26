@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="runc exec源码分析runc exec命令入口runc&#x2F;exec.go at main · opencontainers&#x2F;runc (github.com)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="runc exec 源码分析">
+<meta property="og:url" content="http://example.com/2023/12/25/runc-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="runc exec源码分析runc exec命令入口runc&#x2F;exec.go at main · opencontainers&#x2F;runc (github.com)">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-25T01:03:51.000Z">
+<meta property="article:modified_time" content="2023-12-25T03:01:01.008Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/25/runc-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>runc exec 源码分析 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/25/runc-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          runc exec 源码分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-12-25 09:03:51 / Modified: 11:01:01" itemprop="dateCreated datePublished" datetime="2023-12-25T09:03:51+08:00">2023-12-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%B9%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">容器</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>27k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>49 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="runc-exec源码分析"><a href="#runc-exec源码分析" class="headerlink" title="runc exec源码分析"></a>runc exec源码分析</h1><h2 id="runc-exec命令入口"><a href="#runc-exec命令入口" class="headerlink" title="runc exec命令入口"></a>runc exec命令入口</h2><p><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc/blob/main/exec.go">runc&#x2F;exec.go at main · opencontainers&#x2F;runc (github.com)</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> execCommand = cli.Command&#123;</span><br><span class="line">	Name:  <span class="string">&quot;exec&quot;</span>,</span><br><span class="line">	Usage: <span class="string">&quot;execute new process inside the container&quot;</span>,</span><br><span class="line">	ArgsUsage: <span class="string">`&lt;container-id&gt; &lt;command&gt; [command options]  || -p process.json &lt;container-id&gt;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Where &quot;&lt;container-id&gt;&quot; is the name for the instance of the container and</span></span><br><span class="line"><span class="string">&quot;&lt;command&gt;&quot; is the command to be executed in the container.</span></span><br><span class="line"><span class="string">&quot;&lt;command&gt;&quot; can&#x27;t be empty unless a &quot;-p&quot; flag provided.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">EXAMPLE:</span></span><br><span class="line"><span class="string">For example, if the container is configured to run the linux ps command the</span></span><br><span class="line"><span class="string">following will output a list of processes running in the container:</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">       # runc exec &lt;container-id&gt; ps`</span>,</span><br><span class="line">	Flags: []cli.Flag&#123;</span><br><span class="line">		cli.StringFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;console-socket&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;path to an AF_UNIX socket which will receive a file descriptor referencing the master end of the console&#x27;s pseudoterminal&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.StringFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;pidfd-socket&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;path to an AF_UNIX socket which will receive a file descriptor referencing the exec process&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.StringFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;cwd&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;current working directory in the container&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.StringSliceFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;env, e&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;set environment variables&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.BoolFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;tty, t&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;allocate a pseudo-TTY&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.StringFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;user, u&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;UID (format: &lt;uid&gt;[:&lt;gid&gt;])&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.Int64SliceFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;additional-gids, g&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;additional gids&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.StringFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;process, p&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;path to the process.json&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.BoolFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;detach,d&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;detach from the container&#x27;s process&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.StringFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;pid-file&quot;</span>,</span><br><span class="line">			Value: <span class="string">&quot;&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;specify the file to write the process id to&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.StringFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;process-label&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;set the asm process label for the process commonly used with selinux&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.StringFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;apparmor&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;set the apparmor profile for the process&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.BoolFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;no-new-privs&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;set the no new privileges value for the process&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.StringSliceFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;cap, c&quot;</span>,</span><br><span class="line">			Value: &amp;cli.StringSlice&#123;&#125;,</span><br><span class="line">			Usage: <span class="string">&quot;add a capability to the bounding set for the process&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.IntFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;preserve-fds&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;Pass N additional file descriptors to the container (stdio + $LISTEN_FDS + N in total)&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.StringSliceFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;cgroup&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;run the process in an (existing) sub-cgroup(s). Format is [&lt;controller&gt;:]&lt;cgroup&gt;.&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">		cli.BoolFlag&#123;</span><br><span class="line">			Name:  <span class="string">&quot;ignore-paused&quot;</span>,</span><br><span class="line">			Usage: <span class="string">&quot;allow exec in a paused container&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">	&#125;,</span><br><span class="line">	Action: <span class="function"><span class="keyword">func</span><span class="params">(context *cli.Context)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> err := checkArgs(context, <span class="number">1</span>, minArgs); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> err := revisePidFile(context); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">		status, err := execProcess(context)</span><br><span class="line">		<span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">			os.Exit(status)</span><br><span class="line">		&#125;</span><br><span class="line">		fatalWithCode(fmt.Errorf(<span class="string">&quot;exec failed: %w&quot;</span>, err), <span class="number">255</span>)</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span> <span class="comment">// to satisfy the linter</span></span><br><span class="line">	&#125;,</span><br><span class="line">	SkipArgReorder: <span class="literal">true</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="execProcess"><a href="#execProcess" class="headerlink" title="execProcess"></a>execProcess</h2><p><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc/blob/main/exec.go">runc&#x2F;exec.go at main · opencontainers&#x2F;runc (github.com)</a></p>
+<p><code>getContainer</code> 该函数主要是获取一个container 的方式，是通过 <code>libcontainer.Factory</code> 容器工厂类加载containerID 及其配置获取一个可运行的容器（里面会调用<code>runc init</code>来准备容器环境）。最后也是通过前面提到的<code>runner</code>进行容器的启动，但这次不同于创建容器流程，不需要进行环境大规模的配置初始化（env，cgroups，namespace，rootfs， mounts等）；后面进入 <code>r.run(p)</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">execProcess</span><span class="params">(context *cli.Context)</span></span> (<span class="type">int</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	container, err := getContainer(context)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	status, err := container.Status()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> status == libcontainer.Stopped &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, errors.New(<span class="string">&quot;cannot exec in a stopped container&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> status == libcontainer.Paused &amp;&amp; !context.Bool(<span class="string">&quot;ignore-paused&quot;</span>) &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, errors.New(<span class="string">&quot;cannot exec in a paused container (use --ignore-paused to override)&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	path := context.String(<span class="string">&quot;process&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> path == <span class="string">&quot;&quot;</span> &amp;&amp; <span class="built_in">len</span>(context.Args()) == <span class="number">1</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, errors.New(<span class="string">&quot;process args cannot be empty&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	state, err := container.State()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	bundle, ok := utils.SearchLabels(state.Config.Labels, <span class="string">&quot;bundle&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> !ok &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, errors.New(<span class="string">&quot;bundle not found in labels&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	p, err := getProcess(context, bundle)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	cgPaths, err := getSubCgroupPaths(context.StringSlice(<span class="string">&quot;cgroup&quot;</span>))</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	r := &amp;runner&#123;</span><br><span class="line">		enableSubreaper: <span class="literal">false</span>,</span><br><span class="line">		shouldDestroy:   <span class="literal">false</span>,</span><br><span class="line">		container:       container,</span><br><span class="line">		consoleSocket:   context.String(<span class="string">&quot;console-socket&quot;</span>),</span><br><span class="line">		pidfdSocket:     context.String(<span class="string">&quot;pidfd-socket&quot;</span>),</span><br><span class="line">		detach:          context.Bool(<span class="string">&quot;detach&quot;</span>),</span><br><span class="line">		pidFile:         context.String(<span class="string">&quot;pid-file&quot;</span>),</span><br><span class="line">		action:          CT_ACT_RUN,</span><br><span class="line">		init:            <span class="literal">false</span>,</span><br><span class="line">		preserveFDs:     context.Int(<span class="string">&quot;preserve-fds&quot;</span>),</span><br><span class="line">		subCgroupPaths:  cgPaths,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> r.run(p)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="runner-run"><a href="#runner-run" class="headerlink" title="runner.run"></a>runner.run</h2><p><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc/blob/main/utils_linux.go#L204">runc&#x2F;utils_linux.go at main · opencontainers&#x2F;runc (github.com)</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(r *runner)</span></span> run(config *specs.Process) (<span class="type">int</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="keyword">var</span> err <span class="type">error</span></span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			r.destroy()</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="keyword">if</span> err = r.checkTerminal(config); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	process, err := newProcess(*config)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	process.LogLevel = strconv.Itoa(<span class="type">int</span>(logrus.GetLevel()))</span><br><span class="line">	<span class="comment">// Populate the fields that come from runner.</span></span><br><span class="line">	process.Init = r.init</span><br><span class="line">	process.SubCgroupPaths = r.subCgroupPaths</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(r.listenFDs) &gt; <span class="number">0</span> &#123;</span><br><span class="line">		process.Env = <span class="built_in">append</span>(process.Env, <span class="string">&quot;LISTEN_FDS=&quot;</span>+strconv.Itoa(<span class="built_in">len</span>(r.listenFDs)), <span class="string">&quot;LISTEN_PID=1&quot;</span>)</span><br><span class="line">		process.ExtraFiles = <span class="built_in">append</span>(process.ExtraFiles, r.listenFDs...)</span><br><span class="line">	&#125;</span><br><span class="line">	baseFd := <span class="number">3</span> + <span class="built_in">len</span>(process.ExtraFiles)</span><br><span class="line">	procSelfFd, closer := utils.ProcThreadSelf(<span class="string">&quot;fd/&quot;</span>)</span><br><span class="line">	<span class="keyword">defer</span> closer()</span><br><span class="line">	<span class="keyword">for</span> i := baseFd; i &lt; baseFd+r.preserveFDs; i++ &#123;</span><br><span class="line">		_, err = os.Stat(filepath.Join(procSelfFd, strconv.Itoa(i)))</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">-1</span>, fmt.Errorf(<span class="string">&quot;unable to stat preserved-fd %d (of %d): %w&quot;</span>, i-baseFd, r.preserveFDs, err)</span><br><span class="line">		&#125;</span><br><span class="line">		process.ExtraFiles = <span class="built_in">append</span>(process.ExtraFiles, os.NewFile(<span class="type">uintptr</span>(i), <span class="string">&quot;PreserveFD:&quot;</span>+strconv.Itoa(i)))</span><br><span class="line">	&#125;</span><br><span class="line">	rootuid, err := r.container.Config().HostRootUID()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	rootgid, err := r.container.Config().HostRootGID()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	detach := r.detach || (r.action == CT_ACT_CREATE)</span><br><span class="line">	<span class="comment">// Setting up IO is a two stage process. We need to modify process to deal</span></span><br><span class="line">	<span class="comment">// with detaching containers, and then we get a tty after the container has</span></span><br><span class="line">	<span class="comment">// started.</span></span><br><span class="line">	handler := newSignalHandler(r.enableSubreaper, r.notifySocket)</span><br><span class="line">	tty, err := setupIO(process, rootuid, rootgid, config.Terminal, detach, r.consoleSocket)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> tty.Close()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> r.pidfdSocket != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		connClose, err := setupPidfdSocket(process, r.pidfdSocket)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">-1</span>, err</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">defer</span> connClose()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">switch</span> r.action &#123;</span><br><span class="line">	<span class="keyword">case</span> CT_ACT_CREATE:</span><br><span class="line">		err = r.container.Start(process)</span><br><span class="line">	<span class="keyword">case</span> CT_ACT_RESTORE:</span><br><span class="line">		err = r.container.Restore(process, r.criuOpts)</span><br><span class="line">	<span class="keyword">case</span> CT_ACT_RUN:</span><br><span class="line">		err = r.container.Run(process)</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">		<span class="built_in">panic</span>(<span class="string">&quot;Unknown action&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> err = tty.waitConsole(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		r.terminate(process)</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	tty.ClosePostStart()</span><br><span class="line">	<span class="keyword">if</span> r.pidFile != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> err = createPidFile(r.pidFile, process); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			r.terminate(process)</span><br><span class="line">			<span class="keyword">return</span> <span class="number">-1</span>, err</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	status, err := handler.forward(process, tty, detach)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		r.terminate(process)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> detach &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>, <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">		r.destroy()</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> status, err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在容器的创建流程中也会走这一段，不过这次从这里走</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> CT_ACT_RUN:</span><br><span class="line">    err = r.container.Run(process)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Container-Run"><a href="#Container-Run" class="headerlink" title="Container.Run"></a>Container.Run</h2><p><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc/blob/main/libcontainer/container_linux.go#L226">runc&#x2F;libcontainer&#x2F;container_linux.go at main · opencontainers&#x2F;runc (github.com)</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Run immediately starts the process inside the container. Returns an error if</span></span><br><span class="line"><span class="comment">// the process fails to start. It does not block waiting for the exec fifo</span></span><br><span class="line"><span class="comment">// after start returns but opens the fifo after start returns.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Container)</span></span> Run(process *Process) <span class="type">error</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> err := c.Start(process); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> process.Init &#123;</span><br><span class="line">		<span class="keyword">return</span> c.exec()</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Container去启动容器的process， 进入</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> err := c.Start(process); err != <span class="literal">nil</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> e</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面的初始化时不需要跑的，因为在创建容器时已经初始化了。</p>
+<h2 id="Container-Start"><a href="#Container-Start" class="headerlink" title="Container.Start"></a>Container.Start</h2><p><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc/blob/main/libcontainer/container_linux.go#L203">runc&#x2F;libcontainer&#x2F;container_linux.go at main · opencontainers&#x2F;runc (github.com)</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Start starts a process inside the container. Returns error if process fails</span></span><br><span class="line"><span class="comment">// to start. You can track process lifecycle with passed Process structure.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Container)</span></span> Start(process *Process) <span class="type">error</span> &#123;</span><br><span class="line">	c.m.Lock()</span><br><span class="line">	<span class="keyword">defer</span> c.m.Unlock()</span><br><span class="line">	<span class="keyword">if</span> c.config.Cgroups.Resources.SkipDevices &#123;</span><br><span class="line">		<span class="keyword">return</span> errors.New(<span class="string">&quot;can&#x27;t start container with SkipDevices set&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> process.Init &#123;</span><br><span class="line">		<span class="keyword">if</span> err := c.createExecFifo(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> err := c.start(process); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> process.Init &#123;</span><br><span class="line">			c.deleteExecFifo()</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同样的，process.Init时不会跑的，而是进入下面的c.start</p>
+<h2 id="Container-start"><a href="#Container-start" class="headerlink" title="Container.start"></a>Container.start</h2><p><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc/blob/main/libcontainer/container_linux.go#L315">runc&#x2F;libcontainer&#x2F;container_linux.go at main · opencontainers&#x2F;runc (github.com)</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Container)</span></span> start(process *Process) (retErr <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="comment">// 返回一个setnsProcess</span></span><br><span class="line"> 	<span class="comment">// 设置进程env _LIBCONTAINER_INITTYPE=setns</span></span><br><span class="line">	parent, err := c.newParentProcess(process)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;unable to create new parent process: %w&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// We do not need the cloned binaries once the process is spawned.</span></span><br><span class="line">	<span class="keyword">defer</span> process.closeClonedExes()</span><br><span class="line">    <span class="comment">//读取parent 日志文件管道</span></span><br><span class="line">	logsDone := parent.forwardChildLogs()</span><br><span class="line">	<span class="keyword">if</span> logsDone != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			<span class="comment">// Wait for log forwarder to finish. This depends on</span></span><br><span class="line">			<span class="comment">// runc init closing the _LIBCONTAINER_LOGPIPE log fd.</span></span><br><span class="line">			err := &lt;-logsDone</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &amp;&amp; retErr == <span class="literal">nil</span> &#123;</span><br><span class="line">				retErr = fmt.Errorf(<span class="string">&quot;unable to forward init logs: %w&quot;</span>, err)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := parent.start(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;unable to start container process: %w&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> process.Init &#123;</span><br><span class="line">		c.fifo.Close()</span><br><span class="line">		<span class="keyword">if</span> c.config.Hooks != <span class="literal">nil</span> &#123;</span><br><span class="line">			s, err := c.currentOCIState()</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> err</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> err := c.config.Hooks.Run(configs.Poststart, s); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">if</span> err := ignoreTerminateErrors(parent.terminate()); err != <span class="literal">nil</span> &#123;</span><br><span class="line">					logrus.Warn(fmt.Errorf(<span class="string">&quot;error running poststart hook: %w&quot;</span>, err))</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">return</span> err</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>经历了几次跳转终于来到<strong>核心</strong>的调用, <code>c.newParentProcess</code> 会提供一个pipe作为和子进程的通信通道，使用<code>socketpair</code>建立，最后组装到 <code>runc init</code> 的命令里面(如未指定cwd，命令会在容器的rootfs下执行), 以及返回一个<code>setnsProcess</code>(核心的启动命令)。</p>
+<p>这个函数中有两个重要的函数需要探索</p>
+<ul>
+<li><p>Container.newParentProcess</p>
+</li>
+<li><p>parent.start</p>
+</li>
+</ul>
+<h2 id="Container-newParentProcess"><a href="#Container-newParentProcess" class="headerlink" title="Container.newParentProcess"></a>Container.newParentProcess</h2><p><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc/blob/main/libcontainer/container_linux.go#L492">runc&#x2F;libcontainer&#x2F;container_linux.go at main · opencontainers&#x2F;runc (github.com)</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Container)</span></span> newParentProcess(p *Process) (parentProcess, <span class="type">error</span>) &#123;</span><br><span class="line">	comm, err := newProcessComm()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Make sure we use a new safe copy of /proc/self/exe or the runc-dmz</span></span><br><span class="line">	<span class="comment">// binary each time this is called, to make sure that if a container</span></span><br><span class="line">	<span class="comment">// manages to overwrite the file it cannot affect other containers on the</span></span><br><span class="line">	<span class="comment">// system. For runc, this code will only ever be called once, but</span></span><br><span class="line">	<span class="comment">// libcontainer users might call this more than once.</span></span><br><span class="line">	p.closeClonedExes()</span><br><span class="line">	<span class="keyword">var</span> (</span><br><span class="line">		exePath <span class="type">string</span></span><br><span class="line">		<span class="comment">// only one of dmzExe or safeExe are used at a time</span></span><br><span class="line">		dmzExe, safeExe *os.File</span><br><span class="line">	)</span><br><span class="line">	<span class="keyword">if</span> dmz.IsSelfExeCloned() &#123;</span><br><span class="line">		<span class="comment">// /proc/self/exe is already a cloned binary -- no need to do anything</span></span><br><span class="line">		logrus.Debug(<span class="string">&quot;skipping binary cloning -- /proc/self/exe is already cloned!&quot;</span>)</span><br><span class="line">		<span class="comment">// We don&#x27;t need to use /proc/thread-self here because the exe mm of a</span></span><br><span class="line">		<span class="comment">// thread-group is guaranteed to be the same for all threads by</span></span><br><span class="line">		<span class="comment">// definition. This lets us avoid having to do runtime.LockOSThread.</span></span><br><span class="line">		exePath = <span class="string">&quot;/proc/self/exe&quot;</span></span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">var</span> err <span class="type">error</span></span><br><span class="line">		<span class="keyword">if</span> isDmzBinarySafe(c.config) &#123;</span><br><span class="line">			dmzExe, err = dmz.Binary(c.stateDir)</span><br><span class="line">			<span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="comment">// We can use our own executable without cloning if we are</span></span><br><span class="line">				<span class="comment">// using runc-dmz. We don&#x27;t need to use /proc/thread-self here</span></span><br><span class="line">				<span class="comment">// because the exe mm of a thread-group is guaranteed to be the</span></span><br><span class="line">				<span class="comment">// same for all threads by definition. This lets us avoid</span></span><br><span class="line">				<span class="comment">// having to do runtime.LockOSThread.</span></span><br><span class="line">				exePath = <span class="string">&quot;/proc/self/exe&quot;</span></span><br><span class="line">				p.clonedExes = <span class="built_in">append</span>(p.clonedExes, dmzExe)</span><br><span class="line">				logrus.Debug(<span class="string">&quot;runc-dmz: using runc-dmz&quot;</span>) <span class="comment">// used for tests</span></span><br><span class="line">			&#125; <span class="keyword">else</span> <span class="keyword">if</span> errors.Is(err, dmz.ErrNoDmzBinary) &#123;</span><br><span class="line">				logrus.Debug(<span class="string">&quot;runc-dmz binary not embedded in runc binary, falling back to /proc/self/exe clone&quot;</span>)</span><br><span class="line">			&#125; <span class="keyword">else</span> <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;failed to create runc-dmz binary clone: %w&quot;</span>, err)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="comment">// If the configuration makes it unsafe to use runc-dmz, pretend we</span></span><br><span class="line">			<span class="comment">// don&#x27;t have it embedded so we do /proc/self/exe cloning.</span></span><br><span class="line">			logrus.Debug(<span class="string">&quot;container configuration unsafe for runc-dmz, falling back to /proc/self/exe clone&quot;</span>)</span><br><span class="line">			err = dmz.ErrNoDmzBinary</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> errors.Is(err, dmz.ErrNoDmzBinary) &#123;</span><br><span class="line">			safeExe, err = dmz.CloneSelfExe(c.stateDir)</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;unable to create safe /proc/self/exe clone for runc init: %w&quot;</span>, err)</span><br><span class="line">			&#125;</span><br><span class="line">			exePath = <span class="string">&quot;/proc/self/fd/&quot;</span> + strconv.Itoa(<span class="type">int</span>(safeExe.Fd()))</span><br><span class="line">			p.clonedExes = <span class="built_in">append</span>(p.clonedExes, safeExe)</span><br><span class="line">			logrus.Debug(<span class="string">&quot;runc-dmz: using /proc/self/exe clone&quot;</span>) <span class="comment">// used for tests</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// Just to make sure we don&#x27;t run without protection.</span></span><br><span class="line">		<span class="keyword">if</span> dmzExe == <span class="literal">nil</span> &amp;&amp; safeExe == <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="comment">// This should never happen.</span></span><br><span class="line">			<span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;[internal error] attempted to spawn a container with no /proc/self/exe protection&quot;</span>)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	cmd := exec.Command(exePath, <span class="string">&quot;init&quot;</span>)</span><br><span class="line">	cmd.Args[<span class="number">0</span>] = os.Args[<span class="number">0</span>]</span><br><span class="line">	cmd.Stdin = p.Stdin</span><br><span class="line">	cmd.Stdout = p.Stdout</span><br><span class="line">	cmd.Stderr = p.Stderr</span><br><span class="line">	cmd.Dir = c.config.Rootfs</span><br><span class="line">	<span class="keyword">if</span> cmd.SysProcAttr == <span class="literal">nil</span> &#123;</span><br><span class="line">		cmd.SysProcAttr = &amp;unix.SysProcAttr&#123;&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	cmd.Env = <span class="built_in">append</span>(cmd.Env, <span class="string">&quot;GOMAXPROCS=&quot;</span>+os.Getenv(<span class="string">&quot;GOMAXPROCS&quot;</span>))</span><br><span class="line">	cmd.ExtraFiles = <span class="built_in">append</span>(cmd.ExtraFiles, p.ExtraFiles...)</span><br><span class="line">	<span class="keyword">if</span> p.ConsoleSocket != <span class="literal">nil</span> &#123;</span><br><span class="line">		cmd.ExtraFiles = <span class="built_in">append</span>(cmd.ExtraFiles, p.ConsoleSocket)</span><br><span class="line">		cmd.Env = <span class="built_in">append</span>(cmd.Env,</span><br><span class="line">			<span class="string">&quot;_LIBCONTAINER_CONSOLE=&quot;</span>+strconv.Itoa(stdioFdCount+<span class="built_in">len</span>(cmd.ExtraFiles)<span class="number">-1</span>),</span><br><span class="line">		)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	cmd.ExtraFiles = <span class="built_in">append</span>(cmd.ExtraFiles, comm.initSockChild)</span><br><span class="line">	cmd.Env = <span class="built_in">append</span>(cmd.Env,</span><br><span class="line">		<span class="string">&quot;_LIBCONTAINER_INITPIPE=&quot;</span>+strconv.Itoa(stdioFdCount+<span class="built_in">len</span>(cmd.ExtraFiles)<span class="number">-1</span>),</span><br><span class="line">	)</span><br><span class="line">	cmd.ExtraFiles = <span class="built_in">append</span>(cmd.ExtraFiles, comm.syncSockChild.File())</span><br><span class="line">	cmd.Env = <span class="built_in">append</span>(cmd.Env,</span><br><span class="line">		<span class="string">&quot;_LIBCONTAINER_SYNCPIPE=&quot;</span>+strconv.Itoa(stdioFdCount+<span class="built_in">len</span>(cmd.ExtraFiles)<span class="number">-1</span>),</span><br><span class="line">	)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> dmzExe != <span class="literal">nil</span> &#123;</span><br><span class="line">		cmd.ExtraFiles = <span class="built_in">append</span>(cmd.ExtraFiles, dmzExe)</span><br><span class="line">		cmd.Env = <span class="built_in">append</span>(cmd.Env,</span><br><span class="line">			<span class="string">&quot;_LIBCONTAINER_DMZEXEFD=&quot;</span>+strconv.Itoa(stdioFdCount+<span class="built_in">len</span>(cmd.ExtraFiles)<span class="number">-1</span>))</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	cmd.ExtraFiles = <span class="built_in">append</span>(cmd.ExtraFiles, comm.logPipeChild)</span><br><span class="line">	cmd.Env = <span class="built_in">append</span>(cmd.Env,</span><br><span class="line">		<span class="string">&quot;_LIBCONTAINER_LOGPIPE=&quot;</span>+strconv.Itoa(stdioFdCount+<span class="built_in">len</span>(cmd.ExtraFiles)<span class="number">-1</span>))</span><br><span class="line">	<span class="keyword">if</span> p.LogLevel != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		cmd.Env = <span class="built_in">append</span>(cmd.Env, <span class="string">&quot;_LIBCONTAINER_LOGLEVEL=&quot;</span>+p.LogLevel)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> p.PidfdSocket != <span class="literal">nil</span> &#123;</span><br><span class="line">		cmd.ExtraFiles = <span class="built_in">append</span>(cmd.ExtraFiles, p.PidfdSocket)</span><br><span class="line">		cmd.Env = <span class="built_in">append</span>(cmd.Env,</span><br><span class="line">			<span class="string">&quot;_LIBCONTAINER_PIDFD_SOCK=&quot;</span>+strconv.Itoa(stdioFdCount+<span class="built_in">len</span>(cmd.ExtraFiles)<span class="number">-1</span>),</span><br><span class="line">		)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> safeExe != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// Due to a Go stdlib bug, we need to add safeExe to the set of</span></span><br><span class="line">		<span class="comment">// ExtraFiles otherwise it is possible for the stdlib to clobber the fd</span></span><br><span class="line">		<span class="comment">// during forkAndExecInChild1 and replace it with some other file that</span></span><br><span class="line">		<span class="comment">// might be malicious. This is less than ideal (because the descriptor</span></span><br><span class="line">		<span class="comment">// will be non-O_CLOEXEC) however we have protections in &quot;runc init&quot; to</span></span><br><span class="line">		<span class="comment">// stop us from leaking extra file descriptors.</span></span><br><span class="line">		<span class="comment">//</span></span><br><span class="line">		<span class="comment">// See &lt;https://github.com/golang/go/issues/61751&gt;.</span></span><br><span class="line">		cmd.ExtraFiles = <span class="built_in">append</span>(cmd.ExtraFiles, safeExe)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// <span class="doctag">NOTE:</span> when running a container with no PID namespace and the parent</span></span><br><span class="line">	<span class="comment">//       process spawning the container is PID1 the pdeathsig is being</span></span><br><span class="line">	<span class="comment">//       delivered to the container&#x27;s init process by the kernel for some</span></span><br><span class="line">	<span class="comment">//       reason even with the parent still running.</span></span><br><span class="line">	<span class="keyword">if</span> c.config.ParentDeathSignal &gt; <span class="number">0</span> &#123;</span><br><span class="line">		cmd.SysProcAttr.Pdeathsig = unix.Signal(c.config.ParentDeathSignal)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> p.Init &#123;</span><br><span class="line">		<span class="comment">// We only set up fifoFd if we&#x27;re not doing a `runc exec`. The historic</span></span><br><span class="line">		<span class="comment">// reason for this is that previously we would pass a dirfd that allowed</span></span><br><span class="line">		<span class="comment">// for container rootfs escape (and not doing it in `runc exec` avoided</span></span><br><span class="line">		<span class="comment">// that problem), but we no longer do that. However, there&#x27;s no need to do</span></span><br><span class="line">		<span class="comment">// this for `runc exec` so we just keep it this way to be safe.</span></span><br><span class="line">		<span class="keyword">if</span> err := c.includeExecFifo(cmd); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;unable to setup exec fifo: %w&quot;</span>, err)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> c.newInitProcess(p, cmd, comm)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> c.newSetnsProcess(p, cmd, comm)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="setnsProcess-start"><a href="#setnsProcess-start" class="headerlink" title="setnsProcess.start"></a>setnsProcess.start</h2><p><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc/blob/29222735a738a78a93a2879013c35fa899cb16b8/libcontainer/process_linux.go#L98">runc&#x2F;libcontainer&#x2F;process_linux.go at 29222735a738a78a93a2879013c35fa899cb16b8 · opencontainers&#x2F;runc (github.com)</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *setnsProcess)</span></span> start() (retErr <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="keyword">defer</span> p.comm.closeParent()</span><br><span class="line">	<span class="comment">// get the &quot;before&quot; value of oom kill count</span></span><br><span class="line">	oom, _ := p.manager.OOMKillCount()</span><br><span class="line">	err := p.cmd.Start()</span><br><span class="line">	<span class="comment">// close the child-side of the pipes (controlled by child)</span></span><br><span class="line">	p.comm.closeChild()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;error starting setns process: %w&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	waitInit := initWaiter(p.comm.initSockParent)</span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">if</span> retErr != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> newOom, err := p.manager.OOMKillCount(); err == <span class="literal">nil</span> &amp;&amp; newOom != oom &#123;</span><br><span class="line">				<span class="comment">// Someone in this cgroup was killed, this _might_ be us.</span></span><br><span class="line">				retErr = fmt.Errorf(<span class="string">&quot;%w (possibly OOM-killed)&quot;</span>, retErr)</span><br><span class="line">			&#125;</span><br><span class="line">			werr := &lt;-waitInit</span><br><span class="line">			<span class="keyword">if</span> werr != <span class="literal">nil</span> &#123;</span><br><span class="line">				logrus.WithError(werr).Warn()</span><br><span class="line">			&#125;</span><br><span class="line">			err := ignoreTerminateErrors(p.terminate())</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				logrus.WithError(err).Warn(<span class="string">&quot;unable to terminate setnsProcess&quot;</span>)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> p.bootstrapData != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> _, err := io.Copy(p.comm.initSockParent, p.bootstrapData); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;error copying bootstrap data to pipe: %w&quot;</span>, err)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	err = &lt;-waitInit</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> err := p.execSetns(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;error executing setns process: %w&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> _, path := <span class="keyword">range</span> p.cgroupPaths &#123;</span><br><span class="line">		<span class="keyword">if</span> err := cgroups.WriteCgroupProc(path, p.pid()); err != <span class="literal">nil</span> &amp;&amp; !p.rootlessCgroups &#123;</span><br><span class="line">			<span class="comment">// On cgroup v2 + nesting + domain controllers, WriteCgroupProc may fail with EBUSY.</span></span><br><span class="line">			<span class="comment">// https://github.com/opencontainers/runc/issues/2356#issuecomment-621277643</span></span><br><span class="line">			<span class="comment">// Try to join the cgroup of InitProcessPid.</span></span><br><span class="line">			<span class="keyword">if</span> cgroups.IsCgroup2UnifiedMode() &amp;&amp; p.initProcessPid != <span class="number">0</span> &#123;</span><br><span class="line">				initProcCgroupFile := fmt.Sprintf(<span class="string">&quot;/proc/%d/cgroup&quot;</span>, p.initProcessPid)</span><br><span class="line">				initCg, initCgErr := cgroups.ParseCgroupFile(initProcCgroupFile)</span><br><span class="line">				<span class="keyword">if</span> initCgErr == <span class="literal">nil</span> &#123;</span><br><span class="line">					<span class="keyword">if</span> initCgPath, ok := initCg[<span class="string">&quot;&quot;</span>]; ok &#123;</span><br><span class="line">						initCgDirpath := filepath.Join(fs2.UnifiedMountpoint, initCgPath)</span><br><span class="line">						logrus.Debugf(<span class="string">&quot;adding pid %d to cgroups %v failed (%v), attempting to join %q (obtained from %s)&quot;</span>,</span><br><span class="line">							p.pid(), p.cgroupPaths, err, initCg, initCgDirpath)</span><br><span class="line">						<span class="comment">// <span class="doctag">NOTE:</span> initCgDirPath is not guaranteed to exist because we didn&#x27;t pause the container.</span></span><br><span class="line">						err = cgroups.WriteCgroupProc(initCgDirpath, p.pid())</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;error adding pid %d to cgroups: %w&quot;</span>, p.pid(), err)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> p.intelRdtPath != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		<span class="comment">// if Intel RDT &quot;resource control&quot; filesystem path exists</span></span><br><span class="line">		_, err := os.Stat(p.intelRdtPath)</span><br><span class="line">		<span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> err := intelrdt.WriteIntelRdtTasks(p.intelRdtPath, p.pid()); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;error adding pid %d to Intel RDT: %w&quot;</span>, p.pid(), err)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// set rlimits, this has to be done here because we lose permissions</span></span><br><span class="line">	<span class="comment">// to raise the limits once we enter a user-namespace</span></span><br><span class="line">	<span class="keyword">if</span> err := setupRlimits(p.config.Rlimits, p.pid()); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;error setting rlimits for process: %w&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> err := utils.WriteJSON(p.comm.initSockParent, p.config); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;error writing config to pipe: %w&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	ierr := parseSync(p.comm.syncSockParent, <span class="function"><span class="keyword">func</span><span class="params">(sync *syncT)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">		<span class="keyword">switch</span> sync.Type &#123;</span><br><span class="line">		<span class="keyword">case</span> procReady:</span><br><span class="line">			<span class="comment">// This shouldn&#x27;t happen.</span></span><br><span class="line">			<span class="built_in">panic</span>(<span class="string">&quot;unexpected procReady in setns&quot;</span>)</span><br><span class="line">		<span class="keyword">case</span> procHooks:</span><br><span class="line">			<span class="comment">// This shouldn&#x27;t happen.</span></span><br><span class="line">			<span class="built_in">panic</span>(<span class="string">&quot;unexpected procHooks in setns&quot;</span>)</span><br><span class="line">		<span class="keyword">case</span> procMountPlease:</span><br><span class="line">			<span class="comment">// This shouldn&#x27;t happen.</span></span><br><span class="line">			<span class="built_in">panic</span>(<span class="string">&quot;unexpected procMountPlease in setns&quot;</span>)</span><br><span class="line">		<span class="keyword">case</span> procSeccomp:</span><br><span class="line">			<span class="keyword">if</span> p.config.Config.Seccomp.ListenerPath == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> errors.New(<span class="string">&quot;seccomp listenerPath is not set&quot;</span>)</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> sync.Arg == <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;sync %q is missing an argument&quot;</span>, sync.Type)</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">var</span> srcFd <span class="type">int</span></span><br><span class="line">			<span class="keyword">if</span> err := json.Unmarshal(*sync.Arg, &amp;srcFd); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;sync %q passed invalid fd arg: %w&quot;</span>, sync.Type, err)</span><br><span class="line">			&#125;</span><br><span class="line">			seccompFd, err := pidGetFd(p.pid(), srcFd)</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;sync %q get fd %d from child failed: %w&quot;</span>, sync.Type, srcFd, err)</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">defer</span> seccompFd.Close()</span><br><span class="line">			<span class="comment">// We have a copy, the child can keep working. We don&#x27;t need to</span></span><br><span class="line">			<span class="comment">// wait for the seccomp notify listener to get the fd before we</span></span><br><span class="line">			<span class="comment">// permit the child to continue because the child will happily wait</span></span><br><span class="line">			<span class="comment">// for the listener if it hits SCMP_ACT_NOTIFY.</span></span><br><span class="line">			<span class="keyword">if</span> err := writeSync(p.comm.syncSockParent, procSeccompDone); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> err</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			bundle, annotations := utils.Annotations(p.config.Config.Labels)</span><br><span class="line">			containerProcessState := &amp;specs.ContainerProcessState&#123;</span><br><span class="line">				Version:  specs.Version,</span><br><span class="line">				Fds:      []<span class="type">string</span>&#123;specs.SeccompFdName&#125;,</span><br><span class="line">				Pid:      p.cmd.Process.Pid,</span><br><span class="line">				Metadata: p.config.Config.Seccomp.ListenerMetadata,</span><br><span class="line">				State: specs.State&#123;</span><br><span class="line">					Version:     specs.Version,</span><br><span class="line">					ID:          p.config.ContainerID,</span><br><span class="line">					Status:      specs.StateRunning,</span><br><span class="line">					Pid:         p.initProcessPid,</span><br><span class="line">					Bundle:      bundle,</span><br><span class="line">					Annotations: annotations,</span><br><span class="line">				&#125;,</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> err := sendContainerProcessState(p.config.Config.Seccomp.ListenerPath,</span><br><span class="line">				containerProcessState, seccompFd); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> err</span><br><span class="line">			&#125;</span><br><span class="line">		<span class="keyword">default</span>:</span><br><span class="line">			<span class="keyword">return</span> errors.New(<span class="string">&quot;invalid JSON payload from child&quot;</span>)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := p.comm.syncSockParent.Shutdown(unix.SHUT_WR); err != <span class="literal">nil</span> &amp;&amp; ierr == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// Must be done after Shutdown so the child will exit and we can wait for it.</span></span><br><span class="line">	<span class="keyword">if</span> ierr != <span class="literal">nil</span> &#123;</span><br><span class="line">		_, _ = p.wait()</span><br><span class="line">		<span class="keyword">return</span> ierr</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>cmd终于的开始执行了，执行<code>runc init</code>，<code>init</code> 程序会调用 <code>nsexec.c</code> 的代码（这也是一个子进程，而且是在init进程前启动，设置ns后就会退出）;通过 <code>_LIBCONTAINER_INITTYPE=setns</code> 这个环境变量判别用什么模式进行setns，如果是<code>standard</code> 则是使用clone namespace 为容器建立新的namespace，这里我们是<code>setns</code>所以是为容器指定了我们需要进入的进程namespace。这一步的信息传递是通过socket与<code>nsexec.c</code> 这个程序交互，进程间通信技术完成信息传递；容器启动的需要的namespace 数据放到<code>setnsProcess.bootstrapData</code>内；</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">if</span> p.bootstrapData != <span class="literal">nil</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> _, err := io.Copy(p.comm.initSockParent, p.bootstrapData); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;error copying bootstrap data to pipe: %w&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">err = &lt;-waitInit</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> err := p.execSetns(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;error executing setns process: %w&quot;</span>, err)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码首先将namespace数据传输到nsenter中，然后等待exec设置namespace数据，并且通过消息管道返回父进程号，然后设置process属性为runc init进程号，方便后面对process的操作。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> _, path := <span class="keyword">range</span> p.cgroupPaths &#123;</span><br><span class="line">		<span class="keyword">if</span> err := cgroups.WriteCgroupProc(path, p.pid()); err != <span class="literal">nil</span> &amp;&amp; !p.rootlessCgroups &#123;</span><br><span class="line">			<span class="comment">// On cgroup v2 + nesting + domain controllers, WriteCgroupProc may fail with EBUSY.</span></span><br><span class="line">			<span class="comment">// https://github.com/opencontainers/runc/issues/2356#issuecomment-621277643</span></span><br><span class="line">			<span class="comment">// Try to join the cgroup of InitProcessPid.</span></span><br><span class="line">			<span class="keyword">if</span> cgroups.IsCgroup2UnifiedMode() &amp;&amp; p.initProcessPid != <span class="number">0</span> &#123;</span><br><span class="line">				initProcCgroupFile := fmt.Sprintf(<span class="string">&quot;/proc/%d/cgroup&quot;</span>, p.initProcessPid)</span><br><span class="line">				initCg, initCgErr := cgroups.ParseCgroupFile(initProcCgroupFile)</span><br><span class="line">				<span class="keyword">if</span> initCgErr == <span class="literal">nil</span> &#123;</span><br><span class="line">					<span class="keyword">if</span> initCgPath, ok := initCg[<span class="string">&quot;&quot;</span>]; ok &#123;</span><br><span class="line">						initCgDirpath := filepath.Join(fs2.UnifiedMountpoint, initCgPath)</span><br><span class="line">						logrus.Debugf(<span class="string">&quot;adding pid %d to cgroups %v failed (%v), attempting to join %q (obtained from %s)&quot;</span>,</span><br><span class="line">							p.pid(), p.cgroupPaths, err, initCg, initCgDirpath)</span><br><span class="line">						<span class="comment">// <span class="doctag">NOTE:</span> initCgDirPath is not guaranteed to exist because we didn&#x27;t pause the container.</span></span><br><span class="line">						err = cgroups.WriteCgroupProc(initCgDirpath, p.pid())</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;error adding pid %d to cgroups: %w&quot;</span>, p.pid(), err)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这段代码中设置cgroup</p>
+<h2 id="setnsProcess-execSetns"><a href="#setnsProcess-execSetns" class="headerlink" title="setnsProcess.execSetns"></a>setnsProcess.execSetns</h2><p><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc/blob/29222735a738a78a93a2879013c35fa899cb16b8/libcontainer/process_linux.go#L282">runc&#x2F;libcontainer&#x2F;process_linux.go at 29222735a738a78a93a2879013c35fa899cb16b8 · opencontainers&#x2F;runc (github.com)</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// execSetns runs the process that executes C code to perform the setns calls</span></span><br><span class="line"><span class="comment">// because setns support requires the C process to fork off a child and perform the setns</span></span><br><span class="line"><span class="comment">// before the go runtime boots, we wait on the process to die and receive the child&#x27;s pid</span></span><br><span class="line"><span class="comment">// over the provided pipe.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *setnsProcess)</span></span> execSetns() <span class="type">error</span> &#123;</span><br><span class="line">	status, err := p.cmd.Process.Wait()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		_ = p.cmd.Wait()</span><br><span class="line">		<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;error waiting on setns process to finish: %w&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> !status.Success() &#123;</span><br><span class="line">		_ = p.cmd.Wait()</span><br><span class="line">		<span class="keyword">return</span> &amp;exec.ExitError&#123;ProcessState: status&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">var</span> pid *pid</span><br><span class="line">	<span class="keyword">if</span> err := json.NewDecoder(p.comm.initSockParent).Decode(&amp;pid); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		_ = p.cmd.Wait()</span><br><span class="line">		<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;error reading pid from init pipe: %w&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Clean up the zombie parent process</span></span><br><span class="line">	<span class="comment">// On Unix systems FindProcess always succeeds.</span></span><br><span class="line">	firstChildProcess, _ := os.FindProcess(pid.PidFirstChild)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Ignore the error in case the child has already been reaped for any reason</span></span><br><span class="line">	_, _ = firstChildProcess.Wait()</span><br><span class="line"></span><br><span class="line">	process, err := os.FindProcess(pid.Pid)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	p.cmd.Process = process</span><br><span class="line">	p.process.ops = p</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="docker实现setns原理"><a href="#docker实现setns原理" class="headerlink" title="docker实现setns原理"></a>docker实现setns原理</h3><p><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc/blob/29222735a738a78a93a2879013c35fa899cb16b8/init.go#L13">runc&#x2F;init.go at 29222735a738a78a93a2879013c35fa899cb16b8 · opencontainers&#x2F;runc (github.com)</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;os&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;github.com/opencontainers/runc/libcontainer&quot;</span></span><br><span class="line">	_ <span class="string">&quot;github.com/opencontainers/runc/libcontainer/nsenter&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(os.Args) &gt; <span class="number">1</span> &amp;&amp; os.Args[<span class="number">1</span>] == <span class="string">&quot;init&quot;</span> &#123;</span><br><span class="line">		<span class="comment">// This is the golang entry point for runc init, executed</span></span><br><span class="line">		<span class="comment">// before main() but after libcontainer/nsenter&#x27;s nsexec().</span></span><br><span class="line">		libcontainer.Init()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以通过 exec 命令在一个存在的容器中运行一个进程，那么这个进程就需要通过 setns 系统调用加入到容器对应的 namespace 中，然而 setns 并不能正确的在 Go runtime 这样的多线程环境下工作，因此在实现一个容器的时候，这方面 Go 语言就远没有 C 语言来得直接、简洁。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc/blob/main/libcontainer/nsenter/nsenter_gccgo.go">runc&#x2F;libcontainer&#x2F;nsenter&#x2F;nsenter_gccgo.go at main · opencontainers&#x2F;runc (github.com)</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//go:build linux &amp;&amp; gccgo</span></span><br><span class="line"><span class="comment">// +build linux,gccgo</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> nsenter</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">#cgo CFLAGS: -Wall</span></span><br><span class="line"><span class="comment">extern void nsexec();</span></span><br><span class="line"><span class="comment">void __attribute__((constructor)) init(void) &#123;</span></span><br><span class="line"><span class="comment">	nsexec();</span></span><br><span class="line"><span class="comment">&#125;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;C&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// AlwaysFalse is here to stay false</span></span><br><span class="line"><span class="comment">// (and be exported so the compiler doesn&#x27;t optimize out its reference)</span></span><br><span class="line"><span class="keyword">var</span> AlwaysFalse <span class="type">bool</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> AlwaysFalse &#123;</span><br><span class="line">		<span class="comment">// by referencing this C init() in a noop test, it will ensure the compiler</span></span><br><span class="line">		<span class="comment">// links in the C function.</span></span><br><span class="line">		<span class="comment">// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65134</span></span><br><span class="line">		C.init()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">__attribute__((constructor)) <span class="comment">//修饰的函数在main函数之前执行</span></span><br><span class="line"></span><br><span class="line">__attribute__((destructor))  <span class="comment">//修饰的函数在main函数之后执行</span></span><br></pre></td></tr></table></figure>
+
+<p>这段代码就会在 Go 程序真正启动前执行这里定义的 init() 函数，然后执行 nsexec(), nsexec 函数里就可以干我们想干的所有事情了.</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc/blob/main/libcontainer/nsenter/nsexec.c">runc&#x2F;libcontainer&#x2F;nsenter&#x2F;nsexec.c at main · opencontainers&#x2F;runc (github.com)</a></p>
+<p>nsexec.c是定义在&#x2F;libcontainer&#x2F;nsenter&#x2F;nsexec.c中的C语言代码，其功能就是依据bootstrapData重新设置init进程的namespace，user等属性。关于nsexec.c的代码，还没作详细地研究，现在只知道只要import该包，代码就生效了:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> _ <span class="string">&quot;github.com/opencontainers/runc/libcontainer/nsenter&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>nsexec.c会从”_<strong>LIBCONTAINER_INITPIPE</strong>”<strong>环境变量中拿到pipe</strong>，并读取bootstrapData。然后，nsexec.c会调用clone()进行复制，在clone()时，传入参数CLONE_PARENT及命名空间参数，使用子进程和父进程成为兄弟关系，且拥有了自己的命名空间。接着调用setns()进行已存在的命名空间的处理。</p>
+<p>所以不妨可以这样认为，nsexec.c具有劫持init进程的功能。</p>
+<p>再看到上面的execSetns代码</p>
+<p>可以看到，execSetns()会等cmd的Process执行完成后，从parentPipe中读取新进程的信息，并把新进程赋值给cmd，而这个新进程就是经过nsexec.c处理过的进程。这样，cmd中的进程就是在正确的namespace中的了。所以，在execSetns()中的Process.Wait()，等待的是nsexec.c的完成，nsexec.c执行完后，会自动交还执行权限，即init进程会往下执行。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc/blob/29222735a738a78a93a2879013c35fa899cb16b8/libcontainer/nsenter/nsexec.c#L552">runc&#x2F;libcontainer&#x2F;nsenter&#x2F;nsexec.c at 29222735a738a78a93a2879013c35fa899cb16b8 · opencontainers&#x2F;runc (github.com)</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/24/podman-top-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="prev" title="podman top 源码分析">
+      <i class="fa fa-chevron-left"></i> podman top 源码分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/12/25/crun-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="next" title="crun exec 源码分析">
+      crun exec 源码分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#runc-exec%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">runc exec源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#runc-exec%E5%91%BD%E4%BB%A4%E5%85%A5%E5%8F%A3"><span class="nav-number">1.1.</span> <span class="nav-text">runc exec命令入口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#execProcess"><span class="nav-number">1.2.</span> <span class="nav-text">execProcess</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#runner-run"><span class="nav-number">1.3.</span> <span class="nav-text">runner.run</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Container-Run"><span class="nav-number">1.4.</span> <span class="nav-text">Container.Run</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Container-Start"><span class="nav-number">1.5.</span> <span class="nav-text">Container.Start</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Container-start"><span class="nav-number">1.6.</span> <span class="nav-text">Container.start</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Container-newParentProcess"><span class="nav-number">1.7.</span> <span class="nav-text">Container.newParentProcess</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#setnsProcess-start"><span class="nav-number">1.8.</span> <span class="nav-text">setnsProcess.start</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#setnsProcess-execSetns"><span class="nav-number">1.9.</span> <span class="nav-text">setnsProcess.execSetns</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#docker%E5%AE%9E%E7%8E%B0setns%E5%8E%9F%E7%90%86"><span class="nav-number">1.9.1.</span> <span class="nav-text">docker实现setns原理</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">95</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.5m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">45:54</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : 'aaec2a693d92a9cc5529940a04c095c2',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>

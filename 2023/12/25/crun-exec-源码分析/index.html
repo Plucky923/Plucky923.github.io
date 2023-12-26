@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="containers&#x2F;crun at f987a57226eb8d6795920ee213a91be0ebe2a161 (github.com) 入口crun&#x2F;src&#x2F;crun.c at main · containers&#x2F;crun (github.com)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="crun exec 源码分析">
+<meta property="og:url" content="http://example.com/2023/12/25/crun-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="containers&#x2F;crun at f987a57226eb8d6795920ee213a91be0ebe2a161 (github.com) 入口crun&#x2F;src&#x2F;crun.c at main · containers&#x2F;crun (github.com)">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-25T08:48:09.000Z">
+<meta property="article:modified_time" content="2023-12-26T02:59:27.642Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/25/crun-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>crun exec 源码分析 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/25/crun-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          crun exec 源码分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-25 16:48:09" itemprop="dateCreated datePublished" datetime="2023-12-25T16:48:09+08:00">2023-12-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-12-26 10:59:27" itemprop="dateModified" datetime="2023-12-26T10:59:27+08:00">2023-12-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%B9%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">容器</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>19k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>34 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://github.com/containers/crun/tree/f987a57226eb8d6795920ee213a91be0ebe2a161">containers&#x2F;crun at f987a57226eb8d6795920ee213a91be0ebe2a161 (github.com)</a></p>
+<h1 id="入口"><a href="#入口" class="headerlink" title="入口"></a>入口</h1><p><a target="_blank" rel="noopener" href="https://github.com/containers/crun/blob/main/src/crun.c#L149">crun&#x2F;src&#x2F;crun.c at main · containers&#x2F;crun (github.com)</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">commands_s</span> <span class="title">commands</span>[] =</span> &#123; &#123; COMMAND_CREATE, <span class="string">&quot;create&quot;</span>, crun_command_create &#125;,</span><br><span class="line">                                 &#123; COMMAND_DELETE, <span class="string">&quot;delete&quot;</span>, crun_command_delete &#125;,</span><br><span class="line">                                 &#123; COMMAND_EXEC, <span class="string">&quot;exec&quot;</span>, crun_command_exec &#125;,</span><br><span class="line">                                 &#123; COMMAND_LIST, <span class="string">&quot;list&quot;</span>, crun_command_list &#125;,</span><br><span class="line">                                 &#123; COMMAND_KILL, <span class="string">&quot;kill&quot;</span>, crun_command_kill &#125;,</span><br><span class="line">                                 &#123; COMMAND_PS, <span class="string">&quot;ps&quot;</span>, crun_command_ps &#125;,</span><br><span class="line">                                 &#123; COMMAND_RUN, <span class="string">&quot;run&quot;</span>, crun_command_run &#125;,</span><br><span class="line">                                 &#123; COMMAND_SPEC, <span class="string">&quot;spec&quot;</span>, crun_command_spec &#125;,</span><br><span class="line">                                 &#123; COMMAND_START, <span class="string">&quot;start&quot;</span>, crun_command_start &#125;,</span><br><span class="line">                                 &#123; COMMAND_STATE, <span class="string">&quot;state&quot;</span>, crun_command_state &#125;,</span><br><span class="line">                                 &#123; COMMAND_UPDATE, <span class="string">&quot;update&quot;</span>, crun_command_update &#125;,</span><br><span class="line">                                 &#123; COMMAND_PAUSE, <span class="string">&quot;pause&quot;</span>, crun_command_pause &#125;,</span><br><span class="line">                                 &#123; COMMAND_UNPAUSE, <span class="string">&quot;resume&quot;</span>, crun_command_unpause &#125;,</span><br><span class="line">                                 &#123; COMMAND_FEATURES, <span class="string">&quot;features&quot;</span>, crun_command_features &#125;,</span><br></pre></td></tr></table></figure>
+
+<p>进入实际执行exec命令的函数</p>
+<h1 id="crun-command-exec"><a href="#crun-command-exec" class="headerlink" title="crun_command_exec"></a>crun_command_exec</h1><p><a target="_blank" rel="noopener" href="https://github.com/containers/crun/blob/f987a57226eb8d6795920ee213a91be0ebe2a161/src/exec.c#L336">crun&#x2F;src&#x2F;exec.c at f987a57226eb8d6795920ee213a91be0ebe2a161 · containers&#x2F;crun (github.com)</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">crun_command_exec</span> <span class="params">(<span class="keyword">struct</span> crun_global_arguments *global_args, <span class="type">int</span> argc, <span class="type">char</span> **argv, <span class="type">libcrun_error_t</span> *err)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> first_arg = <span class="number">0</span>, ret = <span class="number">0</span>;</span><br><span class="line">  <span class="type">libcrun_context_t</span> crun_context = &#123;</span><br><span class="line">    <span class="number">0</span>,</span><br><span class="line">  &#125;;</span><br><span class="line">  cleanup_process_schema runtime_spec_schema_config_schema_process *process = <span class="literal">NULL</span>;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">libcrun_container_exec_options_s</span> <span class="title">exec_opts</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">memset</span> (&amp;exec_opts, <span class="number">0</span>, <span class="keyword">sizeof</span> (exec_opts));</span><br><span class="line">  exec_opts.struct_size = <span class="keyword">sizeof</span> (exec_opts);</span><br><span class="line"></span><br><span class="line">  crun_context.preserve_fds = <span class="number">0</span>;</span><br><span class="line">  crun_context.listen_fds = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  argp_parse (&amp;run_argp, argc, argv, ARGP_IN_ORDER, &amp;first_arg, &amp;exec_options);</span><br><span class="line">  crun_assert_n_args (argc - first_arg, exec_options.process ? <span class="number">1</span> : <span class="number">2</span>, <span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">  ret = init_libcrun_context (&amp;crun_context, argv[first_arg], global_args, err);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">  crun_context.detach = exec_options.detach;</span><br><span class="line">  crun_context.console_socket = exec_options.console_socket;</span><br><span class="line">  crun_context.pid_file = exec_options.pid_file;</span><br><span class="line">  crun_context.preserve_fds = exec_options.preserve_fds;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (getenv (<span class="string">&quot;LISTEN_FDS&quot;</span>))</span><br><span class="line">    &#123;</span><br><span class="line">      crun_context.listen_fds = strtoll (getenv (<span class="string">&quot;LISTEN_FDS&quot;</span>), <span class="literal">NULL</span>, <span class="number">10</span>);</span><br><span class="line">      crun_context.preserve_fds += crun_context.listen_fds;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (exec_options.process)</span><br><span class="line">    exec_opts.path = exec_options.process;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      process = xmalloc0 (<span class="keyword">sizeof</span> (*process));</span><br><span class="line">      <span class="type">int</span> i;</span><br><span class="line"></span><br><span class="line">      process-&gt;args_len = argc;</span><br><span class="line">      process-&gt;args = xmalloc0 ((argc + <span class="number">1</span>) * <span class="keyword">sizeof</span> (*process-&gt;args));</span><br><span class="line">      <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; argc - first_arg; i++)</span><br><span class="line">        process-&gt;args[i] = xstrdup (argv[first_arg + i + <span class="number">1</span>]);</span><br><span class="line">      process-&gt;args[i] = <span class="literal">NULL</span>;</span><br><span class="line">      <span class="keyword">if</span> (exec_options.cwd)</span><br><span class="line">        process-&gt;cwd = exec_options.cwd;</span><br><span class="line">      process-&gt;terminal = exec_options.tty;</span><br><span class="line">      process-&gt;env = exec_options.env;</span><br><span class="line">      process-&gt;env_len = exec_options.env_size;</span><br><span class="line">      process-&gt;user = make_oci_process_user (exec_options.user);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (exec_options.process_label != <span class="literal">NULL</span>)</span><br><span class="line">        process-&gt;selinux_label = xstrdup (exec_options.process_label);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (exec_options.apparmor != <span class="literal">NULL</span>)</span><br><span class="line">        process-&gt;apparmor_profile = xstrdup (exec_options.apparmor);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (exec_options.cap_size &gt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">          runtime_spec_schema_config_schema_process_capabilities *capabilities</span><br><span class="line">              = xmalloc (<span class="keyword">sizeof</span> (runtime_spec_schema_config_schema_process_capabilities));</span><br><span class="line"></span><br><span class="line">          capabilities-&gt;effective = exec_options.cap;</span><br><span class="line">          capabilities-&gt;effective_len = exec_options.cap_size;</span><br><span class="line"></span><br><span class="line">          capabilities-&gt;inheritable = <span class="literal">NULL</span>;</span><br><span class="line">          capabilities-&gt;inheritable_len = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">          capabilities-&gt;bounding = dup_array (exec_options.cap, exec_options.cap_size);</span><br><span class="line">          capabilities-&gt;bounding_len = exec_options.cap_size;</span><br><span class="line"></span><br><span class="line">          capabilities-&gt;ambient = dup_array (exec_options.cap, exec_options.cap_size);</span><br><span class="line">          capabilities-&gt;ambient_len = exec_options.cap_size;</span><br><span class="line"></span><br><span class="line">          capabilities-&gt;permitted = dup_array (exec_options.cap, exec_options.cap_size);</span><br><span class="line">          capabilities-&gt;permitted_len = exec_options.cap_size;</span><br><span class="line"></span><br><span class="line">          process-&gt;capabilities = capabilities;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// noNewPriviledges will remain `false` if basespec has `false` unless specified</span></span><br><span class="line">      <span class="comment">// Default is always `true` in generated basespec config</span></span><br><span class="line">      <span class="keyword">if</span> (exec_options.no_new_privs)</span><br><span class="line">        process-&gt;no_new_privileges = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">      exec_opts.process = process;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  exec_opts.cgroup = exec_options.cgroup;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> libcrun_container_exec_with_options (&amp;crun_context, argv[first_arg], &amp;exec_opts, err);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>进入libcrun_container_exec_with_options</p>
+<h1 id="libcrun-container-exec-with-options"><a href="#libcrun-container-exec-with-options" class="headerlink" title="libcrun_container_exec_with_options"></a>libcrun_container_exec_with_options</h1><p><a target="_blank" rel="noopener" href="https://github.com/containers/crun/blob/main/src/libcrun/container.c#L3412">crun&#x2F;src&#x2F;libcrun&#x2F;container.c at main · containers&#x2F;crun (github.com)</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">libcrun_container_exec_with_options</span> <span class="params">(<span class="type">libcrun_context_t</span> *context, <span class="type">const</span> <span class="type">char</span> *id,</span></span><br><span class="line"><span class="params">                                     <span class="keyword">struct</span> libcrun_container_exec_options_s *opts,</span></span><br><span class="line"><span class="params">                                     <span class="type">libcrun_error_t</span> *err)</span></span><br><span class="line">&#123;</span><br><span class="line">  cleanup_custom_handler_instance <span class="class"><span class="keyword">struct</span> <span class="title">custom_handler_instance_s</span> *<span class="title">custom_handler</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line">  <span class="type">int</span> container_status, ret;</span><br><span class="line">  <span class="type">bool</span> container_paused = <span class="literal">false</span>;</span><br><span class="line">  <span class="type">pid_t</span> pid;</span><br><span class="line">  <span class="type">libcrun_container_status_t</span> status = &#123;&#125;;</span><br><span class="line">  <span class="type">const</span> <span class="type">char</span> *state_root = context-&gt;state_root;</span><br><span class="line">  cleanup_close <span class="type">int</span> terminal_fd = <span class="number">-1</span>;</span><br><span class="line">  cleanup_close <span class="type">int</span> seccomp_fd = <span class="number">-1</span>;</span><br><span class="line">  cleanup_terminal <span class="type">void</span> *orig_terminal = <span class="literal">NULL</span>;</span><br><span class="line">  cleanup_free <span class="type">char</span> *config_file = <span class="literal">NULL</span>;</span><br><span class="line">  cleanup_container <span class="type">libcrun_container_t</span> *container = <span class="literal">NULL</span>;</span><br><span class="line">  cleanup_free <span class="type">char</span> *dir = <span class="literal">NULL</span>;</span><br><span class="line">  <span class="type">int</span> container_ret_status[<span class="number">2</span>];</span><br><span class="line">  cleanup_close <span class="type">int</span> pipefd0 = <span class="number">-1</span>;</span><br><span class="line">  cleanup_close <span class="type">int</span> pipefd1 = <span class="number">-1</span>;</span><br><span class="line">  cleanup_close <span class="type">int</span> seccomp_receiver_fd = <span class="number">-1</span>;</span><br><span class="line">  cleanup_close <span class="type">int</span> own_seccomp_receiver_fd = <span class="number">-1</span>;</span><br><span class="line">  cleanup_close <span class="type">int</span> seccomp_notify_fd = <span class="number">-1</span>;</span><br><span class="line">  <span class="type">const</span> <span class="type">char</span> *seccomp_notify_plugins = <span class="literal">NULL</span>;</span><br><span class="line">  __attribute__ ((unused)) cleanup_process_schema runtime_spec_schema_config_schema_process *process_cleanup = <span class="literal">NULL</span>;</span><br><span class="line">  runtime_spec_schema_config_schema_process *process = opts-&gt;process;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">libcrun_seccomp_gen_ctx_s</span> <span class="title">seccomp_gen_ctx</span>;</span></span><br><span class="line">  <span class="type">char</span> b;</span><br><span class="line"></span><br><span class="line">  ret = libcrun_read_container_status (&amp;status, state_root, id, err);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">  ret = libcrun_is_container_running (&amp;status, err);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">  container_status = ret;</span><br><span class="line"></span><br><span class="line">  dir = libcrun_get_state_directory (state_root, id);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (dir == <span class="literal">NULL</span>))</span><br><span class="line">    <span class="keyword">return</span> crun_make_error (err, <span class="number">0</span>, <span class="string">&quot;cannot get state directory&quot;</span>);</span><br><span class="line"></span><br><span class="line">  ret = append_paths (&amp;config_file, err, dir, <span class="string">&quot;config.json&quot;</span>, <span class="literal">NULL</span>);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">  container = libcrun_container_load_from_file (config_file, err);</span><br><span class="line">  <span class="keyword">if</span> (container == <span class="literal">NULL</span>)</span><br><span class="line">    <span class="keyword">return</span> crun_make_error (err, <span class="number">0</span>, <span class="string">&quot;error loading config.json&quot;</span>);</span><br><span class="line"></span><br><span class="line">  container-&gt;context = context;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (container_status == <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> crun_make_error (err, <span class="number">0</span>, <span class="string">&quot;the container `%s` is not running&quot;</span>, id);</span><br><span class="line"></span><br><span class="line">  &#123;</span><br><span class="line">    cleanup_cgroup_status <span class="class"><span class="keyword">struct</span> <span class="title">libcrun_cgroup_status</span> *<span class="title">cgroup_status</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    cgroup_status = libcrun_cgroup_make_status (&amp;status);</span><br><span class="line"></span><br><span class="line">    ret = libcrun_cgroup_is_container_paused (cgroup_status, &amp;container_paused, err);</span><br><span class="line">    <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">      <span class="keyword">return</span> ret;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (container_paused))</span><br><span class="line">    <span class="keyword">return</span> crun_make_error (err, <span class="number">0</span>, <span class="string">&quot;the container `%s` is paused&quot;</span>, id);</span><br><span class="line"></span><br><span class="line">  ret = libcrun_configure_handler (context-&gt;handler_manager,</span><br><span class="line">                                   context,</span><br><span class="line">                                   container,</span><br><span class="line">                                   &amp;custom_handler,</span><br><span class="line">                                   err);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">  ret = block_signals (err);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">  libcrun_seccomp_gen_ctx_init (&amp;seccomp_gen_ctx, container, <span class="literal">false</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  ret = libcrun_open_seccomp_bpf (&amp;seccomp_gen_ctx, &amp;seccomp_fd, err);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (seccomp_fd &gt;= <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      ret = get_seccomp_receiver_fd (container, &amp;seccomp_receiver_fd,</span><br><span class="line">                                     &amp;own_seccomp_receiver_fd,</span><br><span class="line">                                     &amp;seccomp_notify_plugins, err);</span><br><span class="line">      <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">sizeof</span> (*opts) != opts-&gt;struct_size)</span><br><span class="line">    <span class="keyword">return</span> crun_make_error (err, EINVAL, <span class="string">&quot;invalid libcrun_container_exec_options_s struct&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (opts-&gt;path)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="class"><span class="keyword">struct</span> <span class="title">parser_context</span> <span class="title">ctx</span> =</span> &#123; <span class="number">0</span>, <span class="built_in">stderr</span> &#125;;</span><br><span class="line">      cleanup_free <span class="type">char</span> *content = <span class="literal">NULL</span>;</span><br><span class="line">      parser_error parser_err = <span class="literal">NULL</span>;</span><br><span class="line">      yajl_val tree = <span class="literal">NULL</span>;</span><br><span class="line">      <span class="type">size_t</span> len;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (process)</span><br><span class="line">        <span class="keyword">return</span> crun_make_error (err, EINVAL, <span class="string">&quot;cannot specify both exec file and options&quot;</span>);</span><br><span class="line"></span><br><span class="line">      ret = read_all_file (opts-&gt;path, &amp;content, &amp;len, err);</span><br><span class="line">      <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">      ret = parse_json_file (&amp;tree, content, &amp;ctx, err);</span><br><span class="line">      <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">      process = make_runtime_spec_schema_config_schema_process (tree, &amp;ctx, &amp;parser_err);</span><br><span class="line">      <span class="keyword">if</span> (UNLIKELY (process == <span class="literal">NULL</span>))</span><br><span class="line">        &#123;</span><br><span class="line">          ret = crun_make_error (err, errno, <span class="string">&quot;cannot parse process file: `%s`&quot;</span>, parser_err);</span><br><span class="line">          <span class="built_in">free</span> (parser_err);</span><br><span class="line">          <span class="keyword">if</span> (tree)</span><br><span class="line">            yajl_tree_free (tree);</span><br><span class="line">          <span class="keyword">return</span> ret;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      <span class="built_in">free</span> (parser_err);</span><br><span class="line">      <span class="keyword">if</span> (tree)</span><br><span class="line">        yajl_tree_free (tree);</span><br><span class="line"></span><br><span class="line">      process_cleanup = process;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* This must be done before we enter a user namespace.  */</span></span><br><span class="line">  ret = libcrun_set_rlimits (process-&gt;rlimits, process-&gt;rlimits_len, err);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">  ret = pipe2 (container_ret_status, O_CLOEXEC);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> crun_make_error (err, errno, <span class="string">&quot;pipe&quot;</span>);</span><br><span class="line">  pipefd0 = container_ret_status[<span class="number">0</span>];</span><br><span class="line">  pipefd1 = container_ret_status[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* If the new process block doesn&#x27;t specify a SELinux label or AppArmor profile, then</span></span><br><span class="line"><span class="comment">     use the configuration from the original config file.  */</span></span><br><span class="line">  <span class="keyword">if</span> (container-&gt;container_def-&gt;process)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">if</span> (process-&gt;selinux_label == <span class="literal">NULL</span> &amp;&amp; container-&gt;container_def-&gt;process-&gt;selinux_label)</span><br><span class="line">        process-&gt;selinux_label = xstrdup (container-&gt;container_def-&gt;process-&gt;selinux_label);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (process-&gt;apparmor_profile == <span class="literal">NULL</span> &amp;&amp; container-&gt;container_def-&gt;process-&gt;apparmor_profile)</span><br><span class="line">        process-&gt;apparmor_profile = xstrdup (container-&gt;container_def-&gt;process-&gt;apparmor_profile);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  ret = initialize_security (process, err);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">  ret = prctl (PR_SET_DUMPABLE, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> crun_make_error (err, errno, <span class="string">&quot;prctl (PR_SET_DUMPABLE)&quot;</span>);</span><br><span class="line"></span><br><span class="line">  pid = libcrun_join_process (context, container, status.pid, &amp;status, opts-&gt;cgroup, context-&gt;detach,</span><br><span class="line">                              process, process-&gt;terminal ? &amp;terminal_fd : <span class="literal">NULL</span>, err);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (pid &lt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> pid;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Process to exec.  */</span></span><br><span class="line">  <span class="keyword">if</span> (pid == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      TEMP_FAILURE_RETRY (close (pipefd0));</span><br><span class="line">      pipefd0 = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">      exec_process_entrypoint (context, container, process, pipefd1, seccomp_fd, seccomp_receiver_fd, custom_handler, err);</span><br><span class="line">      <span class="comment">/* It gets here only on errors.  */</span></span><br><span class="line">      <span class="keyword">if</span> (*err)</span><br><span class="line">        libcrun_fail_with_error ((*err)-&gt;status, <span class="string">&quot;%s&quot;</span>, (*err)-&gt;msg);</span><br><span class="line"></span><br><span class="line">      _exit (EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  TEMP_FAILURE_RETRY (close (pipefd1));</span><br><span class="line">  pipefd1 = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">  TEMP_FAILURE_RETRY (write (pipefd0, &amp;pid, <span class="keyword">sizeof</span> (pid)));</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (seccomp_fd &gt;= <span class="number">0</span>)</span><br><span class="line">    close_and_reset (&amp;seccomp_fd);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (terminal_fd &gt;= <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="type">unsigned</span> <span class="type">short</span> rows = <span class="number">0</span>, cols = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (process-&gt;console_size)</span><br><span class="line">        &#123;</span><br><span class="line">          cols = process-&gt;console_size-&gt;width;</span><br><span class="line">          rows = process-&gt;console_size-&gt;height;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      ret = libcrun_terminal_setup_size (terminal_fd, rows, cols, err);</span><br><span class="line">      <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (context-&gt;console_socket)</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="type">int</span> ret;</span><br><span class="line">          cleanup_close <span class="type">int</span> console_socket_fd = open_unix_domain_client_socket (context-&gt;console_socket, <span class="number">0</span>, err);</span><br><span class="line">          <span class="keyword">if</span> (UNLIKELY (console_socket_fd &lt; <span class="number">0</span>))</span><br><span class="line">            <span class="keyword">return</span> console_socket_fd;</span><br><span class="line">          ret = send_fd_to_socket (console_socket_fd, terminal_fd, err);</span><br><span class="line">          <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">            <span class="keyword">return</span> ret;</span><br><span class="line">          close_and_reset (&amp;terminal_fd);</span><br><span class="line">        &#125;</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">          ret = libcrun_setup_terminal_ptmx (terminal_fd, &amp;orig_terminal, err);</span><br><span class="line">          <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">            &#123;</span><br><span class="line">              flush_fd_to_err (context, terminal_fd);</span><br><span class="line">              <span class="keyword">return</span> ret;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  ret = TEMP_FAILURE_RETRY (read (pipefd0, &amp;b, <span class="keyword">sizeof</span> (b)));</span><br><span class="line">  TEMP_FAILURE_RETRY (close (pipefd0));</span><br><span class="line">  pipefd0 = <span class="number">-1</span>;</span><br><span class="line">  <span class="keyword">if</span> (ret != <span class="number">1</span> || b != <span class="string">&#x27;0&#x27;</span>)</span><br><span class="line">    ret = <span class="number">-1</span>;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">/* Let&#x27;s receive the seccomp notify fd and handle it as part of wait_for_process().  */</span></span><br><span class="line">      <span class="keyword">if</span> (own_seccomp_receiver_fd &gt;= <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">          seccomp_notify_fd = receive_fd_from_socket (own_seccomp_receiver_fd, err);</span><br><span class="line">          <span class="keyword">if</span> (UNLIKELY (seccomp_notify_fd &lt; <span class="number">0</span>))</span><br><span class="line">            <span class="keyword">return</span> seccomp_notify_fd;</span><br><span class="line"></span><br><span class="line">          ret = close_and_reset (&amp;own_seccomp_receiver_fd);</span><br><span class="line">          <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">            <span class="keyword">return</span> ret;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      &#123;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">wait_for_process_args</span> <span class="title">args</span> =</span> &#123;</span><br><span class="line">          .pid = pid,</span><br><span class="line">          .context = context,</span><br><span class="line">          .terminal_fd = terminal_fd,</span><br><span class="line">          .notify_socket = <span class="number">-1</span>,</span><br><span class="line">          .container_ready_fd = <span class="literal">NULL</span>,</span><br><span class="line">          .seccomp_notify_fd = seccomp_notify_fd,</span><br><span class="line">          .seccomp_notify_plugins = seccomp_notify_plugins,</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        ret = wait_for_process (&amp;args, err);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  flush_fd_to_err (context, terminal_fd);</span><br><span class="line">  <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在libcrun_join_process中进行加入namespace操作</p>
+<h1 id="libcrun-join-process"><a href="#libcrun-join-process" class="headerlink" title="libcrun_join_process"></a>libcrun_join_process</h1><p><a target="_blank" rel="noopener" href="https://github.com/containers/crun/blob/main/src/libcrun/linux.c#L5191">crun&#x2F;src&#x2F;libcrun&#x2F;linux.c at main · containers&#x2F;crun (github.com)</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">libcrun_join_process</span> <span class="params">(<span class="type">libcrun_context_t</span> *context,</span></span><br><span class="line"><span class="params">                      <span class="type">libcrun_container_t</span> *container,</span></span><br><span class="line"><span class="params">                      <span class="type">pid_t</span> pid_to_join,</span></span><br><span class="line"><span class="params">                      <span class="type">libcrun_container_status_t</span> *status,</span></span><br><span class="line"><span class="params">                      <span class="type">const</span> <span class="type">char</span> *sub_cgroup,</span></span><br><span class="line"><span class="params">                      <span class="type">int</span> detach,</span></span><br><span class="line"><span class="params">                      runtime_spec_schema_config_schema_process *process,</span></span><br><span class="line"><span class="params">                      <span class="type">int</span> *terminal_fd,</span></span><br><span class="line"><span class="params">                      <span class="type">libcrun_error_t</span> *err)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">pid_t</span> pid;</span><br><span class="line">  <span class="type">int</span> ret;</span><br><span class="line">  <span class="type">int</span> sync_socket_fd[<span class="number">2</span>];</span><br><span class="line">  cleanup_close <span class="type">int</span> cgroup_dirfd = <span class="number">-1</span>;</span><br><span class="line">  cleanup_close <span class="type">int</span> sync_fd = <span class="number">-1</span>;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">clone3_args</span> <span class="title">clone3_args</span>;</span></span><br><span class="line">  <span class="type">bool</span> need_move_to_cgroup;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (! detach)</span><br><span class="line">    &#123;</span><br><span class="line">      ret = prctl (PR_SET_CHILD_SUBREAPER, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">      <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">        <span class="keyword">return</span> crun_make_error (err, errno, <span class="string">&quot;set child subreaper&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  ret = socketpair (AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, <span class="number">0</span>, sync_socket_fd);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> crun_make_error (err, errno, <span class="string">&quot;error creating socketpair&quot;</span>);</span><br><span class="line"></span><br><span class="line">  &#123;</span><br><span class="line">    cleanup_cgroup_status <span class="class"><span class="keyword">struct</span> <span class="title">libcrun_cgroup_status</span> *<span class="title">cgroup_status</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    cgroup_status = libcrun_cgroup_make_status (status);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* The cgroup can be joined directly only when there are no additional</span></span><br><span class="line"><span class="comment">       controllers not handled by cgroup v2.  */</span></span><br><span class="line">    <span class="keyword">if</span> (get_force_cgroup_v1_annotation (container) == <span class="literal">NULL</span>)</span><br><span class="line">      &#123;</span><br><span class="line">        cgroup_dirfd = libcrun_get_cgroup_dirfd (cgroup_status, sub_cgroup, err);</span><br><span class="line">        <span class="keyword">if</span> (UNLIKELY (cgroup_dirfd &lt; <span class="number">0</span>))</span><br><span class="line">          crun_error_release (err);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">memset</span> (&amp;clone3_args, <span class="number">0</span>, <span class="keyword">sizeof</span> (clone3_args));</span><br><span class="line">  clone3_args.exit_signal = SIGCHLD;</span><br><span class="line">  <span class="keyword">if</span> (cgroup_dirfd &lt; <span class="number">0</span>)</span><br><span class="line">    need_move_to_cgroup = <span class="literal">true</span>;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      need_move_to_cgroup = <span class="literal">false</span>;</span><br><span class="line">      clone3_args.flags |= CLONE_INTO_CGROUP;</span><br><span class="line">      clone3_args.cgroup = cgroup_dirfd;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  pid = syscall_clone3 (&amp;clone3_args);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (pid &gt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">/* We need to set the scheduler as soon as possible after joining the cgroup,</span></span><br><span class="line"><span class="comment">         because if it is a RT scheduler, other processes in the container could already</span></span><br><span class="line"><span class="comment">         take the entire cpu time and stall the new process.  */</span></span><br><span class="line">      ret = libcrun_set_scheduler (pid, process, err);</span><br><span class="line">      <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* On errors, fall back to fork().  */</span></span><br><span class="line">  <span class="keyword">if</span> (pid &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      need_move_to_cgroup = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">      pid = fork ();</span><br><span class="line">      <span class="keyword">if</span> (UNLIKELY (pid &lt; <span class="number">0</span>))</span><br><span class="line">        &#123;</span><br><span class="line">          ret = crun_make_error (err, errno, <span class="string">&quot;fork&quot;</span>);</span><br><span class="line">          <span class="keyword">goto</span> <span class="built_in">exit</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (pid)</span><br><span class="line">    &#123;</span><br><span class="line">      close_and_reset (&amp;sync_socket_fd[<span class="number">1</span>]);</span><br><span class="line">      sync_fd = sync_socket_fd[<span class="number">0</span>];</span><br><span class="line">      <span class="keyword">return</span> join_process_parent_helper (context, container,</span><br><span class="line">                                         process, pid, sync_fd,</span><br><span class="line">                                         status, need_move_to_cgroup,</span><br><span class="line">                                         sub_cgroup, terminal_fd, err);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  close_and_reset (&amp;sync_socket_fd[<span class="number">0</span>]);</span><br><span class="line">  sync_fd = sync_socket_fd[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">  ret = join_process_namespaces (container, pid_to_join, status, err);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">    &#123;</span><br><span class="line">      TEMP_FAILURE_RETRY (write (sync_fd, <span class="string">&quot;1&quot;</span>, <span class="number">1</span>));</span><br><span class="line">      libcrun_fail_with_error ((*err)-&gt;status, <span class="string">&quot;%s&quot;</span>, (*err)-&gt;msg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (setsid () &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="type">int</span> saved_errno = errno;</span><br><span class="line">      TEMP_FAILURE_RETRY (write (sync_fd, <span class="string">&quot;1&quot;</span>, <span class="number">1</span>));</span><br><span class="line">      libcrun_fail_with_error (saved_errno, <span class="string">&quot;setsid&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* We need to fork once again to join the PID namespace.  */</span></span><br><span class="line">  pid = fork ();</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (pid &lt; <span class="number">0</span>))</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="type">int</span> saved_errno = errno;</span><br><span class="line">      TEMP_FAILURE_RETRY (write (sync_fd, <span class="string">&quot;1&quot;</span>, <span class="number">1</span>));</span><br><span class="line">      libcrun_fail_with_error (saved_errno, <span class="string">&quot;fork&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (pid)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">/* Just return the PID to the parent helper and exit.  */</span></span><br><span class="line">      ret = TEMP_FAILURE_RETRY (write (sync_fd, <span class="string">&quot;0&quot;</span>, <span class="number">1</span>));</span><br><span class="line">      <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">        &#123;</span><br><span class="line">          kill (pid, SIGKILL);</span><br><span class="line">          _exit (EXIT_FAILURE);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      ret = TEMP_FAILURE_RETRY (write (sync_fd, &amp;pid, <span class="keyword">sizeof</span> (pid)));</span><br><span class="line">      <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">        &#123;</span><br><span class="line">          kill (pid, SIGKILL);</span><br><span class="line">          _exit (EXIT_FAILURE);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      _exit (EXIT_SUCCESS);</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">/* Inside the grandchild process.  The real process</span></span><br><span class="line"><span class="comment">         used for the container.  */</span></span><br><span class="line">      cleanup_free <span class="type">char</span> *pty = <span class="literal">NULL</span>;</span><br><span class="line">      <span class="type">int</span> r = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">      ret = TEMP_FAILURE_RETRY (read (sync_fd, &amp;r, <span class="keyword">sizeof</span> (r)));</span><br><span class="line">      <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">        _exit (EXIT_FAILURE);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (terminal_fd)</span><br><span class="line">        &#123;</span><br><span class="line">          cleanup_close <span class="type">int</span> ptmx_fd = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">          ret = setsid ();</span><br><span class="line">          <span class="keyword">if</span> (ret &lt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">              crun_make_error (err, errno, <span class="string">&quot;setsid&quot;</span>);</span><br><span class="line">              send_error_to_sync_socket_and_die (sync_fd, <span class="literal">true</span>, err);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">          ret = set_id_init (container, err);</span><br><span class="line">          <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">            send_error_to_sync_socket_and_die (sync_fd, <span class="literal">true</span>, err);</span><br><span class="line"></span><br><span class="line">          ptmx_fd = open_terminal (&amp;pty, process, err);</span><br><span class="line">          <span class="keyword">if</span> (UNLIKELY (ptmx_fd &lt; <span class="number">0</span>))</span><br><span class="line">            send_error_to_sync_socket_and_die (sync_fd, <span class="literal">true</span>, err);</span><br><span class="line"></span><br><span class="line">          ret = send_fd_to_socket (sync_fd, ptmx_fd, err);</span><br><span class="line">          <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">            send_error_to_sync_socket_and_die (sync_fd, <span class="literal">true</span>, err);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (r &lt; <span class="number">0</span>)</span><br><span class="line">        _exit (EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span>:</span><br><span class="line">  <span class="keyword">if</span> (sync_socket_fd[<span class="number">0</span>] &gt;= <span class="number">0</span>)</span><br><span class="line">    TEMP_FAILURE_RETRY (close (sync_socket_fd[<span class="number">0</span>]));</span><br><span class="line">  <span class="keyword">if</span> (sync_socket_fd[<span class="number">1</span>] &gt;= <span class="number">0</span>)</span><br><span class="line">    TEMP_FAILURE_RETRY (close (sync_socket_fd[<span class="number">1</span>]));</span><br><span class="line">  <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="join-process-namespaces"><a href="#join-process-namespaces" class="headerlink" title="join_process_namespaces"></a>join_process_namespaces</h1><p><a target="_blank" rel="noopener" href="https://github.com/containers/crun/blob/main/src/libcrun/linux.c#L5091">crun&#x2F;src&#x2F;libcrun&#x2F;linux.c at main · containers&#x2F;crun (github.com)</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span></span><br><span class="line"><span class="title function_">join_process_namespaces</span> <span class="params">(<span class="type">libcrun_container_t</span> *container, <span class="type">pid_t</span> pid_to_join, <span class="type">libcrun_container_status_t</span> *status, <span class="type">libcrun_error_t</span> *err)</span></span><br><span class="line">&#123;</span><br><span class="line">  runtime_spec_schema_config_schema *def = container-&gt;container_def;</span><br><span class="line">  <span class="type">int</span> fds_joined[MAX_NAMESPACES] = &#123;</span><br><span class="line">    <span class="number">0</span>,</span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="type">int</span> fds[MAX_NAMESPACES] = &#123;</span><br><span class="line">    <span class="number">-1</span>,</span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="type">size_t</span> i;</span><br><span class="line">  <span class="type">int</span> ret;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Try to join all namespaces in one shot with setns and pidfd.  */</span></span><br><span class="line">  ret = try_setns_with_pidfd (pid_to_join, container, status, err);</span><br><span class="line">  <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">  <span class="comment">/* Nothing left to do if the namespaces were joined.  */</span></span><br><span class="line">  <span class="keyword">if</span> (LIKELY (ret &gt; <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* If setns fails with the target pidfd, fall-back to join each namespace individually.  */</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (def-&gt;linux-&gt;namespaces_len &gt;= MAX_NAMESPACES)</span><br><span class="line">    <span class="keyword">return</span> crun_make_error (err, <span class="number">0</span>, <span class="string">&quot;invalid configuration&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; namespaces[i].ns_file; i++)</span><br><span class="line">    &#123;</span><br><span class="line">      cleanup_free <span class="type">char</span> *ns_join = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">      xasprintf (&amp;ns_join, <span class="string">&quot;/proc/%d/ns/%s&quot;</span>, pid_to_join, namespaces[i].ns_file);</span><br><span class="line">      fds[i] = open (ns_join, O_RDONLY | O_CLOEXEC);</span><br><span class="line">      <span class="keyword">if</span> (UNLIKELY (fds[i] &lt; <span class="number">0</span>))</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="comment">/* If the namespace doesn&#x27;t exist, just ignore it.  */</span></span><br><span class="line">          <span class="keyword">if</span> (errno == ENOENT)</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">          ret = crun_make_error (err, errno, <span class="string">&quot;open `%s`&quot;</span>, ns_join);</span><br><span class="line">          <span class="keyword">goto</span> <span class="built_in">exit</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; namespaces[i].ns_file; i++)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">if</span> (namespaces[i].value == CLONE_NEWUSER)</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">      ret = setns (fds[i], <span class="number">0</span>);</span><br><span class="line">      <span class="keyword">if</span> (ret == <span class="number">0</span>)</span><br><span class="line">        fds_joined[i] = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; namespaces[i].ns_file; i++)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">if</span> (fds_joined[i])</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">      ret = setns (fds[i], <span class="number">0</span>);</span><br><span class="line">      <span class="keyword">if</span> (ret == <span class="number">0</span>)</span><br><span class="line">        fds_joined[i] = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; namespaces[i].ns_file; i++)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">if</span> (fds_joined[i])</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">      ret = setns (fds[i], <span class="number">0</span>);</span><br><span class="line">      <span class="keyword">if</span> (UNLIKELY (ret &lt; <span class="number">0</span> &amp;&amp; errno != EINVAL))</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="type">size_t</span> j;</span><br><span class="line">          <span class="type">bool</span> found = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; def-&gt;linux-&gt;namespaces_len; j++)</span><br><span class="line">            &#123;</span><br><span class="line">              <span class="keyword">if</span> (<span class="built_in">strcmp</span> (namespaces[i].name, def-&gt;linux-&gt;namespaces[j]-&gt;type) == <span class="number">0</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                  found = <span class="literal">true</span>;</span><br><span class="line">                  <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          <span class="keyword">if</span> (! found)</span><br><span class="line">            &#123;</span><br><span class="line">              <span class="comment">/* It was not requested to create this ns, so just ignore it.  */</span></span><br><span class="line">              fds_joined[i] = <span class="number">1</span>;</span><br><span class="line">              <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">          ret = crun_make_error (err, errno, <span class="string">&quot;setns `%s`&quot;</span>, namespaces[i].ns_file);</span><br><span class="line">          <span class="keyword">goto</span> <span class="built_in">exit</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      fds_joined[i] = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  ret = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span>:</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; namespaces[i].ns_file; i++)</span><br><span class="line">    close_and_reset (&amp;fds[i]);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/25/runc-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="prev" title="runc exec 源码分析">
+      <i class="fa fa-chevron-left"></i> runc exec 源码分析
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%A5%E5%8F%A3"><span class="nav-number">1.</span> <span class="nav-text">入口</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#crun-command-exec"><span class="nav-number">2.</span> <span class="nav-text">crun_command_exec</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#libcrun-container-exec-with-options"><span class="nav-number">3.</span> <span class="nav-text">libcrun_container_exec_with_options</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#libcrun-join-process"><span class="nav-number">4.</span> <span class="nav-text">libcrun_join_process</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#join-process-namespaces"><span class="nav-number">5.</span> <span class="nav-text">join_process_namespaces</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">95</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.5m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">45:54</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : 'ae21d6c73cec797d28b780eee6a710df',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
