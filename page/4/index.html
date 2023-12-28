@@ -197,6 +197,309 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/27/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A014-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E8%BF%9B%E9%98%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/09/27/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A014-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E8%BF%9B%E9%98%B6/" class="post-title-link" itemprop="url">Rust学习 练习14 生命周期进阶</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-09-27 09:19:11" itemprop="dateCreated datePublished" datetime="2023-09-27T09:19:11+08:00">2023-09-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-11-24 11:10:48" itemprop="dateModified" datetime="2023-11-24T11:10:48+08:00">2023-11-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/" itemprop="url" rel="index"><span itemprop="name">Rust</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/%E7%BB%83%E4%B9%A0%E5%AE%9E%E8%B7%B5/" itemprop="url" rel="index"><span itemprop="name">练习实践</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>15k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>28 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="amp-’static-and-T-‘static"><a href="#amp-’static-and-T-‘static" class="headerlink" title="&amp;’static and T: ‘static"></a>&amp;’static and T: ‘static</h1><p><code>&#39;static</code> 是一个 Rust 保留的生命周期名称，在之前我们可能已经见过好几次了:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#![allow(unused)]</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line"><span class="comment">// 引用的生命周期是 &#x27;static :</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">s</span>: &amp;<span class="symbol">&#x27;static</span> <span class="type">str</span> = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// &#x27;static 也可以用于特征约束中:</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">generic</span>&lt;T&gt;(x: T) <span class="keyword">where</span> T: <span class="symbol">&#x27;static</span> &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/09/27/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A014-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E8%BF%9B%E9%98%B6/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/26/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A013-%E6%A0%BC%E5%BC%8F%E5%8C%96%E8%BE%93%E5%87%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/09/26/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A013-%E6%A0%BC%E5%BC%8F%E5%8C%96%E8%BE%93%E5%87%BA/" class="post-title-link" itemprop="url">Rust学习 练习13 格式化输出</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-09-26 08:47:04 / Modified: 09:38:07" itemprop="dateCreated datePublished" datetime="2023-09-26T08:47:04+08:00">2023-09-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/" itemprop="url" rel="index"><span itemprop="name">Rust</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/%E7%BB%83%E4%B9%A0%E5%AE%9E%E8%B7%B5/" itemprop="url" rel="index"><span itemprop="name">练习实践</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>11k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>21 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="位置参数"><a href="#位置参数" class="headerlink" title="位置参数"></a>位置参数</h1><p>1.🌟🌟</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 填空 */</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;0&#125;, this is &#123;1&#125;. &#123;1&#125;, this is &#123;0&#125;&quot;</span>, <span class="string">&quot;Alice&quot;</span>, <span class="string">&quot;Bob&quot;</span>);<span class="comment">// =&gt; Alice, this is Bob. Bob, this is Alice</span></span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="built_in">format!</span>(<span class="string">&quot;&#123;1&#125;&#123;0&#125;&quot;</span>, <span class="number">1</span>, <span class="number">2</span>), __);</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="built_in">format!</span>(__, <span class="number">1</span>, <span class="number">2</span>), <span class="string">&quot;2112&quot;</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/09/26/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A013-%E6%A0%BC%E5%BC%8F%E5%8C%96%E8%BE%93%E5%87%BA/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/" class="post-title-link" itemprop="url">论文阅读 Lost along the Way-Understanding and Mitigating Path-Misresolution Threats to Container Isolation</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-09-19 13:03:47" itemprop="dateCreated datePublished" datetime="2023-09-19T13:03:47+08:00">2023-09-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-09-20 14:18:21" itemprop="dateModified" datetime="2023-09-20T14:18:21+08:00">2023-09-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文精读</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/%E5%86%85%E6%A0%B8%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">内核安全</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>19k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>35 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><strong>Abstract</strong></p>
+<p>人们发现，在容器工具越来越多地利用主机-容器交互的情况下，由当今容器技术强制实施的文件系统隔离效果较差。这种被削弱的隔离导致了一种<mark>路径错误解决 path misresolution(Pamir)漏洞</mark>，这种漏洞被认为是高风险的，多年来不断有报告。在本文中，我们提出了第一个系统的研究帕米尔风险和现有的修复相关漏洞。我们的研究表明，尽管我们在修补易受攻击的容器工具和解决风险方面做出了重大努力，但帕米尔漏洞仍在继续被发现，包括我们从修补软件中重新发现的一个新漏洞(CVE-2023-0778)。我们研究的一个关键观点是，由于容器工具严重依赖第三方组件，Pamir风险本质上很难在容器工具级别上预防。虽然应该将安全检查应用于所有组件以调解主机容器交互，但第三方组件开发人员倾向于认为容器工具应该在调用其组件之前执行安全检查，因此不愿意用特定于容器的保护来修补他们的代码。此外，由于今天的容器工具所依赖的大量组件，重新实现它们是不切实际的。</p>
+<p>我们的研究表明，基于内核的文件系统隔离是确保在主机-容器交互期间始终保持隔离的唯一方法。在我们的研究中，我们设计并实现了第一个这样的方法，将文件系统隔离扩展到dentry对象，通过文件系统对主机-容器交互实施访问控制。我们的设计解决了当前容器单向隔离的基本限制，使用精心设计的策略来确保准确和全面的交互控制，并将保护植入到正确的内核位置以最小化性能影响。我们使用模型检查验证了我们的方法，证明了它在消除帕米尔风险方面的有效性。我们的评估进一步表明，我们的方法产生的开销可以忽略不计，大大优于所有现有的Pamir补丁，并保持与所有主流容器工具的兼容性。我们已经发布了我们的代码，并提交了将我们的技术合并到Linux内核中的请求。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/13/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A012-%E5%8C%85%E5%92%8C%E6%A8%A1%E5%9D%97/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -941,411 +1244,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/05/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A05-%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/09/05/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A05-%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/" class="post-title-link" itemprop="url">Rust学习 练习5 流程控制</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-09-05 21:58:13" itemprop="dateCreated datePublished" datetime="2023-09-05T21:58:13+08:00">2023-09-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-09-10 15:42:49" itemprop="dateModified" datetime="2023-09-10T15:42:49+08:00">2023-09-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/" itemprop="url" rel="index"><span itemprop="name">Rust</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/%E7%BB%83%E4%B9%A0%E5%AE%9E%E8%B7%B5/" itemprop="url" rel="index"><span itemprop="name">练习实践</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>8.7k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>16 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="if-x2F-else"><a href="#if-x2F-else" class="headerlink" title="if&#x2F;else"></a>if&#x2F;else</h1><ol>
-<li><p>🌟</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 填空</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">n</span> = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> n &lt; <span class="number">0</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125; is negative&quot;</span>, n);</span><br><span class="line">    &#125; __ n &gt; <span class="number">0</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125; is positive&quot;</span>, n);</span><br><span class="line">    &#125; __ &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125; is zero&quot;</span>, n);</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>My Answer</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 填空</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">n</span> = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> n &lt; <span class="number">0</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125; is negative&quot;</span>, n);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> n &gt; <span class="number">0</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125; is positive&quot;</span>, n);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125; is zero&quot;</span>, n);</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-</li>
-<li><p>Answer</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">n</span> = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> n &lt; <span class="number">0</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125; is negative&quot;</span>, n);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> n &gt; <span class="number">0</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125; is positive&quot;</span>, n);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125; is zero&quot;</span>, n);</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-<li><p>🌟🌟 if&#x2F;else 可以用作表达式来进行赋值</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修复错误</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">n</span> = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">big_n</span> =</span><br><span class="line">        <span class="keyword">if</span> n &lt; <span class="number">10</span> &amp;&amp; n &gt; -<span class="number">10</span> &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot; 数字太小，先增加 10 倍再说&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="number">10</span> * n</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;数字太大，我们得让它减半&quot;</span>);</span><br><span class="line"></span><br><span class="line">            n / <span class="number">2.0</span> ;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125; -&gt; &#123;&#125;&quot;</span>, n, big_n);</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>My Answer</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修复错误</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">n</span> = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">big_n</span> =</span><br><span class="line">        <span class="keyword">if</span> n &lt; <span class="number">10</span> &amp;&amp; n &gt; -<span class="number">10</span> &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot; 数字太小，先增加 10 倍再说&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="number">10</span> * n</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;数字太大，我们得让它减半&quot;</span>);</span><br><span class="line"></span><br><span class="line">            n / <span class="number">2</span></span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125; -&gt; &#123;&#125;&quot;</span>, n, big_n);</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">     </span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-</ol>
-<ul>
-<li><p>Answer</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">n</span> = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">big_n</span> =</span><br><span class="line">        <span class="keyword">if</span> n &lt; <span class="number">10</span> &amp;&amp; n &gt; -<span class="number">10</span> &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;, and is a small number, increase ten-fold&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="number">10</span> * n</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;, and is a big number, halve the number&quot;</span>);</span><br><span class="line"></span><br><span class="line">            n / <span class="number">2</span></span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125; -&gt; &#123;&#125;&quot;</span>, n, big_n);</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure></li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/09/05/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A05-%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/02/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A04-%E5%A4%8D%E5%90%88%E7%B1%BB%E5%9E%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/09/02/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A04-%E5%A4%8D%E5%90%88%E7%B1%BB%E5%9E%8B/" class="post-title-link" itemprop="url">Rust学习 练习4 复合类型</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-09-02 20:07:46" itemprop="dateCreated datePublished" datetime="2023-09-02T20:07:46+08:00">2023-09-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-09-10 15:58:32" itemprop="dateModified" datetime="2023-09-10T15:58:32+08:00">2023-09-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/" itemprop="url" rel="index"><span itemprop="name">Rust</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/%E7%BB%83%E4%B9%A0%E5%AE%9E%E8%B7%B5/" itemprop="url" rel="index"><span itemprop="name">练习实践</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>44k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1:20</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><a target="_blank" rel="noopener" href="https://zh.practice.rs/compound-types/intro.html">复合类型 - Rust By Practice( Rust 练习实践 )</a></p>
-<h1 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h1><p>字符串字面量的类型是 <code>&amp;str</code>， 例如 <code>let s: &amp;str = &quot;hello, world&quot;</code> 中的 <code>&quot;hello, world&quot;</code> 的类型就是 <code>&amp;str</code>。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/09/02/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A04-%E5%A4%8D%E5%90%88%E7%B1%BB%E5%9E%8B/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/31/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A03-%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E5%80%9F%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/08/31/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A03-%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E5%80%9F%E7%94%A8/" class="post-title-link" itemprop="url">Rust学习 练习3 所有权和借用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-08-31 21:52:30" itemprop="dateCreated datePublished" datetime="2023-08-31T21:52:30+08:00">2023-08-31</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-09-10 15:42:50" itemprop="dateModified" datetime="2023-09-10T15:42:50+08:00">2023-09-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/" itemprop="url" rel="index"><span itemprop="name">Rust</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/%E7%BB%83%E4%B9%A0%E5%AE%9E%E8%B7%B5/" itemprop="url" rel="index"><span itemprop="name">练习实践</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>13k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>23 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><a target="_blank" rel="noopener" href="https://zh.practice.rs/ownership/intro.html">所有权和借用 - Rust By Practice( Rust 练习实践 )</a></p>
-<h1 id="所有权"><a href="#所有权" class="headerlink" title="所有权"></a>所有权</h1><ol>
-<li><p>🌟🌟</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 使用尽可能多的方法来通过编译</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>My Answer</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 使用尽可能多的方法来通过编译</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span>: &amp;<span class="type">str</span> = <span class="string">&quot;hello,world&quot;</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 使用尽可能多的方法来通过编译</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x.<span class="title function_ invoke__">clone</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>Answer</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x.<span class="title function_ invoke__">clone</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="string">&quot;hello, world&quot;</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = &amp;<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x.<span class="title function_ invoke__">as_str</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;,&#123;&#125;&quot;</span>,x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-<li><p>🌟🌟</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不要修改 main 中的代码</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s1</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s2</span> = <span class="title function_ invoke__">take_ownership</span>(s1);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 只能修改下面的代码!</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">take_ownership</span>(s: <span class="type">String</span>) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>My Answer</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不要修改 main 中的代码</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s1</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s2</span> = <span class="title function_ invoke__">take_ownership</span>(s1);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 只能修改下面的代码!</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">take_ownership</span>(s: <span class="type">String</span>) <span class="punctuation">-&gt;</span><span class="type">String</span>&#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">    s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>Answer</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Don&#x27;t modify code in main!</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s1</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s2</span> = <span class="title function_ invoke__">take_ownership</span>(s1);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Only modify the code below!</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">take_ownership</span>(s: <span class="type">String</span>) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">    s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-<li><p>🌟🌟</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="title function_ invoke__">give_ownership</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 只能修改下面的代码!</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">give_ownership</span>() <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="comment">// convert String to Vec</span></span><br><span class="line">    <span class="comment">// 将 String 转换成 Vec 类型</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">_s</span> = s.<span class="title function_ invoke__">into_bytes</span>();</span><br><span class="line">    s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>My Answer</p>
-<p>不会</p>
-</li>
-<li><p>Answer</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="title function_ invoke__">give_ownership</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Only modify the code below!</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">give_ownership</span>() <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="comment">// convert String to Vec</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">_s</span> = s.<span class="title function_ invoke__">as_bytes</span>();</span><br><span class="line">    s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="title function_ invoke__">give_ownership</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Only modify the code below!</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">give_ownership</span>() <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-<li><p>🌟🌟</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修复错误，不要删除任何代码行</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">print_str</span>(s);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_str</span>(s: <span class="type">String</span>)  &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>,s)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>My Answer</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修复错误，不要删除任何代码行</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="title function_ invoke__">print_str</span>(s);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_str</span>(s: <span class="type">String</span>) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>,s);</span><br><span class="line">    s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>Answer</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">print_str</span>(s.<span class="title function_ invoke__">clone</span>());</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_str</span>(s: <span class="type">String</span>)  &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>,s)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello, world&quot;</span>);</span><br><span class="line">    <span class="title function_ invoke__">print_str</span>(&amp;s);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">print_str</span>(s: &amp;<span class="type">String</span>)  &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>,s)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-<li><p>🌟🌟</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不要使用 clone，使用 copy 的方式替代</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = (<span class="number">1</span>, <span class="number">2</span>, (), <span class="string">&quot;hello&quot;</span>.<span class="title function_ invoke__">to_string</span>());</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x.<span class="title function_ invoke__">clone</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;, &#123;:?&#125;&quot;</span>, x, y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>My Answer</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不要使用 clone，使用 copy 的方式替代</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = (<span class="number">1</span>, <span class="number">2</span>, (), <span class="string">&quot;hello&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;, &#123;:?&#125;&quot;</span>, x, y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>Answer</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = (<span class="number">1</span>, <span class="number">2</span>, (), <span class="string">&quot;hello&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = x;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;, &#123;:?&#125;&quot;</span>, x, y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-</ol>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/08/31/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A03-%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E5%80%9F%E7%94%A8/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1415,7 +1313,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">95</span>
+          <span class="site-state-item-count">98</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1483,7 +1381,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">45:54</span>
+    <span title="Reading time total">46:03</span>
 </div>
 
 <!--

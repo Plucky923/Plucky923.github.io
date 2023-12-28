@@ -197,6 +197,292 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/15/%E5%AD%A6%E4%B9%A0-Linux-proc-pid-%E4%B8%8B%E6%96%87%E4%BB%B6%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/12/15/%E5%AD%A6%E4%B9%A0-Linux-proc-pid-%E4%B8%8B%E6%96%87%E4%BB%B6%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">学习 Linux /proc/[pid]下文件访问权限分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-15 14:51:50" itemprop="dateCreated datePublished" datetime="2023-12-15T14:51:50+08:00">2023-12-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-12-22 16:58:46" itemprop="dateModified" datetime="2023-12-22T16:58:46+08:00">2023-12-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/%E6%9D%83%E9%99%90/" itemprop="url" rel="index"><span itemprop="name">权限</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>9.5k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>17 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man5/proc.5.html">proc(5) - Linux manual page (man7.org)</a></p>
+<h1 id="proc访问模式检查"><a href="#proc访问模式检查" class="headerlink" title="proc访问模式检查"></a>proc访问模式检查</h1><p><a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/ptrace.2.html">ptrace(2) - Linux manual page (man7.org)</a></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/12/15/%E5%AD%A6%E4%B9%A0-Linux-proc-pid-%E4%B8%8B%E6%96%87%E4%BB%B6%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E5%88%86%E6%9E%90/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/12/Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E8%A1%A8%E5%8F%8A%E5%85%A8%E9%83%A8%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/12/12/Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E8%A1%A8%E5%8F%8A%E5%85%A8%E9%83%A8%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">Linux系统调用表</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-12 11:28:39" itemprop="dateCreated datePublished" datetime="2023-12-12T11:28:39+08:00">2023-12-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-12-15 14:59:35" itemprop="dateModified" datetime="2023-12-15T14:59:35+08:00">2023-12-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>34k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1:03</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/arch/x86/entry/syscalls/syscall_64.tbl">linux&#x2F;arch&#x2F;x86&#x2F;entry&#x2F;syscalls&#x2F;syscall_64.tbl at master · torvalds&#x2F;linux (github.com)</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br></pre></td><td class="code"><pre><span class="line">#</span><br><span class="line"># <span class="number">64</span>-bit system call numbers and entry vectors</span><br><span class="line">#</span><br><span class="line"># The format is:</span><br><span class="line"># &lt;number&gt; &lt;abi&gt; &lt;name&gt; &lt;entry point&gt;</span><br><span class="line">#</span><br><span class="line"># The __x64_sys_*() stubs are created on-the-fly <span class="keyword">for</span> sys_*() system calls</span><br><span class="line">#</span><br><span class="line"># The abi is <span class="string">&quot;common&quot;</span>, <span class="string">&quot;64&quot;</span> or <span class="string">&quot;x32&quot;</span> <span class="keyword">for</span> this file.</span><br><span class="line">#</span><br><span class="line"><span class="number">0</span>    common    read            sys_read</span><br><span class="line"><span class="number">1</span>    common    write            sys_write</span><br><span class="line"><span class="number">2</span>    common    open            sys_open</span><br><span class="line"><span class="number">3</span>    common    close            sys_close</span><br><span class="line"><span class="number">4</span>    common    stat            sys_newstat</span><br><span class="line"><span class="number">5</span>    common    fstat            sys_newfstat</span><br><span class="line"><span class="number">6</span>    common    lstat            sys_newlstat</span><br><span class="line"><span class="number">7</span>    common    poll            sys_poll</span><br><span class="line"><span class="number">8</span>    common    lseek            sys_lseek</span><br><span class="line"><span class="number">9</span>    common    mmap            sys_mmap</span><br><span class="line"><span class="number">10</span>    common    mprotect        sys_mprotect</span><br><span class="line"><span class="number">11</span>    common    munmap            sys_munmap</span><br><span class="line"><span class="number">12</span>    common    brk            sys_brk</span><br><span class="line"><span class="number">13</span>    <span class="number">64</span>    rt_sigaction        sys_rt_sigaction</span><br><span class="line"><span class="number">14</span>    common    rt_sigprocmask        sys_rt_sigprocmask</span><br><span class="line"><span class="number">15</span>    <span class="number">64</span>    rt_sigreturn        sys_rt_sigreturn</span><br><span class="line"><span class="number">16</span>    <span class="number">64</span>    ioctl            sys_ioctl</span><br><span class="line"><span class="number">17</span>    common    pread64            sys_pread64</span><br><span class="line"><span class="number">18</span>    common    pwrite64        sys_pwrite64</span><br><span class="line"><span class="number">19</span>    <span class="number">64</span>    readv            sys_readv</span><br><span class="line"><span class="number">20</span>    <span class="number">64</span>    writev            sys_writev</span><br><span class="line"><span class="number">21</span>    common    access            sys_access</span><br><span class="line"><span class="number">22</span>    common    pipe            sys_pipe</span><br><span class="line"><span class="number">23</span>    common    select            sys_select</span><br><span class="line"><span class="number">24</span>    common    sched_yield        sys_sched_yield</span><br><span class="line"><span class="number">25</span>    common    mremap            sys_mremap</span><br><span class="line"><span class="number">26</span>    common    msync            sys_msync</span><br><span class="line"><span class="number">27</span>    common    mincore            sys_mincore</span><br><span class="line"><span class="number">28</span>    common    madvise            sys_madvise</span><br><span class="line"><span class="number">29</span>    common    shmget            sys_shmget</span><br><span class="line"><span class="number">30</span>    common    shmat            sys_shmat</span><br><span class="line"><span class="number">31</span>    common    shmctl            sys_shmctl</span><br><span class="line"><span class="number">32</span>    common    dup            sys_dup</span><br><span class="line"><span class="number">33</span>    common    dup2            sys_dup2</span><br><span class="line"><span class="number">34</span>    common    pause            sys_pause</span><br><span class="line"><span class="number">35</span>    common    nanosleep        sys_nanosleep</span><br><span class="line"><span class="number">36</span>    common    getitimer        sys_getitimer</span><br><span class="line"><span class="number">37</span>    common    alarm            sys_alarm</span><br><span class="line"><span class="number">38</span>    common    setitimer        sys_setitimer</span><br><span class="line"><span class="number">39</span>    common    getpid            sys_getpid</span><br><span class="line"><span class="number">40</span>    common    sendfile        sys_sendfile64</span><br><span class="line"><span class="number">41</span>    common    socket            sys_socket</span><br><span class="line"><span class="number">42</span>    common    connect            sys_connect</span><br><span class="line"><span class="number">43</span>    common    accept            sys_accept</span><br><span class="line"><span class="number">44</span>    common    sendto            sys_sendto</span><br><span class="line"><span class="number">45</span>    <span class="number">64</span>    recvfrom        sys_recvfrom</span><br><span class="line"><span class="number">46</span>    <span class="number">64</span>    sendmsg            sys_sendmsg</span><br><span class="line"><span class="number">47</span>    <span class="number">64</span>    recvmsg            sys_recvmsg</span><br><span class="line"><span class="number">48</span>    common    shutdown        sys_shutdown</span><br><span class="line"><span class="number">49</span>    common    bind            sys_bind</span><br><span class="line"><span class="number">50</span>    common    listen            sys_listen</span><br><span class="line"><span class="number">51</span>    common    getsockname        sys_getsockname</span><br><span class="line"><span class="number">52</span>    common    getpeername        sys_getpeername</span><br><span class="line"><span class="number">53</span>    common    socketpair        sys_socketpair</span><br><span class="line"><span class="number">54</span>    <span class="number">64</span>    setsockopt        sys_setsockopt</span><br><span class="line"><span class="number">55</span>    <span class="number">64</span>    getsockopt        sys_getsockopt</span><br><span class="line"><span class="number">56</span>    common    clone            sys_clone</span><br><span class="line"><span class="number">57</span>    common    fork            sys_fork</span><br><span class="line"><span class="number">58</span>    common    vfork            sys_vfork</span><br><span class="line"><span class="number">59</span>    <span class="number">64</span>    execve            sys_execve</span><br><span class="line"><span class="number">60</span>    common    <span class="built_in">exit</span>            sys_exit</span><br><span class="line"><span class="number">61</span>    common    wait4            sys_wait4</span><br><span class="line"><span class="number">62</span>    common    kill            sys_kill</span><br><span class="line"><span class="number">63</span>    common    uname            sys_newuname</span><br><span class="line"><span class="number">64</span>    common    semget            sys_semget</span><br><span class="line"><span class="number">65</span>    common    semop            sys_semop</span><br><span class="line"><span class="number">66</span>    common    semctl            sys_semctl</span><br><span class="line"><span class="number">67</span>    common    shmdt            sys_shmdt</span><br><span class="line"><span class="number">68</span>    common    msgget            sys_msgget</span><br><span class="line"><span class="number">69</span>    common    msgsnd            sys_msgsnd</span><br><span class="line"><span class="number">70</span>    common    msgrcv            sys_msgrcv</span><br><span class="line"><span class="number">71</span>    common    msgctl            sys_msgctl</span><br><span class="line"><span class="number">72</span>    common    fcntl            sys_fcntl</span><br><span class="line"><span class="number">73</span>    common    flock            sys_flock</span><br><span class="line"><span class="number">74</span>    common    fsync            sys_fsync</span><br><span class="line"><span class="number">75</span>    common    fdatasync        sys_fdatasync</span><br><span class="line"><span class="number">76</span>    common    truncate        sys_truncate</span><br><span class="line"><span class="number">77</span>    common    ftruncate        sys_ftruncate</span><br><span class="line"><span class="number">78</span>    common    getdents        sys_getdents</span><br><span class="line"><span class="number">79</span>    common    getcwd            sys_getcwd</span><br><span class="line"><span class="number">80</span>    common    chdir            sys_chdir</span><br><span class="line"><span class="number">81</span>    common    fchdir            sys_fchdir</span><br><span class="line"><span class="number">82</span>    common    rename            sys_rename</span><br><span class="line"><span class="number">83</span>    common    mkdir            sys_mkdir</span><br><span class="line"><span class="number">84</span>    common    rmdir            sys_rmdir</span><br><span class="line"><span class="number">85</span>    common    creat            sys_creat</span><br><span class="line"><span class="number">86</span>    common    link            sys_link</span><br><span class="line"><span class="number">87</span>    common    unlink            sys_unlink</span><br><span class="line"><span class="number">88</span>    common    symlink            sys_symlink</span><br><span class="line"><span class="number">89</span>    common    readlink        sys_readlink</span><br><span class="line"><span class="number">90</span>    common    chmod            sys_chmod</span><br><span class="line"><span class="number">91</span>    common    fchmod            sys_fchmod</span><br><span class="line"><span class="number">92</span>    common    chown            sys_chown</span><br><span class="line"><span class="number">93</span>    common    fchown            sys_fchown</span><br><span class="line"><span class="number">94</span>    common    lchown            sys_lchown</span><br><span class="line"><span class="number">95</span>    common    umask            sys_umask</span><br><span class="line"><span class="number">96</span>    common    gettimeofday        sys_gettimeofday</span><br><span class="line"><span class="number">97</span>    common    getrlimit        sys_getrlimit</span><br><span class="line"><span class="number">98</span>    common    getrusage        sys_getrusage</span><br><span class="line"><span class="number">99</span>    common    sysinfo            sys_sysinfo</span><br><span class="line"><span class="number">100</span>    common    times            sys_times</span><br><span class="line"><span class="number">101</span>    <span class="number">64</span>    ptrace            sys_ptrace</span><br><span class="line"><span class="number">102</span>    common    getuid            sys_getuid</span><br><span class="line"><span class="number">103</span>    common    syslog            sys_syslog</span><br><span class="line"><span class="number">104</span>    common    getgid            sys_getgid</span><br><span class="line"><span class="number">105</span>    common    setuid            sys_setuid</span><br><span class="line"><span class="number">106</span>    common    setgid            sys_setgid</span><br><span class="line"><span class="number">107</span>    common    geteuid            sys_geteuid</span><br><span class="line"><span class="number">108</span>    common    getegid            sys_getegid</span><br><span class="line"><span class="number">109</span>    common    setpgid            sys_setpgid</span><br><span class="line"><span class="number">110</span>    common    getppid            sys_getppid</span><br><span class="line"><span class="number">111</span>    common    getpgrp            sys_getpgrp</span><br><span class="line"><span class="number">112</span>    common    setsid            sys_setsid</span><br><span class="line"><span class="number">113</span>    common    setreuid        sys_setreuid</span><br><span class="line"><span class="number">114</span>    common    setregid        sys_setregid</span><br><span class="line"><span class="number">115</span>    common    getgroups        sys_getgroups</span><br><span class="line"><span class="number">116</span>    common    setgroups        sys_setgroups</span><br><span class="line"><span class="number">117</span>    common    setresuid        sys_setresuid</span><br><span class="line"><span class="number">118</span>    common    getresuid        sys_getresuid</span><br><span class="line"><span class="number">119</span>    common    setresgid        sys_setresgid</span><br><span class="line"><span class="number">120</span>    common    getresgid        sys_getresgid</span><br><span class="line"><span class="number">121</span>    common    getpgid            sys_getpgid</span><br><span class="line"><span class="number">122</span>    common    setfsuid        sys_setfsuid</span><br><span class="line"><span class="number">123</span>    common    setfsgid        sys_setfsgid</span><br><span class="line"><span class="number">124</span>    common    getsid            sys_getsid</span><br><span class="line"><span class="number">125</span>    common    capget            sys_capget</span><br><span class="line"><span class="number">126</span>    common    capset            sys_capset</span><br><span class="line"><span class="number">127</span>    <span class="number">64</span>    rt_sigpending        sys_rt_sigpending</span><br><span class="line"><span class="number">128</span>    <span class="number">64</span>    rt_sigtimedwait        sys_rt_sigtimedwait</span><br><span class="line"><span class="number">129</span>    <span class="number">64</span>    rt_sigqueueinfo        sys_rt_sigqueueinfo</span><br><span class="line"><span class="number">130</span>    common    rt_sigsuspend        sys_rt_sigsuspend</span><br><span class="line"><span class="number">131</span>    <span class="number">64</span>    sigaltstack        sys_sigaltstack</span><br><span class="line"><span class="number">132</span>    common    utime            sys_utime</span><br><span class="line"><span class="number">133</span>    common    mknod            sys_mknod</span><br><span class="line"><span class="number">134</span>    <span class="number">64</span>    uselib</span><br><span class="line"><span class="number">135</span>    common    personality        sys_personality</span><br><span class="line"><span class="number">136</span>    common    ustat            sys_ustat</span><br><span class="line"><span class="number">137</span>    common    statfs            sys_statfs</span><br><span class="line"><span class="number">138</span>    common    fstatfs            sys_fstatfs</span><br><span class="line"><span class="number">139</span>    common    sysfs            sys_sysfs</span><br><span class="line"><span class="number">140</span>    common    getpriority        sys_getpriority</span><br><span class="line"><span class="number">141</span>    common    setpriority        sys_setpriority</span><br><span class="line"><span class="number">142</span>    common    sched_setparam        sys_sched_setparam</span><br><span class="line"><span class="number">143</span>    common    sched_getparam        sys_sched_getparam</span><br><span class="line"><span class="number">144</span>    common    sched_setscheduler    sys_sched_setscheduler</span><br><span class="line"><span class="number">145</span>    common    sched_getscheduler    sys_sched_getscheduler</span><br><span class="line"><span class="number">146</span>    common    sched_get_priority_max    sys_sched_get_priority_max</span><br><span class="line"><span class="number">147</span>    common    sched_get_priority_min    sys_sched_get_priority_min</span><br><span class="line"><span class="number">148</span>    common    sched_rr_get_interval    sys_sched_rr_get_interval</span><br><span class="line"><span class="number">149</span>    common    mlock            sys_mlock</span><br><span class="line"><span class="number">150</span>    common    munlock            sys_munlock</span><br><span class="line"><span class="number">151</span>    common    mlockall        sys_mlockall</span><br><span class="line"><span class="number">152</span>    common    munlockall        sys_munlockall</span><br><span class="line"><span class="number">153</span>    common    vhangup            sys_vhangup</span><br><span class="line"><span class="number">154</span>    common    modify_ldt        sys_modify_ldt</span><br><span class="line"><span class="number">155</span>    common    pivot_root        sys_pivot_root</span><br><span class="line"><span class="number">156</span>    <span class="number">64</span>    _sysctl            sys_ni_syscall</span><br><span class="line"><span class="number">157</span>    common    prctl            sys_prctl</span><br><span class="line"><span class="number">158</span>    common    arch_prctl        sys_arch_prctl</span><br><span class="line"><span class="number">159</span>    common    adjtimex        sys_adjtimex</span><br><span class="line"><span class="number">160</span>    common    setrlimit        sys_setrlimit</span><br><span class="line"><span class="number">161</span>    common    chroot            sys_chroot</span><br><span class="line"><span class="number">162</span>    common    sync            sys_sync</span><br><span class="line"><span class="number">163</span>    common    acct            sys_acct</span><br><span class="line"><span class="number">164</span>    common    settimeofday        sys_settimeofday</span><br><span class="line"><span class="number">165</span>    common    mount            sys_mount</span><br><span class="line"><span class="number">166</span>    common    umount2            sys_umount</span><br><span class="line"><span class="number">167</span>    common    swapon            sys_swapon</span><br><span class="line"><span class="number">168</span>    common    swapoff            sys_swapoff</span><br><span class="line"><span class="number">169</span>    common    reboot            sys_reboot</span><br><span class="line"><span class="number">170</span>    common    sethostname        sys_sethostname</span><br><span class="line"><span class="number">171</span>    common    setdomainname        sys_setdomainname</span><br><span class="line"><span class="number">172</span>    common    iopl            sys_iopl</span><br><span class="line"><span class="number">173</span>    common    ioperm            sys_ioperm</span><br><span class="line"><span class="number">174</span>    <span class="number">64</span>    create_module</span><br><span class="line"><span class="number">175</span>    common    init_module        sys_init_module</span><br><span class="line"><span class="number">176</span>    common    delete_module        sys_delete_module</span><br><span class="line"><span class="number">177</span>    <span class="number">64</span>    get_kernel_syms</span><br><span class="line"><span class="number">178</span>    <span class="number">64</span>    query_module</span><br><span class="line"><span class="number">179</span>    common    quotactl        sys_quotactl</span><br><span class="line"><span class="number">180</span>    <span class="number">64</span>    nfsservctl</span><br><span class="line"><span class="number">181</span>    common    getpmsg</span><br><span class="line"><span class="number">182</span>    common    putpmsg</span><br><span class="line"><span class="number">183</span>    common    afs_syscall</span><br><span class="line"><span class="number">184</span>    common    tuxcall</span><br><span class="line"><span class="number">185</span>    common    security</span><br><span class="line"><span class="number">186</span>    common    gettid            sys_gettid</span><br><span class="line"><span class="number">187</span>    common    readahead        sys_readahead</span><br><span class="line"><span class="number">188</span>    common    setxattr        sys_setxattr</span><br><span class="line"><span class="number">189</span>    common    lsetxattr        sys_lsetxattr</span><br><span class="line"><span class="number">190</span>    common    fsetxattr        sys_fsetxattr</span><br><span class="line"><span class="number">191</span>    common    getxattr        sys_getxattr</span><br><span class="line"><span class="number">192</span>    common    lgetxattr        sys_lgetxattr</span><br><span class="line"><span class="number">193</span>    common    fgetxattr        sys_fgetxattr</span><br><span class="line"><span class="number">194</span>    common    listxattr        sys_listxattr</span><br><span class="line"><span class="number">195</span>    common    llistxattr        sys_llistxattr</span><br><span class="line"><span class="number">196</span>    common    flistxattr        sys_flistxattr</span><br><span class="line"><span class="number">197</span>    common    removexattr        sys_removexattr</span><br><span class="line"><span class="number">198</span>    common    lremovexattr        sys_lremovexattr</span><br><span class="line"><span class="number">199</span>    common    fremovexattr        sys_fremovexattr</span><br><span class="line"><span class="number">200</span>    common    tkill            sys_tkill</span><br><span class="line"><span class="number">201</span>    common    time            sys_time</span><br><span class="line"><span class="number">202</span>    common    futex            sys_futex</span><br><span class="line"><span class="number">203</span>    common    sched_setaffinity    sys_sched_setaffinity</span><br><span class="line"><span class="number">204</span>    common    sched_getaffinity    sys_sched_getaffinity</span><br><span class="line"><span class="number">205</span>    <span class="number">64</span>    set_thread_area</span><br><span class="line"><span class="number">206</span>    <span class="number">64</span>    io_setup        sys_io_setup</span><br><span class="line"><span class="number">207</span>    common    io_destroy        sys_io_destroy</span><br><span class="line"><span class="number">208</span>    common    io_getevents        sys_io_getevents</span><br><span class="line"><span class="number">209</span>    <span class="number">64</span>    io_submit        sys_io_submit</span><br><span class="line"><span class="number">210</span>    common    io_cancel        sys_io_cancel</span><br><span class="line"><span class="number">211</span>    <span class="number">64</span>    get_thread_area</span><br><span class="line"><span class="number">212</span>    common    lookup_dcookie</span><br><span class="line"><span class="number">213</span>    common    epoll_create        sys_epoll_create</span><br><span class="line"><span class="number">214</span>    <span class="number">64</span>    epoll_ctl_old</span><br><span class="line"><span class="number">215</span>    <span class="number">64</span>    epoll_wait_old</span><br><span class="line"><span class="number">216</span>    common    remap_file_pages    sys_remap_file_pages</span><br><span class="line"><span class="number">217</span>    common    getdents64        sys_getdents64</span><br><span class="line"><span class="number">218</span>    common    set_tid_address        sys_set_tid_address</span><br><span class="line"><span class="number">219</span>    common    restart_syscall        sys_restart_syscall</span><br><span class="line"><span class="number">220</span>    common    semtimedop        sys_semtimedop</span><br><span class="line"><span class="number">221</span>    common    fadvise64        sys_fadvise64</span><br><span class="line"><span class="number">222</span>    <span class="number">64</span>    timer_create        sys_timer_create</span><br><span class="line"><span class="number">223</span>    common    timer_settime        sys_timer_settime</span><br><span class="line"><span class="number">224</span>    common    timer_gettime        sys_timer_gettime</span><br><span class="line"><span class="number">225</span>    common    timer_getoverrun    sys_timer_getoverrun</span><br><span class="line"><span class="number">226</span>    common    timer_delete        sys_timer_delete</span><br><span class="line"><span class="number">227</span>    common    clock_settime        sys_clock_settime</span><br><span class="line"><span class="number">228</span>    common    clock_gettime        sys_clock_gettime</span><br><span class="line"><span class="number">229</span>    common    clock_getres        sys_clock_getres</span><br><span class="line"><span class="number">230</span>    common    clock_nanosleep        sys_clock_nanosleep</span><br><span class="line"><span class="number">231</span>    common    exit_group        sys_exit_group</span><br><span class="line"><span class="number">232</span>    common    epoll_wait        sys_epoll_wait</span><br><span class="line"><span class="number">233</span>    common    epoll_ctl        sys_epoll_ctl</span><br><span class="line"><span class="number">234</span>    common    tgkill            sys_tgkill</span><br><span class="line"><span class="number">235</span>    common    utimes            sys_utimes</span><br><span class="line"><span class="number">236</span>    <span class="number">64</span>    vserver</span><br><span class="line"><span class="number">237</span>    common    mbind            sys_mbind</span><br><span class="line"><span class="number">238</span>    common    set_mempolicy        sys_set_mempolicy</span><br><span class="line"><span class="number">239</span>    common    get_mempolicy        sys_get_mempolicy</span><br><span class="line"><span class="number">240</span>    common    mq_open            sys_mq_open</span><br><span class="line"><span class="number">241</span>    common    mq_unlink        sys_mq_unlink</span><br><span class="line"><span class="number">242</span>    common    mq_timedsend        sys_mq_timedsend</span><br><span class="line"><span class="number">243</span>    common    mq_timedreceive        sys_mq_timedreceive</span><br><span class="line"><span class="number">244</span>    <span class="number">64</span>    mq_notify        sys_mq_notify</span><br><span class="line"><span class="number">245</span>    common    mq_getsetattr        sys_mq_getsetattr</span><br><span class="line"><span class="number">246</span>    <span class="number">64</span>    kexec_load        sys_kexec_load</span><br><span class="line"><span class="number">247</span>    <span class="number">64</span>    waitid            sys_waitid</span><br><span class="line"><span class="number">248</span>    common    add_key            sys_add_key</span><br><span class="line"><span class="number">249</span>    common    request_key        sys_request_key</span><br><span class="line"><span class="number">250</span>    common    keyctl            sys_keyctl</span><br><span class="line"><span class="number">251</span>    common    ioprio_set        sys_ioprio_set</span><br><span class="line"><span class="number">252</span>    common    ioprio_get        sys_ioprio_get</span><br><span class="line"><span class="number">253</span>    common    inotify_init        sys_inotify_init</span><br><span class="line"><span class="number">254</span>    common    inotify_add_watch    sys_inotify_add_watch</span><br><span class="line"><span class="number">255</span>    common    inotify_rm_watch    sys_inotify_rm_watch</span><br><span class="line"><span class="number">256</span>    common    migrate_pages        sys_migrate_pages</span><br><span class="line"><span class="number">257</span>    common    openat            sys_openat</span><br><span class="line"><span class="number">258</span>    common    mkdirat            sys_mkdirat</span><br><span class="line"><span class="number">259</span>    common    mknodat            sys_mknodat</span><br><span class="line"><span class="number">260</span>    common    fchownat        sys_fchownat</span><br><span class="line"><span class="number">261</span>    common    futimesat        sys_futimesat</span><br><span class="line"><span class="number">262</span>    common    newfstatat        sys_newfstatat</span><br><span class="line"><span class="number">263</span>    common    unlinkat        sys_unlinkat</span><br><span class="line"><span class="number">264</span>    common    renameat        sys_renameat</span><br><span class="line"><span class="number">265</span>    common    linkat            sys_linkat</span><br><span class="line"><span class="number">266</span>    common    symlinkat        sys_symlinkat</span><br><span class="line"><span class="number">267</span>    common    readlinkat        sys_readlinkat</span><br><span class="line"><span class="number">268</span>    common    fchmodat        sys_fchmodat</span><br><span class="line"><span class="number">269</span>    common    faccessat        sys_faccessat</span><br><span class="line"><span class="number">270</span>    common    pselect6        sys_pselect6</span><br><span class="line"><span class="number">271</span>    common    ppoll            sys_ppoll</span><br><span class="line"><span class="number">272</span>    common    unshare            sys_unshare</span><br><span class="line"><span class="number">273</span>    <span class="number">64</span>    set_robust_list        sys_set_robust_list</span><br><span class="line"><span class="number">274</span>    <span class="number">64</span>    get_robust_list        sys_get_robust_list</span><br><span class="line"><span class="number">275</span>    common    splice            sys_splice</span><br><span class="line"><span class="number">276</span>    common    tee            sys_tee</span><br><span class="line"><span class="number">277</span>    common    sync_file_range        sys_sync_file_range</span><br><span class="line"><span class="number">278</span>    <span class="number">64</span>    vmsplice        sys_vmsplice</span><br><span class="line"><span class="number">279</span>    <span class="number">64</span>    move_pages        sys_move_pages</span><br><span class="line"><span class="number">280</span>    common    utimensat        sys_utimensat</span><br><span class="line"><span class="number">281</span>    common    epoll_pwait        sys_epoll_pwait</span><br><span class="line"><span class="number">282</span>    common    signalfd        sys_signalfd</span><br><span class="line"><span class="number">283</span>    common    timerfd_create        sys_timerfd_create</span><br><span class="line"><span class="number">284</span>    common    eventfd            sys_eventfd</span><br><span class="line"><span class="number">285</span>    common    fallocate        sys_fallocate</span><br><span class="line"><span class="number">286</span>    common    timerfd_settime        sys_timerfd_settime</span><br><span class="line"><span class="number">287</span>    common    timerfd_gettime        sys_timerfd_gettime</span><br><span class="line"><span class="number">288</span>    common    accept4            sys_accept4</span><br><span class="line"><span class="number">289</span>    common    signalfd4        sys_signalfd4</span><br><span class="line"><span class="number">290</span>    common    eventfd2        sys_eventfd2</span><br><span class="line"><span class="number">291</span>    common    epoll_create1        sys_epoll_create1</span><br><span class="line"><span class="number">292</span>    common    dup3            sys_dup3</span><br><span class="line"><span class="number">293</span>    common    pipe2            sys_pipe2</span><br><span class="line"><span class="number">294</span>    common    inotify_init1        sys_inotify_init1</span><br><span class="line"><span class="number">295</span>    <span class="number">64</span>    preadv            sys_preadv</span><br><span class="line"><span class="number">296</span>    <span class="number">64</span>    pwritev            sys_pwritev</span><br><span class="line"><span class="number">297</span>    <span class="number">64</span>    rt_tgsigqueueinfo    sys_rt_tgsigqueueinfo</span><br><span class="line"><span class="number">298</span>    common    perf_event_open        sys_perf_event_open</span><br><span class="line"><span class="number">299</span>    <span class="number">64</span>    recvmmsg        sys_recvmmsg</span><br><span class="line"><span class="number">300</span>    common    fanotify_init        sys_fanotify_init</span><br><span class="line"><span class="number">301</span>    common    fanotify_mark        sys_fanotify_mark</span><br><span class="line"><span class="number">302</span>    common    prlimit64        sys_prlimit64</span><br><span class="line"><span class="number">303</span>    common    name_to_handle_at    sys_name_to_handle_at</span><br><span class="line"><span class="number">304</span>    common    open_by_handle_at    sys_open_by_handle_at</span><br><span class="line"><span class="number">305</span>    common    clock_adjtime        sys_clock_adjtime</span><br><span class="line"><span class="number">306</span>    common    syncfs            sys_syncfs</span><br><span class="line"><span class="number">307</span>    <span class="number">64</span>    sendmmsg        sys_sendmmsg</span><br><span class="line"><span class="number">308</span>    common    setns            sys_setns</span><br><span class="line"><span class="number">309</span>    common    getcpu            sys_getcpu</span><br><span class="line"><span class="number">310</span>    <span class="number">64</span>    process_vm_readv    sys_process_vm_readv</span><br><span class="line"><span class="number">311</span>    <span class="number">64</span>    process_vm_writev    sys_process_vm_writev</span><br><span class="line"><span class="number">312</span>    common    kcmp            sys_kcmp</span><br><span class="line"><span class="number">313</span>    common    finit_module        sys_finit_module</span><br><span class="line"><span class="number">314</span>    common    sched_setattr        sys_sched_setattr</span><br><span class="line"><span class="number">315</span>    common    sched_getattr        sys_sched_getattr</span><br><span class="line"><span class="number">316</span>    common    renameat2        sys_renameat2</span><br><span class="line"><span class="number">317</span>    common    seccomp            sys_seccomp</span><br><span class="line"><span class="number">318</span>    common    getrandom        sys_getrandom</span><br><span class="line"><span class="number">319</span>    common    memfd_create        sys_memfd_create</span><br><span class="line"><span class="number">320</span>    common    kexec_file_load        sys_kexec_file_load</span><br><span class="line"><span class="number">321</span>    common    bpf            sys_bpf</span><br><span class="line"><span class="number">322</span>    <span class="number">64</span>    execveat        sys_execveat</span><br><span class="line"><span class="number">323</span>    common    userfaultfd        sys_userfaultfd</span><br><span class="line"><span class="number">324</span>    common    membarrier        sys_membarrier</span><br><span class="line"><span class="number">325</span>    common    mlock2            sys_mlock2</span><br><span class="line"><span class="number">326</span>    common    copy_file_range        sys_copy_file_range</span><br><span class="line"><span class="number">327</span>    <span class="number">64</span>    preadv2            sys_preadv2</span><br><span class="line"><span class="number">328</span>    <span class="number">64</span>    pwritev2        sys_pwritev2</span><br><span class="line"><span class="number">329</span>    common    pkey_mprotect        sys_pkey_mprotect</span><br><span class="line"><span class="number">330</span>    common    pkey_alloc        sys_pkey_alloc</span><br><span class="line"><span class="number">331</span>    common    pkey_free        sys_pkey_free</span><br><span class="line"><span class="number">332</span>    common    statx            sys_statx</span><br><span class="line"><span class="number">333</span>    common    io_pgetevents        sys_io_pgetevents</span><br><span class="line"><span class="number">334</span>    common    rseq            sys_rseq</span><br><span class="line"><span class="meta"># don<span class="string">&#x27;t use numbers 387 through 423, add new calls after the last</span></span></span><br><span class="line"><span class="string"><span class="meta"># &#x27;</span>common<span class="string">&#x27; entry</span></span></span><br><span class="line"><span class="string"><span class="meta">424    common    pidfd_send_signal    sys_pidfd_send_signal</span></span></span><br><span class="line"><span class="string"><span class="meta">425    common    io_uring_setup        sys_io_uring_setup</span></span></span><br><span class="line"><span class="string"><span class="meta">426    common    io_uring_enter        sys_io_uring_enter</span></span></span><br><span class="line"><span class="string"><span class="meta">427    common    io_uring_register    sys_io_uring_register</span></span></span><br><span class="line"><span class="string"><span class="meta">428    common    open_tree        sys_open_tree</span></span></span><br><span class="line"><span class="string"><span class="meta">429    common    move_mount        sys_move_mount</span></span></span><br><span class="line"><span class="string"><span class="meta">430    common    fsopen            sys_fsopen</span></span></span><br><span class="line"><span class="string"><span class="meta">431    common    fsconfig        sys_fsconfig</span></span></span><br><span class="line"><span class="string"><span class="meta">432    common    fsmount            sys_fsmount</span></span></span><br><span class="line"><span class="string"><span class="meta">433    common    fspick            sys_fspick</span></span></span><br><span class="line"><span class="string"><span class="meta">434    common    pidfd_open        sys_pidfd_open</span></span></span><br><span class="line"><span class="string"><span class="meta">435    common    clone3            sys_clone3</span></span></span><br><span class="line"><span class="string"><span class="meta">436    common    close_range        sys_close_range</span></span></span><br><span class="line"><span class="string"><span class="meta">437    common    openat2            sys_openat2</span></span></span><br><span class="line"><span class="string"><span class="meta">438    common    pidfd_getfd        sys_pidfd_getfd</span></span></span><br><span class="line"><span class="string"><span class="meta">439    common    faccessat2        sys_faccessat2</span></span></span><br><span class="line"><span class="string"><span class="meta">440    common    process_madvise        sys_process_madvise</span></span></span><br><span class="line"><span class="string"><span class="meta">441    common    epoll_pwait2        sys_epoll_pwait2</span></span></span><br><span class="line"><span class="string"><span class="meta">442    common    mount_setattr        sys_mount_setattr</span></span></span><br><span class="line"><span class="string"><span class="meta">443    common    quotactl_fd        sys_quotactl_fd</span></span></span><br><span class="line"><span class="string"><span class="meta">444    common    landlock_create_ruleset    sys_landlock_create_ruleset</span></span></span><br><span class="line"><span class="string"><span class="meta">445    common    landlock_add_rule    sys_landlock_add_rule</span></span></span><br><span class="line"><span class="string"><span class="meta">446    common    landlock_restrict_self    sys_landlock_restrict_self</span></span></span><br><span class="line"><span class="string"><span class="meta">447    common    memfd_secret        sys_memfd_secret</span></span></span><br><span class="line"><span class="string"><span class="meta">448    common    process_mrelease    sys_process_mrelease</span></span></span><br><span class="line"><span class="string"><span class="meta">449    common    futex_waitv        sys_futex_waitv</span></span></span><br><span class="line"><span class="string"><span class="meta">450    common    set_mempolicy_home_node    sys_set_mempolicy_home_node</span></span></span><br><span class="line"><span class="string"><span class="meta">451    common    cachestat        sys_cachestat</span></span></span><br><span class="line"><span class="string"><span class="meta">452    common    fchmodat2        sys_fchmodat2</span></span></span><br><span class="line"><span class="string"><span class="meta">453    64    map_shadow_stack    sys_map_shadow_stack</span></span></span><br><span class="line"><span class="string"><span class="meta">454    common    futex_wake        sys_futex_wake</span></span></span><br><span class="line"><span class="string"><span class="meta">455    common    futex_wait        sys_futex_wait</span></span></span><br><span class="line"><span class="string"><span class="meta">456    common    futex_requeue        sys_futex_requeue</span></span></span><br><span class="line"><span class="string"><span class="meta"></span></span></span><br><span class="line"><span class="string"><span class="meta">#</span></span></span><br><span class="line"><span class="string"><span class="meta"># Due to a historical design error, certain syscalls are numbered differently</span></span></span><br><span class="line"><span class="string"><span class="meta"># in x32 as compared to native x86_64.  These syscalls have numbers 512-547.</span></span></span><br><span class="line"><span class="string"><span class="meta"># Do not add new syscalls to this range.  Numbers 548 and above are available</span></span></span><br><span class="line"><span class="string"><span class="meta"># for non-x32 use.</span></span></span><br><span class="line"><span class="string"><span class="meta">#</span></span></span><br><span class="line"><span class="string"><span class="meta">512    x32    rt_sigaction        compat_sys_rt_sigaction</span></span></span><br><span class="line"><span class="string"><span class="meta">513    x32    rt_sigreturn        compat_sys_x32_rt_sigreturn</span></span></span><br><span class="line"><span class="string"><span class="meta">514    x32    ioctl            compat_sys_ioctl</span></span></span><br><span class="line"><span class="string"><span class="meta">515    x32    readv            sys_readv</span></span></span><br><span class="line"><span class="string"><span class="meta">516    x32    writev            sys_writev</span></span></span><br><span class="line"><span class="string"><span class="meta">517    x32    recvfrom        compat_sys_recvfrom</span></span></span><br><span class="line"><span class="string"><span class="meta">518    x32    sendmsg            compat_sys_sendmsg</span></span></span><br><span class="line"><span class="string"><span class="meta">519    x32    recvmsg            compat_sys_recvmsg</span></span></span><br><span class="line"><span class="string"><span class="meta">520    x32    execve            compat_sys_execve</span></span></span><br><span class="line"><span class="string"><span class="meta">521    x32    ptrace            compat_sys_ptrace</span></span></span><br><span class="line"><span class="string"><span class="meta">522    x32    rt_sigpending        compat_sys_rt_sigpending</span></span></span><br><span class="line"><span class="string"><span class="meta">523    x32    rt_sigtimedwait        compat_sys_rt_sigtimedwait_time64</span></span></span><br><span class="line"><span class="string"><span class="meta">524    x32    rt_sigqueueinfo        compat_sys_rt_sigqueueinfo</span></span></span><br><span class="line"><span class="string"><span class="meta">525    x32    sigaltstack        compat_sys_sigaltstack</span></span></span><br><span class="line"><span class="string"><span class="meta">526    x32    timer_create        compat_sys_timer_create</span></span></span><br><span class="line"><span class="string"><span class="meta">527    x32    mq_notify        compat_sys_mq_notify</span></span></span><br><span class="line"><span class="string"><span class="meta">528    x32    kexec_load        compat_sys_kexec_load</span></span></span><br><span class="line"><span class="string"><span class="meta">529    x32    waitid            compat_sys_waitid</span></span></span><br><span class="line"><span class="string"><span class="meta">530    x32    set_robust_list        compat_sys_set_robust_list</span></span></span><br><span class="line"><span class="string"><span class="meta">531    x32    get_robust_list        compat_sys_get_robust_list</span></span></span><br><span class="line"><span class="string"><span class="meta">532    x32    vmsplice        sys_vmsplice</span></span></span><br><span class="line"><span class="string"><span class="meta">533    x32    move_pages        sys_move_pages</span></span></span><br><span class="line"><span class="string"><span class="meta">534    x32    preadv            compat_sys_preadv64</span></span></span><br><span class="line"><span class="string"><span class="meta">535    x32    pwritev            compat_sys_pwritev64</span></span></span><br><span class="line"><span class="string"><span class="meta">536    x32    rt_tgsigqueueinfo    compat_sys_rt_tgsigqueueinfo</span></span></span><br><span class="line"><span class="string"><span class="meta">537    x32    recvmmsg        compat_sys_recvmmsg_time64</span></span></span><br><span class="line"><span class="string"><span class="meta">538    x32    sendmmsg        compat_sys_sendmmsg</span></span></span><br><span class="line"><span class="string"><span class="meta">539    x32    process_vm_readv    sys_process_vm_readv</span></span></span><br><span class="line"><span class="string"><span class="meta">540    x32    process_vm_writev    sys_process_vm_writev</span></span></span><br><span class="line"><span class="string"><span class="meta">541    x32    setsockopt        sys_setsockopt</span></span></span><br><span class="line"><span class="string"><span class="meta">542    x32    getsockopt        sys_getsockopt</span></span></span><br><span class="line"><span class="string"><span class="meta">543    x32    io_setup        compat_sys_io_setup</span></span></span><br><span class="line"><span class="string"><span class="meta">544    x32    io_submit        compat_sys_io_submit</span></span></span><br><span class="line"><span class="string"><span class="meta">545    x32    execveat        compat_sys_execveat</span></span></span><br><span class="line"><span class="string"><span class="meta">546    x32    preadv2            compat_sys_preadv64v2</span></span></span><br><span class="line"><span class="string"><span class="meta">547    x32    pwritev2        compat_sys_pwritev64v2</span></span></span><br><span class="line"><span class="string"><span class="meta"># This is the end of the legacy x32 range.  Numbers 548 and above are</span></span></span><br><span class="line"><span class="string"><span class="meta"># not special and are not to be used for x32-specific syscalls.</span></span></span><br></pre></td></tr></table></figure>
+
+<h1 id="read-x2F-sys-read"><a href="#read-x2F-sys-read" class="headerlink" title="read&#x2F;sys_read"></a>read&#x2F;sys_read</h1>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/12/12/Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E8%A1%A8%E5%8F%8A%E5%85%A8%E9%83%A8%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E5%88%86%E6%9E%90/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-%E5%85%A5%E9%97%A8%E5%BC%80%E5%8F%91%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-%E5%85%A5%E9%97%A8%E5%BC%80%E5%8F%91%E5%AE%9E%E8%B7%B5/" class="post-title-link" itemprop="url">eBPF 学习 入门开发实践</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-11 16:44:22" itemprop="dateCreated datePublished" datetime="2023-12-11T16:44:22+08:00">2023-12-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-12-15 14:58:19" itemprop="dateModified" datetime="2023-12-15T14:58:19+08:00">2023-12-15</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>16 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><a target="_blank" rel="noopener" href="https://eunomia.dev/zh/">eunomia-bpf: Simplifying and enhancing eBPF development and deployment - eunomia</a></p>
+<p>转载，记录学习此教程</p>
+<h1 id="在-eBPF-中使用-fentry-监测捕获-unlink-系统调用"><a href="#在-eBPF-中使用-fentry-监测捕获-unlink-系统调用" class="headerlink" title="在 eBPF 中使用 fentry 监测捕获 unlink 系统调用"></a>在 eBPF 中使用 fentry 监测捕获 unlink 系统调用</h1>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-%E5%85%A5%E9%97%A8%E5%BC%80%E5%8F%91%E5%AE%9E%E8%B7%B5/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-kprobes%E5%8F%8A%E7%9B%91%E5%90%ACunlink%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -860,262 +1146,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/" class="post-title-link" itemprop="url">论文阅读 TRUST: A Compilation Framework for In-process Isolation to Protect Safe Rust against Untrusted Code</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2023-11-26 11:47:35 / Modified: 21:37:56" itemprop="dateCreated datePublished" datetime="2023-11-26T11:47:35+08:00">2023-11-26</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文精读</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/RUST/" itemprop="url" rel="index"><span itemprop="name">RUST</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>16k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>29 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><strong>摘要</strong></p>
-<p>Rust的发明是为了帮助开发人员构建高度安全的系统。它带有各种编程结构，强调安全性和对内存布局的控制。Rust强制执行关于类型系统和所有权模型的严格规则，以启用对所有空间和时间安全错误的编译时检查。尽管在安全性上有这种优势，Rust的类型系统施加的限制使得表达某些设计或计算变得困难或低效。为了简化他们的编程，开发人员经常包含来自不安全的Rust或用其他语言编写的外部库的不可信代码。可悲的是，为了灵活性或效率而采用这种不可信代码的编程实践破坏了安全Rust所提供的强大安全保证。本文提出了一个编译框架TRUST，它通过进程内隔离为Rust提供安全的可信保护，防止程序中存在不可信的代码。它的主要策略是在一个隔离的内存区域中分配对象，该区域可以被安全的Rust访问，但限制不受信任的人写入。</p>
-<p>为了实现这一点，TRUST采用了软件故障隔离和x86保护密钥。它可以直接应用于任何Rust代码，而不需要手动更改。我们的实验表明，在Rust中运行11个广泛使用的crate时，TRUST是有效和高效的，平均只产生7.55%的运行时开销和13.30%的内存开销。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/" class="post-title-link" itemprop="url">学习 Linux Mnt_Namespace实现</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2023-11-24 16:06:21 / Modified: 14:44:42" itemprop="dateCreated datePublished" datetime="2023-11-24T16:06:21+08:00">2023-11-24</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>7.4k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>13 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h1><p>Linux使用namespace来表示从不同进程角度所见的视图。 不同的namespace的进程看到的资源或者进程表是不一样的，相同namespace中的不同进程看到的是同样的资源。</p>
-<p>task_struct就是Linux的进程控制块(PCB)，存放进程的信息。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/24/Rust%E5%AD%A6%E4%B9%A0-%E6%89%80%E6%9C%89%E6%9D%83/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/11/24/Rust%E5%AD%A6%E4%B9%A0-%E6%89%80%E6%9C%89%E6%9D%83/" class="post-title-link" itemprop="url">Rust学习 所有权</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-11-24 10:46:30" itemprop="dateCreated datePublished" datetime="2023-11-24T10:46:30+08:00">2023-11-24</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>0</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1185,7 +1215,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">95</span>
+          <span class="site-state-item-count">98</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1253,7 +1283,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">45:54</span>
+    <span title="Reading time total">46:03</span>
 </div>
 
 <!--

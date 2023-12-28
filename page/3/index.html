@@ -197,6 +197,262 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/" class="post-title-link" itemprop="url">论文阅读 TRUST: A Compilation Framework for In-process Isolation to Protect Safe Rust against Untrusted Code</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-11-26 11:47:35 / Modified: 21:37:56" itemprop="dateCreated datePublished" datetime="2023-11-26T11:47:35+08:00">2023-11-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文精读</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/RUST/" itemprop="url" rel="index"><span itemprop="name">RUST</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>16k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>29 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><strong>摘要</strong></p>
+<p>Rust的发明是为了帮助开发人员构建高度安全的系统。它带有各种编程结构，强调安全性和对内存布局的控制。Rust强制执行关于类型系统和所有权模型的严格规则，以启用对所有空间和时间安全错误的编译时检查。尽管在安全性上有这种优势，Rust的类型系统施加的限制使得表达某些设计或计算变得困难或低效。为了简化他们的编程，开发人员经常包含来自不安全的Rust或用其他语言编写的外部库的不可信代码。可悲的是，为了灵活性或效率而采用这种不可信代码的编程实践破坏了安全Rust所提供的强大安全保证。本文提出了一个编译框架TRUST，它通过进程内隔离为Rust提供安全的可信保护，防止程序中存在不可信的代码。它的主要策略是在一个隔离的内存区域中分配对象，该区域可以被安全的Rust访问，但限制不受信任的人写入。</p>
+<p>为了实现这一点，TRUST采用了软件故障隔离和x86保护密钥。它可以直接应用于任何Rust代码，而不需要手动更改。我们的实验表明，在Rust中运行11个广泛使用的crate时，TRUST是有效和高效的，平均只产生7.55%的运行时开销和13.30%的内存开销。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/11/26/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-TRUST/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/" class="post-title-link" itemprop="url">学习 Linux Mnt_Namespace实现</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-11-24 16:06:21 / Modified: 14:44:42" itemprop="dateCreated datePublished" datetime="2023-11-24T16:06:21+08:00">2023-11-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>7.4k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>13 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h1><p>Linux使用namespace来表示从不同进程角度所见的视图。 不同的namespace的进程看到的资源或者进程表是不一样的，相同namespace中的不同进程看到的是同样的资源。</p>
+<p>task_struct就是Linux的进程控制块(PCB)，存放进程的信息。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/11/24/%E5%AD%A6%E4%B9%A0-Linux-Mnt-Namespace%E5%AE%9E%E7%8E%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/24/Rust%E5%AD%A6%E4%B9%A0-%E6%89%80%E6%9C%89%E6%9D%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/11/24/Rust%E5%AD%A6%E4%B9%A0-%E6%89%80%E6%9C%89%E6%9D%83/" class="post-title-link" itemprop="url">Rust学习 所有权</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-11-24 10:46:30" itemprop="dateCreated datePublished" datetime="2023-11-24T10:46:30+08:00">2023-11-24</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>0</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/22/%E5%AD%A6%E4%B9%A0-Linux-VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-pathname-lookup/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -888,309 +1144,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/27/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A014-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E8%BF%9B%E9%98%B6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/09/27/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A014-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E8%BF%9B%E9%98%B6/" class="post-title-link" itemprop="url">Rust学习 练习14 生命周期进阶</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-09-27 09:19:11" itemprop="dateCreated datePublished" datetime="2023-09-27T09:19:11+08:00">2023-09-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-24 11:10:48" itemprop="dateModified" datetime="2023-11-24T11:10:48+08:00">2023-11-24</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/" itemprop="url" rel="index"><span itemprop="name">Rust</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/%E7%BB%83%E4%B9%A0%E5%AE%9E%E8%B7%B5/" itemprop="url" rel="index"><span itemprop="name">练习实践</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>15k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>28 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="amp-’static-and-T-‘static"><a href="#amp-’static-and-T-‘static" class="headerlink" title="&amp;’static and T: ‘static"></a>&amp;’static and T: ‘static</h1><p><code>&#39;static</code> 是一个 Rust 保留的生命周期名称，在之前我们可能已经见过好几次了:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#![allow(unused)]</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line"><span class="comment">// 引用的生命周期是 &#x27;static :</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">s</span>: &amp;<span class="symbol">&#x27;static</span> <span class="type">str</span> = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// &#x27;static 也可以用于特征约束中:</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">generic</span>&lt;T&gt;(x: T) <span class="keyword">where</span> T: <span class="symbol">&#x27;static</span> &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/09/27/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A014-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E8%BF%9B%E9%98%B6/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/26/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A013-%E6%A0%BC%E5%BC%8F%E5%8C%96%E8%BE%93%E5%87%BA/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/09/26/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A013-%E6%A0%BC%E5%BC%8F%E5%8C%96%E8%BE%93%E5%87%BA/" class="post-title-link" itemprop="url">Rust学习 练习13 格式化输出</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2023-09-26 08:47:04 / Modified: 09:38:07" itemprop="dateCreated datePublished" datetime="2023-09-26T08:47:04+08:00">2023-09-26</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/" itemprop="url" rel="index"><span itemprop="name">Rust</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Rust/%E7%BB%83%E4%B9%A0%E5%AE%9E%E8%B7%B5/" itemprop="url" rel="index"><span itemprop="name">练习实践</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>11k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>21 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="位置参数"><a href="#位置参数" class="headerlink" title="位置参数"></a>位置参数</h1><p>1.🌟🌟</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 填空 */</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;0&#125;, this is &#123;1&#125;. &#123;1&#125;, this is &#123;0&#125;&quot;</span>, <span class="string">&quot;Alice&quot;</span>, <span class="string">&quot;Bob&quot;</span>);<span class="comment">// =&gt; Alice, this is Bob. Bob, this is Alice</span></span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="built_in">format!</span>(<span class="string">&quot;&#123;1&#125;&#123;0&#125;&quot;</span>, <span class="number">1</span>, <span class="number">2</span>), __);</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="built_in">format!</span>(__, <span class="number">1</span>, <span class="number">2</span>), <span class="string">&quot;2112&quot;</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Success!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/09/26/Rust%E5%AD%A6%E4%B9%A0-%E7%BB%83%E4%B9%A013-%E6%A0%BC%E5%BC%8F%E5%8C%96%E8%BE%93%E5%87%BA/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/" class="post-title-link" itemprop="url">论文阅读 Lost along the Way-Understanding and Mitigating Path-Misresolution Threats to Container Isolation</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-09-19 13:03:47" itemprop="dateCreated datePublished" datetime="2023-09-19T13:03:47+08:00">2023-09-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-09-20 14:18:21" itemprop="dateModified" datetime="2023-09-20T14:18:21+08:00">2023-09-20</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文精读</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/%E5%86%85%E6%A0%B8%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">内核安全</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>19k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>35 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><strong>Abstract</strong></p>
-<p>人们发现，在容器工具越来越多地利用主机-容器交互的情况下，由当今容器技术强制实施的文件系统隔离效果较差。这种被削弱的隔离导致了一种<mark>路径错误解决 path misresolution(Pamir)漏洞</mark>，这种漏洞被认为是高风险的，多年来不断有报告。在本文中，我们提出了第一个系统的研究帕米尔风险和现有的修复相关漏洞。我们的研究表明，尽管我们在修补易受攻击的容器工具和解决风险方面做出了重大努力，但帕米尔漏洞仍在继续被发现，包括我们从修补软件中重新发现的一个新漏洞(CVE-2023-0778)。我们研究的一个关键观点是，由于容器工具严重依赖第三方组件，Pamir风险本质上很难在容器工具级别上预防。虽然应该将安全检查应用于所有组件以调解主机容器交互，但第三方组件开发人员倾向于认为容器工具应该在调用其组件之前执行安全检查，因此不愿意用特定于容器的保护来修补他们的代码。此外，由于今天的容器工具所依赖的大量组件，重新实现它们是不切实际的。</p>
-<p>我们的研究表明，基于内核的文件系统隔离是确保在主机-容器交互期间始终保持隔离的唯一方法。在我们的研究中，我们设计并实现了第一个这样的方法，将文件系统隔离扩展到dentry对象，通过文件系统对主机-容器交互实施访问控制。我们的设计解决了当前容器单向隔离的基本限制，使用精心设计的策略来确保准确和全面的交互控制，并将保护植入到正确的内核位置以最小化性能影响。我们使用模型检查验证了我们的方法，证明了它在消除帕米尔风险方面的有效性。我们的评估进一步表明，我们的方法产生的开销可以忽略不计，大大优于所有现有的Pamir补丁，并保持与所有主流容器工具的兼容性。我们已经发布了我们的代码，并提交了将我们的技术合并到Linux内核中的请求。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/09/19/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB-Lost-along-the-Way-Understanding-and-Mitigating/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1260,7 +1213,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">95</span>
+          <span class="site-state-item-count">98</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1328,7 +1281,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">45:54</span>
+    <span title="Reading time total">46:03</span>
 </div>
 
 <!--

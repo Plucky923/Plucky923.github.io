@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="简介容器运行时（container runtime）是负责在主机上创建、运行和管理容器的软件组件。它是整个容器化环境中的关键组成部分，与操作系统内核紧密交互，负责管理容器的生命周期、资源隔离、文件系统挂载和网络连接等功能。 容器运行时提供了对容器的抽象层，使得容器可以像独立的进程一样在主机上运行。它通常包括以下主要功能：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="容器运行时 container runtime">
+<meta property="og:url" content="http://example.com/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="简介容器运行时（container runtime）是负责在主机上创建、运行和管理容器的软件组件。它是整个容器化环境中的关键组成部分，与操作系统内核紧密交互，负责管理容器的生命周期、资源隔离、文件系统挂载和网络连接等功能。 容器运行时提供了对容器的抽象层，使得容器可以像独立的进程一样在主机上运行。它通常包括以下主要功能：">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-26T09:10:40.000Z">
+<meta property="article:modified_time" content="2023-12-26T09:40:00.463Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>容器运行时 container runtime | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          容器运行时 container runtime
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-12-26 17:10:40 / Modified: 17:40:00" itemprop="dateCreated datePublished" datetime="2023-12-26T17:10:40+08:00">2023-12-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%B9%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">容器</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>3.5k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>6 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>容器运行时（container runtime）是负责在主机上<strong>创建、运行和管理容器</strong>的软件<strong>组件</strong>。它是整个容器化环境中的关键组成部分，与操作系统内核紧密交互，负责<strong>管理容器的生命周期、资源隔离、文件系统挂载和网络连接</strong>等功能。</p>
+<p>容器运行时提供了对容器的抽象层，使得<strong>容器可以像独立的进程</strong>一样在主机上运行。它通常包括以下主要功能：</p>
+<ol>
+<li><p>容器<strong>生命周期</strong>管理：容器运行时负责创建、启动、停止和销毁容器。它与操作系统内核进行交互，使用容器的配置和镜像来创建和管理容器进程。</p>
+</li>
+<li><p>资源隔离：容器运行时通过使用操作系统提供的隔离机制（如Linux的命名空间和控制组）来确保容器之间的资源隔离。这样，每个容器都有自己的进程空间、文件系统、网络和其他资源，使得它们可以独立运行而不会相互干扰。</p>
+</li>
+<li><p>文件<strong>系统挂载</strong>：容器运行时负责将容器内的文件系统挂载到主机上，以便容器可以访问主机上的文件和目录。它也负责管理容器的镜像文件系统，将容器镜像解压缩并创建容器的文件系统。</p>
+</li>
+<li><p><strong>网络连接</strong>：容器运行时负责为容器分配网络资源，并与主机的网络进行连接。它可以配置容器的网络接口、端口映射和网络策略，以便容器可以与其他容器或外部网络进行通信。</p>
+</li>
+</ol>
+<p>常见的容器运行时包括Docker的默认运行时（Docker Engine）、containerd、CRI-O、runc等。这些容器运行时提供了标准的接口和功能，使得开发人员可以方便地创建和管理容器化应用程序。</p>
+<h1 id="容器运行机制"><a href="#容器运行机制" class="headerlink" title="容器运行机制"></a>容器运行机制</h1><p>那么，当你运行 <code>podman run</code> 或 <code>docker run</code> 命令时，在后台到底发生了什么？一个分步的概述如下：</p>
+<ol>
+<li>如果本地没有镜像，则从镜像<ruby>登记仓库<rt>registry</rt></ruby>拉取镜像</li>
+<li>镜像被提取到一个写时复制（COW）的文件系统上，所有的容器层相互堆叠以形成一个合并的文件系统</li>
+<li>为容器准备一个挂载点</li>
+<li>从容器镜像中设置元数据，包括诸如覆盖 <code>CMD</code>、来自用户输入的 <code>ENTRYPOINT</code>、设置 SECCOMP 规则等设置，以确保容器按预期运行</li>
+<li>提醒内核为该容器分配某种隔离，如进程、网络和文件系统（<ruby>命名空间<rt>namespace</rt></ruby>）</li>
+<li>提醒内核为该容器分配一些资源限制，如 CPU 或内存限制（<ruby>控制组<rt>cgroup</rt></ruby>）</li>
+<li>传递一个<ruby>系统调用<rt>syscall</rt></ruby>给内核用于启动容器</li>
+<li>设置 SELinux&#x2F;AppArmor</li>
+</ol>
+<p>容器运行时负责上述所有的工作。当我们提及容器运行时，想到的可能是 runc、lxc、containerd、rkt、cri-o 等等。嗯，你没有错。这些都是容器引擎和容器运行时，每一种都是为不同的情况建立的。</p>
+<p><ruby>容器运行时<rt>Container runtime</rt></ruby>更侧重于运行容器，为容器设置命名空间和控制组（cgroup），也被称为底层容器运行时。高层的容器运行时或容器引擎专注于格式、解包、管理和镜像共享。它们还为开发者提供 API。</p>
+<h1 id="容器运行时分类"><a href="#容器运行时分类" class="headerlink" title="容器运行时分类"></a>容器运行时分类</h1><p>通常，它们分为两大类：OCI 运行时和 CRI（容器运行接口）。</p>
+<ul>
+<li>开放容器规范（OCI）运行时<ul>
+<li>本地运行时<ul>
+<li>runC</li>
+<li>Railcar</li>
+<li>Crun</li>
+<li>rkt</li>
+</ul>
+</li>
+<li>沙盒和虚拟化运行时<ul>
+<li>gviso</li>
+<li>nabla-containers</li>
+<li>runV</li>
+<li>clearcontainers</li>
+<li>kata-containers</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>CRI<ul>
+<li>containerd</li>
+<li>cri-o</li>
+</ul>
+</li>
+</ul>
+<h2 id="开放容器规范（OCI）运行时"><a href="#开放容器规范（OCI）运行时" class="headerlink" title="开放容器规范（OCI）运行时"></a>开放容器规范（OCI）运行时</h2><p><ruby>开放容器计划<rt>Open Container Initiative</rt></ruby>（OCI，Open Container Initiative）标准是由 Docker 公司主导的一个关于容器格式和运行时的标准或规范，包含运行时标准（<a target="_blank" rel="noopener" href="https://github.com/opencontainers/runtime-spec/blob/master/spec.md">runtime-spec</a> ）和容器镜像标准（<a target="_blank" rel="noopener" href="https://github.com/opencontainers/image-spec/blob/master/spec.md">image-spec</a>）。运行时标准规定了怎么去运行一个容器，如何去表达容器的状态（state）和生命周期（lifestyle）、如何设置 namespace、cgroup、文件系统等等，可以理解为运行期的动态描述；而容器镜像标准规定了容器镜像的格式、配置、元数据等，可以理解为对镜像的静态描述。</p>
+<p>为什么要搞这么一个标准呢？应该是为了防止各家容器各有一套互不兼容的格式导致生态过于碎片化，另外一个目的是尽管目前只有 Linux 系统有容器，但万一我们要在 Windows 或者 Unix 上实现容器，要不要重新搞一套标准呢？OCI 规范也可以在其他操作系统和平台上实现。</p>
+<p>OCI运行时有时称为「低级别」运行时，实现 OCI 运行时规范专注于管理容器的生命周期——抽象了 Linux 原语——并且无需其它操作。 低级别运行时创建和运行「容器」。</p>
+<p>它通过两个规范来完成如下任务：</p>
+<h3 id="镜像规范"><a href="#镜像规范" class="headerlink" title="镜像规范"></a>镜像规范</h3><p>该规范的目标是创建可互操作的工具，用于构建、传输和准备运行的容器镜像。</p>
+<p>该规范的高层组件包括：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/opencontainers/image-spec/blob/master/manifest.md">镜像清单</a> — 一个描述构成容器镜像的元素的文件</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/opencontainers/image-spec/blob/master/image-index.md">镜像索引</a> — 镜像清单的注释索引</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/opencontainers/image-spec/blob/master/image-layout.md">镜像布局</a> — 一个镜像内容的文件系统布局</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/opencontainers/image-spec/blob/master/layer.md">文件系统布局</a> — 一个描述容器文件系统的变更集</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/opencontainers/image-spec/blob/master/config.md">镜像配置</a> — 确定镜像层顺序和配置的文件，以便转换成 <a target="_blank" rel="noopener" href="https://github.com/opencontainers/runtime-spec">运行时捆包</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/opencontainers/image-spec/blob/master/conversion.md">转换</a> — 解释应该如何进行转换的文件</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/opencontainers/image-spec/blob/master/descriptor.md">描述符</a> — 一个描述被引用内容的类型、元数据和内容地址的参考资料</li>
+</ul>
+<h3 id="运行时规范"><a href="#运行时规范" class="headerlink" title="运行时规范"></a>运行时规范</h3><p>该规范用于定义容器的配置、执行环境和生命周期。<code>config.json</code> 文件为所有支持的平台提供了容器配置，并详细定义了用于创建容器的字段。在详细定义执行环境时也描述了为容器的生命周期定义的通用操作，以确保在容器内运行的应用在不同的运行时环境之间有一个一致的环境。</p>
+<p>Linux 容器规范使用了各种内核特性，包括<ruby>命名空间<rt>namespace</rt></ruby>、<ruby>控制组<rt>cgroup</rt></ruby>、<ruby>权能<rt>capability</rt></ruby>、LSM 和文件系统<ruby>隔离<rt>jail</rt></ruby>等来实现该规范。</p>
+<h3 id="本地运行时-native-runtimes"><a href="#本地运行时-native-runtimes" class="headerlink" title="本地运行时 native runtimes"></a>本地运行时 native runtimes</h3><p>本地低级别运行时包括：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc">runC</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/oracle/railcar">railcar</a>（弃用）</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/containers/crun">crun</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/rkt/rkt">rkt</a>（弃用）</li>
+</ul>
+<p><strong>runC</strong> Docker 在 libcontainer 和 OCI 上的所有工作结果。这是事实上的标准低级别的运行时。由 Go 编写的，并由 Docker 开源的 <strong>moby</strong> 项目维护。</p>
+<p><strong>Railcar</strong> 是 Oracle 创建的 OCI 运行时实现。由 Rust 编写，与 runC 的 Go 代码相比，他们人为，对于像容器运行时这样的组件而言，Rust 是 一种出色的语言，它可以与内核进行低级别的交互。不幸的是，Railcar 已经被遗弃。</p>
+<p><strong>crun</strong> 是 Redhat 领导的 OCI 实现，也是<a target="_blank" rel="noopener" href="https://github.com/containers">容器项目</a>更广泛的一部分，也是 libpod 的同级产品（稍后会详细介绍）。它是由 C 开发的，性能好且轻量级。 并且是最早支持 <a target="_blank" rel="noopener" href="https://medium.com/nttlabs/cgroup-v2-596d035be4d7">cgroup v2</a> 的运行时。</p>
+<p><strong>rkt</strong> 不是一个 OCI 运行时的实现，但这是一个类似低级别的容器运行时。除了 appc 捆绑之外，它支持运行 Docker 和 OCI 镜像，但不能与使用 OCI 运行时 高级别的组件交互。</p>
+<p>需要注意的是，正如我们在<a target="_blank" rel="noopener" href="https://events19.linuxfoundation.org/wp-content/uploads/2017/11/How-Container-Runtime-Matters-in-Kubernetes_-OSS-Kunal-Kushwaha.pdf">本次开源峰会演讲</a>所看到的，低级别的运行时性能仅在容器创建和删除期间才有意义。一旦进程运行之后，容器运行时就消失了。</p>
+<h3 id="沙盒和虚拟化运行时"><a href="#沙盒和虚拟化运行时" class="headerlink" title="沙盒和虚拟化运行时"></a>沙盒和虚拟化运行时</h3><p>除了本地运行时，还可以在同一个主机内核上运行容器化的进程，有一些 OCI 规范的沙盒化和虚拟化实现：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://gvisor.dev/">gVisor</a></li>
+<li><a target="_blank" rel="noopener" href="https://nabla-containers.github.io/">nabla-containers</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/hyperhq/runv">runV</a>（被非正式弃用）</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/clearcontainers">clearcontainers</a>（弃用）</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kata-containers">kata-containers</a></li>
+</ul>
+<p><strong>gVisor</strong> 和 <strong>Nabla</strong> 是沙盒化的运行时，这样可以进一步的隔离宿主和容器化的进程。取代共享主机内核，容器化的进程在 unikernel 或者内核代理层运行， 然后代表容器与主机内核进行交互。随着逐渐增多的隔离，这些运行时减少了攻击面，使容器化进程对主机产生恶意影响的可能性降低。</p>
+<p><strong>runV</strong>, <strong>Clear</strong> 和 <strong>Kata</strong> 是虚拟化的运行时。它们是 OCI 运行时规范的实现，有虚拟机接口（而不是主机内核）支持。runV 和 Clear 已经被废弃， 他们的特性被 Kata 所吸收。它们都可以运行标准的 OCI 容器镜像，尽管它们通过更强的主机隔离来做到这一点。它们使用标准的 Linux 内核镜像并在虚拟机 中运行「容器化」的进程。</p>
+<p>与本地运行时相比，沙盒化和虚拟化运行时在整个容器化进程的生命周期中都会对性能产生影响。在沙盒容器中，有一个额外的抽象层：进程运行在沙盒的 unikernetl&#x2F;代理上运行，该指令中继到主机内核。在虚拟化的容器中，有一层虚拟化：进程全部在虚拟机中运行，这样会比直接在本地运行慢。将 VM 技术 （如注重性能的 <a target="_blank" rel="noopener" href="https://github.com/firecracker-microvm/firecracker">AWS Firecracker</a>）用作 VM 容器的支持虚拟机类型可以最大程度上减少性能的影响。</p>
+<h2 id><a href="#" class="headerlink" title></a></h2><h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a target="_blank" rel="noopener" href="http://m.blog.chinaunix.net/uid-20182470-id-5877572.html#:~:text=%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6%EF%BC%88container%20runtime,%E5%92%8C%E7%BD%91%E7%BB%9C%E8%BF%9E%E6%8E%A5%E7%AD%89%E5%8A%9F%E8%83%BD%E3%80%82">什么是容器运行时 container runtime-fbwd-ChinaUnix博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.zhangjiee.com/blog/2021/container-runtime.html#org4b14f92">容器运行时的综合比较 (zhangjiee.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.zeng.dev/post/2020-container-runtimes/">各种容器运行时都解决了什么问题 - ZengXu’s BLOG</a></p>
+<p><a target="_blank" rel="noopener" href="https://opensource.com/article/21/9/container-runtimes">What are container runtimes? | Opensource.com — 什么是容器运行时？ |开源网站</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/25/crun-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="prev" title="crun exec 源码分析">
+      <i class="fa fa-chevron-left"></i> crun exec 源码分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/12/27/Ubuntu%E5%AE%89%E8%A3%85CRIU/" rel="next" title="Ubuntu安装CRIU">
+      Ubuntu安装CRIU <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">容器运行机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6%E5%88%86%E7%B1%BB"><span class="nav-number">3.</span> <span class="nav-text">容器运行时分类</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E6%94%BE%E5%AE%B9%E5%99%A8%E8%A7%84%E8%8C%83%EF%BC%88OCI%EF%BC%89%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="nav-number">3.1.</span> <span class="nav-text">开放容器规范（OCI）运行时</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%95%9C%E5%83%8F%E8%A7%84%E8%8C%83"><span class="nav-number">3.1.1.</span> <span class="nav-text">镜像规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E8%A7%84%E8%8C%83"><span class="nav-number">3.1.2.</span> <span class="nav-text">运行时规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8C%E6%97%B6-native-runtimes"><span class="nav-number">3.1.3.</span> <span class="nav-text">本地运行时 native runtimes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B2%99%E7%9B%92%E5%92%8C%E8%99%9A%E6%8B%9F%E5%8C%96%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="nav-number">3.1.4.</span> <span class="nav-text">沙盒和虚拟化运行时</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.2.</span> <span class="nav-text"></span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.5m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">46:03</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : 'f0110b19fa0d45b6585efc727bbebe33',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
