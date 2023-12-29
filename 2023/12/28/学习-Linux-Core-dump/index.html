@@ -23,15 +23,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="记录">
+  <meta name="description" content="简介当程序运行的过程中异常终止或崩溃，操作系统会将程序当时的内存状态记录下来，保存在一个文件中，这种行为就叫做Core Dump（中文有的翻译成“核心转储”)。我们可以认为 core dump 是“内存快照”，但实际上，除了内存信息之外，还有些关键的程序运行状态也会同时 dump 下来，例如寄存器信息（包括程序指针、栈指针等）、内存管理信息、其他处理器和操作系统状态和信息。core dump 对于">
 <meta property="og:type" content="article">
 <meta property="og:title" content="学习 Linux Core dump">
 <meta property="og:url" content="http://example.com/2023/12/28/%E5%AD%A6%E4%B9%A0-Linux-Core-dump/index.html">
 <meta property="og:site_name" content="Plucky">
-<meta property="og:description" content="记录">
+<meta property="og:description" content="简介当程序运行的过程中异常终止或崩溃，操作系统会将程序当时的内存状态记录下来，保存在一个文件中，这种行为就叫做Core Dump（中文有的翻译成“核心转储”)。我们可以认为 core dump 是“内存快照”，但实际上，除了内存信息之外，还有些关键的程序运行状态也会同时 dump 下来，例如寄存器信息（包括程序指针、栈指针等）、内存管理信息、其他处理器和操作系统状态和信息。core dump 对于">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-28T02:36:24.000Z">
-<meta property="article:modified_time" content="2023-12-28T02:38:16.562Z">
+<meta property="article:modified_time" content="2023-12-28T08:58:59.998Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
 
@@ -224,7 +224,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2023-12-28 10:36:24 / Modified: 10:38:16" itemprop="dateCreated datePublished" datetime="2023-12-28T10:36:24+08:00">2023-12-28</time>
+              <time title="Created: 2023-12-28 10:36:24 / Modified: 16:58:59" itemprop="dateCreated datePublished" datetime="2023-12-28T10:36:24+08:00">2023-12-28</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -249,14 +249,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>0</span>
+              <span>5.2k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
+              <span>9 mins.</span>
             </span>
 
         </div>
@@ -268,7 +268,169 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>当程序运行的过程中异常终止或崩溃，操作系统会将程序当时的内存状态记录下来，保存在一个文件中，这种行为就叫做<strong>Core Dump</strong>（中文有的翻译成“核心转储”)。我们可以认为 core dump 是“内存快照”，但实际上，除了内存信息之外，还有些关键的程序运行状态也会同时 dump 下来，例如寄存器信息（包括程序指针、栈指针等）、内存管理信息、其他处理器和操作系统状态和信息。core dump 对于编程人员诊断和调试程序是非常有帮助的，因为对于有些程序错误是很难重现的，例如指针异常，而 core dump 文件可以再现程序出错时的情景。</p>
+<h1 id="Core-dump如何产生"><a href="#Core-dump如何产生" class="headerlink" title="Core dump如何产生"></a>Core dump如何产生</h1><p>上面说当程序运行过程中<strong>异常终止</strong>或<strong>崩溃</strong>时会发生 core dump，但还没说到什么具体的情景程序会发生异常终止或崩溃，例如我们使用 <code>kill -9</code> 命令杀死一个进程会发生 core dump 吗？实验证明是不能的，那么什么情况会产生呢？</p>
+<p>Linux 中信号是一种异步事件处理的机制，每种信号对应有其默认的操作，你可以在 <strong><a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man7/signal.7.html">这里</a></strong> 查看 Linux 系统提供的信号以及默认处理。默认操作主要包括忽略该信号（Ingore）、暂停进程（Stop）、终止进程（Terminate）、终止并发生core dump（core）等。如果我们信号均是采用默认操作，那么，以下几种信号，它们在发生时会产生 core dump:</p>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Action</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SIGABRT</td>
+<td>Core</td>
+<td>Abort signal from <a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man3/abort.3.html">abort(3)</a></td>
+</tr>
+<tr>
+<td>SIGBUS</td>
+<td>Core</td>
+<td>Bus error (bad memory access)</td>
+</tr>
+<tr>
+<td>SIGFPE</td>
+<td>Core</td>
+<td>Floating-point exception</td>
+</tr>
+<tr>
+<td>SIGILL</td>
+<td>Core</td>
+<td>Illegal Instruction</td>
+</tr>
+<tr>
+<td>SIGQUIT</td>
+<td>Core</td>
+<td>Quit from keyboard</td>
+</tr>
+<tr>
+<td>SIGSEGV</td>
+<td>Core</td>
+<td>Invalid memory reference</td>
+</tr>
+<tr>
+<td>SIGSYS</td>
+<td>Core</td>
+<td>Bad system call (SVr4); see also <a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/seccomp.2.html">seccomp(2)</a></td>
+</tr>
+<tr>
+<td>SIGTRAP</td>
+<td>Core</td>
+<td>Trace&#x2F;breakpoint trap</td>
+</tr>
+<tr>
+<td>SIGXCPU</td>
+<td>Core</td>
+<td>CPU time limit exceeded (4.2BSD); see <a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/setrlimit.2.html">setrlimit(2)</a></td>
+</tr>
+<tr>
+<td>SIGXFSZ</td>
+<td>Core</td>
+<td>File size limit exceeded (4.2BSD); see <a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/setrlimit.2.html">setrlimit(2)</a></td>
+</tr>
+</tbody></table>
+<p>这就是为什么我们使用 <code>Ctrl+z</code> 来挂起一个进程或者 <code>Ctrl+C</code> 结束一个进程均不会产生 core dump，因为前者会向进程发出 <strong>SIGTSTP</strong> 信号，该信号的默认操作为暂停进程（Stop Process）；后者会向进程发出<strong>SIGINT</strong> 信号，该信号默认操作为终止进程（Terminate Process）。同样上面提到的 <code>kill -9</code> 命令会发出 <strong>SIGKILL</strong> 命令，该命令默认为终止进程。而如果我们使用 <code>Ctrl+\</code> 来终止一个进程，会向进程发出 <strong>SIGQUIT</strong> 信号，默认是会产生 core dump 的。还有其它情景会产生 core dump， 如：程序调用 <code>abort()</code> 函数、访存错误、非法指令等等。</p>
+<p>下面举两个例子来说明：</p>
+<p>首先尝试手动配置核心文件的路径，例如，将 <code>/proc/sys/kernel/core_pattern</code> 设置为直接写入当前目录。你可以使用以下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;core&quot; | sudo tee /proc/sys/kernel/core_pattern</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>终端下比较 <code>Ctrl+C</code> 和 <code>Ctrl+\</code>:</li>
+</ul>
+<p>运行一个sleep进程</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sleep 10</span><br></pre></td></tr></table></figure>
+
+<p>使用Ctrl+C中止进程不会产生core dump</p>
+<p>使用Ctrl+\退出程序，会产生core dump</p>
+<ul>
+<li>小程序产生core dump</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> *null_ptr = <span class="literal">NULL</span>;</span><br><span class="line">    *null_ptr = <span class="number">10</span>;            <span class="comment">//对空指针指向的内存区域写,会发生段错误</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译执行，会产生core dump</p>
+<hr>
+<p>某些信号的默认操作是导致进程终止并生成核心转储文件，该文件包含终止时进程内存的映像。该映像可用于调试器（例如 <a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man1/gdb.1.html">gdb(1)</a>）来检查程序终止时的状态。导致进程转储核心的信号列表可以在<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/signal.7.html">signal(7) - Linux manual page (man7.org)</a>中找到。</p>
+<h1 id="进程不生成core-dump文件的情况"><a href="#进程不生成core-dump文件的情况" class="headerlink" title="进程不生成core dump文件的情况"></a>进程不生成core dump文件的情况</h1><ol>
+<li><p>该进程没有写入core文件的权限。 （默认情况下，核心文件名为 core 或 core.pid，其中 pid 是转储核心的进程的 ID，并在当前工作目录中创建。</p>
+</li>
+<li><p>已存在一个与用于核心转储同名的（可写、常规）文件，但指向该文件的硬链接不只一个。</p>
+</li>
+<li><p>将创建核心转储文件的文件系统已满；或者已经用完索引节点；或以只读方式安装；或者用户已达到文件系统的配额。</p>
+</li>
+<li><p>要创建核心转储文件的目录不存在。</p>
+</li>
+<li><p>进程的RLIMIT_CORE（core文件大小）或RLIMIT_FSIZE（文件大小）资源限制设置为0；请参阅<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man5/core.5.html">core(5) - Linux manual page — core(5) - Linux 手册页 (man7.org)</a>和 shell 的 ulimit 命令的文档（csh(1) 中的限制）。但是，如果系统配置为通过管道将核心转储传输到程序，则 RLIMIT_CORE 将被忽略。</p>
+</li>
+<li><p>进程正在执行的二进制文件没有启用read权限。（这是一项安全措施，以确保内容不可读的可执行文件不会生成包含可执行文件映像的（可能可读的）核心转储。）</p>
+</li>
+<li><p>进程正在执行set-user-ID (set-group-ID)程序，该程序由进程的real user（group）ID 以外的user（group）拥有，或者进程正在执行具有以下权限的程序： <strong>File capabilities</strong>（请参阅<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/capabilities.7.html">capabilities(7) - Linux manual page (man7.org)</a>）。 （但是，请参见<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/prctl.2.html">prctl(2) - Linux manual page (man7.org)</a>PR_SET_DUMPABLE 操作的描述，以及<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man5/proc.5.html">proc(5) - Linux manual page (man7.org)</a>中 &#x2F;proc&#x2F;sys&#x2F;fs&#x2F;suid_dumpable 文件的描述。）</p>
+</li>
+<li><p>&#x2F;proc&#x2F;sys&#x2F;kernel&#x2F;core_pattern 为空且 &#x2F;proc&#x2F;sys&#x2F;kernel&#x2F;core_uses_pid 包含值 0。（请注意，如果 &#x2F;proc&#x2F;sys&#x2F;kernel&#x2F;core_pattern 为空且 &#x2F;proc&#x2F; sys&#x2F;kernel&#x2F;core_uses_pid 包含值 1，核心转储文件将具有 .pid 形式的名称，除非使用 <a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man1/ls.1.html">ls(1) - Linux manual page (man7.org)</a> -a 选项，否则此类文件将被隐藏。</p>
+</li>
+<li><p>（自Linux 3.7 起）内核配置时未使用CONFIG_COREDUMP 选项。此外，如果使用 <a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/madvise.2.html">madvise(2) - Linux manual page (man7.org)</a>MADV_DONTDUMP 标志，则核心转储可能会排除进程的部分地址空间。在<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man1/systemd.1.html">systemd(1) - Linux manual page (man7.org)</a>使用作为 init 框架的系统上，核心转储可能会放置在由<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man1/systemd.1.html">systemd(1) - Linux manual page (man7.org)</a>确定的位置。</p>
+</li>
+</ol>
+<h1 id="核心转储文件的命名"><a href="#核心转储文件的命名" class="headerlink" title="核心转储文件的命名"></a>核心转储文件的命名</h1><p>默认情况下，核心转储文件命名为 core，但可以设置 &#x2F;proc&#x2F;sys&#x2F;kernel&#x2F;core_pattern 文件（自 Linux 2.6 和 2.4.21 起）来定义用于命名核心转储的模板文件。模板可以包含 % 说明符，在核心文件创建时，模板中的特殊字符 <code>%</code> 将被替换为以下值</p>
+<ul>
+<li><code>%%</code>: 单个百分号字符。</li>
+<li><code>%c</code>: 崩溃进程的核心文件大小软资源限制（自 Linux 2.6.24 起）。</li>
+<li><code>%d</code>: 转储模式，与 prctl(2) 返回的值相同（自 Linux 3.7 起）。</li>
+<li><code>%e</code>: 进程或线程的 comm 值，通常与可执行文件名相同（不包含路径前缀，截断为最多 15 个字符），但可能已修改为其他内容；参见 proc(5) 中关于 &#x2F;proc&#x2F;pid&#x2F;comm 和 &#x2F;proc&#x2F;pid&#x2F;task&#x2F;tid&#x2F;comm 的讨论。</li>
+<li><code>%E</code>: 可执行文件的路径，斜杠 (‘&#x2F;‘) 替换为感叹号 (‘!’)（自 Linux 3.0 起）。</li>
+<li><code>%g</code>: 被转储进程的实际 GID 数值。</li>
+<li><code>%h</code>: 主机名（与 uname(2) 返回的 nodename 相同）。</li>
+<li><code>%i</code>: 触发核心转储的线程的 TID，如在线程所在的 PID 命名空间中看到的（自 Linux 3.18 起）。</li>
+<li><code>%I</code>: 触发核心转储的线程的 TID，如在初始 PID 命名空间中看到的（自 Linux 3.18 起）。</li>
+<li><code>%p</code>: 被转储进程的 PID，如在进程所在的 PID 命名空间中看到的。</li>
+<li><code>%P</code>: 被转储进程的 PID，如在初始 PID 命名空间中看到的（自 Linux 3.12 起）。</li>
+<li><code>%s</code>: 引起转储的信号编号。</li>
+<li><code>%t</code>: 转储时间，表示自 1970 年 1 月 1 日 00:00:00 +0000（协调世界时）以来的秒数。</li>
+<li><code>%u</code>: 被转储进程的实际 UID 数值。</li>
+</ul>
+<p>这些替换值允许你根据需要自定义核心转储文件的命名方式，以便更好地识别和组织这些文件。</p>
+<p>例如：</p>
+<p>可以使用以下命令设置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;core.%e.%p&quot; | sudo tee /proc/sys/kernel/core_pattern</span><br></pre></td></tr></table></figure>
+
+<p>运行一个<code>a.out</code>的可执行文件就生成的核心转储文件如下所示</p>
+<blockquote>
+<p>core.a.out.340652</p>
+</blockquote>
+<p>或者</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;|/var/coredumps/core.%e.%p</span><br><span class="line">&quot; | sudo tee /proc/sys/kernel/core_pattern</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>注意事项</strong></p>
+<ol>
+<li>模板末尾的单个 <code>%</code> 字符会从核心文件名中删除。</li>
+<li><code>%</code> 后跟除特定字符之外的任何字符的组合都将从核心文件名中删除。</li>
+<li>模板中的所有其他字符都成为核心文件名的文字部分。</li>
+<li>模板可以包含 <code>/</code> 字符，被解释为目录名称的分隔符。</li>
+<li>生成的核心文件名的最大大小为 128 字节（64 字节在 Linux 2.6.19 之前）。</li>
+<li>如果 <code>/proc/sys/kernel/core_pattern</code> 不包含 <code>%p</code> 且 <code>/proc/sys/kernel/core_uses_pid</code> 是非零的话，将在核心文件名后附加 <code>.PID</code>。</li>
+<li>路径是根据崩溃进程的活动设置来解释的，包括崩溃进程的mount namespace、当前工作目录和根目录。</li>
+</ol>
+<h1 id="打开Core-Dump"><a href="#打开Core-Dump" class="headerlink" title="打开Core Dump"></a>打开Core Dump</h1><p><strong>打开 core dump 功能</strong></p>
+<ul>
+<li><p>在终端中输入命令 <code>ulimit -c</code> ，输出的结果为 0，说明默认是关闭 core dump 的，即当程序异常终止时，也不会生成 core dump 文件。</p>
+</li>
+<li><p>我们可以使用命令 <code>ulimit -c unlimited</code> 来开启 core dump 功能，并且不限制 core dump 文件的大小； 如果需要限制文件的大小，将 unlimited 改成你想生成 core 文件最大的大小，注意单位为 blocks（KB）。</p>
+</li>
+<li><p>用上面命令只会对当前的终端环境有效，如果想需要永久生效，可以修改文件 <code>/etc/security/limits.conf</code>文件，关于此文件的设置参看 <strong><a target="_blank" rel="noopener" href="http://manpages.ubuntu.com/manpages/hardy/man5/limits.conf.5.html">这里</a></strong> 。增加一行:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">/etc/security/limits.conf</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"></span></span><br><span class="line"><span class="language-bash"><span class="comment">#Each line describes a limit for a user in the form:</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"></span></span><br><span class="line"><span class="language-bash"><span class="comment">#&lt;domain&gt;   &lt;type&gt;   &lt;item&gt;   &lt;value&gt;</span></span></span><br><span class="line">    *          soft     core   unlimited</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>修改 core 文件保存的路径</strong></p>
+<ul>
+<li>默认生成的 core 文件保存在可执行文件所在的目录下，文件名就为 <code>core</code>。</li>
+<li>通过修改 <code>/proc/sys/kernel/core_uses_pid</code> 文件可以让生成 core 文件名是否自动加上 pid 号。<br>例如 <code>echo 1 &gt; /proc/sys/kernel/core_uses_pid</code> ，生成的 core 文件名将会变成 <code>core.pid</code>，其中 pid 表示该进程的 PID。</li>
+<li>还可以通过修改 <code>/proc/sys/kernel/core_pattern</code> 来控制生成 core 文件保存的位置以及文件名格式。<br>例如可以用 <code>echo &quot;/tmp/corefile-%e-%p-%t&quot; &gt; /proc/sys/kernel/core_pattern</code> 设置生成的 core 文件保存在 “&#x2F;tmp&#x2F;corefile” 目录下，文件名格式为 “core-命令名-pid-时间戳”。**<a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man5/core.5.html">这里</a>** 有更多详细的说明！</li>
+</ul>
+</li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/hazir/p/linxu_core_dump.html">Linux Core Dump - hazir - 博客园 (cnblogs.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man5/core.5.html">core(5) - Linux manual page (man7.org)</a></p>
+
     </div>
 
     
@@ -286,7 +448,10 @@
     <a href="/2023/12/27/Ubuntu%E5%AE%89%E8%A3%85CRIU/" rel="prev" title="Ubuntu安装CRIU">
       <i class="fa fa-chevron-left"></i> Ubuntu安装CRIU
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2023/12/29/%E5%AD%A6%E4%B9%A0-Linux-IPC-Namespace%E5%AE%9E%E7%8E%B0/" rel="next" title="学习 Linux IPC Namespace实现">
+      学习 Linux IPC Namespace实现 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -346,6 +511,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Core-dump%E5%A6%82%E4%BD%95%E4%BA%A7%E7%94%9F"><span class="nav-number">2.</span> <span class="nav-text">Core dump如何产生</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E4%B8%8D%E7%94%9F%E6%88%90core-dump%E6%96%87%E4%BB%B6%E7%9A%84%E6%83%85%E5%86%B5"><span class="nav-number">3.</span> <span class="nav-text">进程不生成core dump文件的情况</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E8%BD%AC%E5%82%A8%E6%96%87%E4%BB%B6%E7%9A%84%E5%91%BD%E5%90%8D"><span class="nav-number">4.</span> <span class="nav-text">核心转储文件的命名</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%93%E5%BC%80Core-Dump"><span class="nav-number">5.</span> <span class="nav-text">打开Core Dump</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -359,7 +525,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-count">99</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -421,13 +587,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">1.5m</span>
+    <span title="Symbols count total">1.6m</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">46:03</span>
+    <span title="Reading time total">47:01</span>
 </div>
 
 <!--

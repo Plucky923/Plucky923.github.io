@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="简介进程间通讯的机制称为 IPC(Inter-Process Communication)。Linux 下有多种 IPC 机制：管道（PIPE）、命名管道（FIFO）、信号（Signal）、消息队列（Message queues）、信号量（Semaphore）、共享内存（Share Memory）、内存映射（Memory Map）、套接字（Socket）。 其中的三种消息队列（Message qu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="学习 Linux IPC Namespace实现">
+<meta property="og:url" content="http://example.com/2023/12/29/%E5%AD%A6%E4%B9%A0-Linux-IPC-Namespace%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="简介进程间通讯的机制称为 IPC(Inter-Process Communication)。Linux 下有多种 IPC 机制：管道（PIPE）、命名管道（FIFO）、信号（Signal）、消息队列（Message queues）、信号量（Semaphore）、共享内存（Share Memory）、内存映射（Memory Map）、套接字（Socket）。 其中的三种消息队列（Message qu">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-29T01:06:55.000Z">
+<meta property="article:modified_time" content="2023-12-29T09:20:49.971Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/29/%E5%AD%A6%E4%B9%A0-Linux-IPC-Namespace%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>学习 Linux IPC Namespace实现 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/29/%E5%AD%A6%E4%B9%A0-Linux-IPC-Namespace%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          学习 Linux IPC Namespace实现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-12-29 09:06:55 / Modified: 17:20:49" itemprop="dateCreated datePublished" datetime="2023-12-29T09:06:55+08:00">2023-12-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>16k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>30 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>进程间通讯的机制称为 IPC(Inter-Process Communication)。Linux 下有多种 IPC 机制：管道（PIPE）、命名管道（FIFO）、信号（Signal）、消息队列（Message queues）、信号量（Semaphore）、共享内存（Share Memory）、内存映射（Memory Map）、套接字（Socket）。</p>
+<p>其中的三种消息队列（Message queues）、信号量（Semaphore）、共享内存（Share Memory）被称为 XSI IPC，他们源自于 UNIX System V IPC。</p>
+<p>Linux 的 IPC Namespace隔离System V IPC对象<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/sysvipc.7.html">sysvipc(7) - Linux manual page (man7.org)</a>和POSIX消息队列<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/mq_overview.7.html">mq_overview(7) - Linux manual page (man7.org)</a></p>
+<p> 每个 IPC 命名空间都有自己的一组 System V IPC 标识符和自己的 POSIX 消息队列文件系统。</p>
+<p>在 IPC namespace中创建的对象对于属于该namespace的所有其他进程可见，但对于其他 IPC namespace中的进程不可见。</p>
+<p>以下&#x2F;proc接口再每个IPC namespace中都是不同的：</p>
+<ul>
+<li><p>&#x2F;proc&#x2F;sys&#x2F;fs&#x2F;mqueue中的POSIX消息队列接口</p>
+</li>
+<li><p>&#x2F;proc&#x2F;sys&#x2F;kernel中的System V IPC 接口，即：msgmax、msgmnb、msgmni、sem、shmall、shmmax、shmmni 和shm_rmid_forced。</p>
+</li>
+<li><p>System V IPC 接口位于&#x2F;proc&#x2F;sysvipc 中。</p>
+</li>
+</ul>
+<p>当 IPC namespace被销毁时（即，当作为namespace成员的最后一个进程终止时），命名空间中的所有 IPC 对象都会自动销毁。</p>
+<h1 id="操作IPC资源的工具"><a href="#操作IPC资源的工具" class="headerlink" title="操作IPC资源的工具"></a>操作IPC资源的工具</h1><p>Linux 系统中默认自带了操作 IPC 资源的命令行工具，如 ipcmk、ipcs 和 ipcrm 等。我们可以使用这些工具创建、查看和删除 IPC 资源。</p>
+<p><strong>ipcmk</strong><br>ipcmk 命令用来创建 IPC资源：共享内存、信号量和消息队列。下面的命令用来创建包含 10 个信号量的信号量集：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ipcmk -S 10</span><br></pre></td></tr></table></figure>
+
+<p><strong>ipcs</strong><br>ipcs 命令显示当前系统中 IPC 资源的信息。默认会显示所有的 IPC 资源，包括共享内存、信号量和消息队列。可以通过命令行中的选项来控制显示的资源类型，比如通过应用 -s 选项，下面的命令只显示系统中 IPC 信号量的信息：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ipcs -s</span><br></pre></td></tr></table></figure>
+
+<p><strong>ipcrm</strong><br>ipcrm 命令用来删除系统中的 IPC 资源，此时必须指定资源的类型和标识。比如删除我们刚才创建的 IPC 信号量集：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ipcrm -s</span><br></pre></td></tr></table></figure>
+
+<h1 id="与namespace相关的工具"><a href="#与namespace相关的工具" class="headerlink" title="与namespace相关的工具"></a>与namespace相关的工具</h1><p><strong>unshare 命令</strong><br>unshare 命令把当前进程加入到一个新建的 namespace 中，然后运行指定的程序(不指定目标程序则运行系统的默认 shell)。在前文《<a target="_blank" rel="noopener" href="https://www.cnblogs.com/sparkdev/p/9377072.html">Linux Namespace: UTS</a>》中我们介绍了一些与 namespace 相关的 API，比如 unshare 函数。unshare 函数的功能是把当前进程加入到一个新建的 namespace 中。比起我们自己写的小 demo，系统工具中已经内置了 unshare 命令行工具，本文将使用系统中的 unshare 命令进行相关的演示。对 unshare 命令的实现感兴趣的朋友可以参考其源代码，它也是通过调用 unshare 函数实现的。<br>下面的例子就是通过 unshare 命令让新建的 bash 进程属于新的 IPC namespace：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo unshare -i</span><br></pre></td></tr></table></figure>
+
+<p><strong>nsenter 命令</strong><br>nsenter 命令把当前进程加入到指定进程的 namespace 中，然后运行指定的程序(不指定目标程序则运行系统的默认 shell)。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo nsenter -t [pid] -i</span><br></pre></td></tr></table></figure>
+
+<h1 id="IPC-namespace隔离"><a href="#IPC-namespace隔离" class="headerlink" title="IPC namespace隔离"></a>IPC namespace隔离</h1><p>接下来让我们通过 IPC 信号量的隔离来了解如何隔离 IPC namespace。</p>
+<p><strong>首先</strong>我们打开两个 bash shell，为了方便区分，分别把它们称为为 shell1 和 shell2。先在 shell2 中执行 sudo unshare -i，然后分别执行 readlink &#x2F;proc&#x2F;$$&#x2F;ns&#x2F;ipc 命令：</p>
+<p><strong>shell1</strong></p>
+<blockquote>
+<p>ipc:[4026531839]</p>
+</blockquote>
+<p><strong>shell2</strong></p>
+<blockquote>
+<p>ipc:[4026532739]</p>
+</blockquote>
+<p><strong>然后</strong>我们在 shell2 中创建 IPC 信号量集ipcmk -S 10，并分别在两个 shell 中进行ipcs -s查看：</p>
+<p><strong>shell1</strong></p>
+<blockquote>
+<p>—— Semaphore Arrays ——–<br>key        semid      owner      perms      nsems   </p>
+</blockquote>
+<p><strong>shell2</strong></p>
+<blockquote>
+<p>—— Semaphore Arrays ——–<br>key        semid      owner      perms      nsems<br>0xf0ebf454 0          root       644        10   </p>
+</blockquote>
+<p>结果显示，shell1 中不能观察到 shell2 中创建的 IPC 信号量集，这是因为 shell1 和 shell2 此时分别在不同的 IPC namespace 中。</p>
+<p><strong>接下来</strong>我们在 shell1 中启动一个新的 bash 进程，并通过 nsenter 命令把它加入到 shell2 的 IPC namespace 中，然后再次查看 IPC 信号量信息：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo $$ #查看当前进程的pid</span><br></pre></td></tr></table></figure>
+
+<p><strong>shell2</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo nsenter -t [shell1-pid] -i</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ipcs -s</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>—— Semaphore Arrays ——–<br>key        semid      owner      perms      nsems<br>0xf0ebf454 0          root       644        10    </p>
+</blockquote>
+<p>这次 shell1 中显示的信号量信息和 shell2 中是一样的。</p>
+<p><strong>最后</strong>让我们看看此时 shell1 和 shell2 中当前进程的 IPC namespace：</p>
+<p><strong>shell1</strong></p>
+<blockquote>
+<p>ipc:[4026532739]</p>
+</blockquote>
+<p>可知shell1的ipc ns与shell2的相同</p>
+<h1 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h1><h2 id="创建IPC-NS"><a href="#创建IPC-NS" class="headerlink" title="创建IPC NS"></a>创建IPC NS</h2><h3 id="copy-ipcs"><a href="#copy-ipcs" class="headerlink" title="copy_ipcs()"></a>copy_ipcs()</h3><p>在进程创建或者 unshare()&#x2F;setns() 系统调用时，如果设置了 <code>CLONE_NEWIPC</code> 标志会调用 copy_ipcs() 创建一个新的 IPC namespace。其中的核心是创建一个新的 <code>struct ipc_namespace</code> 结构，相当于创建了一个新的 XSI IPC 域：</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.6/source/ipc/namespace.c#L107">namespace.c - ipc&#x2F;namespace.c - Linux source code (v6.6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> ipc_namespace *<span class="title function_">copy_ipcs</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> flags,</span></span><br><span class="line"><span class="params">    <span class="keyword">struct</span> user_namespace *user_ns, <span class="keyword">struct</span> ipc_namespace *ns)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (!(flags &amp; CLONE_NEWIPC))</span><br><span class="line">        <span class="keyword">return</span> get_ipc_ns(ns);</span><br><span class="line">    <span class="keyword">return</span> create_ipc_ns(user_ns, ns);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="create-ipc-ns"><a href="#create-ipc-ns" class="headerlink" title="create_ipc_ns()"></a>create_ipc_ns()</h3><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.6/source/ipc/namespace.c#L38">namespace.c - ipc&#x2F;namespace.c - Linux source code (v6.6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">struct</span> ipc_namespace *<span class="title function_">create_ipc_ns</span><span class="params">(<span class="keyword">struct</span> user_namespace *user_ns,</span></span><br><span class="line"><span class="params">                       <span class="keyword">struct</span> ipc_namespace *old_ns)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ipc_namespace</span> *<span class="title">ns</span>;</span>      <span class="comment">// 声明指向 ipc_namespace 结构的指针</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ucounts</span> *<span class="title">ucounts</span>;</span>      <span class="comment">// 声明指向 ucounts 结构的指针</span></span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line"></span><br><span class="line">    err = -ENOSPC;                 <span class="comment">// 设置默认错误代码以指示无空间</span></span><br><span class="line"></span><br><span class="line"> again:</span><br><span class="line">    ucounts = inc_ipc_namespaces(user_ns); <span class="comment">// 增加 IPC 命名空间的引用计数</span></span><br><span class="line">    <span class="keyword">if</span> (!ucounts) &#123;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * IPC 命名空间会异步释放，由 free_ipc_work 处理。</span></span><br><span class="line"><span class="comment">         * 如果有待释放的资源，flush_work 将等待它们完成，并</span></span><br><span class="line"><span class="comment">         * 返回 true。如果没有待释放的资源，表示分配失败。</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">if</span> (flush_work(&amp;free_ipc_work)) <span class="comment">// 如果有待释放的资源，等待它们完成</span></span><br><span class="line">            <span class="keyword">goto</span> again;</span><br><span class="line">        <span class="keyword">goto</span> fail;                    <span class="comment">// 如果没有待释放的资源，跳转到失败标签</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    err = -ENOMEM;                  <span class="comment">// 设置错误代码以指示无内存</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//为新的 ipc_namespace 结构分配内存</span></span><br><span class="line">    ns = kzalloc(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> ipc_namespace), GFP_KERNEL_ACCOUNT);</span><br><span class="line">    <span class="keyword">if</span> (ns == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">goto</span> fail_dec;               <span class="comment">// 如果分配失败，跳转到失败标签</span></span><br><span class="line"></span><br><span class="line">    err = ns_alloc_inum(&amp;ns-&gt;ns);   <span class="comment">// 分配 IPC 命名空间标识符</span></span><br><span class="line">    <span class="keyword">if</span> (err)</span><br><span class="line">        <span class="keyword">goto</span> fail_free;              <span class="comment">// 如果分配失败，跳转到失败标签</span></span><br><span class="line">    ns-&gt;ns.ops = &amp;ipcns_operations; <span class="comment">// 设置 ipc_namespace 的操作</span></span><br><span class="line"></span><br><span class="line">    refcount_set(&amp;ns-&gt;ns.count, <span class="number">1</span>); <span class="comment">// 将 ipc_namespace 的引用计数设置为 1</span></span><br><span class="line">    ns-&gt;user_ns = get_user_ns(user_ns); <span class="comment">// 获取并设置 ipc_namespace 的用户命名空间</span></span><br><span class="line">    ns-&gt;ucounts = ucounts;          <span class="comment">// 设置 ipc_namespace 的 ucounts 指针</span></span><br><span class="line"></span><br><span class="line">    err = mq_init_ns(ns);           <span class="comment">// 初始化 ipc_namespace 的消息队列</span></span><br><span class="line">    <span class="keyword">if</span> (err)</span><br><span class="line">        <span class="keyword">goto</span> fail_put;               <span class="comment">// 如果初始化失败，跳转到失败标签</span></span><br><span class="line"></span><br><span class="line">    err = -ENOMEM;                  <span class="comment">// 设置错误代码以指示无内存</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 为 ipc_namespace 设置消息队列 sysctl 参数</span></span><br><span class="line">    <span class="keyword">if</span> (!setup_mq_sysctls(ns))</span><br><span class="line">        <span class="keyword">goto</span> fail_put;               <span class="comment">// 如果设置失败，跳转到失败标签</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 为 ipc_namespace 设置 IPC sysctl 参数</span></span><br><span class="line">    <span class="keyword">if</span> (!setup_ipc_sysctls(ns))</span><br><span class="line">        <span class="keyword">goto</span> fail_mq;                <span class="comment">// 如果设置失败，跳转到失败标签</span></span><br><span class="line"></span><br><span class="line">    err = msg_init_ns(ns);          <span class="comment">// 初始化 ipc_namespace 的消息</span></span><br><span class="line">    <span class="keyword">if</span> (err)</span><br><span class="line">        <span class="keyword">goto</span> fail_put;               <span class="comment">// 如果初始化失败，跳转到失败标签</span></span><br><span class="line"></span><br><span class="line">    sem_init_ns(ns);                <span class="comment">// 初始化 ipc_namespace 的信号量</span></span><br><span class="line">    shm_init_ns(ns);                <span class="comment">// 初始化 ipc_namespace 的共享内存</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ns;                      <span class="comment">// 返回成功创建的 ipc_namespace</span></span><br><span class="line"></span><br><span class="line">fail_mq:</span><br><span class="line">    retire_mq_sysctls(ns);          <span class="comment">// 释放消息队列 sysctl 参数</span></span><br><span class="line">fail_put:</span><br><span class="line">    put_user_ns(ns-&gt;user_ns);       <span class="comment">// 释放用户命名空间</span></span><br><span class="line">    ns_free_inum(&amp;ns-&gt;ns);           <span class="comment">// 释放 ipc_namespace 标识符</span></span><br><span class="line">fail_free:</span><br><span class="line">    kfree(ns);                      <span class="comment">// 释放为 ipc_namespace 分配的内存</span></span><br><span class="line">fail_dec:</span><br><span class="line">    dec_ipc_namespaces(ucounts);    <span class="comment">// 减少 IPC 命名空间的引用计数</span></span><br><span class="line">fail:</span><br><span class="line">    <span class="keyword">return</span> ERR_PTR(err);            <span class="comment">// 返回指示失败的错误指针</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="ipcget"><a href="#ipcget" class="headerlink" title="ipcget()"></a>ipcget()</h2><p>三种 XSI IPC 的实现机制也是非常类似的，IPC namespace 提供了对应的3个 idr 池 <code>ns-&gt;ids[3]</code> ，每新建一个 XSI IPC 对象，会从对应的 idr 池中分配一个 <code>key</code>。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.6/source/ipc/util.c#L673">util.c - ipc&#x2F;util.c - Linux source code (v6.6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * ipcget - 通用的 sys_*get() 代码</span></span><br><span class="line"><span class="comment"> * @ns: 命名空间</span></span><br><span class="line"><span class="comment"> * @ids: IPC 标识符集合</span></span><br><span class="line"><span class="comment"> * @ops: 在 IPC 对象创建、权限检查和进一步检查时要调用的操作</span></span><br><span class="line"><span class="comment"> * @params: 由前述操作需要的参数</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 被 sys_msgget()、sys_semget() 和 sys_shmget() 调用的通用例程。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">ipcget</span><span class="params">(<span class="keyword">struct</span> ipc_namespace *ns, <span class="keyword">struct</span> ipc_ids *ids,</span></span><br><span class="line"><span class="params">            <span class="type">const</span> <span class="keyword">struct</span> ipc_ops *ops, <span class="keyword">struct</span> ipc_params *params)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 如果 key 是 IPC_PRIVATE，则调用 ipcget_new() 函数</span></span><br><span class="line">    <span class="keyword">if</span> (params-&gt;key == IPC_PRIVATE)</span><br><span class="line">        <span class="keyword">return</span> ipcget_new(ns, ids, ops, params);</span><br><span class="line">    <span class="comment">// 否则调用 ipcget_public() 函数</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">return</span> ipcget_public(ns, ids, ops, params);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以信号量 sem 为例，来分析一下这个过程：</p>
+<h3 id="semget"><a href="#semget" class="headerlink" title="semget"></a>semget</h3><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.6/source/ipc/sem.c#L624">sem.c - ipc&#x2F;sem.c - Linux source code (v6.6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SYSCALL_DEFINE3(semget, <span class="type">key_t</span>, key, <span class="type">int</span>, nsems, <span class="type">int</span>, semflg)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> ksys_semget(key, nsems, semflg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="ksys-semget"><a href="#ksys-semget" class="headerlink" title="ksys_semget"></a>ksys_semget</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">long</span> <span class="title function_">ksys_semget</span><span class="params">(<span class="type">key_t</span> key, <span class="type">int</span> nsems, <span class="type">int</span> semflg)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ipc_namespace</span> *<span class="title">ns</span>;</span></span><br><span class="line">    <span class="comment">// 构造ipc_ops参数</span></span><br><span class="line">    <span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">ipc_ops</span> <span class="title">sem_ops</span> =</span> &#123;</span><br><span class="line">        .getnew = newary,</span><br><span class="line">        .associate = security_sem_associate,</span><br><span class="line">        .more_checks = sem_more_checks,</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ipc_params</span> <span class="title">sem_params</span>;</span></span><br><span class="line">    <span class="comment">// 构造ipc namespace参数</span></span><br><span class="line">    ns = current-&gt;nsproxy-&gt;ipc_ns;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (nsems &lt; <span class="number">0</span> || nsems &gt; ns-&gt;sc_semmsl)</span><br><span class="line">        <span class="keyword">return</span> -EINVAL;</span><br><span class="line">    <span class="comment">// 构造ipc_params参数</span></span><br><span class="line">    sem_params.key = key;</span><br><span class="line">    sem_params.flg = semflg;</span><br><span class="line">    sem_params.u.nsems = nsems;</span><br><span class="line">    <span class="comment">// 根据key查询已有的ipcp，或者创建心得ipcp</span></span><br><span class="line">    <span class="keyword">return</span> ipcget(ns, &amp;sem_ids(ns), &amp;sem_ops, &amp;sem_params);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="ipc-get"><a href="#ipc-get" class="headerlink" title="ipc_get"></a>ipc_get</h3><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.6/source/ipc/util.c#L673">util.c - ipc&#x2F;util.c - Linux source code (v6.6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * ipcget - Common sys_*get() code</span></span><br><span class="line"><span class="comment"> * @ns: namespace</span></span><br><span class="line"><span class="comment"> * @ids: ipc identifier set</span></span><br><span class="line"><span class="comment"> * @ops: operations to be called on ipc object creation, permission checks</span></span><br><span class="line"><span class="comment"> *       and further checks</span></span><br><span class="line"><span class="comment"> * @params: the parameters needed by the previous operations.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Common routine called by sys_msgget(), sys_semget() and sys_shmget().</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">ipcget</span><span class="params">(<span class="keyword">struct</span> ipc_namespace *ns, <span class="keyword">struct</span> ipc_ids *ids,</span></span><br><span class="line"><span class="params">            <span class="type">const</span> <span class="keyword">struct</span> ipc_ops *ops, <span class="keyword">struct</span> ipc_params *params)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (params-&gt;key == IPC_PRIVATE)</span><br><span class="line">        <span class="keyword">return</span> ipcget_new(ns, ids, ops, params);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">return</span> ipcget_public(ns, ids, ops, params);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="ipcget-public"><a href="#ipcget-public" class="headerlink" title="ipcget_public"></a>ipcget_public</h3><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.6/source/ipc/util.c#L397">util.c - ipc&#x2F;util.c - Linux source code (v6.6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * ipcget_public - get an ipc object or create a new one</span></span><br><span class="line"><span class="comment"> * @ns: ipc namespace</span></span><br><span class="line"><span class="comment"> * @ids: ipc identifier set</span></span><br><span class="line"><span class="comment"> * @ops: the actual creation routine to call</span></span><br><span class="line"><span class="comment"> * @params: its parameters</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * This routine is called by sys_msgget, sys_semget() and sys_shmget()</span></span><br><span class="line"><span class="comment"> * when the key is not IPC_PRIVATE.</span></span><br><span class="line"><span class="comment"> * It adds a new entry if the key is not found and does some permission</span></span><br><span class="line"><span class="comment"> * / security checkings if the key is found.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * On success, the ipc id is returned.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">ipcget_public</span><span class="params">(<span class="keyword">struct</span> ipc_namespace *ns, <span class="keyword">struct</span> ipc_ids *ids,</span></span><br><span class="line"><span class="params">        <span class="type">const</span> <span class="keyword">struct</span> ipc_ops *ops, <span class="keyword">struct</span> ipc_params *params)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">kern_ipc_perm</span> *<span class="title">ipcp</span>;</span></span><br><span class="line">    <span class="type">int</span> flg = params-&gt;flg;</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Take the lock as a writer since we are potentially going to add</span></span><br><span class="line"><span class="comment">     * a new entry + read locks are not &quot;upgradable&quot;</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    down_write(&amp;ids-&gt;rwsem);</span><br><span class="line">    <span class="comment">// 根据key在信号量 idr 池 `ns-&gt;ids[IPC_SEM_IDS]`中查找对应的ipcp</span></span><br><span class="line">    ipcp = ipc_findkey(ids, params-&gt;key);</span><br><span class="line">    <span class="keyword">if</span> (ipcp == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="comment">/* key not used */</span></span><br><span class="line">        <span class="keyword">if</span> (!(flg &amp; IPC_CREAT))</span><br><span class="line">            err = -ENOENT;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="comment">// 如果key对应的ipcp不存在，且设置了IPC_CREAT标志则根据key创建一个新的ipcp</span></span><br><span class="line">            err = ops-&gt;getnew(ns, params);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">/* ipc object has been locked by ipc_findkey() */</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (flg &amp; IPC_CREAT &amp;&amp; flg &amp; IPC_EXCL)</span><br><span class="line">            err = -EEXIST;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            err = <span class="number">0</span>;</span><br><span class="line">            <span class="comment">// 如果key对应的ipcp存在，则针对参数进行第一步的检查</span></span><br><span class="line">            <span class="keyword">if</span> (ops-&gt;more_checks)</span><br><span class="line">                err = ops-&gt;more_checks(ipcp, params);</span><br><span class="line">            <span class="keyword">if</span> (!err)</span><br><span class="line">                <span class="comment">/*</span></span><br><span class="line"><span class="comment">                 * ipc_check_perms returns the IPC id on</span></span><br><span class="line"><span class="comment">                 * success</span></span><br><span class="line"><span class="comment">                 */</span></span><br><span class="line">                <span class="comment">// ipcp存在，针对参数做第二步的权限检查</span></span><br><span class="line">                err = ipc_check_perms(ns, ipcp, ops, params);</span><br><span class="line">        &#125;</span><br><span class="line">        ipc_unlock(ipcp);</span><br><span class="line">    &#125;</span><br><span class="line">    up_write(&amp;ids-&gt;rwsem);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="newary"><a href="#newary" class="headerlink" title="newary"></a>newary</h3><p>在函数ksys_semget中，ipc_ops设置为了newary</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">  <span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">ipc_ops</span> <span class="title">sem_ops</span> =</span> &#123;</span><br><span class="line">    .getnew = newary,</span><br><span class="line">    .associate = security_sem_associate,</span><br><span class="line">    .more_checks = sem_more_checks,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.6/source/ipc/sem.c#L531">sem.c - ipc&#x2F;sem.c - Linux source code (v6.6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * newary - Create a new semaphore set</span></span><br><span class="line"><span class="comment"> * @ns: namespace</span></span><br><span class="line"><span class="comment"> * @params: ptr to the structure that contains key, semflg and nsems</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Called with sem_ids.rwsem held (as a writer)</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">newary</span><span class="params">(<span class="keyword">struct</span> ipc_namespace *ns, <span class="keyword">struct</span> ipc_params *params)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> retval;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sem_array</span> *<span class="title">sma</span>;</span></span><br><span class="line">    <span class="type">key_t</span> key = params-&gt;key;</span><br><span class="line">    <span class="type">int</span> nsems = params-&gt;u.nsems;</span><br><span class="line">    <span class="type">int</span> semflg = params-&gt;flg;</span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!nsems)</span><br><span class="line">        <span class="keyword">return</span> -EINVAL;</span><br><span class="line">    <span class="keyword">if</span> (ns-&gt;used_sems + nsems &gt; ns-&gt;sc_semmns)</span><br><span class="line">        <span class="keyword">return</span> -ENOSPC;</span><br><span class="line">    <span class="comment">// 分配nsems个信号量的数据结构sem_array[]</span></span><br><span class="line">    sma = sem_alloc(nsems);</span><br><span class="line">    <span class="keyword">if</span> (!sma)</span><br><span class="line">        <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">    <span class="comment">// 初始化其中的ipcp成员，保存UGO模式，保存对应的key</span></span><br><span class="line">    sma-&gt;sem_perm.mode = (semflg &amp; S_IRWXUGO);</span><br><span class="line">    sma-&gt;sem_perm.key = key;</span><br><span class="line"></span><br><span class="line">    sma-&gt;sem_perm.security = <span class="literal">NULL</span>;</span><br><span class="line">    retval = security_sem_alloc(&amp;sma-&gt;sem_perm);</span><br><span class="line">    <span class="keyword">if</span> (retval) &#123;</span><br><span class="line">        kvfree(sma);</span><br><span class="line">        <span class="keyword">return</span> retval;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; nsems; i++) &#123;</span><br><span class="line">        INIT_LIST_HEAD(&amp;sma-&gt;sems[i].pending_alter);</span><br><span class="line">        INIT_LIST_HEAD(&amp;sma-&gt;sems[i].pending_const);</span><br><span class="line">        spin_lock_init(&amp;sma-&gt;sems[i].lock);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    sma-&gt;complex_count = <span class="number">0</span>;</span><br><span class="line">    sma-&gt;use_global_lock = USE_GLOBAL_LOCK_HYSTERESIS;</span><br><span class="line">    INIT_LIST_HEAD(&amp;sma-&gt;pending_alter);</span><br><span class="line">    INIT_LIST_HEAD(&amp;sma-&gt;pending_const);</span><br><span class="line">    INIT_LIST_HEAD(&amp;sma-&gt;list_id);</span><br><span class="line">    sma-&gt;sem_nsems = nsems;</span><br><span class="line">    sma-&gt;sem_ctime = ktime_get_real_seconds();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* ipc_addid() locks sma upon success. */</span></span><br><span class="line">    <span class="comment">// 赋值 ipcp 中的 uid、gid并将新分配的ipcp加入信号量 idr 池 `ns-&gt;ids[IPC_SEM_IDS]`中</span></span><br><span class="line">    retval = ipc_addid(&amp;sem_ids(ns), &amp;sma-&gt;sem_perm, ns-&gt;sc_semmni);</span><br><span class="line">    <span class="keyword">if</span> (retval &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ipc_rcu_putref(&amp;sma-&gt;sem_perm, sem_rcu_free);</span><br><span class="line">        <span class="keyword">return</span> retval;</span><br><span class="line">    &#125;</span><br><span class="line">    ns-&gt;used_sems += nsems;</span><br><span class="line"></span><br><span class="line">    sem_unlock(sma, <span class="number">-1</span>);</span><br><span class="line">    rcu_read_unlock();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> sma-&gt;sem_perm.id;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="ipc-addid"><a href="#ipc-addid" class="headerlink" title="ipc_addid"></a>ipc_addid</h3><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.6/source/ipc/util.c#L278">util.c - ipc&#x2F;util.c - Linux source code (v6.6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * ipc_addid - add an ipc identifier</span></span><br><span class="line"><span class="comment"> * @ids: ipc identifier set</span></span><br><span class="line"><span class="comment"> * @new: new ipc permission set</span></span><br><span class="line"><span class="comment"> * @limit: limit for the number of used ids</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Add an entry &#x27;new&#x27; to the ipc ids idr. The permissions object is</span></span><br><span class="line"><span class="comment"> * initialised and the first free entry is set up and the index assigned</span></span><br><span class="line"><span class="comment"> * is returned. The &#x27;new&#x27; entry is returned in a locked state on success.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * On failure the entry is not locked and a negative err-code is returned.</span></span><br><span class="line"><span class="comment"> * The caller must use ipc_rcu_putref() to free the identifier.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Called with writer ipc_ids.rwsem held.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">ipc_addid</span><span class="params">(<span class="keyword">struct</span> ipc_ids *ids, <span class="keyword">struct</span> kern_ipc_perm *new, <span class="type">int</span> limit)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">kuid_t</span> euid;</span><br><span class="line">    <span class="type">kgid_t</span> egid;</span><br><span class="line">    <span class="type">int</span> idx, err;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 1) Initialize the refcount so that ipc_rcu_putref works */</span></span><br><span class="line">    refcount_set(&amp;new-&gt;refcount, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (limit &gt; ipc_mni)</span><br><span class="line">        limit = ipc_mni;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (ids-&gt;in_use &gt;= limit)</span><br><span class="line">        <span class="keyword">return</span> -ENOSPC;</span><br><span class="line"></span><br><span class="line">    idr_preload(GFP_KERNEL);</span><br><span class="line"></span><br><span class="line">    spin_lock_init(&amp;new-&gt;lock);</span><br><span class="line">    rcu_read_lock();</span><br><span class="line">    spin_lock(&amp;new-&gt;lock);</span><br><span class="line">    <span class="comment">// 获取当前进程的uid/gid，赋值给 ipcp 的相关成员，类似文件的 `chown uid:gid ` 操作</span></span><br><span class="line">    current_euid_egid(&amp;euid, &amp;egid);</span><br><span class="line">    new-&gt;cuid = new-&gt;uid = euid;</span><br><span class="line">    new-&gt;gid = new-&gt;cgid = egid;</span><br><span class="line"></span><br><span class="line">    new-&gt;deleted = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    idx = ipc_idr_alloc(ids, new);</span><br><span class="line">    idr_preload_end();</span><br><span class="line">    <span class="comment">// 加入信号量 idr 池 `ns-&gt;ids[IPC_SEM_IDS]`中</span></span><br><span class="line">    <span class="keyword">if</span> (idx &gt;= <span class="number">0</span> &amp;&amp; new-&gt;key != IPC_PRIVATE) &#123;</span><br><span class="line">        err = rhashtable_insert_fast(&amp;ids-&gt;key_ht, &amp;new-&gt;khtnode,</span><br><span class="line">                         ipc_kht_params);</span><br><span class="line">        <span class="keyword">if</span> (err &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            idr_remove(&amp;ids-&gt;ipcs_idr, idx);</span><br><span class="line">            idx = err;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (idx &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        new-&gt;deleted = <span class="literal">true</span>;</span><br><span class="line">        spin_unlock(&amp;new-&gt;lock);</span><br><span class="line">        rcu_read_unlock();</span><br><span class="line">        <span class="keyword">return</span> idx;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ids-&gt;in_use++;</span><br><span class="line">    <span class="keyword">if</span> (idx &gt; ids-&gt;max_idx)</span><br><span class="line">        ids-&gt;max_idx = idx;</span><br><span class="line">    <span class="keyword">return</span> idx;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="ipc-check-parm"><a href="#ipc-check-parm" class="headerlink" title="ipc_check_parm"></a>ipc_check_parm</h2><p>从上一节可以看到 key 被包含在 ipcp 即 <code>struct kern_ipc_perm</code> 结构中：</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.6/source/include/linux/ipc.h#L12">ipc.h - include&#x2F;linux&#x2F;ipc.h - Linux source code (v6.6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* used by in-kernel data structures */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">kern_ipc_perm</span> &#123;</span></span><br><span class="line">    <span class="type">spinlock_t</span>    lock;</span><br><span class="line">    <span class="type">bool</span>        deleted;</span><br><span class="line">    <span class="type">int</span>        id;</span><br><span class="line">    <span class="type">key_t</span>        key;</span><br><span class="line">    <span class="type">kuid_t</span>        uid;</span><br><span class="line">    <span class="type">kgid_t</span>        gid;</span><br><span class="line">    <span class="type">kuid_t</span>        cuid;</span><br><span class="line">    <span class="type">kgid_t</span>        cgid;</span><br><span class="line">    <span class="type">umode_t</span>        mode;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span>    seq;</span><br><span class="line">    <span class="type">void</span>        *security;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rhash_head</span> <span class="title">khtnode</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rcu_head</span> <span class="title">rcu</span>;</span></span><br><span class="line">    <span class="type">refcount_t</span> refcount;</span><br><span class="line">&#125; ____cacheline_aligned_in_smp __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<p>在 sem,shm,mq 对象中都有这个成员的存在：</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.6/source/ipc/sem.c#L114">sem.c - ipc&#x2F;sem.c - Linux source code (v6.6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* One sem_array data structure for each set of semaphores in the system. */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sem_array</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">kern_ipc_perm</span>    <span class="title">sem_perm</span>;</span>    <span class="comment">/* permissions .. see ipc.h */</span></span><br><span class="line">    <span class="type">time64_t</span>        sem_ctime;    <span class="comment">/* create/last semctl() time */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">pending_alter</span>;</span>    <span class="comment">/* pending operations */</span></span><br><span class="line">                        <span class="comment">/* that alter the array */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">pending_const</span>;</span>    <span class="comment">/* pending complex operations */</span></span><br><span class="line">                        <span class="comment">/* that do not alter semvals */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">list_id</span>;</span>    <span class="comment">/* undo requests on this array */</span></span><br><span class="line">    <span class="type">int</span>            sem_nsems;    <span class="comment">/* no. of semaphores in array */</span></span><br><span class="line">    <span class="type">int</span>            complex_count;    <span class="comment">/* pending complex operations */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>        use_global_lock;<span class="comment">/* &gt;0: global lock required */</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sem</span>        <span class="title">sems</span>[];</span></span><br><span class="line">&#125; __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.6/source/ipc/shm.c#L52">shm.c - ipc&#x2F;shm.c - Linux source code (v6.6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">shmid_kernel</span> /* <span class="title">private</span> <span class="title">to</span> <span class="title">the</span> <span class="title">kernel</span> */</span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">kern_ipc_perm</span>    <span class="title">shm_perm</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file</span>        *<span class="title">shm_file</span>;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span>        shm_nattch;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span>        shm_segsz;</span><br><span class="line">    <span class="type">time64_t</span>        shm_atim;</span><br><span class="line">    <span class="type">time64_t</span>        shm_dtim;</span><br><span class="line">    <span class="type">time64_t</span>        shm_ctim;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pid</span>        *<span class="title">shm_cprid</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pid</span>        *<span class="title">shm_lprid</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ucounts</span>        *<span class="title">mlock_ucounts</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * The task created the shm object, for</span></span><br><span class="line"><span class="comment">     * task_lock(shp-&gt;shm_creator)</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span>    *<span class="title">shm_creator</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * List by creator. task_lock(-&gt;shm_creator) required for read/write.</span></span><br><span class="line"><span class="comment">     * If list_empty(), then the creator is dead already.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">shm_clist</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ipc_namespace</span>    *<span class="title">ns</span>;</span></span><br><span class="line">&#125; __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.6/source/ipc/msg.c#L49">msg.c - ipc&#x2F;msg.c - Linux source code (v6.6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* one msq_queue structure for each present queue on the system */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">msg_queue</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">kern_ipc_perm</span> <span class="title">q_perm</span>;</span></span><br><span class="line">    <span class="type">time64_t</span> q_stime;        <span class="comment">/* last msgsnd time */</span></span><br><span class="line">    <span class="type">time64_t</span> q_rtime;        <span class="comment">/* last msgrcv time */</span></span><br><span class="line">    <span class="type">time64_t</span> q_ctime;        <span class="comment">/* last change time */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> q_cbytes;        <span class="comment">/* current number of bytes on queue */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> q_qnum;        <span class="comment">/* number of messages in queue */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> q_qbytes;        <span class="comment">/* max number of bytes on queue */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pid</span> *<span class="title">q_lspid</span>;</span>        <span class="comment">/* pid of last msgsnd */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pid</span> *<span class="title">q_lrpid</span>;</span>        <span class="comment">/* last receive pid */</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">q_messages</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">q_receivers</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">q_senders</span>;</span></span><br><span class="line">&#125; __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<p><code>struct kern_ipc_perm</code> 的 <code>-&gt;key</code> 成员保存了key值；<code>-&gt;mode</code> 成员保存了 UGO 操作权限，类似文件的 <code>chmod 777</code> 属性；<code>-&gt;uid/gid/cuid/cgid</code> 成员保存了属主 uid&#x2F;gid，类似文件的 <code>chown uid:gid</code> 操作。</p>
+<p>在 ipc_check_perms() 函数中，会对被操作的 sem,shm,mq 对象，进行 UGO 权限检查：</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.6/source/ipc/util.c#L365">util.c - ipc&#x2F;util.c - Linux source code (v6.6.6) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * ipc_check_perms - check security and permissions for an ipc object</span></span><br><span class="line"><span class="comment"> * @ns: ipc namespace</span></span><br><span class="line"><span class="comment"> * @ipcp: ipc permission set</span></span><br><span class="line"><span class="comment"> * @ops: the actual security routine to call</span></span><br><span class="line"><span class="comment"> * @params: its parameters</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * This routine is called by sys_msgget(), sys_semget() and sys_shmget()</span></span><br><span class="line"><span class="comment"> * when the key is not IPC_PRIVATE and that key already exists in the</span></span><br><span class="line"><span class="comment"> * ds IDR.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * On success, the ipc id is returned.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * It is called with ipc_ids.rwsem and ipcp-&gt;lock held.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">ipc_check_perms</span><span class="params">(<span class="keyword">struct</span> ipc_namespace *ns,</span></span><br><span class="line"><span class="params">               <span class="keyword">struct</span> kern_ipc_perm *ipcp,</span></span><br><span class="line"><span class="params">               <span class="type">const</span> <span class="keyword">struct</span> ipc_ops *ops,</span></span><br><span class="line"><span class="params">               <span class="keyword">struct</span> ipc_params *params)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (ipcperms(ns, ipcp, params-&gt;flg))</span><br><span class="line">        err = -EACCES;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        err = ops-&gt;associate(ipcp, params-&gt;flg);</span><br><span class="line">        <span class="keyword">if</span> (!err)</span><br><span class="line">            err = ipcp-&gt;id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>ipc_check_perms() → ipcperms()</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * ipcperms - check ipc permissions</span></span><br><span class="line"><span class="comment"> * @ns: ipc namespace</span></span><br><span class="line"><span class="comment"> * @ipcp: ipc permission set</span></span><br><span class="line"><span class="comment"> * @flag: desired permission set</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Check user, group, other permissions for access</span></span><br><span class="line"><span class="comment"> * to ipc resources. return 0 if allowed</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * @flag will most probably be 0 or ``S_...UGO`` from &lt;linux/stat.h&gt;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">ipcperms</span><span class="params">(<span class="keyword">struct</span> ipc_namespace *ns, <span class="keyword">struct</span> kern_ipc_perm *ipcp, <span class="type">short</span> flag)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">kuid_t</span> euid = current_euid();</span><br><span class="line">    <span class="type">int</span> requested_mode, granted_mode;</span><br><span class="line"></span><br><span class="line">    audit_ipc_obj(ipcp);</span><br><span class="line">    <span class="comment">// 或请求的 UGO 操作</span></span><br><span class="line">    requested_mode = (flag &gt;&gt; <span class="number">6</span>) | (flag &gt;&gt; <span class="number">3</span>) | flag;</span><br><span class="line">    <span class="comment">// 获取 ipcp 的 UGO 规则</span></span><br><span class="line">    granted_mode = ipcp-&gt;mode;</span><br><span class="line">    <span class="comment">// 如果当前进程 和 ipcp 对象 uid 相等，则取用 U 规则</span></span><br><span class="line">    <span class="keyword">if</span> (uid_eq(euid, ipcp-&gt;cuid) ||</span><br><span class="line">        uid_eq(euid, ipcp-&gt;uid))</span><br><span class="line">        granted_mode &gt;&gt;= <span class="number">6</span>;</span><br><span class="line">    <span class="comment">// 如果当前进程 和 ipcp 对象 gid 相等，则取用 G 规则</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (in_group_p(ipcp-&gt;cgid) || in_group_p(ipcp-&gt;gid))</span><br><span class="line">        granted_mode &gt;&gt;= <span class="number">3</span>;</span><br><span class="line">    <span class="comment">/* is there some bit set in requested_mode but not in granted_mode? */</span></span><br><span class="line">    <span class="comment">// 判断请求的操作是否适配对应的规则</span></span><br><span class="line">    <span class="keyword">if</span> ((requested_mode &amp; ~granted_mode &amp; <span class="number">0007</span>) &amp;&amp;</span><br><span class="line">        !ns_capable(ns-&gt;user_ns, CAP_IPC_OWNER))</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> security_ipc_permission(ipcp, flag);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="相关系统调用"><a href="#相关系统调用" class="headerlink" title="相关系统调用"></a>相关系统调用</h2><p>sem,shm,mq 对象通用部分的解析如上所示，除此以外 XSI IPC 还有其他的操作系统调用，这里就不一一解析：</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Syscall</th>
+<th>Descript</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>sem</td>
+<td>semget()</td>
+<td>创建信号量</td>
+</tr>
+<tr>
+<td>-</td>
+<td>semctl()</td>
+<td>初始化信号量</td>
+</tr>
+<tr>
+<td>-</td>
+<td>semop()</td>
+<td>信号量的PV操作</td>
+</tr>
+<tr>
+<td>msg</td>
+<td>msgget()</td>
+<td>创建消息队列</td>
+</tr>
+<tr>
+<td>-</td>
+<td>msgctl()</td>
+<td>获取和设置消息队列的属性</td>
+</tr>
+<tr>
+<td>-</td>
+<td>msgsnd()</td>
+<td>将消息写入到消息队列</td>
+</tr>
+<tr>
+<td>-</td>
+<td>msgrcv()</td>
+<td>从消息队列读取消息</td>
+</tr>
+<tr>
+<td>shm</td>
+<td>shmget()</td>
+<td>创建共享内存对象</td>
+</tr>
+<tr>
+<td>-</td>
+<td>shmctl()</td>
+<td>共享内存管理</td>
+</tr>
+<tr>
+<td>-</td>
+<td>shmat()</td>
+<td>把共享内存区对象映射到调用进程的地址空间</td>
+</tr>
+<tr>
+<td>-</td>
+<td>shmdt()</td>
+<td>断开共享内存连接</td>
+</tr>
+</tbody></table>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/sparkdev/p/9400673.html">Linux Namespace : IPC - sparkdev - 博客园 (cnblogs.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/ipc_namespaces.7.html">ipc_namespaces(7) - Linux manual page — ipc_namespaces(7) - Linux 手册页 (man7.org)</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/28/%E5%AD%A6%E4%B9%A0-Linux-Core-dump/" rel="prev" title="学习 Linux Core dump">
+      <i class="fa fa-chevron-left"></i> 学习 Linux Core dump
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%93%8D%E4%BD%9CIPC%E8%B5%84%E6%BA%90%E7%9A%84%E5%B7%A5%E5%85%B7"><span class="nav-number">2.</span> <span class="nav-text">操作IPC资源的工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8Enamespace%E7%9B%B8%E5%85%B3%E7%9A%84%E5%B7%A5%E5%85%B7"><span class="nav-number">3.</span> <span class="nav-text">与namespace相关的工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPC-namespace%E9%9A%94%E7%A6%BB"><span class="nav-number">4.</span> <span class="nav-text">IPC namespace隔离</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">5.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAIPC-NS"><span class="nav-number">5.1.</span> <span class="nav-text">创建IPC NS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#copy-ipcs"><span class="nav-number">5.1.1.</span> <span class="nav-text">copy_ipcs()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#create-ipc-ns"><span class="nav-number">5.1.2.</span> <span class="nav-text">create_ipc_ns()</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ipcget"><span class="nav-number">5.2.</span> <span class="nav-text">ipcget()</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#semget"><span class="nav-number">5.2.1.</span> <span class="nav-text">semget</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ksys-semget"><span class="nav-number">5.2.2.</span> <span class="nav-text">ksys_semget</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ipc-get"><span class="nav-number">5.2.3.</span> <span class="nav-text">ipc_get</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ipcget-public"><span class="nav-number">5.2.4.</span> <span class="nav-text">ipcget_public</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#newary"><span class="nav-number">5.2.5.</span> <span class="nav-text">newary</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ipc-addid"><span class="nav-number">5.2.6.</span> <span class="nav-text">ipc_addid</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ipc-check-parm"><span class="nav-number">5.3.</span> <span class="nav-text">ipc_check_parm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">5.4.</span> <span class="nav-text">相关系统调用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.6m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">47:01</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : '56f8ab01f8d6eeebc2b7b7004a564552',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>

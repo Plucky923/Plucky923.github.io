@@ -30,10 +30,16 @@
 <meta property="og:site_name" content="Plucky">
 <meta property="og:description" content="简介容器运行时（container runtime）是负责在主机上创建、运行和管理容器的软件组件。它是整个容器化环境中的关键组成部分，与操作系统内核紧密交互，负责管理容器的生命周期、资源隔离、文件系统挂载和网络连接等功能。 容器运行时提供了对容器的抽象层，使得容器可以像独立的进程一样在主机上运行。它通常包括以下主要功能：">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/img2rootfs.png">
+<meta property="og:image" content="http://example.com/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/containerd-arch.png">
+<meta property="og:image" content="http://example.com/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/ctrd-shim.png">
+<meta property="og:image" content="http://example.com/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/crio-arch.png">
+<meta property="og:image" content="http://example.com/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/docker-arch.png">
 <meta property="article:published_time" content="2023-12-26T09:10:40.000Z">
-<meta property="article:modified_time" content="2023-12-26T09:40:00.463Z">
+<meta property="article:modified_time" content="2023-12-28T03:27:59.048Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/img2rootfs.png">
 
 <link rel="canonical" href="http://example.com/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/">
 
@@ -222,10 +228,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2023-12-26 17:10:40 / Modified: 17:40:00" itemprop="dateCreated datePublished" datetime="2023-12-26T17:10:40+08:00">2023-12-26</time>
+              <time title="Created: 2023-12-26 17:10:40" itemprop="dateCreated datePublished" datetime="2023-12-26T17:10:40+08:00">2023-12-26</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-12-28 11:27:59" itemprop="dateModified" datetime="2023-12-28T11:27:59+08:00">2023-12-28</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -249,14 +261,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.5k</span>
+              <span>14k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>6 mins.</span>
+              <span>26 mins.</span>
             </span>
 
         </div>
@@ -360,10 +372,111 @@
 <p><strong>gVisor</strong> 和 <strong>Nabla</strong> 是沙盒化的运行时，这样可以进一步的隔离宿主和容器化的进程。取代共享主机内核，容器化的进程在 unikernel 或者内核代理层运行， 然后代表容器与主机内核进行交互。随着逐渐增多的隔离，这些运行时减少了攻击面，使容器化进程对主机产生恶意影响的可能性降低。</p>
 <p><strong>runV</strong>, <strong>Clear</strong> 和 <strong>Kata</strong> 是虚拟化的运行时。它们是 OCI 运行时规范的实现，有虚拟机接口（而不是主机内核）支持。runV 和 Clear 已经被废弃， 他们的特性被 Kata 所吸收。它们都可以运行标准的 OCI 容器镜像，尽管它们通过更强的主机隔离来做到这一点。它们使用标准的 Linux 内核镜像并在虚拟机 中运行「容器化」的进程。</p>
 <p>与本地运行时相比，沙盒化和虚拟化运行时在整个容器化进程的生命周期中都会对性能产生影响。在沙盒容器中，有一个额外的抽象层：进程运行在沙盒的 unikernetl&#x2F;代理上运行，该指令中继到主机内核。在虚拟化的容器中，有一层虚拟化：进程全部在虚拟机中运行，这样会比直接在本地运行慢。将 VM 技术 （如注重性能的 <a target="_blank" rel="noopener" href="https://github.com/firecracker-microvm/firecracker">AWS Firecracker</a>）用作 VM 容器的支持虚拟机类型可以最大程度上减少性能的影响。</p>
-<h2 id><a href="#" class="headerlink" title></a></h2><h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a target="_blank" rel="noopener" href="http://m.blog.chinaunix.net/uid-20182470-id-5877572.html#:~:text=%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6%EF%BC%88container%20runtime,%E5%92%8C%E7%BD%91%E7%BB%9C%E8%BF%9E%E6%8E%A5%E7%AD%89%E5%8A%9F%E8%83%BD%E3%80%82">什么是容器运行时 container runtime-fbwd-ChinaUnix博客</a></p>
+<h2 id="容器运行时接口ORI"><a href="#容器运行时接口ORI" class="headerlink" title="容器运行时接口ORI"></a>容器运行时接口ORI</h2><p>当引入 Kubernetes 容器编排时，Docker 运行时硬编码到机器的守护进程中，也就是 <strong>kubelet</strong> 。但是，随着 Kubernetes 的迅速流行，社区开始有 替代运行时的需求。</p>
+<p><strong>rkt</strong> 通过自定义 rkt 的 kubelet 代码（rktlet）添加了支持。但是这种基于运行时的自定义构建过程不能扩展，并且暴露了 Kubernetes 对抽象运行时 模型的需求。为了解决这个问题，Hyper，CoreOS，Google 和其它的 Kubernetes 赞助合作商在容器编排的角度上抽象了容器运行时的高级规范：也就是 <a target="_blank" rel="noopener" href="https://kubernetes.io/blog/2016/12/container-runtime-interface-cri-in-kubernetes/">CRI</a>（Container Runtime Interface）。与 CRI 集成（而不是特定的运行时）允许 kubelet 支持多个容器运行时，而无需为每个运行时编译自定义的 kubelet。</p>
+<p>CRI 对 OCI 运行时还存在其它额外的担忧，包括镜像管理和分发，存储，快照，网络（与 CNI 有所不同），等等。CRI 还有在动态云环境中对容器所需的功能， 与 OCI 运行时不同，OCI 运行时始终专注于在机器上创建容器。此外，CRI 通常委托 OCI 运行时进行实际的容器执行。通过引入 CRI，Kubernetes 的坐着 以可扩展的方式有效的将 kubelet 与基础容器运行时进行解耦。</p>
+<p>最初的 CRI 实现是 <strong>dockershim</strong> ，它在 Docker 引擎之前提供了一层约定的抽象。后来 containerd 和 runC 从 Docker 的核心中分离出来， 后来 Docker 这一层就变得不重要了，因为 containerd 提供了完整的 CRI 实现。</p>
+<p>还有一个 VM CRI， <strong>frakti</strong> （v1），是第一个 <a target="_blank" rel="noopener" href="https://object-storage-ca-ymq-1.vexxhost.net/swift/v1/6e4619c416ff4bd19e1c087f27a43eea/www-assets-prod/presentation-media/hyper-kata-frakti-cri2.pdf">非 Docker CRI 的实现</a>。它是为以下目的创建的，旨在与之配合使用：runV 并提供与本机 OCI 支持的 CRI 相同的功能，但有 VM。由于 Kata 吸收了 Clear 和 runV 功能集合，因此 frakti 的重要性降低了 —— containerd + kata 是更现代的 frakti + runV。</p>
+<p>目前，CRI 领域有两个主要的参与者：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/containerd">containerd</a></li>
+<li><a target="_blank" rel="noopener" href="https://cri-o.io/">cri-o</a></li>
+</ul>
+<p><strong>containerd</strong> 是 Docker 的高级别运行时，在 Moby 项目下开源管理和开发。默认情况下，底层是 runC 。就像其它来自 Docker 容器工具一样， 它是当前事实上的标准 CRI。它提供了 CRI 的所有核心功能以及更多其它功能<a target="_blank" rel="noopener" href="https://www.zhangjiee.com/blog/2021/container-runtime.html#fn.3">3</a>，这是我们在 <a target="_blank" rel="noopener" href="https://www.capitalone.com/tech/solutions/container-orchestration/">Critical Stack</a> 中的 CRI，我们基于 Kubernetes 构建的 容器编排平台。containerd 有一个插件的设计 - <a target="_blank" rel="noopener" href="https://github.com/containerd/cri">cri-containerd</a> 实现了 CRI，并且存在各种 shims 来将 containerd 和低级别的运行时集合在一起 （比如 Kata）。</p>
+<p><strong>cri-o</strong> 是由 Redhat 领导的一个瘦（slim）的 CRI 实现，专为 Kubernetes 设计。它旨在充当 CRI 和支持的 OCI 运行时的轻量级桥梁。 相比 containerd 具有较少的外围功能，并委托 libpod 和容器工具项目<a target="_blank" rel="noopener" href="https://www.zhangjiee.com/blog/2021/container-runtime.html#fn.4">4</a>中的组件进行镜像管理和存储。默认情况下，cri-o 使用 runC 作为它的 OCI， 但是在最近的 Redhat Fedora 安装（cgroups v2）使用的是 crun。由于它具有完全的 OCI 兼容性，cri-o 与低级别的运行时开箱即用<a target="_blank" rel="noopener" href="https://www.zhangjiee.com/blog/2021/container-runtime.html#fn.5">5</a>， 比如 kata，不需要其它的零部件，而且很小的配置即可。</p>
+<p>这两个 CRIs 都通过本机交互操作或者 shim&#x2F;插件（包括沙盒和虚拟化实现）支持上述所有的 OCI 运行时的交互操作。</p>
+<h1 id="容器引擎"><a href="#容器引擎" class="headerlink" title="容器引擎"></a>容器引擎</h1><p>你可能注意到了 Docker 不是 CRI 或者 OCI 的实现，而是包含了 containerd 和 runC。事实上，它具有 CRI 或者 OCI 范围之外的其他功能， 比如镜像构建和签名。那么，它的应用场景在哪些方面呢？</p>
+<p>Docker 的产品叫『Docker 引擎』，并且通常将这些完整的容器工具套件称之为『容器引擎』。除了 Docker 之外，没有一个可执行文件提供如此功能齐全的 的功能，但是我们可以从容器工具（Container Tools）项目中拼凑出类似的工具。</p>
+<p>Container Tools 项目遵循了 UNIX 小型工具哲学，每个工具只做好一件事情：</p>
+<ul>
+<li><strong>podman</strong> - 运行镜像</li>
+<li><strong>buildah</strong> - 构建镜像</li>
+<li><strong>skopeo</strong> - 分发镜像</li>
+</ul>
+<p>实际上，这些是独立 Docker 堆栈的替代方案，包括 cri-o（cri-o 项目替代了最后缺少的一部分）。</p>
+<h1 id="各种容器运行时解决了什么问题"><a href="#各种容器运行时解决了什么问题" class="headerlink" title="各种容器运行时解决了什么问题"></a>各种容器运行时解决了什么问题</h1><h2 id="低级容器运行时"><a href="#低级容器运行时" class="headerlink" title="低级容器运行时"></a>低级容器运行时</h2><p>低级容器运行时 (Low level Container Runtime)，一般指按照 OCI 规范实现的、能够接收可运行文件系统（rootfs） 和 配置文件（config.json）并运行隔离进程的实现。</p>
+<p>这种运行时只负责将进程运行在相对隔离的资源空间里，不提供存储实现和网络实现。但是其他实现可以在系统中预设好相关资源，低级容器运行时可通过 config.json 声明加载对应资源。我在文章 <a target="_blank" rel="noopener" href="https://www.zeng.dev/post/20200510-container-oci/#runc">理解 OCI</a> 详细介绍了 runC 的执行细节，并展示了如何使用 Linux namespace network 为容器添加可与宿主机通信的虚拟网卡。</p>
+<p>低级运行时的特点是底层、轻量、灵活，限制也很明显：</p>
+<ul>
+<li>只认识 rootfs 和 config.json，不认识镜像 (下文简称 image)，不具备镜像存储功能，也不能执行镜像的构建、推送、拉取等（我们无法使用 runC, kata-runtime 处理镜像）</li>
+<li>不提供网络实现，所以真正使用时，往往需要利用 <a target="_blank" rel="noopener" href="https://github.com/containernetworking/cni">CNI</a> 之类的实现为容器添加网络</li>
+<li>不提供持久实现，如果容器是有状态应用需要使用文件系统持久状态，单机环境可以挂载宿主机目录，分布式环境可以自搭 NFS，但多数会选择云平台提供的 <a target="_blank" rel="noopener" href="https://github.com/container-storage-interface/spec">CSI</a> 存储实现</li>
+<li>与特定操作系统绑定无法跨平台，比如 runC 只能在 Linux 上使用；runhcs 只能在 Windows 上使用</li>
+</ul>
+<p>解决了这些限制中一项或者多项的容器运行时，就叫做高级容器运行时 (High level Container Runtime)。</p>
+<h2 id="高级容器运行时"><a href="#高级容器运行时" class="headerlink" title="高级容器运行时"></a>高级容器运行时</h2><p>高级容器运行时首先要做的是打通 OCI image spec 和 runtime spec，直白来说就是高效处理 image 到 rootfs 和 config.json 的转换。config.json 的生成比较简单，运行时可以结合 image config 和请求方需求直接生成；较为复杂的部分是 image 到 rootfs 的转换，这涉及镜像拉取、镜像存储、镜像 layer 解压、解压 layer 文件系统（fs layer) 的存储、合并 fs layer 为 rootfs。</p>
+<p><img src="/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/img2rootfs.png"></p>
+<p>镜像拉取模块先从 image registry 获取清单（manifest）文件，处理过程不仅需要兼容 OCI image 规范，考虑到 Docker 生态，也需兼容 Docker image 规范（所幸两者区别并不大）。运行时实现先从 manifest 获取 layer list，先检查对应 layer 在本地是否存在，如果不存在则下载对应 layer。下载的 layer tar 或者 tar.gz 一般直接存储磁盘，为实现快速处理，需要建立索引，比如从 reference:tag （如 docker.io&#x2F;library&#x2F;redis:6.0.5-alpine) 到 manifest 存储路径的映射；当然，layer 的访问比 image 高频，layer sha256 值到对应存储路径也会被索引。因此 ，运行时一般会围绕 image 索引和 image layer 存储组织独立模块对其他模块提供服务。</p>
+<p>如果要转换 image layers 到 rootfs，就要逐层解压 layers 为 filesystem layer（fs layer) 再做合并。这带来了几个问题，首先是 fs layer 同样需要存储磁盘多次复用，那么就需要有一个方式从 image 映射到对应 fs layers；接着类似 image layer，需要建立索引维系 fs layers 之间的父子关系，尽可能复用里层文件，避免重复工作；最后是层次复用带来的烦恼，隔离进程运行之后会发生 rootfs 写入，需要以某种方式避免更改发生到共享的 fs layers。</p>
+<ul>
+<li>第一个问题一般使用 image config 文件中的 diffID 解决，每解压一层 layer，就使用上一层 fs layer id 和 本层 diffID 的拼接串做 sha256 hash，输出结果作为本层对应的 fs layer id（最里层 id 为其 diffID），接着建立 id 到磁盘路径索引。因此只要通过 image manifest 文件找到 image config 文件，即可找到所有 fs layers，详细实现方式见 <a target="_blank" rel="noopener" href="https://github.com/opencontainers/image-spec/blob/e562b04403929d582d449ae5386ff79dd7961a11/config.md#layer-chainid">OCI image spec layer chain id</a>。</li>
+<li>第二个问题解决方式很简单，在每个 fs layer 索引存储上一层 fs layer id 即可。</li>
+<li>第三个问题，一般通过 UnionFS 提供的 CopyOnWrite 技术解决，简单来说，就是使用空文件夹，在镜像对应 fs layer 最外层之上再生成一层 layer，使用 UnionFS 合并（准确来说是挂载 mount）时将其声明为 work 目录（或者说 upper 目录）。UnionFS 挂载出 rootfs 之后，隔离进程所做的任何写操作（包括删除）都只体现在 work layer，而不会影响其他 fs layer。（详细介绍可以参考 <a target="_blank" rel="noopener" href="https://coolshell.cn/articles/17061.html">陈皓的介绍文章</a>)</li>
+</ul>
+<p>最后，高级运行时需要充当隔离进程管理者角色，而一个低级运行时（如 runC ）可能同时被多个高级运行时使用。同时试想，如果隔离进程退出，如何以最快的方式恢复运行？高级运行时实现一般都会引入 container 抽象（或者说 container meta），meta 存储了 ID、 image 信息、低级运行时描述、OCI spec (json config）、 work layer id 以及 K-V 结构的 label 信息。因此只要创建出 container meta，后续所有与隔离进程相关操作，如进程运行、进程信息获取、进程 attach、进程日志获取，均可通过 container ID 进行。</p>
+<h2 id="containerd"><a href="#containerd" class="headerlink" title="containerd"></a>containerd</h2><p>containerd 是一个高度模块化的高级运行时，所有模块均以 RPC service 形式加载（gRPC 或者 TTRPC），所有模块均可插拔。不同插件通过声明互相依赖，由 containerd 核心实现统一加载，使用方可以使用 Go 语言实现编写插件实现更丰富的功能。不过这种设计使得 containerd 拥有强大的跨平台能力，并能够作为一个组件轻松嵌入其他软件，也带来一个弊端，模块之间功能互调也从简单的函数调用，变成了更为昂贵的 RPC 调用。</p>
+<p>注：<a target="_blank" rel="noopener" href="https://github.com/containerd/ttrpc">TTRPC</a> 是一种基于 gRPC 的改良通信协议。</p>
+<p><img src="/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/containerd-arch.png"></p>
+<p>containerd 大多功能模块很容易与上文提到的「第一要务」相联系 ：</p>
+<ul>
+<li>Content，以 image layer 哈希值（一般使用 sha256 算法生成）为索引，支持快速 layer 快速查找和读取，并支持对 layer 添加 label。索引和 label 信息存储在 boltDB。</li>
+<li>Images，在 boltDB 中存储了 reference 到 manifest layer 的映射，结合 Content 可以组织完整的 image 信息。</li>
+<li>Snapshot，存储、处理解压后的 fs layers 和容器 work layer，索引信息同样存储在 boltDB。Snapshot 内置支持多种 UnionFS（如 overlay，aufs，btrfs）。</li>
+<li>Containers，以 container ID 为索引，在 boltDB 中存储了低级运行时描述、 snapshot 文件系统类型、 snapshotKey（work layer id）、image reference 等信息。</li>
+<li>Diff，可用于比对 image layer tar 和 fs layers 差异输出 diffID，可以校验 image config 中的 diffID，同样也能比对 fs layers 之间的差异。</li>
+</ul>
+<p>基于以上模块，containerd 提供了 namespace 隔离，实现上是在各模块的内容放置于不同目录树，达到资源隔离效果。比如，它可以一边服务于 Docker，一边服务 k8s kubelet，做到两不冲突。</p>
+<p>还有重要模块是 Tasks (runtime.PlatformRuntime)，它负责容器进程管理和与低级运行时打交道，对上统一了容器进程运行接口。v1 版 Tasks 只支持 Linux，1.2.0 (2018&#x2F;11) 后 containerd 正式支持 Windows，新引入的 v2 版 Tasks 核心逻辑使用平台无关代码实现，因此可以在 Go 语言支持的大部分平台运行（包括 macOS darwin&#x2F;amd64)。</p>
+<p>containerd 运行容器，一般先从 Images 模块触发，结合 Snapshot 模块建立新的容器 fs layer，加上低级运行时信息，组合成 container 结构体。containerd 利用 container 结构体，将之前的所有 Snapshots 转换为 Mounts 对象（声明了所有子文件夹的位置和挂载方式），结合低级运行时、OCI spec、镜像等信息在请求体中，向 Tasks 模块提交任务请求。Tasks 模块 Manager 根据任务低级运行时信息（如 io.containerd.runc.v1），组合出统一的 containerd-shim 进程运行命令，通过系统调用启动 shim 进程，并同步建立与 shim 进程的 TTRPC 通信。随后将任务交给 shim 进程管理。shim 进程接到请求后，判知 Mounts 长度大于 0，则会按照 Mounts 声明的挂载方式，使用 overlay、aufs 等联合文件系统将所有子文件夹组成容器运行需要的 rootfs，结合 OCI spec 调用低级运行时运行容器进程并将结果返回给 containerd 进程。</p>
+<p>使用 shim 进程管理容器进程好处很多，containerd clash，containerd-shim 进程和容器进程不会受影响，containerd 恢复后只需读取运行目录的 socket 文件及 pid 恢复与 shim 进程通信即可快速还原 Tasks 信息（Unix 平台），同一容器进程出现问题，对于其他进程来说是隔离。最重要的是，通过统一的 shim 接口，同一套 containerd 代码可以同时兼容多个不同的运行时，也能同时兼容不同操作系统平台。</p>
+<p><img src="/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/ctrd-shim.png"></p>
+<p>containerd 不提供容器网络和容器应用状态存储解决方案，而是把它们留给了更高层的实现。</p>
+<p>container 在其 <a target="_blank" rel="noopener" href="https://github.com/containerd/containerd">介绍</a> 中提到：其设计目的是成为大系统中的一个组件（如 Kubernetes, Docker)，而非直接供用户使用。</p>
+<blockquote>
+<p>containerd is designed to be embedded into a larger system, rather than being used directly by developers or end-users。</p>
+</blockquote>
+<p>下文会展示这意味着什么。</p>
+<h2 id="CRI-O"><a href="#CRI-O" class="headerlink" title="CRI-O"></a>CRI-O</h2><p>相比 containerd，CRI-O 的高级运行时功能基于若干开源库实现，不同模块之间为纯粹 Go 语言依赖，而非通信协议：</p>
+<ul>
+<li>containers&#x2F;image 库用于 Image 下载，下载过程类似 2 阶段提交。不同来源的镜像（如 Docker, Openshift, OCI）先被统一为 ImageSource 通用抽象，接着被分为 3 部分进行处理：blob 被放置在系统临时文件夹，manifest 和 signature 缓存在内存（Put*）。之后，镜像内容 Commit 至 containers&#x2F;storage 库。</li>
+<li>CRI-O 大部分业务逻辑集中在 containers&#x2F;storage 之上<ul>
+<li>LayerStore 接口统一处理 image layer（不包括 config layer） 和 fs layer，镜像 Commit 存储时，LayerStore 先调用 fs 驱动实现（如 overlay）在磁盘创建 fs layer 目录并记录层次关系，接着调用 ApplyDiff 方法，解压内容被存放在 layer 目录（经驱动实现），未解压内容被存放在 image layer 目录，fs layer 层次关系存储在 json 文件。</li>
+<li>ImageStore 接口处理 image meta，包括 manifest、config 和 signature，meta 与 layer 关联索引存储在 json 文件。</li>
+<li>ContainerStore 接口管理 container meta，创建 container 的步骤和存储 image layer 代码路径近乎重合，只不过前者被限制为 read 模式，后者为 readWrite，且没有 ApplyDiff（diff 送空），meta 与 layer 关联索引也存储在 json 文件。</li>
+</ul>
+</li>
+</ul>
+<p>containers&#x2F;storage 库 container meta 没有 namespace 概念，但提供一个 metadata 字段（string 类型）可以存储任意内容，CRI-O 便是将包括 namespace 在内的业务信息序列化为 json string 存储其中。</p>
+<p>CRI-O 运行容器进程时，先确保对应 image 存在（不存在则尝试下载），随之基于 image top layer 创建 UnionFS，同时生成 OCI spec config.json，之后，根据请求方提供的低级运行时信息（RuntimeHandler），使用不同包装实现操作容器进程。</p>
+<ul>
+<li>如果 RuntimeHandler 为非 VM 类型，创建并委托监视进程 <a target="_blank" rel="noopener" href="https://github.com/containers/conmon">conmon</a> 操作低级运行时创建容器。之后，conmon 在特定路径提供一个可与容器进程通信的 socket 文件，并负责持续监视容器进程并负责将其 stream 写入指定日志文件。容器进程创建成功之后，CRI-O 直接与低级运行时交互执行 start、delete、update 等操作，或者通过 socket 文件直接与容器进程交互。</li>
+<li>如果 RuntimeHandler 为 VM，则创建并委托 containerd-shim 进程处理间接容器进程（请求包含完整 rootfs，Mounts 为 空）。与非 VM 类型不同，此后所有容器进程相关操作均通过 shim 完成。</li>
+</ul>
+<p><img src="/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/crio-arch.png"></p>
+<p>CRI-O 依靠 CNI 插件（默认路径 &#x2F;opt&#x2F;cni&#x2F;bin）为容器进程提供网络实现。其逻辑一般在低级运行时创建完隔离进程返回后，获取 pid 后将对应的 network namespace path（&#x2F;proc&#x2F;{pid}&#x2F;ns&#x2F;net）交给 CNI 处理，CNI 会根据配置会往对应 namespace 添加好网卡。一般地，容器进程会在 cni 网桥上获得一个独立 IP 地址，这个 IP 地址能与宿主机通信，如果 CNI 配置了 flannel 之类的 overlay 实现，容器甚至能够与其他主机的同一网段容器进程通信，具体视配置而定。细节方面可以参考 <a target="_blank" rel="noopener" href="https://karampok.me/posts/container-networking-with-cni/">这篇介绍</a>。</p>
+<p>如果指定由其管理 network namespace 生命周期（配置 manage_ns_lifecycle），则会在创建 sandbox 容器时采用类似 <a target="_blank" rel="noopener" href="https://www.zeng.dev/post/20200510-container-oci/#-runc-1">理解 OCI#给 runC 容器绑定虚拟网卡</a> 的方式创建虚拟网卡，随后通过 OCI json config 传递对应路径给低级运行时。同样地，当 sandbox 容器销毁时，CRI-O 会自动回收对应 namespace 资源。这部分逻辑的网络相关代码使用 C 语言实现，在 CRI-O 中以名为 pinns 的二进制程序发行。</p>
+<p>需要指出的是，CRI-O 使用文件挂载方式配置容器 hostname, dns server 等，而非 CNI 插件。</p>
+<h2 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h2><p>Docker 是一个大而完备的高级运行时，其用户端核心叫做 <a target="_blank" rel="noopener" href="https://docs.docker.com/engine/">Docker Engine</a>，由 3 部分构成：Docker Server (docker daemon, 简称 dockerd)、REST API 和 Docker cli。借助 Docker Engine 既能便捷地运行容器进程进行集成开发、也能快速构建分发镜像。</p>
+<p><img src="/2023/12/26/%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6-container-runtime/docker-arch.png"></p>
+<p>如上图所示，Docker Engine 的核心是 dockerd，既驱动镜像的构建分发，也为容器运行提供成熟的持久实现和网络实现。Docker cli 使用 REST API 与 dockerd 交互。</p>
+<p>与上文其他运行时不同，dockerd 以 image config 为核心，使用 config layer 的 sha256 hash 值索引 image 抽象，而不是 manifest。实际上，dockerd 根本不存储 manifest。dockerd 也不存储 image layers（tar, tar.gz 等)，而只存储解压后的 layer fs 和一些必要的索引。</p>
+<ul>
+<li>镜像下载时，dockerd 先自 registry 获取 manifest 文件，随后并行下载存储 image layers 和 config layer。与 containers&#x2F;storag 类似，image layer 解压内容由 fs 驱动实现（如 overlay) 存储至新建的子目录中（如 &#x2F;var&#x2F;lib&#x2F;docker&#x2F;overlay2&#x2F;{new-dir}），不同的是，随后 dockerd 只是以 layer chainID 为索引，存储 fs new-dir、diffID、parent chainID、size 等必要信息，并不存储未解压 tar 或 tar.gz。image layers 和 config layer 均存储完成后，再以 image reference 为索引，建立 reference 至 image ID 映射。作为镜像分发模块的一部分，dockerd 还会以 manifest layer digest 为索引，建立 digest 至 diffID 映射；以 diffID 为索引，建立 diffID 至 repository 和 digest 映射。</li>
+<li>镜像推送不过是镜像下载的逆过程。dockerd 先使用 reference 获取 imageID（也即 image config），随后以 imageID 为中心组织出目标 manifest，对应的 layer fs 开始被压缩成目标格式（一般是 tar.gz）。layers 开始上传时，自分发模块获取 diffID 至 repository 和 digest 信息，发起远程请求确认对应 layer 是否已存在，存在则跳过上传，最终以 manifest 为中心的镜像被分发至对应 Registry 实现。</li>
+</ul>
+<p>Docker Engine 配套了成熟的镜像构建技术，它使得开发者只需提供一个目录、一份 Dockerfile，外加一行 <code>docker build</code> 命令即可构建镜像。简单来看，镜像构建过程即是把应用依赖的文件系统和运行环境转化为 image layers 和 config 的过程，构建结果是能够索引到构建结果的 reference，即我们熟悉的 tag。但简单的接口后面隐藏着非常多的考量，比如怎样提高镜像构建速度，比如怎样检查构建期错误。我们已经知道一份镜像包含多份 layers，基于什么镜像构建新镜像就会在之前的 layers 上构建新 layers。实际上，dockerd 会将 Dockerfile 中的每一行命令转化为一个构建子步骤，每执行一步，都可能产生中间镜像和中间容器。<code>COPY</code>, <code>ADD</code> 等文件传输命令一般直接产生中间镜像，<code>RUN</code>、<code>ENV</code>、<code>EXPOSE</code> 等运行命令会产生中间容器。每成功一步，该步骤产生的中间镜像或者 config 就会成为下一步的基础，产生的中间容器随之被移除，产生的中间镜像会被保存供后续复用。构建结束时，最后一步产生的镜像会被关联到 tag（如果指定了）。dockerd 维护了镜像构建过程产生的 parent-child 关系，使用 <code>docker image ls</code> 命令罗列镜像时，没有 tag 且存在 child 的镜像会被过滤，如此便过滤了中间镜像。此外，docker cli 会将中间结果输出到控制台，这样如果构建出错，用户可以利用间镜像和中间容器排查问题。</p>
+<p>Docker 容器创建运行相较 containerd 和 CRI-O 有更多高层的存储和网络抽象，如使用 <code>-v,--volume</code> 命令即可声明运行时需挂载的文件系统，使用 <code>-p,--publish</code> 即可声明 host 网络至容器网络映射，这些声明信息会被持久在 docker 工作目录下的 containers 子目录。</p>
+<p>执行运行命令之际，dockerd 首先生成容器读写层并通过 UnionFS 与 fs layers 一道转化为 rootfs。接着，image config 中的环境、启动参数等信息被转化为 OCI runtime spec 参数。同时类似 CRI-O，dockerd 会为容器生成一些特殊的文件，如 &#x2F;etc&#x2F;hosts, &#x2F;etc&#x2F;hostname, &#x2F;etc&#x2F;resolv.conf, &#x2F;dev&#x2F;shim 等，随之这些特殊文件与 volume 声明或者 mount 声明一起作为 dockerd Mount 抽象转化为 OCI runtime spec Mount 参数。最后，rootfs、OCI runtime spec 和低级运行时信息通过 RPC 请求传递给 containerd，剧情变得和 containerd 运行容器一致。</p>
+<p>不难发现，虽然持久挂载驱动各异，但对运行时而言，本质都是将宿主机某类型的文件目录映射到容器文件系统中。因此对于低级运行时而言，挂载逻辑可以统一。dockerd 在此之上发展了丰富的持久业务层，以便于用户使用。mount 用于直接将宿主机目录挂载至容器文件系统；volume 相对 bind mounts 优势是对应文件持久在 dockerd 的工作目录，由 dockerd 管理，同时具有跨平台能力。tmpfs 则由操作系统提供容器读写层之外的临时存储能力。</p>
+<p>dockerd 支持多种网络驱动，其基础抽象叫做 endpoint，可以简单将 endpoint 理解为网卡背后的网络资源。对于每一 endpoint，dockerd 都会通过 IPAM 实现在 docker0 网桥上分配 IP 地址，接着通过 bridge 等驱动为容器创建网卡，如果使用 <code>publish</code> 参数配置了容器至宿主机的 port 映射，dockerd 会往宿主机 iptable 添加对应网络规则，同时还可能会启动 docker proxy 服务 forward 流量到容器。容器的所有 endpoints 被放置在 sandbox 抽象中。准备好网络资源后，dockerd 调用 containerd 运行容器时，会在 OCI spec 中设置 Prestart Hook 命令，该命令包含了设置网络的必要信息（容器ID，容器进程ID，sandbox ID）。低级运行时实现如 runC 会在容器进程被创建但未被运行前调用该命令，该命令最终将容器ID，容器进程ID，sandbox ID 传递给 dockerd，dockerd 随即将 sandbox 中的所有 endpoint 资源绑定到容器网络 namespace 中（也是 &#x2F;proc&#x2F;{ctr-pid}&#x2F;ns&#x2F;net）。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a target="_blank" rel="noopener" href="http://m.blog.chinaunix.net/uid-20182470-id-5877572.html#:~:text=%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6%EF%BC%88container%20runtime,%E5%92%8C%E7%BD%91%E7%BB%9C%E8%BF%9E%E6%8E%A5%E7%AD%89%E5%8A%9F%E8%83%BD%E3%80%82">什么是容器运行时 container runtime-fbwd-ChinaUnix博客</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.zhangjiee.com/blog/2021/container-runtime.html#org4b14f92">容器运行时的综合比较 (zhangjiee.com)</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.zeng.dev/post/2020-container-runtimes/">各种容器运行时都解决了什么问题 - ZengXu’s BLOG</a></p>
 <p><a target="_blank" rel="noopener" href="https://opensource.com/article/21/9/container-runtimes">What are container runtimes? | Opensource.com — 什么是容器运行时？ |开源网站</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.zeng.dev/post/20200510-container-oci/#runc">理解 OCI</a></p>
+<p><a target="_blank" rel="noopener" href="https://containerd.io/">containerd</a>, <a target="_blank" rel="noopener" href="https://github.com/containerd/cri">containerd-CRI</a></p>
+<p><a target="_blank" rel="noopener" href="https://cri-o.io/">CRI-O</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.docker.com/get-started/overview/">Docker</a>, <a target="_blank" rel="noopener" href="https://docs.docker.com/network/">Docker Networking overview</a>, <a target="_blank" rel="noopener" href="https://docs.docker.com/storage/">Docker Storage overview</a>, <a target="_blank" rel="noopener" href="https://github.com/moby/buildkit">buildkit</a>, <a target="_blank" rel="noopener" href="https://github.com/moby/libnetwork">libnetwork</a></p>
 
     </div>
 
@@ -445,7 +558,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">容器运行机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6%E5%88%86%E7%B1%BB"><span class="nav-number">3.</span> <span class="nav-text">容器运行时分类</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E6%94%BE%E5%AE%B9%E5%99%A8%E8%A7%84%E8%8C%83%EF%BC%88OCI%EF%BC%89%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="nav-number">3.1.</span> <span class="nav-text">开放容器规范（OCI）运行时</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%95%9C%E5%83%8F%E8%A7%84%E8%8C%83"><span class="nav-number">3.1.1.</span> <span class="nav-text">镜像规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E8%A7%84%E8%8C%83"><span class="nav-number">3.1.2.</span> <span class="nav-text">运行时规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8C%E6%97%B6-native-runtimes"><span class="nav-number">3.1.3.</span> <span class="nav-text">本地运行时 native runtimes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B2%99%E7%9B%92%E5%92%8C%E8%99%9A%E6%8B%9F%E5%8C%96%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="nav-number">3.1.4.</span> <span class="nav-text">沙盒和虚拟化运行时</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.2.</span> <span class="nav-text"></span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">容器运行机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6%E5%88%86%E7%B1%BB"><span class="nav-number">3.</span> <span class="nav-text">容器运行时分类</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E6%94%BE%E5%AE%B9%E5%99%A8%E8%A7%84%E8%8C%83%EF%BC%88OCI%EF%BC%89%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="nav-number">3.1.</span> <span class="nav-text">开放容器规范（OCI）运行时</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%95%9C%E5%83%8F%E8%A7%84%E8%8C%83"><span class="nav-number">3.1.1.</span> <span class="nav-text">镜像规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E8%A7%84%E8%8C%83"><span class="nav-number">3.1.2.</span> <span class="nav-text">运行时规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8C%E6%97%B6-native-runtimes"><span class="nav-number">3.1.3.</span> <span class="nav-text">本地运行时 native runtimes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B2%99%E7%9B%92%E5%92%8C%E8%99%9A%E6%8B%9F%E5%8C%96%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="nav-number">3.1.4.</span> <span class="nav-text">沙盒和虚拟化运行时</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6%E6%8E%A5%E5%8F%A3ORI"><span class="nav-number">3.2.</span> <span class="nav-text">容器运行时接口ORI</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E5%BC%95%E6%93%8E"><span class="nav-number">4.</span> <span class="nav-text">容器引擎</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%84%E7%A7%8D%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">各种容器运行时解决了什么问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%8E%E7%BA%A7%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="nav-number">5.1.</span> <span class="nav-text">低级容器运行时</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AB%98%E7%BA%A7%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="nav-number">5.2.</span> <span class="nav-text">高级容器运行时</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#containerd"><span class="nav-number">5.3.</span> <span class="nav-text">containerd</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CRI-O"><span class="nav-number">5.4.</span> <span class="nav-text">CRI-O</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker"><span class="nav-number">5.5.</span> <span class="nav-text">Docker</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -459,7 +572,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">98</span>
+          <span class="site-state-item-count">99</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -521,13 +634,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">1.5m</span>
+    <span title="Symbols count total">1.6m</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">46:03</span>
+    <span title="Reading time total">47:01</span>
 </div>
 
 <!--
