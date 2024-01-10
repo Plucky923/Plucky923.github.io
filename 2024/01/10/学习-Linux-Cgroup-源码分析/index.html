@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-mac-osx.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Cgroup是什么Cgroups 是 control groups 的缩写，是 Linux 内核提供的一种可以限制、记录、隔离进程组（process groups）所使用的物理资源（如：cpu,memory,IO 等等）的机制。最初由 google 的工程师提出，后来被整合进 Linux 内核。Cgroups 也是 LXC 为实现虚拟化所使用的资源管理手段，可以说没有 cgroups 就没有 LX">
+<meta property="og:type" content="article">
+<meta property="og:title" content="学习 Linux Cgroup 源码分析">
+<meta property="og:url" content="http://example.com/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Plucky">
+<meta property="og:description" content="Cgroup是什么Cgroups 是 control groups 的缩写，是 Linux 内核提供的一种可以限制、记录、隔离进程组（process groups）所使用的物理资源（如：cpu,memory,IO 等等）的机制。最初由 google 的工程师提出，后来被整合进 Linux 内核。Cgroups 也是 LXC 为实现虚拟化所使用的资源管理手段，可以说没有 cgroups 就没有 LX">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/cgroup%E5%B1%82%E7%BA%A7%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="http://example.com/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/cgroup%E5%B1%82%E7%BA%A7%E7%BB%93%E6%9E%842.png">
+<meta property="og:image" content="http://example.com/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/RMG-rule1.png">
+<meta property="og:image" content="http://example.com/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/RMG-rule2.png">
+<meta property="og:image" content="http://example.com/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/RMG-rule3.png">
+<meta property="og:image" content="http://example.com/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/RMG-rule4.png">
+<meta property="og:image" content="http://example.com/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/cgroupandcssset.png">
+<meta property="article:published_time" content="2024-01-10T02:20:06.000Z">
+<meta property="article:modified_time" content="2024-01-10T09:18:29.450Z">
+<meta property="article:author" content="Plucky">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/cgroup%E5%B1%82%E7%BA%A7%E7%BB%93%E6%9E%84.png">
+
+<link rel="canonical" href="http://example.com/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>学习 Linux Cgroup 源码分析 | Plucky</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Plucky</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Comfortably Numb</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          学习 Linux Cgroup 源码分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-01-10 10:20:06 / Modified: 17:18:29" itemprop="dateCreated datePublished" datetime="2024-01-10T10:20:06+08:00">2024-01-10</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/Cgroup/" itemprop="url" rel="index"><span itemprop="name">Cgroup</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>18k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>34 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Cgroup是什么"><a href="#Cgroup是什么" class="headerlink" title="Cgroup是什么"></a>Cgroup是什么</h1><p>Cgroups 是 control groups 的缩写，是 Linux 内核提供的一种可以限制、记录、隔离进程组<br>（process groups）所使用的物理资源（如：cpu,memory,IO 等等）的机制。最初由 google 的<br>工程师提出，后来被整合进 Linux 内核。Cgroups 也是 LXC 为实现虚拟化所使用的资源管理<br>手段，可以说没有 cgroups 就没有 LXC。</p>
+<h1 id="Cgroup可以做什么"><a href="#Cgroup可以做什么" class="headerlink" title="Cgroup可以做什么"></a>Cgroup可以做什么</h1><p>Cgroups 最初的目标是为资源管理提供的一个统一的框架，既整合现有的 cpuset 等子系统，<br>也为未来开发新的子系统提供接口。现在的 cgroups 适用于多种应用场景，从单个进程的资<br>源控制，到实现操作系统层次的虚拟化（OS Level Virtualization）。Cgroups 提供了一下功能：<br>1.限制进程组可以使用的资源数量（Resource limiting ）。比如：memory 子系统可以为进程<br>组设定一个 memory 使用上限，一旦进程组使用的内存达到限额再申请内存，就会出发 OOM<br>（out of memory）。<br>2.进程组的优先级控制（Prioritization ）。比如：可以使用 cpu 子系统为某个进程组分配特定<br>cpu share。<br>3.记录进程组使用的资源数量（Accounting ）。比如：可以使用 cpuacct 子系统记录某个进程<br>组使用的 cpu 时间<br>4.进程组隔离（isolation）。比如：使用 ns 子系统可以使不同的进程组使用不同的 namespace，<br>以达到隔离的目的，不同的进程组有各自的进程、网络、文件系统挂载空间。<br>5.进程组控制（control）。比如：使用 freezer 子系统可以将进程组挂起和恢复。</p>
+<h1 id="Cgroups-相关概念及其关系"><a href="#Cgroups-相关概念及其关系" class="headerlink" title="Cgroups 相关概念及其关系"></a>Cgroups 相关概念及其关系</h1><h2 id="相关概念"><a href="#相关概念" class="headerlink" title="相关概念"></a>相关概念</h2><p>1.任务（task）。在 cgroups 中，任务就是系统的一个进程。<br>2.控制族群（control group）。控制族群就是一组按照某种标准划分的进程。Cgroups 中的资源控制都是以控制族群为单位实现。一个进程可以加入到某个控制族群，也从一个进程组迁移到另一个控制族群。一个进程组的进程可以使用 cgroups 以控制族群为单位分配的资源，同时受到 cgroups 以控制族群为单位设定的限制。<br>3.层级（hierarchy）。控制族群可以组织成 hierarchical 的形式，既一颗控制族群树。控制族群树上的子节点控制族群是父节点控制族群的孩子，继承父控制族群的特定的属性。<br>4.子系统（subsytem）。一个子系统就是一个资源控制器，比如 cpu 子系统就是控制 cpu 时间分配的一个控制器。子系统必须附加（attach）到一个层级上才能起作用，一个子系统附加到某个层级以后，这个层级上的所有控制族群都受到这个子系统的控制。</p>
+<h2 id="cgroup层级（Hierarchy）"><a href="#cgroup层级（Hierarchy）" class="headerlink" title="cgroup层级（Hierarchy）"></a>cgroup层级（Hierarchy）</h2><p>内核使用 cgroup 结构体来表示一个 control group 对某一个或者某几个 cgroups 子系统的资源限制。cgroup 结构体可以组织成一颗树的形式，每一棵cgroup 结构体组成的树称之为一个 cgroups 层级结构。cgroups层级结构可以 attach 一个或者几个 cgroups 子系统，当前层级结构可以对其 attach 的 cgroups 子系统进行资源的限制。每一个 cgroups 子系统只能被 attach 到一个 cpu 层级结构中。</p>
+<p><img src="/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/cgroup%E5%B1%82%E7%BA%A7%E7%BB%93%E6%9E%84.png"></p>
+<p>比如上图表示两个cgroups层级结构，每一个层级结构中是一颗树形结构，树的每一个节点是一个 cgroup 结构体（比如cpu_cgrp, memory_cgrp)，最新版本内核貌似是cgroup_subsys_state结构体。第一个 cgroups 层级结构 attach 了 cpu 子系统和 cpuacct 子系统， 当前 cgroups 层级结构中的 cgroup 结构体就可以对 cpu 的资源进行限制，并且对进程的 cpu 使用情况进行统计。 第二个 cgroups 层级结构 attach 了 memory 子系统，当前 cgroups 层级结构中的 cgroup 结构体就可以对 memory 的资源进行限制。</p>
+<p>在每一个 cgroups 层级结构中，每一个节点（cgroup 结构体）可以设置对资源不同的限制权重。比如上图中 cgrp1 组中的进程可以使用60%的 cpu 时间片，而 cgrp2 组中的进程可以使用20%的 cpu 时间片。</p>
+<h4 id="cgroups与进程"><a href="#cgroups与进程" class="headerlink" title="cgroups与进程"></a>cgroups与进程</h4><p>上面的小节提到了内核使用 cgroups 子系统对系统的资源进行限制，也提到了 cgroups 子系统需要 attach 到 cgroups 层级结构中来对进程进行资源控制。本小节重点关注一下内核是如何把进程与 cgroups 层级结构联系起来的。</p>
+<p>在创建了 cgroups 层级结构中的节点（cgroup 结构体）之后，可以把进程加入到某一个节点的控制任务列表中，一个节点的控制列表中的所有进程都会受到当前节点的资源限制。同时某一个进程也可以被加入到不同的 cgroups 层级结构的节点中，因为不同的 cgroups 层级结构可以负责不同的系统资源。所以说进程和 cgroup 结构体是一个多对多的关系。</p>
+<img title src="/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/cgroup层级结构2.png" alt data-align="center">
+
+<p>上面这个图从整体结构上描述了进程与 cgroups 之间的关系。最下面的<code>P</code>代表一个进程。每一个进程的描述符中有一个指针指向了一个辅助数据结构<code>css_set</code>（cgroups subsystem set）。 指向某一个<code>css_set</code>的进程会被加入到当前<code>css_set</code>的进程链表中。一个进程只能隶属于一个<code>css_set</code>，一个<code>css_set</code>可以包含多个进程，隶属于同一<code>css_set</code>的进程受到同一个<code>css_set</code>所关联的资源限制。</p>
+<p>上图中的”M×N Linkage”说明的是<code>css_set</code>通过辅助数据结构可以与 cgroups 节点进行多对多的关联。但是 cgroups 的实现不允许<code>css_set</code>同时关联同一个cgroups层级结构下多个节点。 这是因为 cgroups 对同一种资源不允许有多个限制配置。</p>
+<p>一个<code>css_set</code>关联多个 cgroups 层级结构的节点时，表明需要对当前<code>css_set</code>下的进程进行多种资源的控制。而一个 cgroups 节点关联多个<code>css_set</code>时，表明多个<code>css_set</code>下的进程列表受到同一份资源的相同限制。</p>
+<h2 id="相互关系"><a href="#相互关系" class="headerlink" title="相互关系"></a>相互关系</h2><ol>
+<li>一个层级可以附加多个子系统。</li>
+</ol>
+<img title src="/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/RMG-rule1.png" alt data-align="center">
+
+<p><em><code>cpu</code> 和 <code>memory</code> 子系统（或任意数量的子系统）可以附加到单个层级</em></p>
+<ol start="2">
+<li>一个子系统最多只能附加到一个层级。</li>
+</ol>
+<p><img src="/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/RMG-rule2.png"></p>
+<p><em>如果两个不同的层级之一已经附加了 <code>memory</code> 子系统，则 <code>cpu</code> 子系统永远无法附加到这个层级。</em></p>
+<ol start="3">
+<li><p>规则3</p>
+<ul>
+<li><p><strong>默认控制组（根控制组）：</strong></p>
+<ul>
+<li>每当创建一个新的层级时，系统上的所有任务（进程）最初都属于该层级的默认控制组，即根控制组。</li>
+<li>这个根控制组是组织和管理层级内任务的起点。</li>
+</ul>
+</li>
+<li><p><strong>单一层次结构规则：</strong></p>
+<ul>
+<li>在特定的层级中（例如，cpu_mem_cg或net），每个任务可以成为该层级内一个控制组的成员。</li>
+<li>任务可以是多个控制组的成员，但前提是这些控制组属于不同的层级</li>
+</ul>
+</li>
+<li><p><strong>在同一层次结构中切换控制组：</strong></p>
+<ul>
+<li>任务可以是多个控制组的成员，但一旦它成为同一层级中第二个控制组的成员，它就会从第一个控制组中移除。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><img src="/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/RMG-rule3.png"></p>
+<p><em><code>httpd</code> 进程所属的 <code>cpu_mem_cg</code> 中的 cgroup 可能会将其 CPU 时间限制为分配给其他进程的一半，并将其内存使用限制为最大 <code>1024</code> MB。此外， <code>httpd</code> 进程所属的 <code>net</code> 中的 cgroup 可能会将其传输速率限制为 <code>30</code> MB&#x2F;s（兆字节每秒）。</em></p>
+<ol start="4">
+<li>在系统中，当一个进程（任务）通过fork操作生成一个子任务时，子任务会自动继承父任务所属的cgroup成员资格，但随后可以根据需要将其移动到不同的cgroup中。一旦进行了fork操作，父进程和子进程变得完全独立。</li>
+</ol>
+<p><img src="/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/RMG-rule4.png"></p>
+<p>以一个httpd任务为例，它是在cpu_and_mem层次结构中名为half_cpu_1gb_max的cgroup的成员，同时也是在net层次结构中名为trans_rate_30的cgroup的成员。当这个httpd进程通过fork操作生成子进程时，子进程会自动成为half_cpu_1gb_max cgroup和trans_rate_30 cgroup的成员，继承与其父任务完全相同的cgroup成员资格。</p>
+<p>从此刻开始，父任务和子任务变得完全独立：改变一个任务所属的cgroup不会影响另一个任务，而且改变父任务的cgroup也不会以任何方式影响其任何孙子任务。</p>
+<h1 id="Cgroups子系统介绍"><a href="#Cgroups子系统介绍" class="headerlink" title="Cgroups子系统介绍"></a>Cgroups子系统介绍</h1><p>blkio – 这个子系统为块设备设定输入&#x2F;输出限制，比如物理设备（磁盘，固态硬盘，USB 等等）。<br>cpu – 这个子系统使用调度程序提供对 CPU 的 cgroup 任务访问。<br>cpuacct – 这个子系统自动生成 cgroup 中任务所使用的 CPU 报告。<br>cpuset – 这个子系统为 cgroup 中的任务分配独立 CPU（在多核系统）和内存节点。<br>devices – 这个子系统可允许或者拒绝 cgroup 中的任务访问设备。<br>freezer – 这个子系统挂起或者恢复 cgroup 中的任务。<br>memory – 这个子系统设定 cgroup 中任务使用的内存限制，并自动生成由那些任务使用的内存资源报告。<br>net_cls – 这个子系统使用等级识别符（classid）标记网络数据包，可允许 Linux 流量控制程序（tc）识别从具体 cgroup 中生成的数据包。<br>ns – 名称空间子系统。</p>
+<h1 id="Cgroups实现"><a href="#Cgroups实现" class="headerlink" title="Cgroups实现"></a>Cgroups实现</h1><h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><p>我们从进程出发来剖析 cgroups 相关数据结构之间的关系。<br>在 Linux 中，管理进程的数据结构是 task_struct，其中与 cgroups 有关的：</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.7/source/include/linux/sched.h#L743">sched.h - include&#x2F;linux&#x2F;sched.h - Linux source code (v6.6.7) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_CGROUPS</span></span><br><span class="line">    <span class="comment">/* Control Group info protected by css_set_lock: */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">css_set</span> __<span class="title">rcu</span>        *<span class="title">cgroups</span>;</span></span><br><span class="line">    <span class="comment">/* cg_list protected by css_set_lock and tsk-&gt;alloc_lock: */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>        <span class="title">cg_list</span>;</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中cgroups指针指向了一个css_set结构，而css_set存储了与进程相关的cgroups信息,也就是说cgroup指向的是进程所属的css_set。</p>
+<p>cg_list是一个嵌入的list_head结构，用于将连到同一个css_set的进程组织成一个链表。下面我们来看css_set的结构：</p>
+<h3 id="css-set"><a href="#css-set" class="headerlink" title="css_set"></a>css_set</h3><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.7/source/include/linux/cgroup-defs.h#L212">cgroup-defs.h - include&#x2F;linux&#x2F;cgroup-defs.h - Linux source code (v6.6.7) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * A css_set is a structure holding pointers to a set of</span></span><br><span class="line"><span class="comment"> * cgroup_subsys_state objects. This saves space in the task struct</span></span><br><span class="line"><span class="comment"> * object and speeds up fork()/exit(), since a single inc/dec and a</span></span><br><span class="line"><span class="comment"> * list_add()/del() can bump the reference count on the entire cgroup</span></span><br><span class="line"><span class="comment"> * set for a task.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">css_set</span> &#123;</span></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Set of subsystem states, one for each subsystem. This array is</span></span><br><span class="line"><span class="comment">     * immutable after creation apart from the init_css_set during</span></span><br><span class="line"><span class="comment">     * subsystem registration (at boot time).</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_subsys_state</span> *<span class="title">subsys</span>[<span class="title">CGROUP_SUBSYS_COUNT</span>];</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* reference count */</span></span><br><span class="line">    <span class="type">refcount_t</span> refcount;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * For a domain cgroup, the following points to self.  If threaded,</span></span><br><span class="line"><span class="comment">     * to the matching cset of the nearest domain ancestor.  The</span></span><br><span class="line"><span class="comment">     * dom_cset provides access to the domain cgroup and its csses to</span></span><br><span class="line"><span class="comment">     * which domain level resource consumptions should be charged.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">css_set</span> *<span class="title">dom_cset</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* the default cgroup associated with this css_set */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup</span> *<span class="title">dfl_cgrp</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* internal task count, protected by css_set_lock */</span></span><br><span class="line">    <span class="type">int</span> nr_tasks;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Lists running through all tasks using this cgroup group.</span></span><br><span class="line"><span class="comment">     * mg_tasks lists tasks which belong to this cset but are in the</span></span><br><span class="line"><span class="comment">     * process of being migrated out or in.  Protected by</span></span><br><span class="line"><span class="comment">     * css_set_lock, but, during migration, once tasks are moved to</span></span><br><span class="line"><span class="comment">     * mg_tasks, it can be read safely while holding cgroup_mutex.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">tasks</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">mg_tasks</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">dying_tasks</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* all css_task_iters currently walking this cset */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">task_iters</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * On the default hierarchy, -&gt;subsys[ssid] may point to a css</span></span><br><span class="line"><span class="comment">     * attached to an ancestor instead of the cgroup this css_set is</span></span><br><span class="line"><span class="comment">     * associated with.  The following node is anchored at</span></span><br><span class="line"><span class="comment">     * -&gt;subsys[ssid]-&gt;cgroup-&gt;e_csets[ssid] and provides a way to</span></span><br><span class="line"><span class="comment">     * iterate through all css&#x27;s attached to a given cgroup.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">e_cset_node</span>[<span class="title">CGROUP_SUBSYS_COUNT</span>];</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* all threaded csets whose -&gt;dom_cset points to this cset */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">threaded_csets</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">threaded_csets_node</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * List running through all cgroup groups in the same hash</span></span><br><span class="line"><span class="comment">     * slot. Protected by css_set_lock</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_node</span> <span class="title">hlist</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * List of cgrp_cset_links pointing at cgroups referenced from this</span></span><br><span class="line"><span class="comment">     * css_set.  Protected by css_set_lock.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">cgrp_links</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * List of csets participating in the on-going migration either as</span></span><br><span class="line"><span class="comment">     * source or destination.  Protected by cgroup_mutex.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">mg_src_preload_node</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">mg_dst_preload_node</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">mg_node</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * If this cset is acting as the source of migration the following</span></span><br><span class="line"><span class="comment">     * two fields are set.  mg_src_cgrp and mg_dst_cgrp are</span></span><br><span class="line"><span class="comment">     * respectively the source and destination cgroups of the on-going</span></span><br><span class="line"><span class="comment">     * migration.  mg_dst_cset is the destination cset the target tasks</span></span><br><span class="line"><span class="comment">     * on this cset should be migrated to.  Protected by cgroup_mutex.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup</span> *<span class="title">mg_src_cgrp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup</span> *<span class="title">mg_dst_cgrp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">css_set</span> *<span class="title">mg_dst_cset</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* dead and being drained, ignore for migration */</span></span><br><span class="line">    <span class="type">bool</span> dead;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* For RCU-protected deletion */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rcu_head</span> <span class="title">rcu_head</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>refcount是该css_set的引用数，因为一个css_set可以被多个进程共用，只要这些进程的cgroups信息相同，比如：在所有已创建的层级里面都在同一个cgroup里的进程,如果子系统有引用到这个css_set则计数+1。</p>
+</li>
+<li><p>nrtasks是指向该css_set的进程数</p>
+</li>
+<li><p>hlist是嵌入的hlist_node，用于把所有css_set组织成一个hash表，这样内核可以快速查找特定的css_set。</p>
+</li>
+<li><p>tasks指向所有连到此css_set的进程连成的链表。</p>
+</li>
+<li><p>cgrp_links 是指向一个 struct cgrp_cset_link 连成的链表</p>
+</li>
+<li><p>Subsys 是一个指针数组，存储一组指向 cgroup_subsys_state 的 指 针 。 一个<br>cgroup_subsys_state（css）就是进程与一个特定子系统相关的信息。通过这个指针数组，进程就可以获得相应的cgroup控制信息了。这个结构体代表了css_set和子系统的多对多。CGROUP_SUBSYS_COUNT 是内核中支持子系统的最大值;每一个 cgroup_subsys_state 存储的是进程的某一个子系统的相关信息。</p>
+</li>
+</ul>
+<p>下面我们就来看cgroup_subsys_state的结构：</p>
+<h3 id="cgroup-subsys-state"><a href="#cgroup-subsys-state" class="headerlink" title="cgroup_subsys_state"></a>cgroup_subsys_state</h3><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.7/source/include/linux/cgroup-defs.h#L155">cgroup-defs.h - include&#x2F;linux&#x2F;cgroup-defs.h - Linux source code (v6.6.7) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Per-subsystem/per-cgroup state maintained by the system.  This is the</span></span><br><span class="line"><span class="comment"> * fundamental structural building block that controllers deal with.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Fields marked with &quot;PI:&quot; are public and immutable and may be accessed</span></span><br><span class="line"><span class="comment"> * directly without synchronization.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cgroup_subsys_state</span> &#123;</span></span><br><span class="line">    <span class="comment">/* PI: the cgroup that this css is attached to */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup</span> *<span class="title">cgroup</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* PI: the cgroup subsystem that this css is attached to */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_subsys</span> *<span class="title">ss</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* reference count - access via css_[try]get() and css_put() */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">percpu_ref</span> <span class="title">refcnt</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* siblings list anchored at the parent&#x27;s -&gt;children */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">sibling</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">children</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* flush target list anchored at cgrp-&gt;rstat_css_list */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">rstat_css_node</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * PI: Subsys-unique ID.  0 is unused and root is always 1.  The</span></span><br><span class="line"><span class="comment">     * matching css can be looked up using css_from_id().</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">int</span> id;</span><br><span class="line"></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> flags;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Monotonically increasing unique serial number which defines a</span></span><br><span class="line"><span class="comment">     * uniform order among all csses.  It&#x27;s guaranteed that all</span></span><br><span class="line"><span class="comment">     * -&gt;children lists are in the ascending order of -&gt;serial_nr and</span></span><br><span class="line"><span class="comment">     * used to allow interrupting and resuming iterations.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    u64 serial_nr;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Incremented by online self and children.  Used to guarantee that</span></span><br><span class="line"><span class="comment">     * parents are not offlined before their children.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">atomic_t</span> online_cnt;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* percpu_ref killing and RCU release */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">work_struct</span> <span class="title">destroy_work</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rcu_work</span> <span class="title">destroy_rwork</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * PI: the parent css.    Placed here for cache proximity to following</span></span><br><span class="line"><span class="comment">     * fields of the containing structure.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_subsys_state</span> *<span class="title">parent</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>refcnt是该cgroup_subsys_state引用的次数，只有当这个参数为0时，该数据结构才能被释放。</p>
+</li>
+<li><p>sibling，children 和 parent 将同一层级的 cgroup 连接层一颗树。</p>
+</li>
+<li><p>cgroup 是指向 struct cgroup 的一个指针，也就是进程属于的 cgroup。对于用户来说，<mark>即 cgroups 中的目录。一个 struct cgroup 存储了一个目录的相关信息。</mark></p>
+</li>
+<li><p>ss 是指向 struct cgroup_subsys 的一个指针，里面主要是一些钩子函数的定义，涉及 cgroups 用户态地一系列操作，对应的具体实现在对应的子系统中。</p>
+</li>
+</ul>
+<p>进程受到子系统的控制，实际上是通过加入到特定的cgroup实现的，因为cgroup在特定的层级上，而子系统又是附加到层级上的 。 通过以上三个结构 ， 进程就可以和cgroup 连 接 起 来 了 ：<br>task_struct-&gt;css_set-&gt;cgroup_subsys_state-&gt;cgroup。<br>下面我们再来看cgroup的结构：</p>
+<h3 id="cgroup"><a href="#cgroup" class="headerlink" title="cgroup"></a>cgroup</h3><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.7/source/include/linux/cgroup-defs.h#L392">cgroup-defs.h - include&#x2F;linux&#x2F;cgroup-defs.h - Linux source code (v6.6.7) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cgroup</span> &#123;</span></span><br><span class="line">    <span class="comment">/* self css with NULL -&gt;ss, points back to this cgroup */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_subsys_state</span> <span class="title">self</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> flags;        <span class="comment">/* &quot;unsigned long&quot; so bitops work */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * The depth this cgroup is at.  The root is at depth zero and each</span></span><br><span class="line"><span class="comment">     * step down the hierarchy increments the level.  This along with</span></span><br><span class="line"><span class="comment">     * ancestors[] can determine whether a given cgroup is a</span></span><br><span class="line"><span class="comment">     * descendant of another without traversing the hierarchy.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">int</span> level;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Maximum allowed descent tree depth */</span></span><br><span class="line">    <span class="type">int</span> max_depth;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Keep track of total numbers of visible and dying descent cgroups.</span></span><br><span class="line"><span class="comment">     * Dying cgroups are cgroups which were deleted by a user,</span></span><br><span class="line"><span class="comment">     * but are still existing because someone else is holding a reference.</span></span><br><span class="line"><span class="comment">     * max_descendants is a maximum allowed number of descent cgroups.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * nr_descendants and nr_dying_descendants are protected</span></span><br><span class="line"><span class="comment">     * by cgroup_mutex and css_set_lock. It&#x27;s fine to read them holding</span></span><br><span class="line"><span class="comment">     * any of cgroup_mutex and css_set_lock; for writing both locks</span></span><br><span class="line"><span class="comment">     * should be held.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">int</span> nr_descendants;</span><br><span class="line">    <span class="type">int</span> nr_dying_descendants;</span><br><span class="line">    <span class="type">int</span> max_descendants;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Each non-empty css_set associated with this cgroup contributes</span></span><br><span class="line"><span class="comment">     * one to nr_populated_csets.  The counter is zero iff this cgroup</span></span><br><span class="line"><span class="comment">     * doesn&#x27;t have any tasks.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * All children which have non-zero nr_populated_csets and/or</span></span><br><span class="line"><span class="comment">     * nr_populated_children of their own contribute one to either</span></span><br><span class="line"><span class="comment">     * nr_populated_domain_children or nr_populated_threaded_children</span></span><br><span class="line"><span class="comment">     * depending on their type.  Each counter is zero iff all cgroups</span></span><br><span class="line"><span class="comment">     * of the type in the subtree proper don&#x27;t have any tasks.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">int</span> nr_populated_csets;</span><br><span class="line">    <span class="type">int</span> nr_populated_domain_children;</span><br><span class="line">    <span class="type">int</span> nr_populated_threaded_children;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> nr_threaded_children;    <span class="comment">/* # of live threaded child cgroups */</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">kernfs_node</span> *<span class="title">kn</span>;</span>        <span class="comment">/* cgroup kernfs entry */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_file</span> <span class="title">procs_file</span>;</span>    <span class="comment">/* handle for &quot;cgroup.procs&quot; */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_file</span> <span class="title">events_file</span>;</span>    <span class="comment">/* handle for &quot;cgroup.events&quot; */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* handles for &quot;&#123;cpu,memory,io,irq&#125;.pressure&quot; */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_file</span> <span class="title">psi_files</span>[<span class="title">NR_PSI_RESOURCES</span>];</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * The bitmask of subsystems enabled on the child cgroups.</span></span><br><span class="line"><span class="comment">     * -&gt;subtree_control is the one configured through</span></span><br><span class="line"><span class="comment">     * &quot;cgroup.subtree_control&quot; while -&gt;subtree_ss_mask is the effective</span></span><br><span class="line"><span class="comment">     * one which may have more subsystems enabled.  Controller knobs</span></span><br><span class="line"><span class="comment">     * are made available iff it&#x27;s enabled in -&gt;subtree_control.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    u16 subtree_control;</span><br><span class="line">    u16 subtree_ss_mask;</span><br><span class="line">    u16 old_subtree_control;</span><br><span class="line">    u16 old_subtree_ss_mask;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Private pointers for each registered subsystem */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_subsys_state</span> __<span class="title">rcu</span> *<span class="title">subsys</span>[<span class="title">CGROUP_SUBSYS_COUNT</span>];</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_root</span> *<span class="title">root</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * List of cgrp_cset_links pointing at css_sets with tasks in this</span></span><br><span class="line"><span class="comment">     * cgroup.  Protected by css_set_lock.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">cset_links</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * On the default hierarchy, a css_set for a cgroup with some</span></span><br><span class="line"><span class="comment">     * susbsys disabled will point to css&#x27;s which are associated with</span></span><br><span class="line"><span class="comment">     * the closest ancestor which has the subsys enabled.  The</span></span><br><span class="line"><span class="comment">     * following lists all css_sets which point to this cgroup&#x27;s css</span></span><br><span class="line"><span class="comment">     * for the given subsystem.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">e_csets</span>[<span class="title">CGROUP_SUBSYS_COUNT</span>];</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * If !threaded, self.  If threaded, it points to the nearest</span></span><br><span class="line"><span class="comment">     * domain ancestor.  Inside a threaded subtree, cgroups are exempt</span></span><br><span class="line"><span class="comment">     * from process granularity and no-internal-task constraint.</span></span><br><span class="line"><span class="comment">     * Domain level resource consumptions which aren&#x27;t tied to a</span></span><br><span class="line"><span class="comment">     * specific task are charged to the dom_cgrp.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup</span> *<span class="title">dom_cgrp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup</span> *<span class="title">old_dom_cgrp</span>;</span>        <span class="comment">/* used while enabling threaded */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* per-cpu recursive resource statistics */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_rstat_cpu</span> __<span class="title">percpu</span> *<span class="title">rstat_cpu</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">rstat_css_list</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* cgroup basic resource statistics */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_base_stat</span> <span class="title">last_bstat</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_base_stat</span> <span class="title">bstat</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">prev_cputime</span> <span class="title">prev_cputime</span>;</span>    <span class="comment">/* for printing out cputime */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * list of pidlists, up to two for each namespace (one for procs, one</span></span><br><span class="line"><span class="comment">     * for tasks); created on demand.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">pidlists</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mutex</span> <span class="title">pidlist_mutex</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* used to wait for offlining of csses */</span></span><br><span class="line">    <span class="type">wait_queue_head_t</span> offline_waitq;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* used to schedule release agent */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">work_struct</span> <span class="title">release_agent_work</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* used to track pressure stalls */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">psi_group</span> *<span class="title">psi</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* used to store eBPF programs */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_bpf</span> <span class="title">bpf</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* If there is block congestion on this cgroup. */</span></span><br><span class="line">    <span class="type">atomic_t</span> congestion_count;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Used to store internal freezer state */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_freezer_state</span> <span class="title">freezer</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_BPF_SYSCALL</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bpf_local_storage</span> __<span class="title">rcu</span>  *<span class="title">bpf_cgrp_storage</span>;</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* All ancestors including self */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cgroup</span> *<span class="title">ancestors</span>[];</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>self 指向的 cgroup_subsys_state 为当 struct cgroup_subsys_state 中 ss 为 NULL 时的结构体，存储的是当前 cgroup 本身的一些信息。</p>
+</li>
+<li><p>subsys 是一组指向 cgroup_subsys_state 的指针，存储的是当前目录锁绑定的子系统的信息。</p>
+</li>
+<li><p>cset_links 指向一个由 struct cgrp_cset_links 连成的链表。</p>
+</li>
+<li><p>root 指向一个 struct cgroup_root 的结构，存储了 root cgroup 中的信息。</p>
+</li>
+</ul>
+<h3 id="cgroup-root"><a href="#cgroup-root" class="headerlink" title="cgroup_root"></a>cgroup_root</h3><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.7/source/include/linux/cgroup-defs.h#L392">cgroup-defs.h - include&#x2F;linux&#x2F;cgroup-defs.h - Linux source code (v6.6.7) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * A cgroup_root represents the root of a cgroup hierarchy, and may be</span></span><br><span class="line"><span class="comment"> * associated with a kernfs_root to form an active hierarchy.  This is</span></span><br><span class="line"><span class="comment"> * internal to cgroup core.  Don&#x27;t access directly from controllers.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cgroup_root</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">kernfs_root</span> *<span class="title">kf_root</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* The bitmask of subsystems attached to this hierarchy */</span></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span> subsys_mask;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Unique id for this hierarchy. */</span></span><br><span class="line">	<span class="type">int</span> hierarchy_id;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * The root cgroup. The containing cgroup_root will be destroyed on its</span></span><br><span class="line"><span class="comment">	 * release. cgrp-&gt;ancestors[0] will be used overflowing into the</span></span><br><span class="line"><span class="comment">	 * following field. cgrp_ancestor_storage must immediately follow.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">cgroup</span> <span class="title">cgrp</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* must follow cgrp for cgrp-&gt;ancestors[0], see above */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">cgroup</span> *<span class="title">cgrp_ancestor_storage</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Number of cgroups in the hierarchy, used only for /proc/cgroups */</span></span><br><span class="line">	<span class="type">atomic_t</span> nr_cgrps;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* A list running through the active hierarchies */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">root_list</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Hierarchy-specific flags */</span></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span> flags;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* The path to use for release notifications. */</span></span><br><span class="line">	<span class="type">char</span> release_agent_path[PATH_MAX];</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* The name for this hierarchy - may be empty */</span></span><br><span class="line">	<span class="type">char</span> name[MAX_CGROUP_ROOT_NAMELEN];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在初始化cgroup时会初始化这个结构。</p>
+<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.7/source/kernel/cgroup/cgroup.c#L6023">cgroup.c - kernel&#x2F;cgroup&#x2F;cgroup.c - Linux source code (v6.6.7) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * cgroup_init_early - cgroup initialization at system boot</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Initialize cgroups at system boot, and initialize any</span></span><br><span class="line"><span class="comment"> * subsystems that request early init.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> __init <span class="title function_">cgroup_init_early</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">cgroup_fs_context</span> __<span class="title">initdata</span> <span class="title">ctx</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">cgroup_subsys</span> *<span class="title">ss</span>;</span></span><br><span class="line">	<span class="type">int</span> i;</span><br><span class="line"></span><br><span class="line">	ctx.root = &amp;cgrp_dfl_root;</span><br><span class="line">	init_cgroup_root(&amp;ctx);</span><br><span class="line">	cgrp_dfl_root.cgrp.self.flags |= CSS_NO_REF;</span><br><span class="line"></span><br><span class="line">	RCU_INIT_POINTER(init_task.cgroups, &amp;init_css_set);</span><br><span class="line"></span><br><span class="line">	for_each_subsys(ss, i) &#123;</span><br><span class="line">		WARN(!ss-&gt;css_alloc || !ss-&gt;css_free || ss-&gt;name || ss-&gt;id,</span><br><span class="line">		     <span class="string">&quot;invalid cgroup_subsys %d:%s css_alloc=%p css_free=%p id:name=%d:%s\n&quot;</span>,</span><br><span class="line">		     i, cgroup_subsys_name[i], ss-&gt;css_alloc, ss-&gt;css_free,</span><br><span class="line">		     ss-&gt;id, ss-&gt;name);</span><br><span class="line">		WARN(<span class="built_in">strlen</span>(cgroup_subsys_name[i]) &gt; MAX_CGROUP_TYPE_NAMELEN,</span><br><span class="line">		     <span class="string">&quot;cgroup_subsys_name %s too long\n&quot;</span>, cgroup_subsys_name[i]);</span><br><span class="line"></span><br><span class="line">		ss-&gt;id = i;</span><br><span class="line">		ss-&gt;name = cgroup_subsys_name[i];</span><br><span class="line">		<span class="keyword">if</span> (!ss-&gt;legacy_name)</span><br><span class="line">			ss-&gt;legacy_name = cgroup_subsys_name[i];</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (ss-&gt;early_init)</span><br><span class="line">			cgroup_init_subsys(ss, <span class="literal">true</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数初始化的 cgroup_root 是一个全局的变量。定义在 kernel&#x2F;cgroup.c 中。</p>
+<h2 id="那为什么cgroup和css-set是多对多的关系呢？"><a href="#那为什么cgroup和css-set是多对多的关系呢？" class="headerlink" title="那为什么cgroup和css_set是多对多的关系呢？"></a>那为什么cgroup和css_set是多对多的关系呢？</h2><p>一个进程对应css_set，一个css_set就存储了一组进程（应该有可能被几个进程共享，所以是<br>一组）跟各个子系统相关的信息，但是这些信息有可能不是从一个cgroup那里获得的，因为一<br>个进程可以同时属于几个cgroup，只要这些cgroup不在同一个层级。举个例子：我们创建一个<br>层级A，A上面附加了cpu和memory两个子系统，进程B属于A的根cgroup；然后我们再创建一个<br>层级C，C上面附加了ns和blkio两个子系统，进程B同样属于C的根cgroup；那么进程B对应的cpu<br>和memory的信息是从A的根cgroup获得的，ns和blkio信息则是从C的根cgroup获得的。因此，<br>一个css_set存储的cgroup_subsys_state可以对应多个cgroup。另一方面，cgroup也存储了<br>一组cgroup_subsys_state，这一组cgroup_subsys_state则是cgroup从所在的层级附加的<br>子系统获得的。一个cgroup中可以有多个进程，而这些进程的css_set不一定都相同，因为有<br>些进程可能还加入了其他 cgroup 。但是同一个 cgroup 中的进程与该 cgroup 关联的<br>cgroup_subsys_state都受到该cgroup的管理（cgroups中进程控制是以cgroup为单位的）的，<br>所以一个cgrouop也可以对应多个css_set。</p>
+<h2 id="多对多关系实现"><a href="#多对多关系实现" class="headerlink" title="多对多关系实现"></a>多对多关系实现</h2><p>1 个 cgroup 中有多个进程，每一个进程可能对应不同的 scss_set，所以 1 个 cgroup 可能对应多个 css_set;</p>
+<p>1 个 css_set 对应的进程，不同的子系统对应不同的目录，所以 1 个 css_set 对应多个 cgroup;</p>
+<p>从 struct css_set 访问 struct cgroup：struct css_set-&gt;struct cgroup_subsys_state-&gt;struct cgroup;</p>
+<p>反之用现有的结构体很难达到，所以要引入一个 struct cgrp_cset_link 的结构体将两者联系起来：</p>
+<h3 id="cgrp-cset-link"><a href="#cgrp-cset-link" class="headerlink" title="cgrp_cset_link"></a>cgrp_cset_link</h3><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.7/source/kernel/cgroup/cgroup-internal.h#L94">cgroup-internal.h - kernel&#x2F;cgroup&#x2F;cgroup-internal.h - Linux source code (v6.6.7) - Bootlin</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * A cgroup can be associated with multiple css_sets as different tasks may</span></span><br><span class="line"><span class="comment"> * belong to different cgroups on different hierarchies.  In the other</span></span><br><span class="line"><span class="comment"> * direction, a css_set is naturally associated with multiple cgroups.</span></span><br><span class="line"><span class="comment"> * This M:N relationship is represented by the following link structure</span></span><br><span class="line"><span class="comment"> * which exists for each association and allows traversing the associations</span></span><br><span class="line"><span class="comment"> * from both sides.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cgrp_cset_link</span> &#123;</span></span><br><span class="line">	<span class="comment">/* the cgroup and css_set this link associates */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">cgroup</span>		*<span class="title">cgrp</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">css_set</span>		*<span class="title">cset</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* list of cgrp_cset_links anchored at cgrp-&gt;cset_links */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>	<span class="title">cset_link</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* list of cgrp_cset_links anchored at css_set-&gt;cgrp_links */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>	<span class="title">cgrp_link</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>再回到css_set和cgroup的结构体中，注意到：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">css_set</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">cgrp_links</span>;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cgroup</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">cset_link</span>;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也就是每个css_set和cgroup结构体都与一个cgrp_cset_link结构体的链表链接。</p>
+<p>结构如下图所示：</p>
+<img src="/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/cgroupandcssset.png" title alt data-align="center">
+
+<p>这张图解释了cgroup和subsystem之间的多对多关系。每个cgroup结构体可以通过cgroup-&gt;cset_links，找到一个cgrp_cset_link链表，每个cgrp_cset_link都有对于的css_set，这个css_set属于多个task_struct，其中包含subsystem。所以通过遍历这个链表就能找到这个cgroup对应的所有css_set，也即可以找到所有的cgroup下的所有task。</p>
+<p>反之亦然，可以通过task_struct中的cgroups变量，找到task属于的所有cgroup</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><p>Linux Cgroups 详解，王喆锋</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://ost.51cto.com/posts/15168">openEuler Kernel 技术解读 |内核资源管理器 - cgroups-鸿蒙开发者社区-51CTO.COM</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://tech.meituan.com/2015/03/31/cgroups.html">Linux资源管理之cgroups简介 - 美团技术团队 (meituan.com)</a></p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/01/05/%E5%AE%B9%E5%99%A8exec%E5%92%8Cattach%E7%9A%84%E5%8C%BA%E5%88%AB/" rel="prev" title="容器exec和attach的区别">
+      <i class="fa fa-chevron-left"></i> 容器exec和attach的区别
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Cgroup%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.</span> <span class="nav-text">Cgroup是什么</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Cgroup%E5%8F%AF%E4%BB%A5%E5%81%9A%E4%BB%80%E4%B9%88"><span class="nav-number">2.</span> <span class="nav-text">Cgroup可以做什么</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Cgroups-%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5%E5%8F%8A%E5%85%B6%E5%85%B3%E7%B3%BB"><span class="nav-number">3.</span> <span class="nav-text">Cgroups 相关概念及其关系</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="nav-number">3.1.</span> <span class="nav-text">相关概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cgroup%E5%B1%82%E7%BA%A7%EF%BC%88Hierarchy%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">cgroup层级（Hierarchy）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#cgroups%E4%B8%8E%E8%BF%9B%E7%A8%8B"><span class="nav-number">3.2.0.1.</span> <span class="nav-text">cgroups与进程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E4%BA%92%E5%85%B3%E7%B3%BB"><span class="nav-number">3.3.</span> <span class="nav-text">相互关系</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Cgroups%E5%AD%90%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D"><span class="nav-number">4.</span> <span class="nav-text">Cgroups子系统介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Cgroups%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.</span> <span class="nav-text">Cgroups实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">5.1.</span> <span class="nav-text">数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#css-set"><span class="nav-number">5.1.1.</span> <span class="nav-text">css_set</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cgroup-subsys-state"><span class="nav-number">5.1.2.</span> <span class="nav-text">cgroup_subsys_state</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cgroup"><span class="nav-number">5.1.3.</span> <span class="nav-text">cgroup</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cgroup-root"><span class="nav-number">5.1.4.</span> <span class="nav-text">cgroup_root</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%82%A3%E4%B8%BA%E4%BB%80%E4%B9%88cgroup%E5%92%8Ccss-set%E6%98%AF%E5%A4%9A%E5%AF%B9%E5%A4%9A%E7%9A%84%E5%85%B3%E7%B3%BB%E5%91%A2%EF%BC%9F"><span class="nav-number">5.2.</span> <span class="nav-text">那为什么cgroup和css_set是多对多的关系呢？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E5%AF%B9%E5%A4%9A%E5%85%B3%E7%B3%BB%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.3.</span> <span class="nav-text">多对多关系实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#cgrp-cset-link"><span class="nav-number">5.3.1.</span> <span class="nav-text">cgrp_cset_link</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Plucky</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">102</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Plucky923" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Plucky923" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:p1ucky@163.com" title="E-Mail → mailto:p1ucky@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Plucky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">1.6m</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">48:22</span>
+</div>
+
+<!--
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>-->
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : 'a2cad925830c34e297777ca10016e549',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>

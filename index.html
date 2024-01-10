@@ -197,6 +197,281 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">学习 Linux Cgroup 源码分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-01-10 10:20:06 / Modified: 17:18:29" itemprop="dateCreated datePublished" datetime="2024-01-10T10:20:06+08:00">2024-01-10</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/Cgroup/" itemprop="url" rel="index"><span itemprop="name">Cgroup</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>18k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>34 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Cgroup是什么"><a href="#Cgroup是什么" class="headerlink" title="Cgroup是什么"></a>Cgroup是什么</h1><p>Cgroups 是 control groups 的缩写，是 Linux 内核提供的一种可以限制、记录、隔离进程组<br>（process groups）所使用的物理资源（如：cpu,memory,IO 等等）的机制。最初由 google 的<br>工程师提出，后来被整合进 Linux 内核。Cgroups 也是 LXC 为实现虚拟化所使用的资源管理<br>手段，可以说没有 cgroups 就没有 LXC。</p>
+<h1 id="Cgroup可以做什么"><a href="#Cgroup可以做什么" class="headerlink" title="Cgroup可以做什么"></a>Cgroup可以做什么</h1>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/05/%E5%AE%B9%E5%99%A8exec%E5%92%8Cattach%E7%9A%84%E5%8C%BA%E5%88%AB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/01/05/%E5%AE%B9%E5%99%A8exec%E5%92%8Cattach%E7%9A%84%E5%8C%BA%E5%88%AB/" class="post-title-link" itemprop="url">容器exec和attach的区别</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-01-05 08:36:23 / Modified: 09:24:46" itemprop="dateCreated datePublished" datetime="2024-01-05T08:36:23+08:00">2024-01-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%B9%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">容器</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>容器的exec和attach的命令都会进入到容器的shell中，比如podman exec,podman attach,docker exec,docker attach等等。本文以docker为例，其他的容器也是类似的。</p>
+<h1 id="各命令简介"><a href="#各命令简介" class="headerlink" title="各命令简介"></a>各命令简介</h1><ul>
+<li>docker run；创建和启动一个新的容器实例，操作对象是镜像，选项较多，如果你要创建和启动一个容器，只能用run；</li>
+<li>docker exec: 在已运行的容器中，执行命令，操作对象是容器，如果你要进入已运行的容器，并且执行命令，用exec；exec 可以开启多个终端实例， exec -i &#x2F;bin&#x2F;bash，由此可见exec其实是在运行中的容器中执行一个命令，比如&#x2F;bin&#x2F;bash 来达到交互的目的。</li>
+<li>docker attach: 同样操作的是已运行的容器，可以将本机标准输入（键盘输入）输到容器中，也可以将容器的输出显示在本机的屏幕上，如果你想查看容器运行过程中产生的标准输入输出，用attach；attach 开启一个和正在运行的进程交互的终端，如果该进程结束，原docker container的进程也会结束。attach只可以用在以 &#x2F;bin&#x2F;bash 命令启动的容器， 比如 docker run ubuntu &#x2F;bin&#x2F;bash</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/01/05/%E5%AE%B9%E5%99%A8exec%E5%92%8Cattach%E7%9A%84%E5%8C%BA%E5%88%AB/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/04/podman-attach-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/01/04/podman-attach-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">Untitled</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-01-04 16:10:35" itemprop="dateCreated datePublished" datetime="2024-01-04T16:10:35+08:00">2024-01-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-01-05 09:57:13" itemprop="dateModified" datetime="2024-01-05T09:57:13+08:00">2024-01-05</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>8.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>16 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h2 id="title-podman-attach-源码分析date-2024-01-04-16-10-35tags-categories-容器"><a href="#title-podman-attach-源码分析date-2024-01-04-16-10-35tags-categories-容器" class="headerlink" title="title: podman attach 源码分析date: 2024-01-04 16:10:35tags:categories:- 容器"></a>title: podman attach 源码分析<br>date: 2024-01-04 16:10:35<br>tags:<br>categories:<br>- 容器</h2><h1 id="init"><a href="#init" class="headerlink" title="init"></a>init</h1>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/01/04/podman-attach-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/29/%E5%AD%A6%E4%B9%A0-Linux-IPC-Namespace%E5%AE%9E%E7%8E%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -220,10 +495,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2023-12-29 09:06:55 / Modified: 17:20:49" itemprop="dateCreated datePublished" datetime="2023-12-29T09:06:55+08:00">2023-12-29</time>
+              <time title="Created: 2023-12-29 09:06:55" itemprop="dateCreated datePublished" datetime="2023-12-29T09:06:55+08:00">2023-12-29</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-01-10 10:18:13" itemprop="dateModified" datetime="2024-01-10T10:18:13+08:00">2024-01-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -231,6 +512,10 @@
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/namespace/" itemprop="url" rel="index"><span itemprop="name">namespace</span></a>
                 </span>
             </span>
 
@@ -779,7 +1064,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-25 09:03:10" itemprop="dateModified" datetime="2023-12-25T09:03:10+08:00">2023-12-25</time>
+                <time title="Modified: 2024-01-05 14:31:29" itemprop="dateModified" datetime="2024-01-05T14:31:29+08:00">2024-01-05</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -797,14 +1082,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>0</span>
+              <span>16k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
+              <span>29 mins.</span>
             </span>
 
         </div>
@@ -816,281 +1101,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/24/podman-cp-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/12/24/podman-cp-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">podman cp 源码分析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-12-24 15:57:14" itemprop="dateCreated datePublished" datetime="2023-12-24T15:57:14+08:00">2023-12-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-25 09:02:59" itemprop="dateModified" datetime="2023-12-25T09:02:59+08:00">2023-12-25</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AE%B9%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">容器</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>0</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/22/%E5%AD%A6%E4%B9%A0-Linux-%E4%BD%BF%E7%94%A8%E5%B7%A5%E5%85%B7%E8%BF%9B%E8%A1%8C%E5%86%85%E5%AD%98%E5%8F%96%E8%AF%81-LiME-volatility3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/12/22/%E5%AD%A6%E4%B9%A0-Linux-%E4%BD%BF%E7%94%A8%E5%B7%A5%E5%85%B7%E8%BF%9B%E8%A1%8C%E5%86%85%E5%AD%98%E5%8F%96%E8%AF%81-LiME-volatility3/" class="post-title-link" itemprop="url">学习 Linux 使用工具进行内存取证|LiME|volatility3</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2023-12-22 15:34:00 / Modified: 16:13:58" itemprop="dateCreated datePublished" datetime="2023-12-22T15:34:00+08:00">2023-12-22</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>20k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>36 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>计算机的操作系统和应用使用主内存（RAM）来执行不同的任务。这种易失性内存包含大量关于运行应用、网络连接、内核模块、打开的文件以及几乎所有其他的内容信息，但这些信息每次计算机重启的时候都会被清除。</p>
-<p><ruby>内存取证<rt>Memory forensics</rt></ruby>是一种从内存中找到和抽取这些有价值的信息的方式。<a target="_blank" rel="noopener" href="https://github.com/volatilityfoundation/volatility">Volatility</a> 是一种使用插件来处理这类信息的开源工具。但是，存在一个问题：在你处理这些信息前，必须将物理内存转储到一个文件中，而 Volatility 没有这种能力。</p>
-<p>因此，这篇文章分为两部分：</p>
+          <h1 id="Top"><a href="#Top" class="headerlink" title="Top"></a>Top</h1><p><a target="_blank" rel="noopener" href="https://github.com/containers/podman/blob/a1da24de4b5c8ea9133f131cc519d4c9be61714f/libpod/container_top_linux.go#L182">podman&#x2F;libpod&#x2F;container_top_linux.go at a1da24de4b5c8ea9133f131cc519d4c9be61714f · containers&#x2F;podman (github.com)</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Top gathers statistics about the running processes in a container. It returns a</span></span><br><span class="line"><span class="comment">// []string for output</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Container)</span></span> Top(descriptors []<span class="type">string</span>) ([]<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> c.config.NoCgroups &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;cannot run top on container %s as it did not create a cgroup: %w&quot;</span>, c.ID(), define.ErrNoCgroups)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    conStat, err := c.State()</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;unable to look up state for %s: %w&quot;</span>, c.ID(), err)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> conStat != define.ContainerStateRunning &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>, errors.New(<span class="string">&quot;top can only be used on running containers&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Also support comma-separated input.</span></span><br><span class="line">    psgoDescriptors := []<span class="type">string</span>&#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> _, d := <span class="keyword">range</span> descriptors &#123;</span><br><span class="line">        <span class="keyword">for</span> _, s := <span class="keyword">range</span> strings.Split(d, <span class="string">&quot;,&quot;</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> s != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">                psgoDescriptors = <span class="built_in">append</span>(psgoDescriptors, s)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If we encountered an ErrUnknownDescriptor error, fallback to executing</span></span><br><span class="line">    <span class="comment">// ps(1). This ensures backwards compatibility to users depending on ps(1)</span></span><br><span class="line">    <span class="comment">// and makes sure we&#x27;re ~compatible with docker.</span></span><br><span class="line">    output, psgoErr := c.GetContainerPidInformation(psgoDescriptors)</span><br><span class="line">    <span class="keyword">if</span> psgoErr == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> output, <span class="literal">nil</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> !errors.Is(psgoErr, psgo.ErrUnknownDescriptor) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>, psgoErr</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    psDescriptors := descriptors</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(descriptors) == <span class="number">1</span> &#123;</span><br><span class="line">        <span class="comment">// Note that the descriptors to ps(1) must be shlexed (see #12452).</span></span><br><span class="line">        psDescriptors = <span class="built_in">make</span>([]<span class="type">string</span>, <span class="number">0</span>, <span class="built_in">len</span>(descriptors))</span><br><span class="line">        shSplit, err := shlex.Split(descriptors[<span class="number">0</span>])</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;parsing ps args: %w&quot;</span>, err)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> _, s := <span class="keyword">range</span> shSplit &#123;</span><br><span class="line">            <span class="keyword">if</span> s != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">                psDescriptors = <span class="built_in">append</span>(psDescriptors, s)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Only use ps(1) from the host when we know the container was not started with CAP_SYS_PTRACE,</span></span><br><span class="line">    <span class="comment">// with it the container can access /proc/$pid/ files and potentially escape the container fs.</span></span><br><span class="line">    <span class="keyword">if</span> c.config.Spec.Process.Capabilities != <span class="literal">nil</span> &amp;&amp;</span><br><span class="line">        !util.StringInSlice(<span class="string">&quot;CAP_SYS_PTRACE&quot;</span>, c.config.Spec.Process.Capabilities.Effective) &#123;</span><br><span class="line">        <span class="keyword">var</span> retry <span class="type">bool</span></span><br><span class="line">        output, retry, err = c.execPS(psDescriptors)</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> !retry &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">            &#125;</span><br><span class="line">            logrus.Warnf(<span class="string">&quot;Falling back to container ps(1), could not execute ps(1) from the host: %v&quot;</span>, err)</span><br><span class="line">            output, err = c.execPSinContainer(psDescriptors)</span><br><span class="line">            <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;executing ps(1) in container: %w&quot;</span>, err)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        output, err = c.execPSinContainer(psDescriptors)</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;executing ps(1) in container: %w&quot;</span>, err)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Trick: filter the ps command from the output instead of</span></span><br><span class="line">    <span class="comment">// checking/requiring PIDs in the output.</span></span><br><span class="line">    filtered := []<span class="type">string</span>&#123;&#125;</span><br><span class="line">    cmd := strings.Join(descriptors, <span class="string">&quot; &quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> _, line := <span class="keyword">range</span> output &#123;</span><br><span class="line">        <span class="keyword">if</span> !strings.Contains(line, cmd) &#123;</span><br><span class="line">            filtered = <span class="built_in">append</span>(filtered, line)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> filtered, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2023/12/22/%E5%AD%A6%E4%B9%A0-Linux-%E4%BD%BF%E7%94%A8%E5%B7%A5%E5%85%B7%E8%BF%9B%E8%A1%8C%E5%86%85%E5%AD%98%E5%8F%96%E8%AF%81-LiME-volatility3/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/21/%E5%AD%A6%E4%B9%A0-Linux-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8-prctl%E8%AF%A6%E8%A7%A3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/12/21/%E5%AD%A6%E4%B9%A0-Linux-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8-prctl%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">学习 Linux 系统调用 prctl详解</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-12-21 15:09:07" itemprop="dateCreated datePublished" datetime="2023-12-21T15:09:07+08:00">2023-12-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-22 09:19:47" itemprop="dateModified" datetime="2023-12-22T09:19:47+08:00">2023-12-22</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" itemprop="url" rel="index"><span itemprop="name">系统调用</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>19k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>34 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/prctl.2.html">prctl(2) - Linux manual page (man7.org)</a></p>
-<p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.6.7/source/kernel/sys.c#L2432">sys.c - kernel&#x2F;sys.c - Linux source code (v6.6.7) - Bootlin</a></p>
-<h1 id="prctl具体用法"><a href="#prctl具体用法" class="headerlink" title="prctl具体用法"></a>prctl具体用法</h1>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/12/21/%E5%AD%A6%E4%B9%A0-Linux-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8-prctl%E8%AF%A6%E8%A7%A3/#more" rel="contents">
+              <a class="btn" href="/2023/12/24/podman-top-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -1113,7 +1128,7 @@
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1179,14 +1194,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-count">102</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-count">32</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -1231,7 +1246,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -1247,7 +1262,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">47:01</span>
+    <span title="Reading time total">48:22</span>
 </div>
 
 <!--

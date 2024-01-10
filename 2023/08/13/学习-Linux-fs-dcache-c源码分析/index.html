@@ -31,7 +31,7 @@
 <meta property="og:description" content="dcache.c - fs&#x2F;dcache.c - Linux source code (v6.3.7) - Bootlin 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162636465666768697071">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-08-13T07:04:17.000Z">
-<meta property="article:modified_time" content="2023-08-17T04:04:27.441Z">
+<meta property="article:modified_time" content="2024-01-10T02:18:57.322Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
 
@@ -230,8 +230,21 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-08-17 12:04:27" itemprop="dateModified" datetime="2023-08-17T12:04:27+08:00">2023-08-17</time>
+                <time title="Modified: 2024-01-10 10:18:57" itemprop="dateModified" datetime="2024-01-10T10:18:57+08:00">2024-01-10</time>
               </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">Linux内核</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8/VFS/" itemprop="url" rel="index"><span itemprop="name">VFS</span></a>
+                </span>
+            </span>
 
           
             <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
@@ -374,8 +387,6 @@
 
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> __init <span class="title function_">dcache_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * 可以为稳定状态（如列表）添加构造函数，但由于dcache的缓存特性，可能不值得这样做。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="comment">// 创建dentry缓存</span></span><br><span class="line">    dentry_cache = KMEM_CACHE_USERCOPY(dentry,</span><br><span class="line">                                       SLAB_RECLAIM_ACCOUNT | SLAB_PANIC | SLAB_MEM_SPREAD | SLAB_ACCOUNT,</span><br><span class="line">                                       d_iname);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 如果在dcache_init_early中设置了哈希表，则直接返回 */</span></span><br><span class="line">    <span class="keyword">if</span> (!hashdist)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 分配dentry哈希表</span></span><br><span class="line">    dentry_hashtable =</span><br><span class="line">        alloc_large_system_hash(<span class="string">&quot;Dentry cache&quot;</span>,</span><br><span class="line">                                <span class="keyword">sizeof</span>(<span class="keyword">struct</span> hlist_bl_head),</span><br><span class="line">                                dhash_entries,</span><br><span class="line">                                <span class="number">13</span>,</span><br><span class="line">                                HASH_ZERO,</span><br><span class="line">                                &amp;d_hash_shift,</span><br><span class="line">                                <span class="literal">NULL</span>,</span><br><span class="line">                                <span class="number">0</span>,</span><br><span class="line">                                <span class="number">0</span>);</span><br><span class="line">    d_hash_shift = <span class="number">32</span> - d_hash_shift;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 用于__getname()函数的SLAB缓存 */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">kmem_cache</span> *<span class="title">names_cachep</span> __<span class="title">read_mostly</span>;</span></span><br><span class="line">EXPORT_SYMBOL(names_cachep);</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> __init <span class="title function_">vfs_caches_init_early</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化in_lookup_hashtable数组中的每个哈希表头</span></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; ARRAY_SIZE(in_lookup_hashtable); i++)</span><br><span class="line">        INIT_HLIST_BL_HEAD(&amp;in_lookup_hashtable[i]);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化dcache</span></span><br><span class="line">    dcache_init_early();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化inode</span></span><br><span class="line">    inode_init_early();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> __init <span class="title function_">vfs_caches_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 创建names_cachep缓存</span></span><br><span class="line">    names_cachep = kmem_cache_create_usercopy(<span class="string">&quot;names_cache&quot;</span>, PATH_MAX, <span class="number">0</span>,</span><br><span class="line">                                              SLAB_HWCACHE_ALIGN | SLAB_PANIC, <span class="number">0</span>, PATH_MAX, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化dcache</span></span><br><span class="line">    dcache_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化inode</span></span><br><span class="line">    inode_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化files</span></span><br><span class="line">    files_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化files_maxfiles</span></span><br><span class="line">    files_maxfiles_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化mnt</span></span><br><span class="line">    mnt_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化bdev缓存</span></span><br><span class="line">    bdev_cache_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化chrdev</span></span><br><span class="line">    chrdev_init();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
-
     </div>
 
     
@@ -469,14 +480,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">99</span>
+          <span class="site-state-item-count">102</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-count">32</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -521,7 +532,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -537,7 +548,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">47:01</span>
+    <span title="Reading time total">48:22</span>
 </div>
 
 <!--
