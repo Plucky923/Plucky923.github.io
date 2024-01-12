@@ -197,6 +197,98 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91moby/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91moby/" class="post-title-link" itemprop="url">docker 从源码编译moby</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-01-11 09:23:32 / Modified: 09:53:01" itemprop="dateCreated datePublished" datetime="2024-01-11T09:23:32+08:00">2024-01-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%B9%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">容器</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.3k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>首先clone moby的代码到本地</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/moby/moby.git</span><br></pre></td></tr></table></figure>
+
+<p>根据官方文档的要求，我们确保主机上没有安装不需要的docker镜像（其实没啥必要），所以可以使用下面的指令删除镜像</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91moby/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1030,102 +1122,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/24/podman-top-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/12/24/podman-top-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">podman top 源码分析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-12-24 15:59:15" itemprop="dateCreated datePublished" datetime="2023-12-24T15:59:15+08:00">2023-12-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-05 14:31:29" itemprop="dateModified" datetime="2024-01-05T14:31:29+08:00">2024-01-05</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AE%B9%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">容器</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>16k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>29 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Top"><a href="#Top" class="headerlink" title="Top"></a>Top</h1><p><a target="_blank" rel="noopener" href="https://github.com/containers/podman/blob/a1da24de4b5c8ea9133f131cc519d4c9be61714f/libpod/container_top_linux.go#L182">podman&#x2F;libpod&#x2F;container_top_linux.go at a1da24de4b5c8ea9133f131cc519d4c9be61714f · containers&#x2F;podman (github.com)</a></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Top gathers statistics about the running processes in a container. It returns a</span></span><br><span class="line"><span class="comment">// []string for output</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Container)</span></span> Top(descriptors []<span class="type">string</span>) ([]<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> c.config.NoCgroups &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;cannot run top on container %s as it did not create a cgroup: %w&quot;</span>, c.ID(), define.ErrNoCgroups)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    conStat, err := c.State()</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;unable to look up state for %s: %w&quot;</span>, c.ID(), err)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> conStat != define.ContainerStateRunning &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>, errors.New(<span class="string">&quot;top can only be used on running containers&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Also support comma-separated input.</span></span><br><span class="line">    psgoDescriptors := []<span class="type">string</span>&#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> _, d := <span class="keyword">range</span> descriptors &#123;</span><br><span class="line">        <span class="keyword">for</span> _, s := <span class="keyword">range</span> strings.Split(d, <span class="string">&quot;,&quot;</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> s != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">                psgoDescriptors = <span class="built_in">append</span>(psgoDescriptors, s)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If we encountered an ErrUnknownDescriptor error, fallback to executing</span></span><br><span class="line">    <span class="comment">// ps(1). This ensures backwards compatibility to users depending on ps(1)</span></span><br><span class="line">    <span class="comment">// and makes sure we&#x27;re ~compatible with docker.</span></span><br><span class="line">    output, psgoErr := c.GetContainerPidInformation(psgoDescriptors)</span><br><span class="line">    <span class="keyword">if</span> psgoErr == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> output, <span class="literal">nil</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> !errors.Is(psgoErr, psgo.ErrUnknownDescriptor) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>, psgoErr</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    psDescriptors := descriptors</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(descriptors) == <span class="number">1</span> &#123;</span><br><span class="line">        <span class="comment">// Note that the descriptors to ps(1) must be shlexed (see #12452).</span></span><br><span class="line">        psDescriptors = <span class="built_in">make</span>([]<span class="type">string</span>, <span class="number">0</span>, <span class="built_in">len</span>(descriptors))</span><br><span class="line">        shSplit, err := shlex.Split(descriptors[<span class="number">0</span>])</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;parsing ps args: %w&quot;</span>, err)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> _, s := <span class="keyword">range</span> shSplit &#123;</span><br><span class="line">            <span class="keyword">if</span> s != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">                psDescriptors = <span class="built_in">append</span>(psDescriptors, s)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Only use ps(1) from the host when we know the container was not started with CAP_SYS_PTRACE,</span></span><br><span class="line">    <span class="comment">// with it the container can access /proc/$pid/ files and potentially escape the container fs.</span></span><br><span class="line">    <span class="keyword">if</span> c.config.Spec.Process.Capabilities != <span class="literal">nil</span> &amp;&amp;</span><br><span class="line">        !util.StringInSlice(<span class="string">&quot;CAP_SYS_PTRACE&quot;</span>, c.config.Spec.Process.Capabilities.Effective) &#123;</span><br><span class="line">        <span class="keyword">var</span> retry <span class="type">bool</span></span><br><span class="line">        output, retry, err = c.execPS(psDescriptors)</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> !retry &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">            &#125;</span><br><span class="line">            logrus.Warnf(<span class="string">&quot;Falling back to container ps(1), could not execute ps(1) from the host: %v&quot;</span>, err)</span><br><span class="line">            output, err = c.execPSinContainer(psDescriptors)</span><br><span class="line">            <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;executing ps(1) in container: %w&quot;</span>, err)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        output, err = c.execPSinContainer(psDescriptors)</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;executing ps(1) in container: %w&quot;</span>, err)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Trick: filter the ps command from the output instead of</span></span><br><span class="line">    <span class="comment">// checking/requiring PIDs in the output.</span></span><br><span class="line">    filtered := []<span class="type">string</span>&#123;&#125;</span><br><span class="line">    cmd := strings.Join(descriptors, <span class="string">&quot; &quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> _, line := <span class="keyword">range</span> output &#123;</span><br><span class="line">        <span class="keyword">if</span> !strings.Contains(line, cmd) &#123;</span><br><span class="line">            filtered = <span class="built_in">append</span>(filtered, line)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> filtered, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/12/24/podman-top-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1195,7 +1191,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">102</span>
+          <span class="site-state-item-count">103</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1263,7 +1259,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">48:22</span>
+    <span title="Reading time total">48:24</span>
 </div>
 
 <!--

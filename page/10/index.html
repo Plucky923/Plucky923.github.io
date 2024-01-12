@@ -197,6 +197,106 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/14/MIT6-S081-Operating-System-Engineering-Lecture05-Calling-conventions-and-stack-frames-RISC-V-TA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/04/14/MIT6-S081-Operating-System-Engineering-Lecture05-Calling-conventions-and-stack-frames-RISC-V-TA/" class="post-title-link" itemprop="url">MIT6 S081 Operating System Engineering Lecture05 Calling conventions and stack frames RISC-V(TA)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-04-14 15:14:27" itemprop="dateCreated datePublished" datetime="2023-04-14T15:14:27+08:00">2023-04-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-04-20 14:13:23" itemprop="dateModified" datetime="2023-04-20T14:13:23+08:00">2023-04-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">课程学习</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/MIT6-S081-Operating-System-Engineering/" itemprop="url" rel="index"><span itemprop="name">MIT6.S081 Operating System Engineering</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>7 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="C程序到汇编程序的转换"><a href="#C程序到汇编程序的转换" class="headerlink" title="C程序到汇编程序的转换"></a>C程序到汇编程序的转换</h1><p>当我们说到一个RISC-V处理器时，意味着这个处理器能够理解RISC-V的指令集。所以，任何一个处理器都有一个关联的ISA（Instruction Sets Architecture），ISA就是处理器能够理解的指令集。每一条指令都有一个对应的二进制编码或者一个Opcode。当处理器在运行时，如果看见了这些编码，那么处理器就知道该做什么样的操作。</p>
+<p>所以通常来说，要让C语言能够运行在你的处理器之上。我们首先要写出C程序，之后这个C程序需要被编译成汇编语言。这个过程中有一些链接和其他的步骤，但是因为这门课不是一个编译器的课程，所以我们忽略这些步骤。之后汇编语言会被翻译成二进制文件也就是.obj或者.o文件。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/04/14/MIT6-S081-Operating-System-Engineering-Lecture05-Calling-conventions-and-stack-frames-RISC-V-TA/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/14/C++-%E5%AD%A6%E4%B9%A0-%E5%BC%95%E7%94%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1119,106 +1219,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/" class="post-title-link" itemprop="url">论文阅读 A Study on the Security Implications of Information Leakages in Container Clouds</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-03-30 22:40:21" itemprop="dateCreated datePublished" datetime="2023-03-30T22:40:21+08:00">2023-03-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-04-15 13:07:00" itemprop="dateModified" datetime="2023-04-15T13:07:00+08:00">2023-04-15</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/" itemprop="url" rel="index"><span itemprop="name">论文精读</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/%E5%86%85%E6%A0%B8%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">内核安全</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>30k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>54 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><p><code>Container technology</code>提供了一个轻量级的操作系统虚拟主机环境。Container technology的出现深刻的改变了多层分布式应用的开发和部署范式（paradigms of multi-tier distributed applications）。然而，由于Linux系统内核中的系统资源隔离机制没有完全实现（system resource isolation mechanisms），在一个基于container的多租户云服务（<code>multi-tenancy container-based cloud service</code>）中，一些安全问题仍然存在。在本文，我们首先介绍了可以在containers内访问的信息泄露渠道。这些渠道暴露了一系列的系统范围的主机信息给没有适当资源分区的containers。通过利用泄露的主机信息，作为租户在container cloud中的恶意的攻击者就会更容易的发起可能影响云服务的可靠性的安全攻击。我们证明了信息泄露渠道将会被利用于推断隐私数据，检测和验证<code>co-residence</code>，建立隐蔽通道，发动更高级的基于云的攻击。我们讨论了container中的信息泄露的根本原因，并提出了一个两阶段的防御方法。正如评估中所证明的，我们的防御是有效的，并且性能开销非常小。   </p>
-<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/03/30/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%20A-Study-on-the-Security-Implications-of-Information-Leakages-in-Container-Clouds/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1288,7 +1288,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">102</span>
+          <span class="site-state-item-count">103</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1356,7 +1356,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">48:22</span>
+    <span title="Reading time total">48:24</span>
 </div>
 
 <!--

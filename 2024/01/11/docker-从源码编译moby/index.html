@@ -23,17 +23,19 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="记录">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Plucky">
-<meta property="og:url" content="http://example.com/archives/2023/page/2/index.html">
+  <meta name="description" content="首先clone moby的代码到本地 1git clone https:&#x2F;&#x2F;github.com&#x2F;moby&#x2F;moby.git  根据官方文档的要求，我们确保主机上没有安装不需要的docker镜像（其实没啥必要），所以可以使用下面的指令删除镜像">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker 从源码编译moby">
+<meta property="og:url" content="http://example.com/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91moby/index.html">
 <meta property="og:site_name" content="Plucky">
-<meta property="og:description" content="记录">
+<meta property="og:description" content="首先clone moby的代码到本地 1git clone https:&#x2F;&#x2F;github.com&#x2F;moby&#x2F;moby.git  根据官方文档的要求，我们确保主机上没有安装不需要的docker镜像（其实没啥必要），所以可以使用下面的指令删除镜像">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-01-11T01:23:32.000Z">
+<meta property="article:modified_time" content="2024-01-11T01:53:01.178Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/archives/2023/page/2/">
+<link rel="canonical" href="http://example.com/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91moby/">
 
 
 <script id="page-configurations">
@@ -41,12 +43,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'en'
   };
 </script>
 
-  <title>Archive | Plucky</title>
+  <title>docker 从源码编译moby | Plucky</title>
   
 
 
@@ -191,240 +193,149 @@
         <div class="content-wrap">
           
 
-          <div class="content archive">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        
-        <span class="collection-header">Good! 103 posts in total. Keep on posting.</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91moby/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          docker 从源码编译moby
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-01-11 09:23:32 / Modified: 09:53:01" itemprop="dateCreated datePublished" datetime="2024-01-11T09:23:32+08:00">2024-01-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%B9%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">容器</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.3k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2023</span>
-    </div>
+        <p>首先clone moby的代码到本地</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/moby/moby.git</span><br></pre></td></tr></table></figure>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+<p>根据官方文档的要求，我们确保主机上没有安装不需要的docker镜像（其实没啥必要），所以可以使用下面的指令删除镜像</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker system prune -a</span><br></pre></td></tr></table></figure>
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-12-15T14:52:27+08:00"
-              content="2023-12-15">
-          12-15
-        </time>
-      </div>
+<p>或者</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm $(docker ps -a -q)</span><br></pre></td></tr></table></figure>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/12/15/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90-CVE-2019-5736/" itemprop="url">
-            <span itemprop="name">漏洞分析 CVE-2019-5736</span>
-          </a>
-      </div>
+<p>删除所有的虚悬镜像(dangling image)</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rmi -f $(docker images -q -a -f dangling=true)</span><br></pre></td></tr></table></figure>
 
-    </header>
-  </article>
+<p>一番操作完毕后，终于可以进入我们的正题了，这里，我们进入源码的文件夹中，开启terminal，执行构建任务</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo make BIND_DIR=. shell</span><br></pre></td></tr></table></figure>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+<p>因为这里会有网络的问题，所以我们修改dockerfile</p>
+<p>在dockerfile中有涉及到go语言的，比如</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GOBIN=/build/ GO111MODULE=on go install <span class="string">&quot;github.com/pelletier/go-toml/cmd/tomll@$&#123;GOTOML_VERSION&#125;&quot;</span> \</span><br></pre></td></tr></table></figure>
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-12-15T14:51:50+08:00"
-              content="2023-12-15">
-          12-15
-        </time>
-      </div>
+<p>在其中加入</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GOPROXY=https://goproxy.cn</span><br></pre></td></tr></table></figure>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/12/15/%E5%AD%A6%E4%B9%A0-Linux-proc-pid-%E4%B8%8B%E6%96%87%E4%BB%B6%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E5%88%86%E6%9E%90/" itemprop="url">
-            <span itemprop="name">学习 Linux /proc/[pid]下文件访问权限分析</span>
-          </a>
-      </div>
+<p>修改完毕之后继续执行构建，这步时间会比较长，构建完毕会进入一个容器，运行如下指令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hack/make.sh binary install-binary</span><br></pre></td></tr></table></figure>
 
-    </header>
-  </article>
+<p>然后使用如下指令启动dockerd</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dockerd -D &amp;</span><br></pre></td></tr></table></figure>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-12-12T11:28:39+08:00"
-              content="2023-12-12">
-          12-12
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/12/12/Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E8%A1%A8%E5%8F%8A%E5%85%A8%E9%83%A8%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E5%88%86%E6%9E%90/" itemprop="url">
-            <span itemprop="name">Linux系统调用表</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-12-11T16:44:22+08:00"
-              content="2023-12-11">
-          12-11
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-%E5%85%A5%E9%97%A8%E5%BC%80%E5%8F%91%E5%AE%9E%E8%B7%B5/" itemprop="url">
-            <span itemprop="name">eBPF 学习 入门开发实践</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-12-11T15:44:45+08:00"
-              content="2023-12-11">
-          12-11
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-kprobes%E5%8F%8A%E7%9B%91%E5%90%ACunlink%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" itemprop="url">
-            <span itemprop="name">eBPF 学习 kprobes及监听unlink系统调用</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-12-11T15:09:06+08:00"
-              content="2023-12-11">
-          12-11
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/12/11/eBPF-%E5%AD%A6%E4%B9%A0-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8AHelloWorld/" itemprop="url">
-            <span itemprop="name">eBPF 学习 开发环境搭建及HelloWorld</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-12-10T17:12:38+08:00"
-              content="2023-12-10">
-          12-10
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/12/10/glibc%E9%87%8D%E6%96%B0%E7%BC%96%E8%AF%91/" itemprop="url">
-            <span itemprop="name">Ubuntu下glibc重新编译</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-12-10T16:35:10+08:00"
-              content="2023-12-10">
-          12-10
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/12/10/go%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%BB%A5%E5%8F%8A%E9%87%8D%E6%96%B0%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85/" itemprop="url">
-            <span itemprop="name">go语言环境搭建以及重新编译安装</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-12-10T16:20:07+08:00"
-              content="2023-12-10">
-          12-10
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/12/10/Ubuntu%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85Podman/" itemprop="url">
-            <span itemprop="name">Ubuntu编译安装Podman</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-11-28T10:13:58+08:00"
-              content="2023-11-28">
-          11-28
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/11/28/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0-CVE-2019-5736-docker%E5%AE%B9%E5%99%A8%E9%80%83%E9%80%B8/" itemprop="url">
-            <span itemprop="name">漏洞复现 CVE-2019-5736 docker容器逃逸</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
+<p>之后我们可以使用docker version查看docker的信息</p>
+<blockquote>
+<p>Client:<br> Version:           24.0.2<br> API version:       1.43<br> Go version:        go1.20.4<br> Git commit:        cb74dfc<br> Built:             Thu May 25 21:50:49 2023<br> OS&#x2F;Arch:           linux&#x2F;amd64<br> Context:           default</p>
+<p>Server:<br> Engine:<br>  Version:          dev<br>  API version:      1.44 (minimum version 1.24)<br>  Go version:       go1.21.5<br>  Git commit:       afc7e581e601d53d3b346828bd94ac1fed1e226d-unsupported<br>  Built:            Thu Jan 11 01:11:13 2024<br>  OS&#x2F;Arch:          linux&#x2F;amd64<br>  Experimental:     false<br> containerd:<br>  Version:          v1.7.11<br>  GitCommit:        64b8a811b07ba6288238eefc14d898ee0b5b99ba<br> runc:<br>  Version:          1.1.11<br>  GitCommit:        v1.1.11-0-g4bccb38<br> docker-init:<br>  Version:          0.19.0<br>  GitCommit:        de40ad0</p>
+</blockquote>
+<p>这里的server下的version是dev，编译时间是刚刚，说明我们编译成功</p>
+<p>现在我们可以修改源码，然后再次使用指令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hack/make.sh binary install-binary</span><br></pre></td></tr></table></figure>
 
     </div>
-  </div>
-  
-  
-  
 
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="prev" title="学习 Linux Cgroup 源码分析">
+      <i class="fa fa-chevron-left"></i> 学习 Linux Cgroup 源码分析
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
   
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/archives/2023/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/archives/2023/">1</a><span class="page-number current">2</span><a class="page-number" href="/archives/2023/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/archives/2023/page/10/">10</a><a class="extend next" rel="next" href="/archives/2023/page/3/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
-  </nav>
+  
+  
 
 
 
           </div>
           
+    <div class="comments" id="gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -651,6 +562,25 @@ if (document.querySelectorAll('pre.mermaid').length) {
 
   
 
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '3420f2814bb4c3c82f84',
+      clientSecret: '9d285617447c550188bd893fc3aad7c9b00f2d00',
+      repo        : 'Blog-talk',
+      owner       : 'Plucky923',
+      admin       : ['Plucky923'],
+      id          : '70a2e502781c76837409dd04e521e5d4',
+        language: 'zh-CH',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
 
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
 </html>
