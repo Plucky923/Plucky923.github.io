@@ -23,19 +23,19 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="首先clone moby的代码到本地 1git clone https:&#x2F;&#x2F;github.com&#x2F;moby&#x2F;moby.git  根据官方文档的要求，我们确保主机上没有安装不需要的docker镜像（其实没啥必要），所以可以使用下面的指令删除镜像">
+  <meta name="description" content="简介自从docker-ce 20.10开始，docker官方公司维护的docker-ce的仓库就已经弃用了。 原本docker-ce的仓库地址为：docker&#x2F;docker-ce">
 <meta property="og:type" content="article">
-<meta property="og:title" content="docker 从源码编译moby">
-<meta property="og:url" content="http://example.com/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91moby/index.html">
+<meta property="og:title" content="docker 从源码编译">
+<meta property="og:url" content="http://example.com/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/index.html">
 <meta property="og:site_name" content="Plucky">
-<meta property="og:description" content="首先clone moby的代码到本地 1git clone https:&#x2F;&#x2F;github.com&#x2F;moby&#x2F;moby.git  根据官方文档的要求，我们确保主机上没有安装不需要的docker镜像（其实没啥必要），所以可以使用下面的指令删除镜像">
+<meta property="og:description" content="简介自从docker-ce 20.10开始，docker官方公司维护的docker-ce的仓库就已经弃用了。 原本docker-ce的仓库地址为：docker&#x2F;docker-ce">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-01-11T01:23:32.000Z">
-<meta property="article:modified_time" content="2024-01-11T01:53:01.178Z">
+<meta property="article:modified_time" content="2024-01-12T07:38:51.855Z">
 <meta property="article:author" content="Plucky">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91moby/">
+<link rel="canonical" href="http://example.com/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/">
 
 
 <script id="page-configurations">
@@ -48,7 +48,7 @@
   };
 </script>
 
-  <title>docker 从源码编译moby | Plucky</title>
+  <title>docker 从源码编译 | Plucky</title>
   
 
 
@@ -200,7 +200,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91moby/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -213,7 +213,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          docker 从源码编译moby
+          docker 从源码编译
         </h1>
 
         <div class="post-meta">
@@ -222,10 +222,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2024-01-11 09:23:32 / Modified: 09:53:01" itemprop="dateCreated datePublished" datetime="2024-01-11T09:23:32+08:00">2024-01-11</time>
+              <time title="Created: 2024-01-11 09:23:32" itemprop="dateCreated datePublished" datetime="2024-01-11T09:23:32+08:00">2024-01-11</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-01-12 15:38:51" itemprop="dateModified" datetime="2024-01-12T15:38:51+08:00">2024-01-12</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -249,14 +255,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.3k</span>
+              <span>2.1k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
+              <span>4 mins.</span>
             </span>
 
         </div>
@@ -268,7 +274,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>首先clone moby的代码到本地</p>
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>自从docker-ce 20.10开始，docker官方公司维护的docker-ce的仓库就已经弃用了。</p>
+<p>原本docker-ce的仓库地址为：<a target="_blank" rel="noopener" href="https://github.com/docker/docker-ce">docker&#x2F;docker-ce</a></p>
+<p>随机docker被拆分为两部分，一部分是cli，用来处理client的部分，也就是解析命令，另一部分是docker engine部分，也就是daemon部分。这两部分对应的仓库分别位于docker cli和docker engine（moby）。</p>
+<p>下载后分别处理docker cli和docker engine。</p>
+<h1 id="docker-cli"><a href="#docker-cli" class="headerlink" title="docker cli"></a>docker cli</h1><p>首先clone docker cli的源码到本地</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone git@github.com:docker/cli.git</span><br></pre></td></tr></table></figure>
+
+<p>进入文件夹，切换到需要的分支，运行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo su</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make -f docker.Makefile binary</span><br></pre></td></tr></table></figure>
+
+<p>命令执行完成后，在build目录下可以找到docker二进制文件，然后执行使用该文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./docker version</span><br></pre></td></tr></table></figure>
+
+<p>就可以看到docker的输出</p>
+<p>如果中间出现了网络的问题，也可以参考下文moby的解决</p>
+<h1 id="moby"><a href="#moby" class="headerlink" title="moby"></a>moby</h1><p>首先clone moby的代码到本地</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/moby/moby.git</span><br></pre></td></tr></table></figure>
 
 <p>根据官方文档的要求，我们确保主机上没有安装不需要的docker镜像（其实没啥必要），所以可以使用下面的指令删除镜像</p>
@@ -305,6 +328,31 @@
 <p>现在我们可以修改源码，然后再次使用指令</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hack/make.sh binary install-binary</span><br></pre></td></tr></table></figure>
 
+<hr>
+<p>直接binary</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make binary</span><br></pre></td></tr></table></figure>
+
+<p>就可以在 bundles&#x2F;binary-daemon 目录下就能找到 dockerd这个可执行文件</p>
+<p>接着我们需要执行 systemctl stop docker 和 systemctl stop docker.socket 停止原来的 docker 服务。</p>
+<p>然后运行.&#x2F;dockerd就可以执行了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./dockerd</span><br></pre></td></tr></table></figure>
+
+<h1 id="containerd"><a href="#containerd" class="headerlink" title="containerd"></a>containerd</h1><p>将containerd clone到本地</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone git@github.com:containerd/containerd.git</span><br></pre></td></tr></table></figure>
+
+<p>然后</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+
+<h1 id="runc"><a href="#runc" class="headerlink" title="runc"></a>runc</h1><p>将runc clone到本地</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone git@github.com:opencontainers/runc.git</span><br></pre></td></tr></table></figure>
+
+<p>然后</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+
     </div>
 
     
@@ -322,7 +370,10 @@
     <a href="/2024/01/10/%E5%AD%A6%E4%B9%A0-Linux-Cgroup-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="prev" title="学习 Linux Cgroup 源码分析">
       <i class="fa fa-chevron-left"></i> 学习 Linux Cgroup 源码分析
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2024/01/12/docker-%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84/" rel="next" title="docker 基础架构">
+      docker 基础架构 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -382,6 +433,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#docker-cli"><span class="nav-number">2.</span> <span class="nav-text">docker cli</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#moby"><span class="nav-number">3.</span> <span class="nav-text">moby</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#containerd"><span class="nav-number">4.</span> <span class="nav-text">containerd</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#runc"><span class="nav-number">5.</span> <span class="nav-text">runc</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -395,7 +447,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">103</span>
+          <span class="site-state-item-count">105</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -463,7 +515,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">48:24</span>
+    <span title="Reading time total">49:07</span>
 </div>
 
 <!--
@@ -573,7 +625,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'Blog-talk',
       owner       : 'Plucky923',
       admin       : ['Plucky923'],
-      id          : '70a2e502781c76837409dd04e521e5d4',
+      id          : '5b3ac9e91c560dd177ec75ac90e32128',
         language: 'zh-CH',
       distractionFreeMode: true
     });

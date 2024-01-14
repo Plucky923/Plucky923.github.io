@@ -197,7 +197,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91moby/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/12/docker-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E4%BB%8Eclient%E5%88%B0daemon/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -211,7 +211,102 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91moby/" class="post-title-link" itemprop="url">docker 从源码编译moby</a>
+            <a href="/2024/01/12/docker-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E4%BB%8Eclient%E5%88%B0daemon/" class="post-title-link" itemprop="url">docker 源码分析 从client到daemon</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-01-12 16:31:44" itemprop="dateCreated datePublished" datetime="2024-01-12T16:31:44+08:00">2024-01-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-01-13 13:22:52" itemprop="dateModified" datetime="2024-01-13T13:22:52+08:00">2024-01-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%B9%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">容器</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>21k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>38 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="docker-client"><a href="#docker-client" class="headerlink" title="docker client"></a>docker client</h1><h2 id="入口main"><a href="#入口main" class="headerlink" title="入口main"></a>入口main</h2><p><a target="_blank" rel="noopener" href="https://github.com/docker/cli/blob/master/cmd/docker/docker.go#L28">cli&#x2F;cmd&#x2F;docker&#x2F;docker.go at master · docker&#x2F;cli (github.com)</a></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/01/12/docker-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E4%BB%8Eclient%E5%88%B0daemon/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/12/docker-%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/01/12/docker-%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84/" class="post-title-link" itemprop="url">docker 基础架构</a>
         </h2>
 
         <div class="post-meta">
@@ -222,7 +317,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2024-01-11 09:23:32 / Modified: 09:53:01" itemprop="dateCreated datePublished" datetime="2024-01-11T09:23:32+08:00">2024-01-11</time>
+              <time title="Created: 2024-01-12 15:57:27 / Modified: 16:12:56" itemprop="dateCreated datePublished" datetime="2024-01-12T15:57:27+08:00">2024-01-12</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -240,14 +335,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.3k</span>
+              <span>2k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
+              <span>4 mins.</span>
             </span>
 
         </div>
@@ -259,13 +354,111 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>首先clone moby的代码到本地</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/moby/moby.git</span><br></pre></td></tr></table></figure>
-
-<p>根据官方文档的要求，我们确保主机上没有安装不需要的docker镜像（其实没啥必要），所以可以使用下面的指令删除镜像</p>
+          <p>Docker 使用客户端-服务器架构。Docker <em>客户端（<code>client</code>）</em> 与 <em>守护进程（<code>Docker daemon</code>）</em> 进行对话，该<em>守护进程</em> 完成了构建、运行和分发 Docker 容器的繁重工作。Docker 客户端和守护进程可以在同一系统上运行，或者您可以将 Docker 客户端连接到远程 Docker 守护进程。Docker 客户端和守护进程在 UNIX 套接字或网络接口上使用 REST API 进行通信。</p>
+<p>docker是典型的 c&#x2F;s 架构。</p>
+<ol>
+<li>docker client：这里安装的是cli，提供命令行功能。<a target="_blank" rel="noopener" href="https://github.com/docker/cli">docker&#x2F;cli: The Docker CLI (github.com)</a></li>
+<li>docker server：docker具体功能的实现者。也称之为 docker engine、docker daemon。<a target="_blank" rel="noopener" href="https://github.com/moby/moby">moby&#x2F;moby: The Moby Project - a collaborative project for the container ecosystem to assemble container-based systems (github.com)</a></li>
+</ol>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91moby/#more" rel="contents">
+              <a class="btn" href="/2024/01/12/docker-%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Plucky">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Plucky">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/" class="post-title-link" itemprop="url">docker 从源码编译</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-01-11 09:23:32" itemprop="dateCreated datePublished" datetime="2024-01-11T09:23:32+08:00">2024-01-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-01-12 15:38:51" itemprop="dateModified" datetime="2024-01-12T15:38:51+08:00">2024-01-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%B9%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">容器</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>自从docker-ce 20.10开始，docker官方公司维护的docker-ce的仓库就已经弃用了。</p>
+<p>原本docker-ce的仓库地址为：<a target="_blank" rel="noopener" href="https://github.com/docker/docker-ce">docker&#x2F;docker-ce</a></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/01/11/docker-%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -937,191 +1130,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/25/crun-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/12/25/crun-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">crun exec 源码分析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-12-25 16:48:09" itemprop="dateCreated datePublished" datetime="2023-12-25T16:48:09+08:00">2023-12-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-26 10:59:27" itemprop="dateModified" datetime="2023-12-26T10:59:27+08:00">2023-12-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AE%B9%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">容器</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>19k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>34 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><a target="_blank" rel="noopener" href="https://github.com/containers/crun/tree/f987a57226eb8d6795920ee213a91be0ebe2a161">containers&#x2F;crun at f987a57226eb8d6795920ee213a91be0ebe2a161 (github.com)</a></p>
-<h1 id="入口"><a href="#入口" class="headerlink" title="入口"></a>入口</h1><p><a target="_blank" rel="noopener" href="https://github.com/containers/crun/blob/main/src/crun.c#L149">crun&#x2F;src&#x2F;crun.c at main · containers&#x2F;crun (github.com)</a></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/12/25/crun-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/25/runc-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Plucky">
-      <meta itemprop="description" content="记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Plucky">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/12/25/runc-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">runc exec 源码分析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2023-12-25 09:03:51 / Modified: 11:01:01" itemprop="dateCreated datePublished" datetime="2023-12-25T09:03:51+08:00">2023-12-25</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AE%B9%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">容器</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>27k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>49 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="runc-exec源码分析"><a href="#runc-exec源码分析" class="headerlink" title="runc exec源码分析"></a>runc exec源码分析</h1><h2 id="runc-exec命令入口"><a href="#runc-exec命令入口" class="headerlink" title="runc exec命令入口"></a>runc exec命令入口</h2><p><a target="_blank" rel="noopener" href="https://github.com/opencontainers/runc/blob/main/exec.go">runc&#x2F;exec.go at main · opencontainers&#x2F;runc (github.com)</a></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/12/25/runc-exec-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1191,7 +1199,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">103</span>
+          <span class="site-state-item-count">105</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1259,7 +1267,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">48:24</span>
+    <span title="Reading time total">49:07</span>
 </div>
 
 <!--
