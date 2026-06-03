@@ -1,0 +1,76 @@
+<section class="plucky-home">
+  <div class="plucky-hero">
+    <div class="plucky-hero-copy">
+      <p class="plucky-eyebrow">
+        <span class="plucky-status-dot"></span>
+        PLUCKY / DIGITAL FIELD NOTES
+      </p>
+
+      <h1 class="plucky-wordmark" data-text="plucky">
+        plucky
+      </h1>
+
+      <p class="plucky-lede">
+        Notes on systems, software, and ideas.
+      </p>
+
+      <div class="plucky-actions">
+        <a class="plucky-button plucky-button-primary" href="#recent">
+          Explore notes
+          <span aria-hidden="true">&#8600;</span>
+        </a>
+
+        <a class="plucky-button plucky-button-secondary" href="/post/">
+          Browse archive
+          <span aria-hidden="true">&#8594;</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="plucky-visual" aria-hidden="true">
+      <div class="plucky-grid-plane"></div>
+
+      <div class="plucky-orb plucky-orb-primary"></div>
+      <div class="plucky-orb plucky-orb-secondary"></div>
+
+      <div class="plucky-ring plucky-ring-a"></div>
+      <div class="plucky-ring plucky-ring-b"></div>
+      <div class="plucky-ring plucky-ring-c"></div>
+
+      <div class="plucky-visual-label plucky-visual-label-top">
+        SIGNAL / 01
+      </div>
+
+      <div class="plucky-visual-label plucky-visual-label-bottom">
+        SYSTEMS &#183; SOFTWARE &#183; IDEAS
+      </div>
+    </div>
+  </div>
+
+  <div class="plucky-bento">
+    <a class="plucky-panel plucky-panel-wide" href="#recent">
+      <span class="plucky-panel-index">01</span>
+      <span class="plucky-panel-kicker">LATEST ENTRIES</span>
+      <strong>Recent notes</strong>
+      <span class="plucky-panel-arrow">&#8600;</span>
+    </a>
+
+    <a class="plucky-panel" href="/post/">
+      <span class="plucky-panel-index">02</span>
+      <span class="plucky-panel-kicker">LONGFORM</span>
+      <strong>Articles</strong>
+      <span class="plucky-panel-arrow">&#8594;</span>
+    </a>
+
+    <a class="plucky-panel" href="/tags/">
+      <span class="plucky-panel-index">03</span>
+      <span class="plucky-panel-kicker">INDEX</span>
+      <strong>Tags</strong>
+      <span class="plucky-panel-arrow">&#8594;</span>
+    </a>
+  </div>
+
+  <div id="recent" class="plucky-recent">
+    {{ partial "recent-articles/main.html" . }}
+  </div>
+</section>
