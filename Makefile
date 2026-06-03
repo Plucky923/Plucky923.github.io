@@ -8,7 +8,7 @@ server:
 build:
 	hugo --gc --minify
 
-# 清理构建产物和缓存
+# 清理项目构建产物（仅删除项目内目录，不影响 Hugo 全局模块缓存）
 clean:
 	rm -rf public/ resources/_gen/
 
