@@ -1,0 +1,21 @@
+# Hugo build output
+/public/
+/resources/_gen/
+/hugo_stats.json
+
+# Hugo module cache
+hugo_cache/
+
+# Node.js
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

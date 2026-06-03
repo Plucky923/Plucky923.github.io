@@ -1,7 +1,7 @@
 name: Deploy website to GitHub Pages
 
 env:
-  WC_HUGO_VERSION: '0.136.5'
+  HUGO_VERSION: '0.136.5'
 
 on:
   # Trigger the workflow every time you push to the `main` branch
@@ -23,34 +23,38 @@ concurrency:
 jobs:
   # Build website
   build:
-    if: github.repository_owner != 'HugoBlox'
     runs-on: ubuntu-latest
+    env:
+      HUGO_CACHEDIR: /tmp/hugo_cache
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-          # Fetch history for Hugo's .GitInfo and .Lastmod
+        # Fetch history for Hugo's .GitInfo and .Lastmod
         fetch-depth: 0
     - name: Setup Hugo
-      uses: peaceiris/actions-hugo@v2
+      uses: peaceiris/actions-hugo@v3
       with:
-        hugo-version: ${{ env.WC_HUGO_VERSION }}
+        hugo-version: ${{ env.HUGO_VERSION }}
         extended: true
-    - uses: actions/cache@v3
+    - name: Cache Hugo modules
+      uses: actions/cache@v4
       with:
-        path: /tmp/hugo_cache_runner/
+        path: |
+          /tmp/hugo_cache
+          ~/go/pkg/mod
         key: ${{ runner.os }}-hugomod-${{ hashFiles('**/go.mod') }}
         restore-keys: |
           ${{ runner.os }}-hugomod-
     - name: Setup Pages
       id: pages
       uses: actions/configure-pages@v5
+    - name: Download Hugo modules
+      run: hugo mod get
     - name: Build with Hugo
       env:
         HUGO_ENVIRONMENT: production
-      run: |
-        echo "Hugo Cache Dir: $(hugo config | grep cachedir)"
-        hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+      run: hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
     - name: Generate Pagefind search index
       run: npx pagefind --site "public"
     - name: Upload artifact
@@ -60,7 +64,6 @@ jobs:
 
   # Deploy website to GitHub Pages hosting
   deploy:
-    if: github.repository_owner != 'HugoBlox'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

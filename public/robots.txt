@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://plucky923.github.io/sitemap.xml
