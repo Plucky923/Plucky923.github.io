@@ -28,11 +28,11 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Setup Hugo
-      uses: peaceiris/actions-hugo@v3
-      with:
-        hugo-version: ${{ env.HUGO_VERSION }}
-        extended: true
+    - name: Install Hugo
+      run: |
+        wget -q https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb
+        sudo dpkg -i hugo_extended_${HUGO_VERSION}_linux-amd64.deb
+        hugo version
 
     - name: Cache Hugo modules
       uses: actions/cache@v4
@@ -46,7 +46,6 @@ jobs:
 
     - name: Download Hugo modules
       run: |
-        hugo version
         hugo mod get
         hugo mod verify || true
 
