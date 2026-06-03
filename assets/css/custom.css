@@ -1,0 +1,159 @@
+/* ============================================================
+   Global foundation
+   ============================================================ */
+
+html {
+  scroll-behavior: smooth;
+  font-size: 12.5pt;
+}
+
+body {
+  letter-spacing: 0.004em;
+  background-color: rgb(8, 9, 14);
+}
+
+/* Subtle texture without using a homepage background image. */
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  opacity: 0.34;
+  background:
+    radial-gradient(
+      circle at 18% 12%,
+      rgba(139, 92, 246, 0.13),
+      transparent 30rem
+    ),
+    radial-gradient(
+      circle at 84% 18%,
+      rgba(34, 211, 238, 0.08),
+      transparent 28rem
+    );
+}
+
+
+/* ============================================================
+   Header
+   ============================================================ */
+
+header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+
+/* ============================================================
+   Typography
+   ============================================================ */
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.025em;
+}
+
+h1 {
+  font-weight: 760;
+}
+
+.prose {
+  line-height: 1.82;
+}
+
+.prose p {
+  margin-top: 1.08em;
+  margin-bottom: 1.08em;
+}
+
+
+/* ============================================================
+   Accent links
+   ============================================================ */
+
+.prose a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition:
+    color 180ms ease,
+    text-decoration-color 180ms ease;
+}
+
+.prose a:hover {
+  color: rgb(103, 232, 249);
+  text-decoration-color: rgba(103, 232, 249, 0.72);
+}
+
+
+/* ============================================================
+   Editorial cards
+   ============================================================ */
+
+.thumbnail_card {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(139, 92, 246, 0.04);
+  transition:
+    transform 240ms ease,
+    border-color 240ms ease,
+    box-shadow 240ms ease,
+    filter 240ms ease;
+}
+
+a:hover .thumbnail_card {
+  transform: translateY(-5px) scale(1.015);
+  border-color: rgba(167, 139, 250, 0.34);
+  box-shadow:
+    0 24px 56px rgba(0, 0, 0, 0.38),
+    0 0 32px rgba(139, 92, 246, 0.14);
+  filter: saturate(1.08) contrast(1.04);
+}
+
+
+/* ============================================================
+   Article media
+   ============================================================ */
+
+.prose img,
+article img {
+  border-radius: 1rem;
+}
+
+pre {
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 0.9rem;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18);
+}
+
+
+/* ============================================================
+   Quotes and separators
+   ============================================================ */
+
+.prose blockquote {
+  border-left-width: 3px;
+  border-left-color: rgba(167, 139, 250, 0.78);
+  background: rgba(139, 92, 246, 0.055);
+  border-radius: 0 0.75rem 0.75rem 0;
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+  padding-right: 1rem;
+}
+
+hr {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+
+/* ============================================================
+   Selection and scrollbar details
+   ============================================================ */
+
+::selection {
+  color: rgb(255, 255, 255);
+  background-color: rgba(139, 92, 246, 0.52);
+}
