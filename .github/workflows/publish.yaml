@@ -4,13 +4,10 @@ env:
   HUGO_VERSION: '0.136.5'
 
 on:
-  # Trigger the workflow every time you push to the `main` branch
   push:
     branches: ["main"]
-  # Allows you to run this workflow manually from the Actions tab on GitHub.
   workflow_dispatch:
 
-# Provide permission to clone the repo and deploy it to GitHub Pages
 permissions:
   contents: read
   pages: write
@@ -21,7 +18,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Build website
   build:
     runs-on: ubuntu-latest
     env:
@@ -30,13 +26,14 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        # Fetch history for Hugo's .GitInfo and .Lastmod
         fetch-depth: 0
+
     - name: Setup Hugo
       uses: peaceiris/actions-hugo@v3
       with:
         hugo-version: ${{ env.HUGO_VERSION }}
         extended: true
+
     - name: Cache Hugo modules
       uses: actions/cache@v4
       with:
@@ -46,23 +43,24 @@ jobs:
         key: ${{ runner.os }}-hugomod-${{ hashFiles('**/go.mod') }}
         restore-keys: |
           ${{ runner.os }}-hugomod-
-    - name: Setup Pages
-      id: pages
-      uses: actions/configure-pages@v5
+
     - name: Download Hugo modules
-      run: hugo mod get
+      run: |
+        echo "Hugo version: $(hugo version)"
+        hugo mod get
+        hugo mod verify || true
+
     - name: Build with Hugo
       env:
         HUGO_ENVIRONMENT: production
-      run: hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
-    - name: Generate Pagefind search index
-      run: npx pagefind --site "public"
+      run: |
+        hugo --minify --baseURL "https://plucky923.github.io/"
+
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
       with:
         path: ./public
 
-  # Deploy website to GitHub Pages hosting
   deploy:
     environment:
       name: github-pages
