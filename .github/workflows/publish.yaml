@@ -1,7 +1,7 @@
 name: Deploy website to GitHub Pages
 
 env:
-  HUGO_VERSION: '0.136.5'
+  HUGO_VERSION: '0.162.1'
 
 on:
   push:
@@ -33,9 +33,6 @@ jobs:
         wget -q https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb
         sudo dpkg -i hugo_extended_${HUGO_VERSION}_linux-amd64.deb
         hugo version
-        go version
-        ls -la
-        ls -la config/_default/
 
     - name: Cache Hugo modules
       uses: actions/cache@v4
@@ -47,11 +44,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-hugomod-
 
-    - name: Test Hugo config
-      run: |
-        hugo config 2>&1 || true
-        hugo env 2>&1 || true
-
     - name: Download Hugo modules
       run: |
         hugo mod get
@@ -61,18 +53,9 @@ jobs:
       env:
         HUGO_ENVIRONMENT: production
       run: |
-        hugo --minify --baseURL "https://plucky923.github.io/" 2>&1 | tee build.log
-        exit ${PIPESTATUS[0]}
-
-    - name: Upload build log
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: hugo-build-log
-        path: build.log
+        hugo --minify --baseURL "https://plucky923.github.io/"
 
     - name: Upload artifact
-      if: success()
       uses: actions/upload-pages-artifact@v3
       with:
         path: ./public

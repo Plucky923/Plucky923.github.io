@@ -1,61 +1,143 @@
 # -- Theme Options --
 # https://blowfish.page/docs/configuration/#theme-parameters
 
-colorScheme = "blowfish"
-defaultAppearance = "light"
-autoSwitchAppearance = true
+# ============================================================
+# Visual identity
+# ============================================================
+
+colorScheme = "plucky"
+
+# Force a consistent dark editorial appearance.
+defaultAppearance = "dark"
+autoSwitchAppearance = false
 
 enableSearch = true
 enableCodeCopy = true
+enableStyledScrollbar = true
 
-mainSections = ["post", "publication", "project"]
+disableImageZoom = false
+disableImageOptimization = false
+disableImageOptimizationMD = false
+
+highlightCurrentMenuArea = true
+
+smartTOC = true
+smartTOCHideUnfocusedChildren = true
+
+# Current Blowfish card templates support a configurable ratio.
+# 1.75 is close to 16:9 and produces a cinematic layout.
+thumbnailAspectRatio = "1.75"
+
+
+# ============================================================
+# Header
+# ============================================================
 
 [header]
-  layout = "fixed"
+  # Fixed translucent navigation bar with blur.
+  layout = "fixed-fill-blur"
+
+
+# ============================================================
+# Footer
+# ============================================================
 
 [footer]
   showMenu = true
   showCopyright = true
-  showThemeAttribution = true
-  showAppearanceSwitcher = true
+
+  # Remove generic theme attribution from the visible footer.
+  showThemeAttribution = false
+
+  # Keep the dark design visually consistent.
+  showAppearanceSwitcher = false
+
   showScrollToTop = true
 
+
+# ============================================================
+# Homepage
+# ============================================================
+
 [homepage]
-  layout = "profile"
+  # A visual card, not a full-screen background image.
+  layout = "card"
+
+  # Place this file at: assets/img/home-card.webp
+  homepageImage = "img/home-card.webp"
+
   showRecent = true
-  showRecentItems = 5
+  showRecentItems = 6
+
   showMoreLink = true
   showMoreLinkDest = "/post/"
-  cardView = false
-  cardViewScreenWidth = false
+
+  # Use a wide editorial gallery.
+  cardView = true
+  cardViewScreenWidth = true
+
+
+# ============================================================
+# Article pages
+# ============================================================
 
 [article]
   showDate = true
-  showDateUpdated = false
-  showAuthor = true
-  showHero = false
+  showDateUpdated = true
+
+  showAuthor = false
+  showAuthorBottom = false
+
+  # Use prominent article cover images.
+  showHero = true
+  heroStyle = "big"
+
   showBreadcrumbs = true
-  showDraftLabel = true
   showHeadingAnchors = true
+
   showPagination = true
+  invertPagination = false
+
   showReadingTime = true
+  showWordCount = true
   showTableOfContents = true
+
   showTaxonomies = true
   showCategories = true
   showTags = true
-  showWordCount = true
+  showCategoriesInSecondaryColor = true
+
+  showZenMode = true
+
+  sharingLinks = []
+
+
+# ============================================================
+# List pages
+# ============================================================
 
 [list]
   showHero = false
   showBreadcrumbs = true
+
   showSummary = true
-  showTableOfContents = false
-  groupByYear = true
-  cardView = false
+  groupByYear = false
+
+  cardView = true
+  cardViewScreenWidth = true
+
+
+# ============================================================
+# Taxonomy pages
+# ============================================================
 
 [taxonomy]
   showTermCount = true
   showBreadcrumbs = true
+  cardView = true
 
 [term]
   showBreadcrumbs = true
+  groupByYear = false
+  cardView = true
+  cardViewScreenWidth = true
