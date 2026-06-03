@@ -1,1227 +1,1003 @@
-<!doctype html>
-<!-- This site was created with Hugo Blox. https://hugoblox.com -->
-<!-- Last Published: May 8, 2025 --><html lang="en-us" dir="ltr"
-      data-wc-theme-default="system">
-  
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth" data-default-appearance="light"
+  data-auto-appearance="true"><head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="Hugo Blox Builder 0.3.1" />
-
   
+  <meta http-equiv="content-language" content="en" />
   
-
-
-
-
-
-
-
-
-
-
-
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   
-  
-  
-  
-  
-    
-    
-    
-  
-  
-
-  <meta name="author" content="Zhenchen Wang" />
-
-  
-  
-  
-    
+  <title>📈 Communicate your results effectively with the best data visualizations &middot; Zhenchen Wang&#39;s Blog</title>
+  <meta name="title" content="📈 Communicate your results effectively with the best data visualizations &middot; Zhenchen Wang&#39;s Blog" />
   
   <meta name="description" content="Use popular tools such as Plotly, Mermaid, and data frames." />
+  <meta name="keywords" content="Hugo, Hugo Blox, Markdown, " />
+  
+  
+  <link rel="canonical" href="https://plucky923.github.io/post/data-visualization/" />
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <link type="text/css" rel="stylesheet" href="/css/main.bundle.min.1c9cd0d1ebaf117272b5c4f6bd49878475cb210d5e0da4f061632d779f5bb46851881c187e6e634dba5071c4e3d80e7d5cec1dd80443b2fa68acd358f9eda881.css"
+    integrity="sha512-HJzQ0euvEXJytcT2vUmHhHXLIQ1eDaTwYWMtd59btGhRiBwYfm5jTbpQccTj2A59XOwd2ARDsvporNNY&#43;e2ogQ==" />
+  
+  
+  <script type="text/javascript" src="/js/appearance.min.516a16745bea5a9bd011138d254cc0fd3973cd55ce6e15f3dec763e7c7c2c7448f8fe7b54cca811cb821b0c7e12cd161caace1dd794ac3d34d40937cbcc9ee12.js"
+    integrity="sha512-UWoWdFvqWpvQERONJUzA/TlzzVXObhXz3sdj58fCx0SPj&#43;e1TMqBHLghsMfhLNFhyqzh3XlKw9NNQJN8vMnuEg=="></script>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <script defer type="text/javascript" id="script-bundle" src="/js/main.bundle.min.a2d78d78672e549fbfc972ece871725b5478ba0b65708dda20cb97ab80a865eae6d247e1b05a4aec6ebbf78647ec3233bad8b2609ed98eee53cd58aa17128bc7.js"
+    integrity="sha512-oteNeGcuVJ&#43;/yXLs6HFyW1R4ugtlcI3aIMuXq4CoZerm0kfhsFpK7G6794ZH7DIzutiyYJ7Zju5TzViqFxKLxw==" data-copy="" data-copied=""></script>
+  
+  
+  
+  <script src="/lib/zoom/zoom.min.37d2094687372da3f7343a221a470f6b8806f7891aa46a5a03966af7f0ebd38b9fe536cb154e6ad28f006d184b294525a7c4054b6bbb4be62d8b453b42db99bd.js" integrity="sha512-N9IJRoc3LaP3NDoiGkcPa4gG94kapGpaA5Zq9/Dr04uf5TbLFU5q0o8AbRhLKUUlp8QFS2u7S&#43;Yti0U7QtuZvQ=="></script>
+  
+  
+  
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  
+  
+  
+  
+  
+  
+  
+  
+  <meta property="og:url" content="https://plucky923.github.io/post/data-visualization/">
+  <meta property="og:site_name" content="Zhenchen Wang&#39;s Blog">
+  <meta property="og:title" content="📈 Communicate your results effectively with the best data visualizations">
+  <meta property="og:description" content="Use popular tools such as Plotly, Mermaid, and data frames.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2023-10-25T00:00:00+00:00">
+    <meta property="article:modified_time" content="2023-10-25T00:00:00+00:00">
+    <meta property="article:tag" content="Hugo">
+    <meta property="article:tag" content="Hugo Blox">
+    <meta property="article:tag" content="Markdown">
+    <meta property="og:image" content="https://plucky923.github.io/post/data-visualization/featured.jpg">
 
   
-  <link rel="alternate" hreflang="en-us" href="http://localhost:1313/post/data-visualization/" />
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://plucky923.github.io/post/data-visualization/featured.jpg">
+  <meta name="twitter:title" content="📈 Communicate your results effectively with the best data visualizations">
+  <meta name="twitter:description" content="Use popular tools such as Plotly, Mermaid, and data frames.">
 
   
-  
-  
-  
+  <script type="application/ld+json">
+  [{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "articleSection": "Posts",
+    "name": "📈 Communicate your results effectively with the best data visualizations",
+    "headline": "📈 Communicate your results effectively with the best data visualizations",
     
-    <link rel="stylesheet" href="/css/themes/emerald.min.css" />
-  
-
-  
-  
+    "abstract": "Use popular tools such as Plotly, Mermaid, and data frames.",
+    "inLanguage": "en",
+    "url" : "https:\/\/plucky923.github.io\/post\/data-visualization\/",
+    "author" : {
+      "@type": "Person",
+      "name": "Zhenchen Wang"
+    },
+    "copyrightYear": "2023",
+    "dateCreated": "2023-10-25T00:00:00\u002b00:00",
+    "datePublished": "2023-10-25T00:00:00\u002b00:00",
     
-    <link href="/dist/wc.min.css" rel="stylesheet" />
-  
-
-  
-  
-  
-
-  
-
-  <script>
-     
-    window.hbb = {
-       defaultTheme: document.documentElement.dataset.wcThemeDefault,
-       setDarkTheme: () => {
-        document.documentElement.classList.add("dark");
-        document.documentElement.style.colorScheme = "dark";
-      },
-       setLightTheme: () => {
-        document.documentElement.classList.remove("dark");
-        document.documentElement.style.colorScheme = "light";
-      }
-    }
-
-    console.debug(`Default Hugo Blox Builder theme is ${window.hbb.defaultTheme}`);
-
-    if ("wc-color-theme" in localStorage) {
-      localStorage.getItem("wc-color-theme") === "dark" ? window.hbb.setDarkTheme() : window.hbb.setLightTheme();
-    } else {
-      window.hbb.defaultTheme === "dark" ? window.hbb.setDarkTheme() : window.hbb.setLightTheme();
-      if (window.hbb.defaultTheme === "system") {
-        window.matchMedia("(prefers-color-scheme: dark)").matches ? window.hbb.setDarkTheme() : window.hbb.setLightTheme();
-      }
-    }
+    "dateModified": "2023-10-25T00:00:00\u002b00:00",
+    
+    "keywords": ["Hugo","Hugo Blox","Markdown"],
+    
+    "mainEntityOfPage": "true",
+    "wordCount": "425"
+  }]
   </script>
 
-  <script>
+
+  
+  
+  <meta name="author" content="Zhenchen Wang" />
+  
+  
+  
+  <link href="mailto:m202372036@hust.edu.cn" rel="me" />
+  
+  
+  <link href="https://github.com/Plucky923" rel="me" />
+  
+  
+  <link href="https://www.linkedin.com/" rel="me" />
+  
+  
+  <link href="https://twitter.com/GetResearchDev" rel="me" />
+  
+  
+  <link href="https://www.instagram.com/" rel="me" />
+  
+  
+  <link href="https://scholar.google.com/" rel="me" />
+  
+  
+  <link href="https://orcid.org/" rel="me" />
+  
+  
+  
+  
+
+<script src="/lib/jquery/jquery.slim.min.b0dca576e87d7eaa5850ae4e61759c065786cdb6489d68fcc82240539eebd5da522bdb4fda085ffd245808c8fe2acb2516408eb774ef26b5f6015fc6737c0ea8.js" integrity="sha512-sNylduh9fqpYUK5OYXWcBleGzbZInWj8yCJAU57r1dpSK9tP2ghf/SRYCMj&#43;KsslFkCOt3TvJrX2AV/Gc3wOqA=="></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+  
+  <meta name="theme-color"/>
+  
+  
+</head>
+<body
+  class="flex flex-col h-screen px-6 m-auto text-lg leading-7 max-w-7xl bg-neutral text-neutral-900 dark:bg-neutral-800 dark:text-neutral sm:px-14 md:px-24 lg:px-32 scrollbar-thin scrollbar-track-neutral-200 scrollbar-thumb-neutral-400 dark:scrollbar-track-neutral-800 dark:scrollbar-thumb-neutral-600">
+  <div id="the-top" class="absolute flex self-center">
+    <a class="px-3 py-1 text-sm -translate-y-8 rounded-b-lg bg-primary-200 focus:translate-y-0 dark:bg-neutral-600"
+      href="#main-content"><span
+        class="font-bold text-primary-600 ltr:pr-2 rtl:pl-2 dark:text-primary-400">&darr;</span>Skip to main content</a>
+  </div>
+  
+  
+  <div class="min-h-[148px]"></div>
+<div class="fixed inset-x-0 pl-[24px] pr-[24px]" style="z-index:100">
+  <div id="menu-blur" class="absolute opacity-0 inset-x-0 top-0 h-full single_hero_background nozoom backdrop-blur-2xl shadow-2xl"></div>
+  <div class="relative max-w-[64rem] ml-auto mr-auto">
+    <div style="padding-left:0;padding-right:0;padding-top:2px;padding-bottom:3px"
+    class="main-menu flex items-center justify-between px-4 py-6 sm:px-6 md:justify-start gap-x-3">
     
-    document.addEventListener('DOMContentLoaded', function () {
-      
-      let checkboxes = document.querySelectorAll('li input[type=\'checkbox\'][disabled]');
-      checkboxes.forEach(e => {
-        e.parentElement.parentElement.classList.add('task-list');
-      });
+    <div class="flex flex-1 items-center justify-between">
+        <nav class="flex space-x-3">
 
-      
-      const liNodes = document.querySelectorAll('.task-list li');
-      liNodes.forEach(nodes => {
-        let textNodes = Array.from(nodes.childNodes).filter(node => node.nodeType === 3 && node.textContent.trim().length > 1);
-        if (textNodes.length > 0) {
-          const span = document.createElement('label');
-          textNodes[0].after(span);  
-          span.appendChild(nodes.querySelector('input[type=\'checkbox\']'));
-          span.appendChild(textNodes[0]);
-        }
-      });
-    });
-  </script>
+            
+            <a href="/" class="text-base font-medium text-gray-500 hover:text-gray-900">Zhenchen Wang&rsquo;s Blog</a>
+            
 
-  
-  
-  
+        </nav>
+        <nav class="hidden md:flex items-center gap-x-5 md:ml-12 h-12">
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-
-  
-  <link rel="icon" type="image/png" href="/media/icon_hu3247630877640252165.png" />
-  <link rel="apple-touch-icon" type="image/png" href="/media/icon_hu4166356570829923896.png" />
-
-  <link rel="canonical" href="http://localhost:1313/post/data-visualization/" />
-
-  
-  
-  
-  
-  
-  
-  
-  
+            
+            
+            
+  <a href="/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
     
-  
-  
+    <p class="text-base font-medium" title="">
+        Home
+    </p>
+</a>
 
-  
-  
+
+
+            
+            
+  <a href="/post/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
     
+    <p class="text-base font-medium" title="">
+        Posts
+    </p>
+</a>
+
+
+
+            
+            
+  <a href="/publication/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
     
-  
-  <meta property="twitter:card" content="summary_large_image" />
-  
-    <meta property="twitter:site" content="@GetResearchDev" />
-    <meta property="twitter:creator" content="@GetResearchDev" />
-  
-  <meta property="og:site_name" content="Hugo Academic CV Theme" />
-  <meta property="og:url" content="http://localhost:1313/post/data-visualization/" />
-  <meta property="og:title" content="📈 Communicate your results effectively with the best data visualizations | Hugo Academic CV Theme" />
-  <meta property="og:description" content="Use popular tools such as Plotly, Mermaid, and data frames." /><meta property="og:image" content="http://localhost:1313/post/data-visualization/featured.jpg" />
-    <meta property="twitter:image" content="http://localhost:1313/post/data-visualization/featured.jpg" /><meta property="og:locale" content="en-us" />
-  
+    <p class="text-base font-medium" title="">
+        Publications
+    </p>
+</a>
+
+
+
+            
+            
+  <a href="/event/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
     
-      <meta
-        property="article:published_time"
-        content="2023-10-25T00:00:00&#43;00:00"
-      />
+    <p class="text-base font-medium" title="">
+        Talks
+    </p>
+</a>
+
+
+
+            
+            
+  <a href="/project/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
     
-    <meta property="article:modified_time" content="2023-10-25T00:00:00&#43;00:00">
-  
-
-  
-
-
-
-  
+    <p class="text-base font-medium" title="">
+        Projects
+    </p>
+</a>
 
 
-  <title>📈 Communicate your results effectively with the best data visualizations | Hugo Academic CV Theme</title>
 
-  
-  
-  
-  
-  
+            
+            
+  <a href="/teaching/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
     
-    
-  
-  
-  <style>
-    @font-face {
-      font-family: 'Inter var';
-      font-style: normal;
-      font-weight: 100 900;
-      font-display: swap;
-      src: url(/dist/font/Inter.var.woff2) format(woff2);
-    }
-  </style>
-
-  
-
-  
-  
+    <p class="text-base font-medium" title="">
+        Teaching
+    </p>
+</a>
 
 
-  
-  
-  
-  
-  
+
+            
+            
+  <a href="https://github.com/Plucky923"  target="_blank"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
     
-      
-      
+    <span  class="mr-1" >
         
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-        
-        
-      
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+
+  </span>
+
+
+    </span>
     
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    
-      
-      
-        
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-        
-        
-      
-    
-      
-      
-        
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-        
-        
-      
-    
-      
-      
-        
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-        
-        
-      
-    
-      
-      
-        
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-        
-        
-      
-    
-  
-  
-  
-  
-  
-  
-    
-      
-      
-        
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-        
-        
-      
-    
-  
-  
-    
-      
-      
-        
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-        
-        
-      
-    
-      
-      
-        
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-        
-        
-      
-    
-      
-      
-        
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-        
-        
-      
-    
-      
-      
-        
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-        
-        
-      
-    
-      
-      
-        
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-        
-        
-      
-    
-      
-      
-        
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-        
-        
-      
-    
-      
-      
-    
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+    <p class="text-base font-medium" title="">
+        GitHub
+    </p>
+</a>
+
+
+
+            
+            
+
+            
+
+
+            
+            <button id="search-button" aria-label="Search" class="text-base hover:text-primary-600 dark:hover:text-primary-400"
+                title="">
+                
+
+  <span class="relative block icon">
+    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="svg-inline--fa fa-search fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg>
+
+  </span>
+
+
+            </button>
+            
+
+
+            
+            
+            <div
+                class=" flex items-center">
+                <button id="appearance-switcher" aria-label="Dark mode switcher" type="button" class="text-base hover:text-primary-600 dark:hover:text-primary-400">
+                    <div class="flex items-center justify-center dark:hidden">
+                        
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M32 256c0-123.8 100.3-224 223.8-224c11.36 0 29.7 1.668 40.9 3.746c9.616 1.777 11.75 14.63 3.279 19.44C245 86.5 211.2 144.6 211.2 207.8c0 109.7 99.71 193 208.3 172.3c9.561-1.805 16.28 9.324 10.11 16.95C387.9 448.6 324.8 480 255.8 480C132.1 480 32 379.6 32 256z"/></svg>
+
+  </span>
+
+
+                    </div>
+                    <div class="items-center justify-center hidden dark:flex">
+                        
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 159.1c-53.02 0-95.1 42.98-95.1 95.1S202.1 351.1 256 351.1s95.1-42.98 95.1-95.1S309 159.1 256 159.1zM509.3 347L446.1 255.1l63.15-91.01c6.332-9.125 1.104-21.74-9.826-23.72l-109-19.7l-19.7-109c-1.975-10.93-14.59-16.16-23.72-9.824L256 65.89L164.1 2.736c-9.125-6.332-21.74-1.107-23.72 9.824L121.6 121.6L12.56 141.3C1.633 143.2-3.596 155.9 2.736 164.1L65.89 256l-63.15 91.01c-6.332 9.125-1.105 21.74 9.824 23.72l109 19.7l19.7 109c1.975 10.93 14.59 16.16 23.72 9.824L256 446.1l91.01 63.15c9.127 6.334 21.75 1.107 23.72-9.822l19.7-109l109-19.7C510.4 368.8 515.6 356.1 509.3 347zM256 383.1c-70.69 0-127.1-57.31-127.1-127.1c0-70.69 57.31-127.1 127.1-127.1s127.1 57.3 127.1 127.1C383.1 326.7 326.7 383.1 256 383.1z"/></svg>
+
+  </span>
+
+
+                    </div>
+                </button>
+            </div>
+            
+
+        </nav>
+        <div class="flex md:hidden items-center gap-x-5 md:ml-12 h-12">
+
+            <span></span>
+
+            
+
+
+            
+            <button id="search-button-mobile" aria-label="Search" class="text-base hover:text-primary-600 dark:hover:text-primary-400"
+                title="">
+                
+
+  <span class="relative block icon">
+    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="svg-inline--fa fa-search fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg>
+
+  </span>
+
+
+            </button>
+            
+
+            
+            
+            <button id="appearance-switcher-mobile" aria-label="Dark mode switcher" type="button" class="text-base hover:text-primary-600 dark:hover:text-primary-400 ltr:mr-1 rtl:ml-1">
+                <div class="flex items-center justify-center dark:hidden">
+                    
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M32 256c0-123.8 100.3-224 223.8-224c11.36 0 29.7 1.668 40.9 3.746c9.616 1.777 11.75 14.63 3.279 19.44C245 86.5 211.2 144.6 211.2 207.8c0 109.7 99.71 193 208.3 172.3c9.561-1.805 16.28 9.324 10.11 16.95C387.9 448.6 324.8 480 255.8 480C132.1 480 32 379.6 32 256z"/></svg>
+
+  </span>
+
+
+                </div>
+                <div class="items-center justify-center hidden dark:flex">
+                    
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 159.1c-53.02 0-95.1 42.98-95.1 95.1S202.1 351.1 256 351.1s95.1-42.98 95.1-95.1S309 159.1 256 159.1zM509.3 347L446.1 255.1l63.15-91.01c6.332-9.125 1.104-21.74-9.826-23.72l-109-19.7l-19.7-109c-1.975-10.93-14.59-16.16-23.72-9.824L256 65.89L164.1 2.736c-9.125-6.332-21.74-1.107-23.72 9.824L121.6 121.6L12.56 141.3C1.633 143.2-3.596 155.9 2.736 164.1L65.89 256l-63.15 91.01c-6.332 9.125-1.105 21.74 9.824 23.72l109 19.7l19.7 109c1.975 10.93 14.59 16.16 23.72 9.824L256 446.1l91.01 63.15c9.127 6.334 21.75 1.107 23.72-9.822l19.7-109l109-19.7C510.4 368.8 515.6 356.1 509.3 347zM256 383.1c-70.69 0-127.1-57.31-127.1-127.1c0-70.69 57.31-127.1 127.1-127.1s127.1 57.3 127.1 127.1C383.1 326.7 326.7 383.1 256 383.1z"/></svg>
+
+  </span>
+
+
+                </div>
+            </button>
+            
+
+        </div>
+    </div>
+    <div class="-my-2 md:hidden">
+
+        <label id="menu-button" class="block">
+            
+            <div class="cursor-pointer hover:text-primary-600 dark:hover:text-primary-400">
+                
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M0 96C0 78.33 14.33 64 32 64H416C433.7 64 448 78.33 448 96C448 113.7 433.7 128 416 128H32C14.33 128 0 113.7 0 96zM0 256C0 238.3 14.33 224 32 224H416C433.7 224 448 238.3 448 256C448 273.7 433.7 288 416 288H32C14.33 288 0 273.7 0 256zM416 448H32C14.33 448 0 433.7 0 416C0 398.3 14.33 384 32 384H416C433.7 384 448 398.3 448 416C448 433.7 433.7 448 416 448z"/></svg>
+
+  </span>
+
+
+            </div>
+            <div id="menu-wrapper" style="padding-top:5px;"
+                class="fixed inset-0 z-30 invisible w-screen h-screen m-0 overflow-auto transition-opacity opacity-0 cursor-default bg-neutral-100/50 backdrop-blur-sm dark:bg-neutral-900/50">
+                <ul
+                    class="flex space-y-2 mt-3 flex-col items-end w-full px-6 py-6 mx-auto overflow-visible list-none ltr:text-right rtl:text-left max-w-7xl">
+
+                    <li id="menu-close-button">
+                        <span
+                            class="cursor-pointer inline-block align-text-bottom hover:text-primary-600 dark:hover:text-primary-400">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z"/></svg>
+
+  </span>
+
+</span>
+                    </li>
+
+                    
+
+                    
+  <li class="mt-1">
+    <a href="/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+        
+        <p class="text-bg font-bg" title="">
+            Home
+        </p>
+    </a>
+</li>
 
 
 
 
+                    
+
+                    
+  <li class="mt-1">
+    <a href="/post/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+        
+        <p class="text-bg font-bg" title="">
+            Posts
+        </p>
+    </a>
+</li>
 
 
 
-<link type="text/css" rel="stylesheet" href="/dist/pagefind/pagefind-ui.be766eb419317a14ec769d216e9779bfe8f3737c80e780f4ba0dafb57a41a482.css" integrity="sha256-vnZutBkxehTsdp0hbpd5v&#43;jzc3yA54D0ug2vtXpBpII=" />
+
+                    
+
+                    
+  <li class="mt-1">
+    <a href="/publication/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+        
+        <p class="text-bg font-bg" title="">
+            Publications
+        </p>
+    </a>
+</li>
 
 
-<script src="/dist/pagefind/pagefind-ui.87693d7c6f2b3b347ce359d0ede762c033419f0a32b22ce508c335a81d841f1b.js" integrity="sha256-h2k9fG8rOzR841nQ7ediwDNBnwoysizlCMM1qB2EHxs="></script>
 
 
-<script>window.hbb.pagefind = {"baseUrl":"/"};</script>
+                    
 
-<style>
-  html.dark {
-    --pagefind-ui-primary: #eeeeee;
-    --pagefind-ui-text: #eeeeee;
-    --pagefind-ui-background: #152028;
-    --pagefind-ui-border: #152028;
-    --pagefind-ui-tag: #152028;
-  }
-</style>
+                    
+  <li class="mt-1">
+    <a href="/event/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+        
+        <p class="text-bg font-bg" title="">
+            Talks
+        </p>
+    </a>
+</li>
 
+
+
+
+                    
+
+                    
+  <li class="mt-1">
+    <a href="/project/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+        
+        <p class="text-bg font-bg" title="">
+            Projects
+        </p>
+    </a>
+</li>
+
+
+
+
+                    
+
+                    
+  <li class="mt-1">
+    <a href="/teaching/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+        
+        <p class="text-bg font-bg" title="">
+            Teaching
+        </p>
+    </a>
+</li>
+
+
+
+
+                    
+
+                    
+  <li class="mt-1">
+    <a href="https://github.com/Plucky923"  target="_blank"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+        
+        <div  class="mr-2" >
+            
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+
+  </span>
+
+
+        </div>
+        
+        <p class="text-bg font-bg" title="">
+            GitHub
+        </p>
+    </a>
+</li>
+
+
+
+
+                    
+
+                </ul>
+                
+                
+
+            </div>
+        </label>
+    </div>
+</div>
+
+
+
+
+
+  </div>
+</div>
 <script>
-  window.addEventListener('DOMContentLoaded', (event) => {
-    new PagefindUI({
-      element: "#search",
-      showSubResults: true,
-      baseUrl: window.hbb.pagefind.baseUrl,
-      bundlePath: window.hbb.pagefind.baseUrl + "pagefind/",
-    });
-  });
-  document.addEventListener('DOMContentLoaded', () => {
-    let element = document.getElementById('search');
-    let trigger = document.getElementById('search_toggle');
-
-    if (trigger) {
-      trigger.addEventListener('click', () => {
-        element.classList.toggle('hidden');
-        element.querySelector("input").value = ""
-        element.querySelector("input").focus()
-
-        if (!element.classList.contains('hidden')) {
-          let clear_trigger = document.querySelector('.pagefind-ui__search-clear');
-
-          if (clear_trigger && !clear_trigger.hasAttribute('listenerOnClick')) {
-            clear_trigger.setAttribute('listenerOnClick', 'true');
-
-            clear_trigger.addEventListener('click', () => {
-              element.classList.toggle('hidden');
-            });
-          }
-        }
-
-      });
-    }
+  window.addEventListener('scroll', function (e) {
+    var scroll = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    var background_blur = document.getElementById('menu-blur');
+    background_blur.style.opacity = (scroll / 300);
   });
 </script>
 
-
-
-
   
-  
-  
-  
-  <script defer src="/js/mermaid.bundle.addbbabb71331768410cfb03a610179690ff1dfd413519d34219c06a8fd39202.js" integrity="sha256-rdu6u3EzF2hBDPsDphAXlpD/Hf1BNRnTQhnAao/TkgI="></script>
+  <div class="relative flex flex-col grow">
+    <main id="main-content" class="grow">
+      
 
 
-
-
-
-
-
-
-
-
-
-
-<script defer src="/dist/lib/plotly/plotly.min.7f4930eba8f8541dbec28dca5bd5f787f8eef1cde0369ac9657b70bed230b3e0.js" integrity="sha256-f0kw66j4VB2&#43;wo3KW9X3h/ju8c3gNprJZXtwvtIws&#43;A="></script>
-
-
-
-  
-  
-  
-  
-  
-  
-  
-  <script
-    defer
-    src="/js/hugo-blox-en.min.js"
-    integrity=""
-  ></script>
-
-  
+<article>
   
 
-
-
-
-
-
-
-
+  <header id="single_header" class="mt-5 max-w-prose">
+    
+    <ol class="text-sm text-neutral-500 dark:text-neutral-400 print:hidden">
+  
   
     
-      
-      <script async defer src="https://buttons.github.io/buttons.js"></script>
-
-      
+  
     
+  
+  <li class="inline hidden">
+    <a
+      class="hover:underline decoration-neutral-300 dark:underline-neutral-600"
+      href="/"
+      >Welcome</a
+    ><span class="px-1 text-primary-500">/</span>
+  </li>
+
+  
+  <li class="inline ">
+    <a
+      class="hover:underline decoration-neutral-300 dark:underline-neutral-600"
+      href="/post/"
+      >Posts</a
+    ><span class="px-1 text-primary-500">/</span>
+  </li>
+
+  
+  <li class="inline hidden">
+    <a
+      class="hover:underline decoration-neutral-300 dark:underline-neutral-600"
+      href="/post/data-visualization/"
+      >📈 Communicate your results effectively with the best data visualizations</a
+    ><span class="px-1 text-primary-500">/</span>
+  </li>
+
+</ol>
+
+
+    
+    <h1 class="mt-0 text-4xl font-extrabold text-neutral-900 dark:text-neutral">
+      📈 Communicate your results effectively with the best data visualizations
+    </h1>
+    <div class="mt-1 mb-6 text-base text-neutral-500 dark:text-neutral-400 print:hidden">
+      
+
+
+
+
+
+  
   
 
 
 
 
-</head>
 
-  <body class="dark:bg-hb-dark dark:text-white page-wrapper" id="top">
-    <div id="page-bg"></div>
-    <div class="page-header sticky top-0 z-30">
-      
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="flex flex-row flex-wrap items-center">
+  
+  
+  <time datetime="2023-10-25T00:00:00&#43;00:00">25 October 2023</time><span class="px-2 text-primary-500">&middot;</span><span>425 words</span><span class="px-2 text-primary-500">&middot;</span><span title="Reading time">2 mins</span>
+  
+
+  
+  
+</div>
+
+
+
+
+
+<div class="flex flex-row flex-wrap items-center">
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <span style="margin-top:0.5rem" class="mr-2" onclick="window.open(&#34;/tags/hugo/&#34;,'_self');return false;">
+    <span class="flex" style="cursor: pointer;">
+  <span class="rounded-md border border-primary-400 px-1 py-[1px] text-xs font-normal text-primary-700 dark:border-primary-600 dark:text-primary-400">
+    Hugo
+  </span>
+</span>
+  </span>
+  
+  <span style="margin-top:0.5rem" class="mr-2" onclick="window.open(&#34;/tags/hugo-blox/&#34;,'_self');return false;">
+    <span class="flex" style="cursor: pointer;">
+  <span class="rounded-md border border-primary-400 px-1 py-[1px] text-xs font-normal text-primary-700 dark:border-primary-600 dark:text-primary-400">
+    Hugo Blox
+  </span>
+</span>
+  </span>
+  
+  <span style="margin-top:0.5rem" class="mr-2" onclick="window.open(&#34;/tags/markdown/&#34;,'_self');return false;">
+    <span class="flex" style="cursor: pointer;">
+  <span class="rounded-md border border-primary-400 px-1 py-[1px] text-xs font-normal text-primary-700 dark:border-primary-600 dark:text-primary-400">
+    Markdown
+  </span>
+</span>
+  </span>
+  
+  
+  
+  
+</div>
+
+
+
+
+    </div>
+
+    
+    
+    
+    
+    
+
+    
+
+    
       
       
         
         
-        
-          <header id="site-header" class="header">
-  <nav class="navbar px-3 flex justify-left">
-    <div class="order-0 h-100">
-      
-      <a class="navbar-brand" href="/" title="Hugo Academic CV Theme">
-        Your Name
-      </a>
+<div class="flex author">
+  
+  <div class="place-self-center">
+    
+    <div class="text-[0.6rem] uppercase leading-3 text-neutral-500 dark:text-neutral-400">
+      Author
+    </div>
+    <div class="font-semibold leading-6 text-neutral-800 dark:text-neutral-300">
+      Zhenchen Wang
     </div>
     
-    <input id="nav-toggle" type="checkbox" class="hidden" />
-    <label
-      for="nav-toggle"
-      class="order-3 cursor-pointer flex items-center lg:hidden text-dark dark:text-white lg:order-1">
-      <svg id="show-button" class="h-6 fill-current block" viewBox="0 0 20 20">
-        <title>Open Menu</title>
-        <path d="M0 3h20v2H0V3z m0 6h20v2H0V9z m0 6h20v2H0V0z"></path>
-      </svg>
-      <svg id="hide-button" class="h-6 fill-current hidden" viewBox="0 0 20 20">
-        <title>Close Menu</title>
-        <polygon
-          points="11 9 22 9 22 11 11 11 11 22 9 22 9 11 -2 11 -2 9 9 9 9 -2 11 -2"
-          transform="rotate(45 10 10)"></polygon>
-      </svg>
-    </label>
     
-
+    <div class="text-sm text-neutral-700 dark:text-neutral-400">Master student at Huazhong University of Science and Technology. Interested in Operating System and Container Security.</div>
     
+    <div class="text-2xl sm:text-lg">
+  <div class="flex flex-wrap text-neutral-400 dark:text-neutral-500">
     
-    <ul
-      id="nav-menu"
-      class="navbar-nav order-3 hidden lg:flex w-full pb-6 lg:order-1 lg:w-auto lg:space-x-2 lg:pb-0 xl:space-x-8 justify-left
-      ">
       
-      
-      
-      
-      
-      
-      <li class="nav-item">
         <a
-          class="nav-link "
-          
-          href="/"
-        >About</a
+          class="px-1 hover:text-primary-700 dark:hover:text-primary-400"
+          href="mailto:m202372036@hust.edu.cn"
+          target="_blank"
+          aria-label="Email"
+          rel="me noopener noreferrer"
+          ><span class="inline-block align-text-bottom">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M207.8 20.73c-93.45 18.32-168.7 93.66-187 187.1c-27.64 140.9 68.65 266.2 199.1 285.1c19.01 2.888 36.17-12.26 36.17-31.49l.0001-.6631c0-15.74-11.44-28.88-26.84-31.24c-84.35-12.98-149.2-86.13-149.2-174.2c0-102.9 88.61-185.5 193.4-175.4c91.54 8.869 158.6 91.25 158.6 183.2l0 16.16c0 22.09-17.94 40.05-40 40.05s-40.01-17.96-40.01-40.05v-120.1c0-8.847-7.161-16.02-16.01-16.02l-31.98 .0036c-7.299 0-13.2 4.992-15.12 11.68c-24.85-12.15-54.24-16.38-86.06-5.106c-38.75 13.73-68.12 48.91-73.72 89.64c-9.483 69.01 43.81 128 110.9 128c26.44 0 50.43-9.544 69.59-24.88c24 31.3 65.23 48.69 109.4 37.49C465.2 369.3 496 324.1 495.1 277.2V256.3C495.1 107.1 361.2-9.332 207.8 20.73zM239.1 304.3c-26.47 0-48-21.56-48-48.05s21.53-48.05 48-48.05s48 21.56 48 48.05S266.5 304.3 239.1 304.3z"/></svg>
+
+  </span>
+
+</span></a
         >
-      </li>
       
-      
-      
-      
-      
-      
-      <li class="nav-item">
-        <a
-          class="nav-link "
-          
-          href="/#papers"
-        >Papers</a
-        >
-      </li>
-      
-      
-      
-      
-      
-      
-      <li class="nav-item">
-        <a
-          class="nav-link "
-          
-          href="/#talks"
-        >Talks</a
-        >
-      </li>
-      
-      
-      
-      
-      
-      
-      <li class="nav-item">
-        <a
-          class="nav-link "
-          
-          href="/#news"
-        >News</a
-        >
-      </li>
-      
-      
-      
-      
-      
-      
-      <li class="nav-item">
-        <a
-          class="nav-link "
-          
-          href="/experience/"
-        >Experience</a
-        >
-      </li>
-      
-      
-      
-      
-      
-      
-      <li class="nav-item">
-        <a
-          class="nav-link "
-          
-          href="/projects/"
-        >Projects</a
-        >
-      </li>
-      
-      
-      
-      
-      
-      
-      <li class="nav-item">
-        <a
-          class="nav-link "
-          
-          href="/teaching/"
-        >Teaching</a
-        >
-      </li>
-      
-      
-      
-    </ul>
-
-    <div class="order-1 ml-auto flex items-center md:order-2 lg:ml-0">
-
-      
-      
-      
-      <button
-        aria-label="search"
-        class="text-black hover:text-primary  inline-block px-3 text-xl dark:text-white"
-        id="search_toggle">
-        <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512" fill="currentColor"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg>
-      </button>
-      
-
-      
-      
-      <div class="px-3 text-black hover:text-primary-700 dark:text-white dark:hover:text-primary-300
-            [&.active]:font-bold [&.active]:text-black/90 dark:[&.active]:text-white">
-        <button class="theme-toggle mt-1" accesskey="t" title="appearance">
-          <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-               stroke-linejoin="round" class="dark:hidden">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
-          <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-               stroke-linejoin="round" class=" dark:block [&:not(dark)]:hidden">
-            <circle cx="12" cy="12" r="5"></circle>
-            <line x1="12" y1="1" x2="12" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="23"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-            <line x1="1" y1="12" x2="3" y2="12"></line>
-            <line x1="21" y1="12" x2="23" y2="12"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          </svg>
-        </button>
-      </div>
-      
-
-      
-      
-
-      
-      
-    </div>
-  </nav>
-</header>
-
-
-<div id="search" class="hidden p-3"></div>
-
-
-        
-      
-    </div>
-    <div class="page-body  my-10">
-      
-
-
-
-
-
-<div class="mx-auto flex max-w-screen-xl">
-  
-
-
-
-<aside class="hb-sidebar-container max-lg:[transform:translate3d(0,-100%,0)] lg:hidden xl:block">
-  
-  <div class="px-4 pt-4 lg:hidden">
     
+      
+        <a
+          class="px-1 hover:text-primary-700 dark:hover:text-primary-400"
+          href="https://github.com/Plucky923"
+          target="_blank"
+          aria-label="Github"
+          rel="me noopener noreferrer"
+          ><span class="inline-block align-text-bottom">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+
+  </span>
+
+</span></a
+        >
+      
+    
+      
+        <a
+          class="px-1 hover:text-primary-700 dark:hover:text-primary-400"
+          href="https://www.linkedin.com/"
+          target="_blank"
+          aria-label="Linkedin"
+          rel="me noopener noreferrer"
+          ><span class="inline-block align-text-bottom">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+
+  </span>
+
+</span></a
+        >
+      
+    
+      
+        <a
+          class="px-1 hover:text-primary-700 dark:hover:text-primary-400"
+          href="https://twitter.com/GetResearchDev"
+          target="_blank"
+          aria-label="X-Twitter"
+          rel="me noopener noreferrer"
+          ><span class="inline-block align-text-bottom">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"/></svg>
+  </span>
+
+</span></a
+        >
+      
+    
+      
+        <a
+          class="px-1 hover:text-primary-700 dark:hover:text-primary-400"
+          href="https://www.instagram.com/"
+          target="_blank"
+          aria-label="Instagram"
+          rel="me noopener noreferrer"
+          ><span class="inline-block align-text-bottom">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+
+  </span>
+
+</span></a
+        >
+      
+    
+      
+        <a
+          class="px-1 hover:text-primary-700 dark:hover:text-primary-400"
+          href="https://scholar.google.com/"
+          target="_blank"
+          aria-label="Google-Scholar"
+          rel="me noopener noreferrer"
+          ><span class="inline-block align-text-bottom">
+
+</span></a
+        >
+      
+    
+      
+        <a
+          class="px-1 hover:text-primary-700 dark:hover:text-primary-400"
+          href="https://orcid.org/"
+          target="_blank"
+          aria-label="Orcid"
+          rel="me noopener noreferrer"
+          ><span class="inline-block align-text-bottom">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M294.75 188.19h-45.92V342h47.47c67.62 0 83.12-51.34 83.12-76.91 0-41.64-26.54-76.9-84.67-76.9zM256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm-80.79 360.76h-29.84v-207.5h29.84zm-14.92-231.14a19.57 19.57 0 1 1 19.57-19.57 19.64 19.64 0 0 1-19.57 19.57zM300 369h-81V161.26h80.6c76.73 0 110.44 54.83 110.44 103.85C410 318.39 368.38 369 300 369z"/></svg>
+
+  </span>
+
+</span></a
+        >
+      
     
   </div>
-  <div class="hb-scrollbar lg:h-[calc(100vh-var(--navbar-height))]">
-    <ul class="flex flex-col gap-1 lg:hidden">
-      
-      
-        <li class=""><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/event/"
-    
-  >Recent &amp; Upcoming Talks
-        <span data-hb-sidebar-toggle>
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-[18px] min-w-[18px] rounded-sm p-0.5 hover:bg-gray-800/5 dark:hover:bg-gray-100/5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" class="origin-center transition-transform rtl:-rotate-180"></path></svg>
-        </span>
-    </a><div class="ltr:pr-0 overflow-hidden">
-        <ul class="hb-sidebar-list"><li class="flex flex-col "><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/event/example/"
-    
-  >Example Talk
-    </a>
-              
-            </li></ul>
-      </div></li>
-        <li class=""><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/projects/"
-    
-  >Projects
-    </a></li>
-        <li class="open"><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/post/"
-    
-  >Blog
-        <span data-hb-sidebar-toggle>
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-[18px] min-w-[18px] rounded-sm p-0.5 hover:bg-gray-800/5 dark:hover:bg-gray-100/5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" class="origin-center transition-transform rtl:-rotate-180"></path></svg>
-        </span>
-    </a><div class="ltr:pr-0 overflow-hidden">
-        <ul class="hb-sidebar-list"><li class="flex flex-col "><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/post/get-started/"
-    
-  >🎉 Easily create your own simple yet highly customizable blog
-    </a>
-              
-            </li><li class="flex flex-col "><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/post/second-brain/"
-    
-  >🧠 Sharpen your thinking with a second brain
-    </a>
-              
-            </li><li class="flex flex-col open"><a
-    class="hb-sidebar-custom-link
-      sidebar-active-item bg-primary-100 font-semibold text-primary-800 dark:bg-primary-300 dark:text-primary-900"
-    href="/post/data-visualization/"
-    
-  >📈 Communicate your results effectively with the best data visualizations
-    </a>
-  
-    <ul class="hb-sidebar-mobile-toc"><li>
-              <a
-                href="#charts"
-                class="hb-docs-link"
-              >Charts</a>
-            </li>
-          <li>
-              <a
-                href="#diagrams"
-                class="hb-docs-link"
-              >Diagrams</a>
-            </li>
-          <li>
-              <a
-                href="#data-frames"
-                class="hb-docs-link"
-              >Data Frames</a>
-            </li>
-          <li>
-              <a
-                href="#did-you-find-this-page-helpful-consider-sharing-it-"
-                class="hb-docs-link"
-              >Did you find this page helpful? Consider sharing it 🙌</a>
-            </li>
-          </ul>
-  
-              
-            </li><li class="flex flex-col "><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/post/teach-courses/"
-    
-  >👩🏼‍🏫 Teach academic courses
-    </a>
-              
-            </li><li class="flex flex-col "><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/post/project-management/"
-    
-  >✅ Manage your projects
-    </a>
-              
-            </li></ul>
-      </div></li>
-        <li class=""><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/project/"
-    
-  >Projects
-        <span data-hb-sidebar-toggle>
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-[18px] min-w-[18px] rounded-sm p-0.5 hover:bg-gray-800/5 dark:hover:bg-gray-100/5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" class="origin-center transition-transform rtl:-rotate-180"></path></svg>
-        </span>
-    </a><div class="ltr:pr-0 overflow-hidden">
-        <ul class="hb-sidebar-list"><li class="flex flex-col "><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/project/pandas/"
-    
-  >Pandas
-    </a>
-              
-            </li><li class="flex flex-col "><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/project/pytorch/"
-    
-  >PyTorch
-    </a>
-              
-            </li><li class="flex flex-col "><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/project/scikit/"
-    
-  >scikit-learn
-    </a>
-              
-            </li></ul>
-      </div></li>
-        <li class=""><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/experience/"
-    
-  >Experience
-    </a></li>
-        <li class=""><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/teaching/"
-    
-  >Teaching
-        <span data-hb-sidebar-toggle>
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-[18px] min-w-[18px] rounded-sm p-0.5 hover:bg-gray-800/5 dark:hover:bg-gray-100/5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" class="origin-center transition-transform rtl:-rotate-180"></path></svg>
-        </span>
-    </a><div class="ltr:pr-0 overflow-hidden">
-        <ul class="hb-sidebar-list"><li class="flex flex-col "><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/teaching/js/"
-    
-  >Learn JavaScript
-    </a>
-              
-            </li><li class="flex flex-col "><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/teaching/python/"
-    
-  >Learn Python
-    </a>
-              
-            </li></ul>
-      </div></li>
-        <li class=""><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/publication/"
-    
-  >Publications
-        <span data-hb-sidebar-toggle>
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-[18px] min-w-[18px] rounded-sm p-0.5 hover:bg-gray-800/5 dark:hover:bg-gray-100/5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" class="origin-center transition-transform rtl:-rotate-180"></path></svg>
-        </span>
-    </a><div class="ltr:pr-0 overflow-hidden">
-        <ul class="hb-sidebar-list"><li class="flex flex-col "><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/publication/preprint/"
-    
-  >An example preprint / working paper
-    </a>
-              
-            </li><li class="flex flex-col "><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/publication/journal-article/"
-    
-  >An example journal article
-    </a>
-              
-            </li><li class="flex flex-col "><a
-    class="hb-sidebar-custom-link
-      text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-primary-800 dark:hover:text-gray-50"
-    href="/publication/conference-paper/"
-    
-  >An example conference paper
-    </a>
-              
-            </li></ul>
-      </div></li>
-    </ul>
 
-    <div class="max-xl:hidden h-0 w-64 shrink-0"></div></div>
-
-</aside>
-  
-
-<nav class="hb-toc order-last hidden w-64 shrink-0 xl:block print:hidden px-4" aria-label="table of contents">
-  
-
-
-
-
-
-
-
-
-
-
-
-  <div class="hb-scrollbar text-sm [hyphens:auto] sticky top-16 overflow-y-auto pr-4 pt-6 max-h-[calc(100vh-var(--navbar-height)-env(safe-area-inset-bottom))] -mr-4 rtl:-ml-4"><p class="mb-4 font-semibold tracking-tight">On this page</p><ul>
-      <li class="my-2 scroll-my-6 scroll-py-6">
-        <a class="font-semibold inline-block text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300 w-full break-words" href="#charts">Charts</a>
-      </li>
-      <li class="my-2 scroll-my-6 scroll-py-6">
-        <a class="font-semibold inline-block text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300 w-full break-words" href="#diagrams">Diagrams</a>
-      </li>
-      <li class="my-2 scroll-my-6 scroll-py-6">
-        <a class="font-semibold inline-block text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300 w-full break-words" href="#data-frames">Data Frames</a>
-      </li>
-      <li class="my-2 scroll-my-6 scroll-py-6">
-        <a class="font-semibold inline-block text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300 w-full break-words" href="#did-you-find-this-page-helpful-consider-sharing-it-">Did you find this page helpful? Consider sharing it 🙌</a>
-      </li></ul>
-
-  
-  
-    
-    
-  
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
+</div>
   </div>
-  </nav>
-
-
-  <article class="w-full break-words flex min-h-[calc(100vh-var(--navbar-height))] min-w-0 justify-center pb-8 pr-[calc(env(safe-area-inset-right)-1.5rem)]">
-    <main class="w-full min-w-0 max-w-6xl px-6 pt-4 md:px-12">
+</div>
 
       
 
-      <h1 class="mt-2 text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">📈 Communicate your results effectively with the best data visualizations</h1>
-
-      <div class="mt-4 mb-16">
-      <div class="text-gray-500 dark:text-gray-300 text-sm flex items-center flex-wrap gap-y-2"><span class="mr-1">Oct 25, 2023</span><span class="mx-1">·</span>
-        
-          
-          
-          <div class="group inline-flex items-center text-current gap-x-1.5 mx-1">
-            
-            
-            <img src="/author/zhenchen-wang/avatar_hu6352533397391337453.webp" alt="Zhenchen Wang" class="inline-block h-4 w-4 rounded-full border border-current" loading="lazy" />
-            
-            <div >Zhenchen Wang</div>
-          </div>
-          
+      
         
 
-        
-        <span class="mx-1">·</span>
-        <span class="mx-1">
-          2 min read
-        </span>
-        
-        </div>
+      
+      <div class="mb-5"></div>
+      
 
-        <div class="mt-3">
-          
+    
+
+  </header>
+  
+  <section class="flex flex-col max-w-full mt-0 prose dark:prose-invert lg:flex-row">
+    
+     <div
+      class="order-first lg:ml-auto px-0 lg:order-last ltr:lg:pl-8 rtl:lg:pr-8">
+      <div class="toc ltr:pl-5 rtl:pr-5 print:hidden lg:sticky lg:top-[140px]">
+
+         <details open id="TOCView"
+  class="toc-right mt-0 overflow-y-scroll overscroll-contain scrollbar-thin scrollbar-track-neutral-200 scrollbar-thumb-neutral-400 dark:scrollbar-track-neutral-800 dark:scrollbar-thumb-neutral-600 rounded-lg ltr:-ml-5 ltr:pl-5 rtl:-mr-5 rtl:pr-5 hidden lg:block">
+  <summary
+    class="block py-1 text-lg font-semibold cursor-pointer bg-neutral-100 text-neutral-800 ltr:-ml-5 ltr:pl-5 rtl:-mr-5 rtl:pr-5 dark:bg-neutral-700 dark:text-neutral-100 lg:hidden">
+    Table of Contents
+  </summary>
+  <div
+    class="min-w-[220px] py-2 border-dotted ltr:-ml-5 ltr:border-l ltr:pl-5 rtl:-mr-5 rtl:border-r rtl:pr-5 dark:border-neutral-600">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#charts">Charts</a></li>
+    <li><a href="#diagrams">Diagrams</a></li>
+    <li><a href="#data-frames">Data Frames</a></li>
+    <li><a href="#did-you-find-this-page-helpful-consider-sharing-it-">Did you find this page helpful? Consider sharing it 🙌</a></li>
+  </ul>
+</nav>
+  </div>
+</details>
+<details class="toc-inside mt-0 overflow-hidden rounded-lg ltr:-ml-5 ltr:pl-5 rtl:-mr-5 rtl:pr-5 lg:hidden">
+  <summary
+    class="py-1 text-lg font-semibold cursor-pointer bg-neutral-100 text-neutral-800 ltr:-ml-5 ltr:pl-5 rtl:-mr-5 rtl:pr-5 dark:bg-neutral-700 dark:text-neutral-100 lg:hidden">
+    Table of Contents
+  </summary>
+  <div
+    class="py-2 border-dotted border-neutral-300 ltr:-ml-5 ltr:border-l ltr:pl-5 rtl:-mr-5 rtl:border-r rtl:pr-5 dark:border-neutral-600">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#charts">Charts</a></li>
+    <li><a href="#diagrams">Diagrams</a></li>
+    <li><a href="#data-frames">Data Frames</a></li>
+    <li><a href="#did-you-find-this-page-helpful-consider-sharing-it-">Did you find this page helpful? Consider sharing it 🙌</a></li>
+  </ul>
+</nav>
+  </div>
+</details>
+
+<script>
+
+  var margin = 200;
+  var marginError = 50;
+
+  (function () {
+    var $window = $(window);
+    var $toc = $('#TOCView');
+    var tocHeight = $toc.height();
+
+    function onResize() {
+      var windowAndMarginHeight = $window.height() - margin;
+      if(tocHeight >= windowAndMarginHeight) {
+        $toc.css("overflow-y", "scroll")
+        $toc.css("max-height", (windowAndMarginHeight + marginError) + "px")
+      } else {
+        $toc.css("overflow-y", "hidden")
+        $toc.css("max-height", "9999999px")
+      }
+    }
+
+    $window.on('resize', onResize);
+    $(document).ready(onResize);
+  })();
 
 
 
-
-
-        </div>
+</script>
+   </div>
       </div>
-
-
-
-      
-      
-      
-      
       
 
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      <div class="article-header article-container featured-image-wrapper mt-4 mb-16" style="max-width: 720px; max-height: 480px;">
-        <div style="position: relative">
-          <img src="/post/data-visualization/featured_hu15046892941476069000.webp" width="720" height="480" alt="" class="featured-image">
-          <span class="article-header-caption">Image credit: <a href="https://unsplash.com" target="_blank" rel="noopener"><strong>Unsplash</strong></a></span>
-        </div>
-      </div>
-      
+      <div class="min-w-0 min-h-0 max-w-fit">
+        
+        
 
-      
-      
 
-      <div class="prose prose-slate lg:prose-xl dark:prose-invert">
-        <p>Hugo Blox is designed to give technical content creators a seamless experience. You can focus on the content and Hugo Blox handles the rest.</p>
+        <div class="article-content max-w-prose mb-20">
+          <p>Hugo Blox is designed to give technical content creators a seamless experience. You can focus on the content and Hugo Blox handles the rest.</p>
 <p>Use popular tools such as Plotly, Mermaid, and data frames.</p>
-<h2 id="charts">Charts</h2>
-<p>Hugo Blox supports the popular <a href="https://plot.ly/" target="_blank" rel="noopener">Plotly</a> format for interactive data visualizations. With Plotly, you can design almost any kind of visualization you can imagine!</p>
+
+
+<h2 class="relative group">Charts 
+    <div id="charts" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#charts" aria-label="Anchor">#</a>
+    </span>        
+    
+</h2>
+<p>Hugo Blox supports the popular <a href="https://plot.ly/" target="_blank">Plotly</a> format for interactive data visualizations. With Plotly, you can design almost any kind of visualization you can imagine!</p>
 <p>Save your Plotly JSON in your page folder, for example <code>line-chart.json</code>, and then add the <code>{{&lt; chart data=&quot;line-chart&quot; &gt;}}</code> shortcode where you would like the chart to appear.</p>
 <p>Demo:</p>
+<p>[Chart: line-chart]</p>
+<p>You might also find the <a href="http://plotly-json-editor.getforge.io/" target="_blank">Plotly JSON Editor</a> useful.</p>
 
 
-
-
-<div id="chart-837615942" class="chart"></div>
-<script>
-  async function fetchChartJSON() {
-    console.debug('Hugo Blox fetching chart JSON...')
-    const response = await fetch('.\/line-chart.json');
-    return await response.json();
-  }
-
-  (function() {
-    let a = setInterval( function() {
-      if ( typeof window.Plotly === 'undefined' ) {
-        console.debug('Plotly not loaded yet...')
-        return;
-      }
-      clearInterval( a );
-
-      fetchChartJSON().then(chart => {
-        console.debug('Plotting chart...')
-        window.Plotly.newPlot('chart-837615942', chart.data, chart.layout, {responsive: true});
-      });
-    }, 500 );
-  })();
-</script>
-
-<p>You might also find the <a href="http://plotly-json-editor.getforge.io/" target="_blank" rel="noopener">Plotly JSON Editor</a> useful.</p>
-<h2 id="diagrams">Diagrams</h2>
+<h2 class="relative group">Diagrams 
+    <div id="diagrams" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#diagrams" aria-label="Anchor">#</a>
+    </span>        
+    
+</h2>
 <p>Hugo Blox supports the <em>Mermaid</em> Markdown extension for diagrams.</p>
 <p>An example <strong>flowchart</strong>:</p>
 <pre><code>```mermaid
@@ -1233,13 +1009,12 @@ C --&gt;|Two| E[Result 2]
 ```
 </code></pre>
 <p>renders as</p>
-<div class="mermaid">graph TD
-A[Hard] -->|Text| B(Round)
-B --> C{Decision}
-C -->|One| D[Result 1]
-C -->|Two| E[Result 2]
-</div>
-<p>An example <strong>sequence diagram</strong>:</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">graph TD
+A[Hard] --&gt;|Text| B(Round)
+B --&gt; C{Decision}
+C --&gt;|One| D[Result 1]
+C --&gt;|Two| E[Result 2]
+</code></pre><p>An example <strong>sequence diagram</strong>:</p>
 <pre><code>```mermaid
 sequenceDiagram
 Alice-&gt;&gt;John: Hello John, how are you?
@@ -1253,17 +1028,16 @@ Bob--&gt;&gt;John: Jolly good!
 ```
 </code></pre>
 <p>renders as</p>
-<div class="mermaid">sequenceDiagram
-Alice->>John: Hello John, how are you?
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">sequenceDiagram
+Alice-&gt;&gt;John: Hello John, how are you?
 loop Healthcheck
-    John->>John: Fight against hypochondria
+    John-&gt;&gt;John: Fight against hypochondria
 end
 Note right of John: Rational thoughts!
-John-->>Alice: Great!
-John->>Bob: How about you?
-Bob-->>John: Jolly good!
-</div>
-<p>An example <strong>class diagram</strong>:</p>
+John--&gt;&gt;Alice: Great!
+John-&gt;&gt;Bob: How about you?
+Bob--&gt;&gt;John: Jolly good!
+</code></pre><p>An example <strong>class diagram</strong>:</p>
 <pre><code>```mermaid
 classDiagram
 Class01 &lt;|-- AveryLongClass : Cool
@@ -1282,22 +1056,21 @@ Class08 &lt;--&gt; C2: Cool label
 ```
 </code></pre>
 <p>renders as</p>
-<div class="mermaid">classDiagram
-Class01 <|-- AveryLongClass : Cool
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">classDiagram
+Class01 &lt;|-- AveryLongClass : Cool
 Class03 *-- Class04
 Class05 o-- Class06
 Class07 .. Class08
-Class09 --> C2 : Where am i?
+Class09 --&gt; C2 : Where am i?
 Class09 --* C3
-Class09 --|> Class07
+Class09 --|&gt; Class07
 Class07 : equals()
 Class07 : Object[] elementData
 Class01 : size()
 Class01 : int chimp
 Class01 : int gorilla
-Class08 <--> C2: Cool label
-</div>
-<p>An example <strong>state diagram</strong>:</p>
+Class08 &lt;--&gt; C2: Cool label
+</code></pre><p>An example <strong>state diagram</strong>:</p>
 <pre><code>```mermaid
 stateDiagram
 [*] --&gt; Still
@@ -1309,549 +1082,245 @@ Crash --&gt; [*]
 ```
 </code></pre>
 <p>renders as</p>
-<div class="mermaid">stateDiagram
-[*] --> Still
-Still --> [*]
-Still --> Moving
-Moving --> Still
-Moving --> Crash
-Crash --> [*]
-</div>
-<h2 id="data-frames">Data Frames</h2>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">stateDiagram
+[*] --&gt; Still
+Still --&gt; [*]
+Still --&gt; Moving
+Moving --&gt; Still
+Moving --&gt; Crash
+Crash --&gt; [*]
+</code></pre>
+
+<h2 class="relative group">Data Frames 
+    <div id="data-frames" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#data-frames" aria-label="Anchor">#</a>
+    </span>        
+    
+</h2>
 <p>Save your spreadsheet as a CSV file in your page&rsquo;s folder and then render it by adding the <em>Table</em> shortcode to your page:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{&lt;</span> <span class="nx">table</span> <span class="nx">path</span><span class="p">=</span><span class="s">&#34;results.csv&#34;</span> <span class="nx">header</span><span class="p">=</span><span class="s">&#34;true&#34;</span> <span class="nx">caption</span><span class="p">=</span><span class="s">&#34;Table 1: My results&#34;</span> <span class="p">&gt;}}</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>{{&lt; <span style="color:#a6e22e">table</span> <span style="color:#a6e22e">path</span>=<span style="color:#e6db74">&#34;results.csv&#34;</span> <span style="color:#a6e22e">header</span>=<span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#a6e22e">caption</span>=<span style="color:#e6db74">&#34;Table 1: My results&#34;</span> &gt;}}
 </span></span></code></pre></div><p>renders as</p>
+<p>[Table: Table 1: My results]</p>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-<table class="table-auto w-full">
-  
+<h2 class="relative group">Did you find this page helpful? Consider sharing it 🙌 
+    <div id="did-you-find-this-page-helpful-consider-sharing-it-" class="anchor"></div>
     
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#did-you-find-this-page-helpful-consider-sharing-it-" aria-label="Anchor">#</a>
+    </span>        
     
-    <thead>
-      <tr>  <th class="border-b dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">customer_id</th>  <th class="border-b dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">score</th>  </tr>
-    </thead>
-  
-  <tbody>
-  
-    <tr>
-      
-        
-          <td data-table-dtype="number" class="border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">1</td>
-        
-      
-        
-          <td data-table-dtype="number" class="border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">0</td>
-        
-      
-    </tr>
-  
-    <tr>
-      
-        
-          <td data-table-dtype="number" class="border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">2</td>
-        
-      
-        
-          <td data-table-dtype="text" class="border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">0.5</td>
-        
-      
-    </tr>
-  
-    <tr>
-      
-        
-          <td data-table-dtype="number" class="border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">3</td>
-        
-      
-        
-          <td data-table-dtype="number" class="border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">1</td>
-        
-      
-    </tr>
-  
-  </tbody>
-  
-    <caption class="table-caption">Table 1: My results</caption>
-  
-</table>
+</h2>
 
-<h2 id="did-you-find-this-page-helpful-consider-sharing-it-">Did you find this page helpful? Consider sharing it 🙌</h2>
+          
+          
+          
+        </div>
+        
+        
 
+        
+        
+
+          
       </div>
-
+     
       
-  <time class="mt-12 mb-8 block text-xs text-gray-500 ltr:text-right rtl:text-left dark:text-gray-400" datetime="2023-10-25T00:00:00.000Z">
-    <span>Last updated on</span>
-    Oct 25, 2023</time>
-
-      <div class="container mx-auto prose prose-slate lg:prose-xl dark:prose-invert mt-5">
+      
         
-        <div class="max-w-prose print:hidden">
+        
+          
+          
+        
+      <script>
+        var oid = "views_post\/data-visualization\/index.md"
+        var oid_likes = "likes_post\/data-visualization\/index.md"
+      </script>
+      
+      
+      <script type="text/javascript" src="/js/page.min.0860cf4e04fa2d72cc33ddba263083464d48f67de06114529043cb4623319efed4f484fd7f1730df5abea0e2da6f3538855634081d02f2d6e920b956f063e823.js" integrity="sha512-CGDPTgT6LXLMM926JjCDRk1I9n3gYRRSkEPLRiMxnv7U9IT9fxcw31q&#43;oOLabzU4hVY0CB0C8tbpILlW8GPoIw=="></script>
+      
   
-  
+    </section>
+  <footer class="pt-8 max-w-prose print:hidden">
 
-  
-
-<div class="flex justify-center">
-  
-  <a class="no-underline bg-primary-100 hover:bg-primary-300 text-primary-800 text-xs font-medium mr-2 px-2.5 py-0.5 lg:px-5 lg:py-2 rounded dark:bg-primary-900 dark:hover:bg-primary-700 dark:text-primary-300" href="/tags/hugo/">Hugo</a>
-  
-  <a class="no-underline bg-primary-100 hover:bg-primary-300 text-primary-800 text-xs font-medium mr-2 px-2.5 py-0.5 lg:px-5 lg:py-2 rounded dark:bg-primary-900 dark:hover:bg-primary-700 dark:text-primary-300" href="/tags/hugo-blox/">Hugo Blox</a>
-  
-  <a class="no-underline bg-primary-100 hover:bg-primary-300 text-primary-800 text-xs font-medium mr-2 px-2.5 py-0.5 lg:px-5 lg:py-2 rounded dark:bg-primary-900 dark:hover:bg-primary-700 dark:text-primary-300" href="/tags/markdown/">Markdown</a>
-  
-</div>
-
-
-  
-<section class="flex flex-row flex-wrap justify-center pt-4 text-xl">
-  
-
-  
-  
-  
-  
-  
-  
-  <a
-    target="_blank" rel="noopener"
-    class="m-1 rounded-md bg-neutral-300 p-1.5 text-neutral-700 hover:bg-primary-500 hover:text-neutral-300 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-primary-400 dark:hover:text-neutral-800"
-    href="https://twitter.com/intent/tweet?url=http%3A%2F%2Flocalhost%3A1313%2Fpost%2Fdata-visualization%2F&amp;text=%F0%9F%93%88&#43;Communicate&#43;your&#43;results&#43;effectively&#43;with&#43;the&#43;best&#43;data&#43;visualizations"
-    title="X"
-    aria-label="X"
-    id="share-link-x"
-  >
-    <svg style="height: 1em;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"/></svg>
-  </a>
-  
-
-  
-  
-  
-  
-  
-  
-  <a
-    target="_blank" rel="noopener"
-    class="m-1 rounded-md bg-neutral-300 p-1.5 text-neutral-700 hover:bg-primary-500 hover:text-neutral-300 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-primary-400 dark:hover:text-neutral-800"
-    href="https://www.facebook.com/sharer.php?u=http%3A%2F%2Flocalhost%3A1313%2Fpost%2Fdata-visualization%2F&amp;t=%F0%9F%93%88&#43;Communicate&#43;your&#43;results&#43;effectively&#43;with&#43;the&#43;best&#43;data&#43;visualizations"
-    title="Facebook"
-    aria-label="Facebook"
-    id="share-link-facebook"
-  >
-    <svg style="height: 1em;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>
-  </a>
-  
-
-  
-  
-  
-  
-  
-  
     
   
-  <a
-    target="_blank" rel="noopener"
-    class="m-1 rounded-md bg-neutral-300 p-1.5 text-neutral-700 hover:bg-primary-500 hover:text-neutral-300 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-primary-400 dark:hover:text-neutral-800"
-    href="mailto:?subject=%F0%9F%93%88%20Communicate%20your%20results%20effectively%20with%20the%20best%20data%20visualizations&amp;body=http%3A%2F%2Flocalhost%3A1313%2Fpost%2Fdata-visualization%2F"
-    title="Email"
-    aria-label="Email"
-    id="share-link-email"
-  >
-    <svg style="height: 1em;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M16.5 12a4.5 4.5 0 1 1-9 0a4.5 4.5 0 0 1 9 0Zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 1 0-2.636 6.364M16.5 12V8.25"/></svg>
-  </a>
-  
-
-  
-  
-  
-  
-  
-  
-  <a
-    target="_blank" rel="noopener"
-    class="m-1 rounded-md bg-neutral-300 p-1.5 text-neutral-700 hover:bg-primary-500 hover:text-neutral-300 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-primary-400 dark:hover:text-neutral-800"
-    href="https://www.linkedin.com/shareArticle?url=http%3A%2F%2Flocalhost%3A1313%2Fpost%2Fdata-visualization%2F&amp;title=%F0%9F%93%88&#43;Communicate&#43;your&#43;results&#43;effectively&#43;with&#43;the&#43;best&#43;data&#43;visualizations"
-    title="LinkedIn"
-    aria-label="LinkedIn"
-    id="share-link-linkedin"
-  >
-    <svg style="height: 1em;" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
-  </a>
-  
-
-  
-  
-  
-  
-  
-  
-  <a
-    target="_blank" rel="noopener"
-    class="m-1 rounded-md bg-neutral-300 p-1.5 text-neutral-700 hover:bg-primary-500 hover:text-neutral-300 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-primary-400 dark:hover:text-neutral-800"
-    href="whatsapp://send?text=%F0%9F%93%88&#43;Communicate&#43;your&#43;results&#43;effectively&#43;with&#43;the&#43;best&#43;data&#43;visualizations%20http%3A%2F%2Flocalhost%3A1313%2Fpost%2Fdata-visualization%2F"
-    title="WhatsApp"
-    aria-label="WhatsApp"
-    id="share-link-whatsapp"
-  >
-    <svg style="height: 1em;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="m187.58 144.84-32-16a8 8 0 0 0-8 .5l-14.69 9.8a40.55 40.55 0 0 1-16-16l9.8-14.69a8 8 0 0 0 .5-8l-16-32A8 8 0 0 0 104 64a40 40 0 0 0-40 40 88.1 88.1 0 0 0 88 88 40 40 0 0 0 40-40 8 8 0 0 0-4.42-7.16ZM152 176a72.08 72.08 0 0 1-72-72 24 24 0 0 1 19.29-23.54l11.48 23L101 118a8 8 0 0 0-.73 7.51 56.47 56.47 0 0 0 30.15 30.15A8 8 0 0 0 138 155l14.61-9.74 23 11.48A24 24 0 0 1 152 176ZM128 24a104 104 0 0 0-91.82 152.88l-11.35 34.05a16 16 0 0 0 20.24 20.24l34.05-11.35A104 104 0 1 0 128 24Zm0 192a87.87 87.87 0 0 1-44.06-11.81 8 8 0 0 0-6.54-.67L40 216l12.47-37.4a8 8 0 0 0-.66-6.54A88 88 0 1 1 128 216Z"/></svg>
-  </a>
-  
-</section>
-
-
-  
-
-
-
-
-
-
-
-
-  
-  
     
-
-
-
-  
-  
-  
     
-  
-  
-  
-
-<div class="flex pt-12 pb-4">
-  
-  
-  <img
-    class="mr-4 h-24 w-24 rounded-full"
-    width="96"
-    height="96"
-    alt="Zhenchen Wang"
-  src="/author/zhenchen-wang/avatar_hu14286786331817500569.jpg"
-  loading="lazy"
-  />
-  
-  <div class="place-self-center">
-    <div class="text-[0.6rem] uppercase leading-3 text-neutral-500 dark:text-neutral-400">
-      Authors
+    
+    <div class="pt-8">
+      <hr class="border-dotted border-neutral-300 dark:border-neutral-600" />
+      <div class="flex justify-between pt-3">
+        <span>
+          
+            <a class="flex group mr-3" href="/post/teach-courses/">
+              <span
+                class="mr-3 text-neutral-700 group-hover:text-primary-600 ltr:inline rtl:hidden dark:text-neutral dark:group-hover:text-primary-400"
+                >&larr;</span
+              >
+              <span
+                class="ml-3 text-neutral-700 group-hover:text-primary-600 ltr:hidden rtl:inline dark:text-neutral dark:group-hover:text-primary-400"
+                >&rarr;</span
+              >
+              <span class="flex flex-col">
+                <span
+                  class="mt-[0.1rem] leading-6 group-hover:underline group-hover:decoration-primary-500"
+                  >👩🏼‍🏫 Teach academic courses</span
+                >
+                <span class="mt-[0.1rem] text-xs text-neutral-500 dark:text-neutral-400">
+                  
+                    <time datetime="2023-10-24T00:00:00&#43;00:00">24 October 2023</time>
+                  
+                </span>
+              </span>
+            </a>
+          
+        </span>
+        <span>
+          
+            <a class="flex text-right group ml-3" href="/post/second-brain/">
+              <span class="flex flex-col">
+                <span
+                  class="mt-[0.1rem] leading-6 group-hover:underline group-hover:decoration-primary-500"
+                  >🧠 Sharpen your thinking with a second brain</span
+                >
+                <span class="mt-[0.1rem] text-xs text-neutral-500 dark:text-neutral-400">
+                  
+                    <time datetime="2023-10-26T00:00:00&#43;00:00">26 October 2023</time>
+                  
+                </span>
+              </span>
+              <span
+                class="ml-3 text-neutral-700 group-hover:text-primary-600 ltr:inline rtl:hidden dark:text-neutral dark:group-hover:text-primary-400"
+                >&rarr;</span
+              >
+              <span
+                class="mr-3 text-neutral-700 group-hover:text-primary-600 ltr:hidden rtl:inline dark:text-neutral dark:group-hover:text-primary-400"
+                >&larr;</span
+              >
+            </a>
+          
+        </span>
+      </div>
     </div>
-    <div class="font-semibold leading-6 text-neutral-800 dark:text-neutral-300">
-      <a href="http://localhost:1313/" class="no-underline">
+  
+
+
+    
+  </footer>
+</article>
+
+      <div id="top-scroller" class="pointer-events-none absolute top-[110vh] bottom-0 w-12 ltr:right-0 rtl:left-0">
+  <a href="#the-top"
+    class="pointer-events-auto sticky top-[calc(100vh-5.5rem)] flex h-12 w-12 mb-16 items-center justify-center rounded-full bg-neutral/50 text-xl text-neutral-700 hover:text-primary-600 dark:bg-neutral-800/50 dark:text-neutral dark:hover:text-primary-400"
+    aria-label="Scroll to top" title="Scroll to top">
+    &uarr;
+  </a>
+</div>
+    </main><footer id="site-footer" class="py-10 print:hidden">
+  
+  
+    
+  
+  <div class="flex items-center justify-between">
+
+    
+    
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+      &copy;
+      2026
       Zhenchen Wang
-      </a>
-    </div>
-
+    </p>
     
 
+    
+    
+    <p class="text-xs text-neutral-500 dark:text-neutral-400">
+      
+      
+      Powered by <a class="hover:underline hover:decoration-primary-400 hover:text-primary-500"
+        href="https://gohugo.io/" target="_blank" rel="noopener noreferrer">Hugo</a> &amp; <a class="hover:underline hover:decoration-primary-400 hover:text-primary-500"
+        href="https://blowfish.page/" target="_blank" rel="noopener noreferrer">Blowfish</a>
+    </p>
+    
 
-    
-
-    <div class="text-2xl sm:text-lg pt-1">
-
-      
-<div class="flex flex-wrap text-neutral-500 dark:text-neutral-300">
-  
-    
-    
-    
-    
-    <a
-      class="pr-2 transition-transform hover:scale-125 hover:text-primary-700 dark:hover:text-primary-400"
-      style="will-change:transform;"
-      href="mailto:m202372036@hust.edu.cn"
-      
-      aria-label="At-Symbol"
-    ><svg style="height: 1em;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M16.5 12a4.5 4.5 0 1 1-9 0a4.5 4.5 0 0 1 9 0Zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 1 0-2.636 6.364M16.5 12V8.25"/></svg></a>
-  
-    
-    
-    
-    
-      
-    
-    <a
-      class="pr-2 transition-transform hover:scale-125 hover:text-primary-700 dark:hover:text-primary-400"
-      style="will-change:transform;"
-      href="https://twitter.com/GetResearchDev"
-      target="_blank" rel="noopener" rel="me noopener noreferrer"
-      aria-label="Brands/X"
-    ><svg style="height: 1em;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"/></svg></a>
-  
-    
-    
-    
-    
-      
-    
-    <a
-      class="pr-2 transition-transform hover:scale-125 hover:text-primary-700 dark:hover:text-primary-400"
-      style="will-change:transform;"
-      href="https://www.instagram.com/"
-      target="_blank" rel="noopener" rel="me noopener noreferrer"
-      aria-label="Brands/Instagram"
-    ><svg style="height: 1em;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15"><path fill="currentColor" fill-rule="evenodd" d="M12.91 12.909c.326-.327.582-.72.749-1.151c.16-.414.27-.886.302-1.578c.032-.693.04-.915.04-2.68c0-1.765-.008-1.987-.04-2.68c-.032-.692-.142-1.164-.302-1.578a3.185 3.185 0 0 0-.75-1.151a3.187 3.187 0 0 0-1.151-.75c-.414-.16-.886-.27-1.578-.302C9.487 1.007 9.265 1 7.5 1c-1.765 0-1.987.007-2.68.04c-.692.03-1.164.14-1.578.301a3.2 3.2 0 0 0-1.151.75a3.2 3.2 0 0 0-.75 1.151c-.16.414-.27.886-.302 1.578C1.007 5.513 1 5.735 1 7.5c0 1.765.007 1.987.04 2.68c.03.692.14 1.164.301 1.578c.164.434.42.826.75 1.151c.325.33.718.586 1.151.75c.414.16.886.27 1.578.302c.693.031.915.039 2.68.039c1.765 0 1.987-.008 2.68-.04c.692-.03 1.164-.14 1.578-.301a3.323 3.323 0 0 0 1.151-.75ZM2 6.735v1.53c-.002.821-.002 1.034.02 1.5c.026.586.058 1.016.156 1.34c.094.312.199.63.543 1.012c.344.383.675.556 1.097.684c.423.127.954.154 1.415.175c.522.024.73.024 1.826.024H8.24c.842.001 1.054.002 1.526-.02c.585-.027 1.015-.059 1.34-.156c.311-.094.629-.2 1.011-.543c.383-.344.556-.676.684-1.098c.127-.422.155-.953.176-1.414C13 9.247 13 9.04 13 7.947v-.89c0-1.096 0-1.303-.023-1.826c-.021-.461-.049-.992-.176-1.414c-.127-.423-.3-.754-.684-1.098c-.383-.344-.7-.449-1.011-.543c-.325-.097-.755-.13-1.34-.156A27.29 27.29 0 0 0 8.24 2H7.057c-1.096 0-1.304 0-1.826.023c-.461.021-.992.049-1.415.176c-.422.128-.753.301-1.097.684c-.344.383-.45.7-.543 1.012c-.098.324-.13.754-.156 1.34c-.022.466-.022.679-.02 1.5ZM7.5 5.25a2.25 2.25 0 1 0 0 4.5a2.25 2.25 0 0 0 0-4.5ZM4.25 7.5a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0Zm6.72-2.72a.75.75 0 1 0 0-1.5a.75.75 0 0 0 0 1.5Z" clip-rule="evenodd"/></svg></a>
-  
-    
-    
-    
-    
-      
-    
-    <a
-      class="pr-2 transition-transform hover:scale-125 hover:text-primary-700 dark:hover:text-primary-400"
-      style="will-change:transform;"
-      href="https://github.com/Plucky923"
-      target="_blank" rel="noopener" rel="me noopener noreferrer"
-      aria-label="Brands/Github"
-    ><svg style="height: 1em;" fill="currentColor" viewBox="3 3 18 18"><path d="M12 3C7.0275 3 3 7.12937 3 12.2276C3 16.3109 5.57625 19.7597 9.15374 20.9824C9.60374 21.0631 9.77249 20.7863 9.77249 20.5441C9.77249 20.3249 9.76125 19.5982 9.76125 18.8254C7.5 19.2522 6.915 18.2602 6.735 17.7412C6.63375 17.4759 6.19499 16.6569 5.8125 16.4378C5.4975 16.2647 5.0475 15.838 5.80124 15.8264C6.51 15.8149 7.01625 16.4954 7.18499 16.7723C7.99499 18.1679 9.28875 17.7758 9.80625 17.5335C9.885 16.9337 10.1212 16.53 10.38 16.2993C8.3775 16.0687 6.285 15.2728 6.285 11.7432C6.285 10.7397 6.63375 9.9092 7.20749 9.26326C7.1175 9.03257 6.8025 8.08674 7.2975 6.81794C7.2975 6.81794 8.05125 6.57571 9.77249 7.76377C10.4925 7.55615 11.2575 7.45234 12.0225 7.45234C12.7875 7.45234 13.5525 7.55615 14.2725 7.76377C15.9937 6.56418 16.7475 6.81794 16.7475 6.81794C17.2424 8.08674 16.9275 9.03257 16.8375 9.26326C17.4113 9.9092 17.76 10.7281 17.76 11.7432C17.76 15.2843 15.6563 16.0687 13.6537 16.2993C13.98 16.5877 14.2613 17.1414 14.2613 18.0065C14.2613 19.2407 14.25 20.2326 14.25 20.5441C14.25 20.7863 14.4188 21.0746 14.8688 20.9824C16.6554 20.364 18.2079 19.1866 19.3078 17.6162C20.4077 16.0457 20.9995 14.1611 21 12.2276C21 7.12937 16.9725 3 12 3Z"></path></svg></a>
-  
-    
-    
-    
-    
-      
-    
-    <a
-      class="pr-2 transition-transform hover:scale-125 hover:text-primary-700 dark:hover:text-primary-400"
-      style="will-change:transform;"
-      href="https://www.linkedin.com/"
-      target="_blank" rel="noopener" rel="me noopener noreferrer"
-      aria-label="Brands/Linkedin"
-    ><svg style="height: 1em;" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg></a>
-  
-    
-    
-    
-    
-      
-    
-    <a
-      class="pr-2 transition-transform hover:scale-125 hover:text-primary-700 dark:hover:text-primary-400"
-      style="will-change:transform;"
-      href="https://scholar.google.com/"
-      target="_blank" rel="noopener" rel="me noopener noreferrer"
-      aria-label="Academicons/Google-Scholar"
-    ><svg style="height: 1em;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M343.759 106.662V79.43L363.524 64h-213.89L20.476 176.274h85.656a82.339 82.339 0 0 0-.219 6.225c0 20.845 7.22 38.087 21.672 51.861c14.453 13.797 32.252 20.648 53.327 20.648c4.923 0 9.75-.368 14.438-1.024c-2.907 6.5-4.374 12.523-4.374 18.142c0 9.875 4.499 20.43 13.467 31.642c-39.234 2.67-68.061 9.732-86.437 21.163c-10.531 6.5-19 14.704-25.39 24.531c-6.391 9.9-9.578 20.515-9.578 31.962c0 9.648 2.062 18.336 6.219 26.062c4.156 7.726 9.578 14.07 16.312 18.984c6.718 4.968 14.469 9.101 23.219 12.469c8.734 3.344 17.406 5.718 26.061 7.062A167.052 167.052 0 0 0 180.555 448c13.469 0 26.953-1.734 40.547-5.187c13.562-3.485 26.28-8.642 38.171-15.493c11.86-6.805 21.515-16.086 28.922-27.718c7.39-11.68 11.094-24.805 11.094-39.336c0-11.016-2.25-21.039-6.75-30.14c-4.468-9.073-9.938-16.542-16.452-22.345c-6.501-5.813-13-11.155-19.516-15.968c-6.5-4.845-12-9.75-16.468-14.813c-4.485-5.046-6.735-10.054-6.735-14.984c0-4.921 1.734-9.672 5.216-14.265c3.455-4.61 7.674-9.048 12.61-13.306c4.937-4.25 9.875-8.968 14.796-14.133c4.922-5.147 9.141-11.827 12.61-20.008c3.485-8.18 5.203-17.445 5.203-27.757c0-13.453-2.547-24.46-7.547-33.314c-.594-1.022-1.218-1.803-1.875-3.022l56.907-46.672v17.119c-7.393.93-6.624 5.345-6.624 10.635V245.96c0 5.958 4.875 10.834 10.834 10.834h3.989c5.958 0 10.833-4.875 10.833-10.834V117.293c0-5.277.778-9.688-6.561-10.63zm-107.36 222.48c1.14.75 3.704 2.78 7.718 6.038c4.05 3.243 6.797 5.695 8.266 7.414a443.553 443.553 0 0 1 6.376 7.547c2.813 3.375 4.718 6.304 5.718 8.734c1 2.477 2.016 5.461 3.047 8.946a38.27 38.27 0 0 1 1.485 10.562c0 17.048-6.564 29.68-19.656 37.859c-13.125 8.18-28.767 12.274-46.938 12.274c-9.187 0-18.203-1.093-27.063-3.196c-8.843-2.116-17.311-5.336-25.39-9.601c-8.078-4.258-14.577-10.204-19.5-17.797c-4.938-7.64-7.407-16.415-7.407-26.25c0-10.32 2.797-19.29 8.422-26.906c5.594-7.625 12.938-13.391 22.032-17.315c9.063-3.946 18.25-6.742 27.562-8.398a157.865 157.865 0 0 1 28.438-2.555c4.47 0 7.936.25 10.405.696c.455.219 3.032 2.07 7.735 5.563c4.704 3.462 7.625 5.595 8.75 6.384zm-3.359-100.579c-7.406 8.86-17.734 13.288-30.953 13.288c-11.86 0-22.298-4.764-31.266-14.312c-9-9.523-15.422-20.328-19.344-32.43c-3.937-12.109-5.906-23.984-5.906-35.648c0-13.694 3.596-25.352 10.781-34.976c7.187-9.65 17.5-14.485 30.938-14.485c11.875 0 22.374 5.038 31.437 15.157c9.094 10.085 15.61 21.413 19.517 33.968c3.922 12.54 5.873 24.53 5.873 35.984c0 13.446-3.702 24.61-11.076 33.454z"/></svg></a>
-  
-    
-    
-    
-    
-      
-    
-    <a
-      class="pr-2 transition-transform hover:scale-125 hover:text-primary-700 dark:hover:text-primary-400"
-      style="will-change:transform;"
-      href="https://orcid.org/"
-      target="_blank" rel="noopener" rel="me noopener noreferrer"
-      aria-label="Academicons/Orcid"
-    ><svg style="height: 1em;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M336.62 194.538c-7.13-3.328-13.866-5.56-20.253-6.614c-6.365-1.095-16.574-1.612-30.71-1.612h-36.704v152.747h37.634c14.673 0 26.081-1.013 34.224-3.017c8.142-2.004 14.921-4.526 20.356-7.626a69.448 69.448 0 0 0 14.942-11.388c14.488-14.714 21.742-33.273 21.742-55.717c0-22.052-7.44-40.052-22.341-53.982c-5.498-5.166-11.822-9.444-18.89-12.793zM256 8C119.022 8 8 119.042 8 256s111.022 248 248 248s248-111.042 248-248S392.978 8 256 8Zm-82.336 357.513h-29.389V160.148h29.389zM158.95 138.696c-11.14 0-20.213-9.01-20.213-20.212c0-11.118 9.052-20.191 20.213-20.191c11.18 0 20.232 9.052 20.232 20.191a20.194 20.194 0 0 1-20.232 20.212zm241.386 163.597c-5.29 12.545-12.834 23.581-22.65 33.088c-9.982 9.837-21.597 17.194-34.844 22.196c-7.75 3.017-14.839 5.063-21.307 6.117c-6.49 1.013-18.828 1.509-37.076 1.509h-64.956V160.148h69.233c27.962 0 50.034 4.154 66.32 12.545c16.265 8.37 29.181 20.728 38.792 36.972c9.61 16.265 14.425 34.018 14.425 53.196c.023 13.765-2.666 26.908-7.936 39.432z"/></svg></a>
-  
-</div>
-
-
-
-    </div>
   </div>
-</div>
-
-
-
-  
-
-
-
-
-  
-  
+  <script>
     
+    mediumZoom(document.querySelectorAll("img:not(.nozoom)"), {
+      margin: 24,
+      background: 'rgba(0,0,0,0.5)',
+      scrollOffset: 0,
+    })
     
-    
-      
-      
-    
-<div class="pt-1 no-prose w-full">
-  <hr class="border-dotted border-neutral-300 dark:border-neutral-600" />
-  <div class="flex flex-col md:flex-row flex-nowrap justify-between gap-5 pt-2">
-    <div class="">
-      
-        <a class="group flex no-underline" href="/post/second-brain/">
-          <span
-            class="mt-[-0.3rem] me-2 text-neutral-700 transition-transform group-hover:-translate-x-[2px] group-hover:text-primary-600 dark:text-neutral dark:group-hover:text-primary-400"
-          ><span class="ltr:inline rtl:hidden">&larr;</span></span>
-          <span class="flex flex-col">
-            <span
-              class="mt-[0.1rem] leading-6 group-hover:underline group-hover:decoration-primary-500"
-            >🧠 Sharpen your thinking with a second brain</span>
-            <span class="mt-[0.1rem] text-xs text-neutral-500 dark:text-neutral-400">
-              
-                Oct 26, 2023
-              
-            </span>
-          </span>
-        </a>
-      
-    </div>
-    <div class="">
-      
-        <a class="group flex text-right no-underline" href="/post/teach-courses/">
-          <span class="flex flex-col">
-            <span
-              class="mt-[0.1rem] leading-6 group-hover:underline group-hover:decoration-primary-500"
-            >👩🏼‍🏫 Teach academic courses</span
-            >
-            <span class="mt-[0.1rem] text-xs text-neutral-500 dark:text-neutral-400">
-              
-                Oct 24, 2023
-              
-            </span>
-          </span>
-          <span
-            class="mt-[-0.3rem] ms-2 text-neutral-700 transition-transform group-hover:-translate-x-[2px] group-hover:text-primary-600 dark:text-neutral dark:group-hover:text-primary-400"
-          ><span class="ltr:inline">&rarr;</span></span>
-        </a>
-      
-    </div>
-  </div>
-</div>
-
-
-
-  
-
-
-  
-
-
-
-</div>
-
-      </div>
-
-    </main>
-  </article>
-</div>
-
-    </div>
-    <div class="page-footer">
-      <footer class="container mx-auto flex flex-col justify-items-center text-sm leading-6 mt-24 mb-4 text-slate-700 dark:text-slate-200">
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
+  </script>
   
   
+  <script type="text/javascript" src="/js/process.min.ee03488f19c93c2efb199e2e3014ea5f3cb2ce7d45154adb3399a158cac27ca52831db249ede5bb602700ef87eb02434139de0858af1818ab0fb4182472204a4.js" integrity="sha512-7gNIjxnJPC77GZ4uMBTqXzyyzn1FFUrbM5mhWMrCfKUoMdsknt5btgJwDvh&#43;sCQ0E53ghYrxgYqw&#43;0GCRyIEpA=="></script>
   
   
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  
-
-  
-  
-    
-  
-  
-    
-  
-
-  
-
-  
-  <p class="powered-by text-center">
-    © 2025 Me. This work is licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0" rel="noopener noreferrer" target="_blank">CC BY NC ND 4.0</a>
-  </p>
-  
-
-  <p class="powered-by footer-license-icons">
-    <a href="https://creativecommons.org/licenses/by-nc-nd/4.0" rel="noopener noreferrer" target="_blank" aria-label="Creative Commons">
-      <i class="fab fa-creative-commons fa-2x" aria-hidden="true"></i>
-      <i class="fab fa-creative-commons-by fa-2x" aria-hidden="true"></i>
-      
-        <i class="fab fa-creative-commons-nc fa-2x" aria-hidden="true"></i>
-      
-      
-        <i class="fab fa-creative-commons-nd fa-2x" aria-hidden="true"></i>
-      
-    </a>
-  </p>
-
-
-
-
-
-  <p class="powered-by text-center">
-    
-    
-    
-      
-      
-      
-      
-      
-      
-      Published with <a href="https://hugoblox.com/?utm_campaign=poweredby" target="_blank" rel="noopener">Hugo Blox Builder</a> — the free, <a href="https://github.com/HugoBlox/hugo-blox-builder" target="_blank" rel="noopener">open source</a> website builder that empowers creators.
-    
-  </p>
-
 </footer>
+<div
+  id="search-wrapper"
+  class="invisible fixed inset-0 flex h-screen w-screen cursor-default flex-col bg-neutral-500/50 p-4 backdrop-blur-sm dark:bg-neutral-900/50 sm:p-6 md:p-[10vh] lg:p-[12vh]"
+  data-url="https://plucky923.github.io/"
+  style="z-index:500"
+>
+  <div
+    id="search-modal"
+    class="flex flex-col w-full max-w-3xl min-h-0 mx-auto border rounded-md shadow-lg top-20 border-neutral-200 bg-neutral dark:border-neutral-700 dark:bg-neutral-800"
+  >
+    <header class="relative z-10 flex items-center justify-between flex-none px-2">
+      <form class="flex items-center flex-auto min-w-0">
+        <div class="flex items-center justify-center w-8 h-8 text-neutral-400">
+          
 
-    </div>
+  <span class="relative block icon">
+    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="svg-inline--fa fa-search fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg>
 
-    
-    
-
-
+  </span>
 
 
+        </div>
+        <input
+          type="search"
+          id="search-query"
+          class="flex flex-auto h-12 mx-1 bg-transparent appearance-none focus:outline-dotted focus:outline-2 focus:outline-transparent"
+          placeholder="Search"
+          tabindex="0"
+        />
+      </form>
+      <button
+        id="close-search-button"
+        class="flex items-center justify-center w-8 h-8 text-neutral-700 hover:text-primary-600 dark:text-neutral dark:hover:text-primary-400"
+        title="Close (Esc)"
+      >
+        
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z"/></svg>
+
+  </span>
 
 
+      </button>
+    </header>
+    <section class="flex-auto px-2 overflow-auto">
+      <ul id="search-results">
+        
+      </ul>
+    </section>
+  </div>
+</div>
 
+  </div>
+</body>
 
-
-
-
-  </body>
 </html>

@@ -1,15 +1,14 @@
 ---
 title: 📈 Communicate your results effectively with the best data visualizations
-summary: Use popular tools such as Plotly, Mermaid, and data frames.
 date: 2023-10-25
-authors:
-  - admin
+summary: Use popular tools such as Plotly, Mermaid, and data frames.
 tags:
-  - Hugo
-  - Hugo Blox
-  - Markdown
-image:
-  caption: 'Image credit: [**Unsplash**](https://unsplash.com)'
+- Hugo
+- Hugo Blox
+- Markdown
+authors:
+- admin
+caption: 'Image credit: [**Unsplash**](https://unsplash.com)'
 ---
 
 Hugo Blox is designed to give technical content creators a seamless experience. You can focus on the content and Hugo Blox handles the rest.
@@ -24,7 +23,7 @@ Save your Plotly JSON in your page folder, for example `line-chart.json`, and th
 
 Demo:
 
-{{< chart data="line-chart" >}}
+[Chart: line-chart]
 
 You might also find the [Plotly JSON Editor](http://plotly-json-editor.getforge.io/) useful.
 
@@ -152,6 +151,6 @@ Save your spreadsheet as a CSV file in your page's folder and then render it by 
 
 renders as
 
-{{< table path="results.csv" header="true" caption="Table 1: My results" >}}
+[Table: Table 1: My results]
 
 ## Did you find this page helpful? Consider sharing it 🙌

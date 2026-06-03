@@ -1,0 +1,29 @@
+disabled = false
+weight = 1
+title = "Zhenchen Wang's Blog"
+
+[params]
+  displayName = "EN"
+  isoCode = "en"
+  rtl = false
+  dateFormat = "2 January 2006"
+  description = "Personal blog and academic website of Zhenchen Wang"
+  label = "English"
+  locale = "en"
+
+[params.author]
+  name = "Zhenchen Wang"
+  email = "m202372036@hust.edu.cn"
+  # image = "img/author.jpg"
+  imageQuality = 96
+  headline = "Cyber Security Researcher"
+  bio = "Master student at Huazhong University of Science and Technology. Interested in Operating System and Container Security."
+  links = [
+    { email = "mailto:m202372036@hust.edu.cn" },
+    { github = "https://github.com/Plucky923" },
+    { linkedin = "https://www.linkedin.com/" },
+    { x-twitter = "https://twitter.com/GetResearchDev" },
+    { instagram = "https://www.instagram.com/" },
+    { google-scholar = "https://scholar.google.com/" },
+    { orcid = "https://orcid.org/" },
+  ]

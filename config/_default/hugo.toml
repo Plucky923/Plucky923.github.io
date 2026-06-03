@@ -1,0 +1,32 @@
+# -- Site Configuration --
+# https://blowfish.page/docs/getting-started/
+
+baseURL = "https://plucky923.github.io/"
+defaultContentLanguage = "en"
+
+enableRobotsTXT = true
+summaryLength = 0
+
+buildDrafts = false
+buildFuture = false
+
+enableEmoji = true
+
+[pagination]
+  pagerSize = 100
+
+[imaging]
+  anchor = 'Center'
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+  author = "authors"
+
+[sitemap]
+  changefreq = 'daily'
+  filename = 'sitemap.xml'
+  priority = 0.5
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]

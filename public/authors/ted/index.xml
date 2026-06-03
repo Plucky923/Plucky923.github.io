@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ted on Zhenchen Wang&#39;s Blog</title>
+    <link>https://plucky923.github.io/authors/ted/</link>
+    <description>Recent content in Ted on Zhenchen Wang&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <managingEditor>m202372036@hust.edu.cn (Zhenchen Wang)</managingEditor>
+    <webMaster>m202372036@hust.edu.cn (Zhenchen Wang)</webMaster>
+    <copyright>© 2026 Zhenchen Wang</copyright>
+    <lastBuildDate>Fri, 27 Oct 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://plucky923.github.io/authors/ted/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>🎉 Easily create your own simple yet highly customizable blog</title>
+      <link>https://plucky923.github.io/post/get-started/</link>
+      <pubDate>Fri, 27 Oct 2023 00:00:00 +0000</pubDate>
+      <author>m202372036@hust.edu.cn (Zhenchen Wang)</author>
+      <guid>https://plucky923.github.io/post/get-started/</guid>
+      <description>Take full control of your personal brand and privacy by migrating away from the big tech platforms!</description>
+      <media:content xmlns:media="http://search.yahoo.com/mrss/" url="https://plucky923.github.io/post/get-started/featured.jpg" />
+    </item>
+    
+  </channel>
+</rss>

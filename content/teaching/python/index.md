@@ -1,13 +1,10 @@
 ---
 title: Learn Python
-summary: Easily learn Python in 10 minutes!
 date: 2023-10-24
-type: docs
-math: false
+summary: Easily learn Python in 10 minutes!
 tags:
-  - Python
-image:
-  caption: 'Embed rich media such as videos and LaTeX math'
+- Python
+caption: Embed rich media such as videos and LaTeX math
 ---
 
 [Hugo Blox Builder](https://hugoblox.com) is designed to give technical content creators a seamless experience. You can focus on the content and the Hugo Blox Builder which this template is built upon handles the rest.
@@ -44,7 +41,7 @@ You can add a podcast or music to a page by placing the MP3 file in the page's f
 
 Try it out:
 
-{{< audio src="ambient-piano.mp3" >}}
+<audio src="ambient-piano.mp3" controls></audio>
 
 ## Test students
 
@@ -58,7 +55,11 @@ You found me!
 
 renders as
 
-{{< spoiler text="👉 Click to view the solution" >}} You found me 🎉 {{< /spoiler >}}
+<details><summary>👉 Click to view the solution</summary>
+
+You found me 🎉
+
+</details>
 
 ## Math
 
@@ -66,9 +67,7 @@ Hugo Blox Builder supports a Markdown extension for $\LaTeX$ math. You can enabl
 
 To render _inline_ or _block_ math, wrap your LaTeX math with `{{</* math */>}}$...${{</* /math */>}}` or `{{</* math */>}}$$...$${{</* /math */>}}`, respectively.
 
-{{% callout note %}}
-We wrap the LaTeX math in the Hugo Blox _math_ shortcode to prevent Hugo rendering our math as Markdown.
-{{% /callout %}}
+> **Note:** We wrap the LaTeX math in the Hugo Blox _math_ shortcode to prevent Hugo rendering our math as Markdown.
 
 Example **math block**:
 
@@ -82,11 +81,13 @@ $$
 
 renders as
 
-{{< math >}}
+$$
 $$\gamma_{n} = \frac{ \left | \left (\mathbf x_{n} - \mathbf x_{n-1} \right )^T \left [\nabla F (\mathbf x_{n}) - \nabla F (\mathbf x_{n-1}) \right ] \right |}{\left \|\nabla F(\mathbf{x}_{n}) - \nabla F(\mathbf{x}_{n-1}) \right \|^2}$$
-{{< /math >}}
+$$
 
-Example **inline math** `{{</* math */>}}$\nabla F(\mathbf{x}_{n})${{</* /math */>}}` renders as {{< math >}}$\nabla F(\mathbf{x}_{n})${{< /math >}}.
+Example **inline math** `{{</* math */>}}$\nabla F(\mathbf{x}_{n})${{</* /math */>}}` renders as $$
+$\nabla F(\mathbf{x}_{n})$
+$$.
 
 Example **multi-line math** using the math linebreak (`\\`):
 
@@ -99,14 +100,12 @@ $$f(k;p_{0}^{*}) = \begin{cases}p_{0}^{*} & \text{if }k=1, \\
 
 renders as
 
-{{< math >}}
-
+$$
 $$
 f(k;p_{0}^{*}) = \begin{cases}p_{0}^{*} & \text{if }k=1, \\
 1-p_{0}^{*} & \text{if }k=0.\end{cases}
 $$
-
-{{< /math >}}
+$$
 
 ## Code
 
@@ -135,6 +134,6 @@ data.head()
 
 renders as
 
-{{< icon name="python" >}} Python
+Python
 
 ## Did you find this page helpful? Consider sharing it 🙌

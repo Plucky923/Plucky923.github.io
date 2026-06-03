@@ -1,16 +1,14 @@
 ---
 title: 👩🏼‍🏫 Teach academic courses
-summary: Embed videos, podcasts, code, LaTeX math, and even test students!
 date: 2023-10-24
-math: true
-authors:
-  - admin
+summary: Embed videos, podcasts, code, LaTeX math, and even test students!
 tags:
-  - Hugo
-  - Hugo Blox Builder
-  - Markdown
-image:
-  caption: 'Embed rich media such as videos and LaTeX math'
+- Hugo
+- Hugo Blox Builder
+- Markdown
+authors:
+- admin
+caption: Embed rich media such as videos and LaTeX math
 ---
 
 [Hugo Blox Builder](https://hugoblox.com) is designed to give technical content creators a seamless experience. You can focus on the content and the Hugo Blox Builder which this template is built upon handles the rest.
@@ -33,7 +31,7 @@ Teach your course by sharing videos with your students. Choose from one of the f
 
     {{</* bilibili BV1WV4y1r7DF */>}}
 
-{{< bilibili BV1WV4y1r7DF >}}
+[Bilibili video: https://www.bilibili.com/video/BV1WV4y1r7DF](https://www.bilibili.com/video/BV1WV4y1r7DF)
 
 **Video file**
 
@@ -49,7 +47,7 @@ You can add a podcast or music to a page by placing the MP3 file in the page's f
 
 Try it out:
 
-{{< audio src="ambient-piano.mp3" >}}
+<audio src="ambient-piano.mp3" controls></audio>
 
 ## Test students
 
@@ -63,7 +61,11 @@ You found me!
 
 renders as
 
-{{< spoiler text="👉 Click to view the solution" >}} You found me 🎉 {{< /spoiler >}}
+<details><summary>👉 Click to view the solution</summary>
+
+You found me 🎉
+
+</details>
 
 ## Math
 
@@ -132,6 +134,6 @@ data.head()
 
 renders as
 
-{{< icon name="python" >}} Python
+Python
 
 ## Did you find this page helpful? Consider sharing it 🙌
