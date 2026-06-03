@@ -2,12 +2,11 @@
 # https://blowfish.page/docs/configuration/#theme-parameters
 
 # ============================================================
-# Visual identity
+# Global visual identity
 # ============================================================
 
 colorScheme = "plucky"
 
-# Force a consistent dark editorial appearance.
 defaultAppearance = "dark"
 autoSwitchAppearance = false
 
@@ -24,8 +23,7 @@ highlightCurrentMenuArea = true
 smartTOC = true
 smartTOCHideUnfocusedChildren = true
 
-# Current Blowfish card templates support a configurable ratio.
-# 1.75 is close to 16:9 and produces a cinematic layout.
+# Wide editorial thumbnails.
 thumbnailAspectRatio = "1.75"
 
 
@@ -34,8 +32,7 @@ thumbnailAspectRatio = "1.75"
 # ============================================================
 
 [header]
-  # Fixed translucent navigation bar with blur.
-  layout = "fixed-fill-blur"
+  layout = "fixed"
 
 
 # ============================================================
@@ -45,11 +42,9 @@ thumbnailAspectRatio = "1.75"
 [footer]
   showMenu = true
   showCopyright = true
-
-  # Remove generic theme attribution from the visible footer.
   showThemeAttribution = false
 
-  # Keep the dark design visually consistent.
+  # Keep the dark visual language consistent.
   showAppearanceSwitcher = false
 
   showScrollToTop = true
@@ -60,11 +55,8 @@ thumbnailAspectRatio = "1.75"
 # ============================================================
 
 [homepage]
-  # A visual card, not a full-screen background image.
-  layout = "card"
-
-  # Place this file at: assets/img/home-card.webp
-  homepageImage = "img/home-card.webp"
+  # Do not use the built-in hero, card, or background templates.
+  layout = "custom"
 
   showRecent = true
   showRecentItems = 6
@@ -72,7 +64,7 @@ thumbnailAspectRatio = "1.75"
   showMoreLink = true
   showMoreLinkDest = "/post/"
 
-  # Use a wide editorial gallery.
+  # Recent posts become a wide editorial gallery.
   cardView = true
   cardViewScreenWidth = true
 
@@ -88,7 +80,6 @@ thumbnailAspectRatio = "1.75"
   showAuthor = false
   showAuthorBottom = false
 
-  # Use prominent article cover images.
   showHero = true
   heroStyle = "big"
 

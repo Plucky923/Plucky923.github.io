@@ -1,6 +1,28 @@
 /* ============================================================
+   Fonts
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+
+/* ============================================================
    Global foundation
    ============================================================ */
+
+:root {
+  --plucky-bg: #07080d;
+  --plucky-surface: rgba(17, 19, 29, 0.72);
+  --plucky-surface-strong: rgba(21, 23, 35, 0.92);
+
+  --plucky-border: rgba(255, 255, 255, 0.10);
+  --plucky-border-soft: rgba(255, 255, 255, 0.065);
+
+  --plucky-text: rgba(255, 255, 255, 0.94);
+  --plucky-muted: rgba(214, 219, 235, 0.58);
+
+  --plucky-violet: rgb(167, 139, 250);
+  --plucky-cyan: rgb(103, 232, 249);
+}
 
 html {
   scroll-behavior: smooth;
@@ -8,28 +30,65 @@ html {
 }
 
 body {
-  letter-spacing: 0.004em;
-  background-color: rgb(8, 9, 14);
+  overflow-x: hidden;
+  color: var(--plucky-text);
+  background-color: var(--plucky-bg);
+  font-family:
+    "Space Grotesk",
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.002em;
 }
 
-/* Subtle texture without using a homepage background image. */
+/* CSS-only background: no homepage image. */
 body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  content: "";
+  background:
+    radial-gradient(
+      circle at 16% 8%,
+      rgba(124, 58, 237, 0.18),
+      transparent 27rem
+    ),
+    radial-gradient(
+      circle at 84% 18%,
+      rgba(6, 182, 212, 0.11),
+      transparent 25rem
+    ),
+    linear-gradient(
+      rgba(255, 255, 255, 0.024) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.024) 1px,
+      transparent 1px
+    );
+  background-size:
+    auto,
+    auto,
+    54px 54px,
+    54px 54px;
+}
+
+body::after {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
   content: "";
-  opacity: 0.34;
+  opacity: 0.32;
   background:
-    radial-gradient(
-      circle at 18% 12%,
-      rgba(139, 92, 246, 0.13),
-      transparent 30rem
-    ),
-    radial-gradient(
-      circle at 84% 18%,
-      rgba(34, 211, 238, 0.08),
-      transparent 28rem
+    linear-gradient(
+      115deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.025) 42%,
+      transparent 70%
     );
 }
 
@@ -39,64 +98,388 @@ body::before {
    ============================================================ */
 
 header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.065);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.22);
 }
 
 
 /* ============================================================
-   Typography
+   Homepage canvas
    ============================================================ */
 
-h1,
-h2,
-h3 {
-  letter-spacing: -0.025em;
+.plucky-home {
+  width: min(1440px, calc(100vw - 2rem));
+  margin-top: 1.5rem;
+  margin-bottom: 5rem;
+  margin-left: 50%;
+  transform: translateX(-50%);
 }
 
-h1 {
-  font-weight: 760;
+.plucky-hero {
+  display: grid;
+  min-height: 32rem;
+  overflow: hidden;
+  border: 1px solid var(--plucky-border);
+  border-radius: 1.45rem;
+  background:
+    linear-gradient(
+      130deg,
+      rgba(20, 22, 34, 0.96),
+      rgba(9, 10, 17, 0.86)
+    );
+  box-shadow:
+    0 34px 90px rgba(0, 0, 0, 0.40),
+    inset 0 1px 0 rgba(255, 255, 255, 0.055);
+  grid-template-columns: 1.1fr 0.9fr;
 }
 
-.prose {
-  line-height: 1.82;
+.plucky-hero-copy {
+  display: flex;
+  justify-content: center;
+  padding: clamp(2rem, 6vw, 5.5rem);
+  flex-direction: column;
 }
 
-.prose p {
-  margin-top: 1.08em;
-  margin-bottom: 1.08em;
+.plucky-eyebrow,
+.plucky-panel-kicker,
+.plucky-visual-label {
+  font-family:
+    "IBM Plex Mono",
+    ui-monospace,
+    monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
+.plucky-eyebrow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.15rem;
+  color: rgba(207, 250, 254, 0.72);
+  gap: 0.55rem;
+}
 
-/* ============================================================
-   Accent links
-   ============================================================ */
+.plucky-status-dot {
+  width: 0.48rem;
+  height: 0.48rem;
+  border-radius: 999px;
+  background: var(--plucky-cyan);
+  box-shadow: 0 0 18px rgba(103, 232, 249, 0.92);
+}
 
-.prose a {
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.22em;
+.plucky-wordmark {
+  position: relative;
+  width: fit-content;
+  margin: 0;
+  color: transparent;
+  background:
+    linear-gradient(
+      105deg,
+      rgba(255, 255, 255, 0.98),
+      rgba(196, 181, 253, 0.96) 48%,
+      rgba(103, 232, 249, 0.86)
+    );
+  background-clip: text;
+  font-size: clamp(4.2rem, 12vw, 10.4rem);
+  font-weight: 700;
+  letter-spacing: -0.105em;
+  line-height: 0.88;
+  -webkit-background-clip: text;
+}
+
+.plucky-wordmark::after {
+  position: absolute;
+  z-index: -1;
+  top: 0.1em;
+  left: 0.09em;
+  content: attr(data-text);
+  color: transparent;
+  opacity: 0.45;
+  -webkit-text-stroke: 1px rgba(167, 139, 250, 0.35);
+}
+
+.plucky-lede {
+  max-width: 34rem;
+  margin-top: 1.7rem;
+  color: var(--plucky-muted);
+  font-size: clamp(1rem, 2vw, 1.28rem);
+  line-height: 1.65;
+}
+
+.plucky-actions {
+  display: flex;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.plucky-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--plucky-border);
+  border-radius: 999px;
+  font-family:
+    "IBM Plex Mono",
+    ui-monospace,
+    monospace;
+  font-size: 0.73rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   transition:
-    color 180ms ease,
-    text-decoration-color 180ms ease;
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+  gap: 0.7rem;
 }
 
-.prose a:hover {
-  color: rgb(103, 232, 249);
-  text-decoration-color: rgba(103, 232, 249, 0.72);
+.plucky-button:hover {
+  transform: translateY(-3px);
+}
+
+.plucky-button-primary {
+  color: rgb(7, 8, 13);
+  border-color: rgba(103, 232, 249, 0.72);
+  background: linear-gradient(
+    105deg,
+    rgb(196, 181, 253),
+    rgb(103, 232, 249)
+  );
+  box-shadow: 0 0 26px rgba(103, 232, 249, 0.12);
+}
+
+.plucky-button-secondary {
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.plucky-button-secondary:hover {
+  border-color: rgba(167, 139, 250, 0.55);
+  box-shadow: 0 0 28px rgba(139, 92, 246, 0.13);
 }
 
 
 /* ============================================================
-   Editorial cards
+   CSS-generated visual panel
    ============================================================ */
+
+.plucky-visual {
+  position: relative;
+  overflow: hidden;
+  border-left: 1px solid var(--plucky-border-soft);
+  background:
+    radial-gradient(
+      circle at 58% 44%,
+      rgba(139, 92, 246, 0.14),
+      transparent 29%
+    ),
+    radial-gradient(
+      circle at 72% 62%,
+      rgba(34, 211, 238, 0.10),
+      transparent 25%
+    );
+}
+
+.plucky-grid-plane {
+  position: absolute;
+  right: -18%;
+  bottom: -28%;
+  width: 128%;
+  height: 68%;
+  opacity: 0.46;
+  background:
+    linear-gradient(
+      rgba(103, 232, 249, 0.17) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(103, 232, 249, 0.17) 1px,
+      transparent 1px
+    );
+  background-size: 2rem 2rem;
+  transform: perspective(480px) rotateX(61deg) rotateZ(-8deg);
+}
+
+.plucky-orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(1px);
+}
+
+.plucky-orb-primary {
+  top: 24%;
+  right: 25%;
+  width: 9rem;
+  height: 9rem;
+  background:
+    radial-gradient(
+      circle at 32% 28%,
+      rgb(221, 214, 254),
+      rgb(124, 58, 237) 48%,
+      rgba(76, 29, 149, 0.2) 78%
+    );
+  box-shadow:
+    0 0 52px rgba(139, 92, 246, 0.35),
+    0 0 120px rgba(139, 92, 246, 0.16);
+}
+
+.plucky-orb-secondary {
+  right: 12%;
+  bottom: 14%;
+  width: 3.1rem;
+  height: 3.1rem;
+  background: rgb(103, 232, 249);
+  box-shadow: 0 0 42px rgba(103, 232, 249, 0.48);
+}
+
+.plucky-ring {
+  position: absolute;
+  border: 1px solid rgba(196, 181, 253, 0.22);
+  border-radius: 999px;
+}
+
+.plucky-ring-a {
+  top: 14%;
+  right: 9%;
+  width: 24rem;
+  height: 24rem;
+}
+
+.plucky-ring-b {
+  top: 24%;
+  right: 19%;
+  width: 15rem;
+  height: 15rem;
+  border-color: rgba(103, 232, 249, 0.22);
+}
+
+.plucky-ring-c {
+  top: 4%;
+  right: -12%;
+  width: 35rem;
+  height: 35rem;
+  border-color: rgba(255, 255, 255, 0.075);
+}
+
+.plucky-visual-label {
+  position: absolute;
+  color: rgba(207, 250, 254, 0.55);
+}
+
+.plucky-visual-label-top {
+  top: 1.4rem;
+  right: 1.6rem;
+}
+
+.plucky-visual-label-bottom {
+  bottom: 1.4rem;
+  left: 1.6rem;
+}
+
+
+/* ============================================================
+   Bento navigation
+   ============================================================ */
+
+.plucky-bento {
+  display: grid;
+  margin-top: 1rem;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: 1rem;
+}
+
+.plucky-panel {
+  position: relative;
+  display: flex;
+  min-height: 10rem;
+  overflow: hidden;
+  padding: 1.25rem;
+  border: 1px solid var(--plucky-border-soft);
+  border-radius: 1rem;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(24, 26, 39, 0.86),
+      rgba(12, 13, 21, 0.78)
+    );
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  flex-direction: column;
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.plucky-panel::after {
+  position: absolute;
+  right: -25%;
+  bottom: -65%;
+  width: 12rem;
+  height: 12rem;
+  border: 1px solid rgba(167, 139, 250, 0.21);
+  border-radius: 999px;
+  content: "";
+}
+
+.plucky-panel:hover {
+  transform: translateY(-6px);
+  border-color: rgba(167, 139, 250, 0.42);
+  box-shadow:
+    0 28px 62px rgba(0, 0, 0, 0.36),
+    0 0 36px rgba(139, 92, 246, 0.10);
+}
+
+.plucky-panel-index {
+  color: rgba(103, 232, 249, 0.66);
+  font-family:
+    "IBM Plex Mono",
+    ui-monospace,
+    monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+}
+
+.plucky-panel-kicker {
+  margin-top: auto;
+  color: rgba(207, 250, 254, 0.48);
+}
+
+.plucky-panel strong {
+  margin-top: 0.24rem;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 1.48rem;
+  letter-spacing: -0.035em;
+}
+
+.plucky-panel-arrow {
+  position: absolute;
+  right: 1.15rem;
+  bottom: 1.05rem;
+  color: rgba(196, 181, 253, 0.78);
+  font-size: 1.22rem;
+}
+
+
+/* ============================================================
+   Recent articles
+   ============================================================ */
+
+.plucky-recent {
+  margin-top: 4.6rem;
+}
 
 .thumbnail_card {
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--plucky-border-soft);
   border-radius: 1rem;
   box-shadow:
-    0 18px 48px rgba(0, 0, 0, 0.28),
-    0 0 0 1px rgba(139, 92, 246, 0.04);
+    0 20px 48px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(139, 92, 246, 0.025);
   transition:
     transform 240ms ease,
     border-color 240ms ease,
@@ -105,18 +488,38 @@ h1 {
 }
 
 a:hover .thumbnail_card {
-  transform: translateY(-5px) scale(1.015);
-  border-color: rgba(167, 139, 250, 0.34);
+  transform: translateY(-5px) scale(1.012);
+  border-color: rgba(167, 139, 250, 0.38);
   box-shadow:
-    0 24px 56px rgba(0, 0, 0, 0.38),
-    0 0 32px rgba(139, 92, 246, 0.14);
+    0 28px 62px rgba(0, 0, 0, 0.40),
+    0 0 34px rgba(139, 92, 246, 0.13);
   filter: saturate(1.08) contrast(1.04);
 }
 
 
 /* ============================================================
-   Article media
+   Article pages
    ============================================================ */
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.034em;
+}
+
+.prose {
+  line-height: 1.84;
+}
+
+.prose a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: color 180ms ease;
+}
+
+.prose a:hover {
+  color: var(--plucky-cyan);
+}
 
 .prose img,
 article img {
@@ -124,36 +527,86 @@ article img {
 }
 
 pre {
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--plucky-border-soft);
   border-radius: 0.9rem;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.22);
 }
-
-
-/* ============================================================
-   Quotes and separators
-   ============================================================ */
 
 .prose blockquote {
-  border-left-width: 3px;
-  border-left-color: rgba(167, 139, 250, 0.78);
-  background: rgba(139, 92, 246, 0.055);
-  border-radius: 0 0.75rem 0.75rem 0;
-  padding-top: 0.7rem;
-  padding-bottom: 0.7rem;
+  padding-top: 0.74rem;
   padding-right: 1rem;
+  padding-bottom: 0.74rem;
+  border-left-width: 3px;
+  border-left-color: rgba(167, 139, 250, 0.82);
+  border-radius: 0 0.74rem 0.74rem 0;
+  background: rgba(139, 92, 246, 0.065);
 }
-
-hr {
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-
-/* ============================================================
-   Selection and scrollbar details
-   ============================================================ */
 
 ::selection {
   color: rgb(255, 255, 255);
-  background-color: rgba(139, 92, 246, 0.52);
+  background-color: rgba(139, 92, 246, 0.54);
+}
+
+
+/* ============================================================
+   Responsive behaviour
+   ============================================================ */
+
+@media (max-width: 920px) {
+  .plucky-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .plucky-visual {
+    min-height: 18rem;
+    border-top: 1px solid var(--plucky-border-soft);
+    border-left: 0;
+  }
+
+  .plucky-bento {
+    grid-template-columns: 1fr;
+  }
+
+  .plucky-panel {
+    min-height: 8.5rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .plucky-home {
+    width: min(100% - 1rem, 1440px);
+    margin-top: 0.75rem;
+  }
+
+  .plucky-hero {
+    min-height: auto;
+    border-radius: 1rem;
+  }
+
+  .plucky-hero-copy {
+    padding: 2rem 1.35rem 2.25rem;
+  }
+
+  .plucky-wordmark {
+    font-size: clamp(4.1rem, 24vw, 6.7rem);
+  }
+
+  .plucky-visual {
+    min-height: 14rem;
+  }
+
+  .plucky-ring-a {
+    width: 19rem;
+    height: 19rem;
+  }
+
+  .plucky-ring-b {
+    width: 12rem;
+    height: 12rem;
+  }
+
+  .plucky-orb-primary {
+    width: 7rem;
+    height: 7rem;
+  }
 }
