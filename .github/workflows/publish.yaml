@@ -44,11 +44,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-hugomod-
 
-    - name: Download Hugo modules
-      run: |
-        hugo mod get
-        hugo mod verify || true
-
     - name: Build with Hugo
       env:
         HUGO_ENVIRONMENT: production
