@@ -1,7 +1,7 @@
 # -- Site Configuration --
 # https://blowfish.page/docs/getting-started/
 
-baseURL = "https://plucky923.github.io/"
+baseURL = "https://www.plucky.wang/"
 defaultContentLanguage = "en"
 
 enableRobotsTXT = true
@@ -27,6 +27,8 @@ enableEmoji = true
   changefreq = 'daily'
   filename = 'sitemap.xml'
   priority = 0.5
+
+ignoreLogs = ['warning-goldmark-raw-html']
 
 [outputs]
   home = ["HTML", "RSS", "JSON"]

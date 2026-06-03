@@ -48,7 +48,7 @@ jobs:
       env:
         HUGO_ENVIRONMENT: production
       run: |
-        hugo --minify --baseURL "https://plucky923.github.io/"
+        hugo --minify --baseURL "https://www.plucky.wang/"
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
