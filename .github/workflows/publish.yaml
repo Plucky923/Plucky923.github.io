@@ -46,7 +46,7 @@ jobs:
 
     - name: Download Hugo modules
       run: |
-        echo "Hugo version: $(hugo version)"
+        hugo version
         hugo mod get
         hugo mod verify || true
 
@@ -54,11 +54,18 @@ jobs:
       env:
         HUGO_ENVIRONMENT: production
       run: |
-        hugo version
-        hugo config 2>&1 | head -n 30 || true
-        hugo --minify --baseURL "https://plucky923.github.io/" 2>&1
+        hugo --minify --baseURL "https://plucky923.github.io/" 2>&1 | tee build.log
+        exit ${PIPESTATUS[0]}
+
+    - name: Upload build log
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: hugo-build-log
+        path: build.log
 
     - name: Upload artifact
+      if: success()
       uses: actions/upload-pages-artifact@v3
       with:
         path: ./public
