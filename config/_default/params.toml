@@ -59,10 +59,10 @@ thumbnailAspectRatio = "1.75"
   layout = "custom"
 
   showRecent = false
-  showRecentItems = 6
+  showRecentItems = 0
 
   showMoreLink = false
-  showMoreLinkDest = "/post/"
+  showMoreLinkDest = "/"
 
   # Recent posts become a wide editorial gallery.
   cardView = true
