@@ -2,7 +2,6 @@
 title: Example Talk
 date: '2030-06-01T13:00:00Z'
 summary: An example talk using Hugo Blox Builder's Markdown slides feature.
-tags: []
 featured: false
 authors:
 - admin

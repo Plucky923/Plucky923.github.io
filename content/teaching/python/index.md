@@ -2,8 +2,6 @@
 title: Learn Python
 date: 2023-10-24
 summary: Easily learn Python in 10 minutes!
-tags:
-- Python
 caption: Embed rich media such as videos and LaTeX math
 ---
 

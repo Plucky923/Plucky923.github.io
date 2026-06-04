@@ -3,8 +3,6 @@ title: An example journal article
 date: '2015-09-01T00:00:00Z'
 summary: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis posuere tellus
   ac convallis placerat. Proin tincidunt magna sed ex sollicitudin condimentum.
-tags:
-- Source Themes
 featured: false
 authors:
 - admin
