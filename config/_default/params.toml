@@ -99,6 +99,7 @@ thumbnailAspectRatio = "1.75"
   showCategoriesInSecondaryColor = true
 
   showZenMode = true
+  showComments = true
 
   sharingLinks = []
 
