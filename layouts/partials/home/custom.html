@@ -1,76 +1,165 @@
-<section class="plucky-home">
-  <div class="plucky-hero">
-    <div class="plucky-hero-copy">
-      <p class="plucky-eyebrow">
-        <span class="plucky-status-dot"></span>
+<section class="plucky-home-v2">
+  <section class="plucky-hero-v2">
+    <div class="plucky-hero-noise-v2" aria-hidden="true"></div>
+
+    <div class="plucky-copy-v2">
+      <p class="plucky-eyebrow-v2">
+        <span class="plucky-status-v2"></span>
         PLUCKY / DIGITAL FIELD NOTES
       </p>
 
-      <h1 class="plucky-wordmark" data-text="plucky">
-        plucky
+      <h1 class="plucky-wordmark-v2">
+        plucky<span>.</span>
       </h1>
 
-      <p class="plucky-lede">
+      <p class="plucky-lede-v2">
         Notes on systems, software, and ideas.
       </p>
 
-      <div class="plucky-actions">
-        <a class="plucky-button plucky-button-primary" href="#recent">
+      <div class="plucky-actions-v2">
+        <a class="plucky-button-v2 plucky-button-primary-v2" href="#recent">
           Explore notes
-          <span aria-hidden="true">&#8600;</span>
+          <span aria-hidden="true">↘</span>
         </a>
 
-        <a class="plucky-button plucky-button-secondary" href="/post/">
+        <a
+          class="plucky-button-v2 plucky-button-secondary-v2"
+          href="{{ "/post/" | relURL }}">
           Browse archive
-          <span aria-hidden="true">&#8594;</span>
+          <span aria-hidden="true">→</span>
         </a>
       </div>
+
+      <div class="plucky-meta-v2">
+        <span>01 / NOTES</span>
+        <span>02 / LONGFORM</span>
+        <span>03 / INDEX</span>
+      </div>
     </div>
 
-    <div class="plucky-visual" aria-hidden="true">
-      <div class="plucky-grid-plane"></div>
+    <div class="plucky-scene-v2" aria-hidden="true">
+      <div class="plucky-grid-v2"></div>
+      <div class="plucky-scan-v2"></div>
 
-      <div class="plucky-orb plucky-orb-primary"></div>
-      <div class="plucky-orb plucky-orb-secondary"></div>
+      <div class="plucky-orbit-v2 plucky-orbit-outer-v2"></div>
+      <div class="plucky-orbit-v2 plucky-orbit-middle-v2"></div>
+      <div class="plucky-orbit-v2 plucky-orbit-inner-v2"></div>
 
-      <div class="plucky-ring plucky-ring-a"></div>
-      <div class="plucky-ring plucky-ring-b"></div>
-      <div class="plucky-ring plucky-ring-c"></div>
+      <div class="plucky-axis-v2 plucky-axis-horizontal-v2"></div>
+      <div class="plucky-axis-v2 plucky-axis-vertical-v2"></div>
 
-      <div class="plucky-visual-label plucky-visual-label-top">
+      <div class="plucky-core-v2">
+        <div class="plucky-core-highlight-v2"></div>
+      </div>
+
+      <div class="plucky-satellite-v2"></div>
+
+      <span class="plucky-hud-v2 plucky-hud-top-v2">
         SIGNAL / 01
-      </div>
+      </span>
 
-      <div class="plucky-visual-label plucky-visual-label-bottom">
-        SYSTEMS &#183; SOFTWARE &#183; IDEAS
-      </div>
+      <span class="plucky-hud-v2 plucky-hud-side-v2">
+        ORBITAL INDEX
+      </span>
+
+      <span class="plucky-hud-v2 plucky-hud-bottom-v2">
+        X 48.18 / Y 23.91
+      </span>
+    </div>
+
+    <div class="plucky-rail-v2">
+      <span>PLUCKY.WANG</span>
+      <span>FIELD NOTES / 2026</span>
+      <span>SCROLL TO EXPLORE ↓</span>
+    </div>
+  </section>
+
+  <div class="plucky-ticker-v2" aria-hidden="true">
+    <div class="plucky-ticker-track-v2">
+      <span>SYSTEMS</span>
+      <span>◆</span>
+      <span>SOFTWARE</span>
+      <span>◆</span>
+      <span>ARCHITECTURE</span>
+      <span>◆</span>
+      <span>SECURITY</span>
+      <span>◆</span>
+      <span>DESIGN</span>
+      <span>◆</span>
+
+      <span>SYSTEMS</span>
+      <span>◆</span>
+      <span>SOFTWARE</span>
+      <span>◆</span>
+      <span>ARCHITECTURE</span>
+      <span>◆</span>
+      <span>SECURITY</span>
+      <span>◆</span>
+      <span>DESIGN</span>
+      <span>◆</span>
     </div>
   </div>
 
-  <div class="plucky-bento">
-    <a class="plucky-panel plucky-panel-wide" href="#recent">
-      <span class="plucky-panel-index">01</span>
-      <span class="plucky-panel-kicker">LATEST ENTRIES</span>
-      <strong>Recent notes</strong>
-      <span class="plucky-panel-arrow">&#8600;</span>
+  <section class="plucky-bento-v2">
+    <a
+      class="plucky-tile-v2 plucky-tile-feature-v2"
+      href="#recent">
+
+      <div class="plucky-tile-top-v2">
+        <span>01 / LATEST ENTRIES</span>
+        <span>↘</span>
+      </div>
+
+      <div class="plucky-tile-bottom-v2">
+        <p>RECENT NOTES</p>
+        <strong>Selected field notes and working ideas.</strong>
+      </div>
+
+      <div class="plucky-spark-v2" aria-hidden="true">
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+      </div>
     </a>
 
-    <a class="plucky-panel" href="/post/">
-      <span class="plucky-panel-index">02</span>
-      <span class="plucky-panel-kicker">LONGFORM</span>
-      <strong>Articles</strong>
-      <span class="plucky-panel-arrow">&#8594;</span>
-    </a>
+    <div class="plucky-bento-stack-v2">
+      <a
+        class="plucky-tile-v2 plucky-tile-small-v2"
+        href="{{ "/post/" | relURL }}">
 
-    <a class="plucky-panel" href="/tags/">
-      <span class="plucky-panel-index">03</span>
-      <span class="plucky-panel-kicker">INDEX</span>
-      <strong>Tags</strong>
-      <span class="plucky-panel-arrow">&#8594;</span>
-    </a>
-  </div>
+        <div class="plucky-tile-top-v2">
+          <span>02 / LONGFORM</span>
+          <span>→</span>
+        </div>
 
-  <div id="recent" class="plucky-recent">
+        <div class="plucky-tile-bottom-v2">
+          <p>ARCHIVE</p>
+          <strong>Articles</strong>
+        </div>
+      </a>
+
+      <a
+        class="plucky-tile-v2 plucky-tile-small-v2"
+        href="{{ "/tags/" | relURL }}">
+
+        <div class="plucky-tile-top-v2">
+          <span>03 / INDEX</span>
+          <span>→</span>
+        </div>
+
+        <div class="plucky-tile-bottom-v2">
+          <p>EXPLORE</p>
+          <strong>Tags</strong>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section id="recent" class="plucky-recent-v2">
     {{ partial "recent-articles/main.html" . }}
-  </div>
+  </section>
 </section>
