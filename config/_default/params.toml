@@ -58,10 +58,10 @@ thumbnailAspectRatio = "1.75"
   # Do not use the built-in hero, card, or background templates.
   layout = "custom"
 
-  showRecent = true
+  showRecent = false
   showRecentItems = 6
 
-  showMoreLink = true
+  showMoreLink = false
   showMoreLinkDest = "/post/"
 
   # Recent posts become a wide editorial gallery.

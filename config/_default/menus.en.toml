@@ -1,17 +1,12 @@
 [[main]]
-  name = "Notes"
-  pageRef = "post"
+  name = "About"
+  pageRef = "about"
   weight = 10
-
-[[main]]
-  name = "Projects"
-  pageRef = "project"
-  weight = 20
 
 [[main]]
   name = "GitHub"
   url = "https://github.com/Plucky923"
-  weight = 30
+  weight = 20
   pre = "github"
   [main.params]
     external = true
