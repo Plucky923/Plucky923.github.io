@@ -80,7 +80,7 @@ thumbnailAspectRatio = "1.75"
   showAuthor = false
   showAuthorBottom = false
 
-  showHero = true
+  showHero = false
   heroStyle = "big"
 
   showBreadcrumbs = true
@@ -115,7 +115,7 @@ thumbnailAspectRatio = "1.75"
   groupByYear = false
 
   cardView = true
-  cardViewScreenWidth = true
+  cardViewScreenWidth = false
 
 
 # ============================================================
@@ -131,4 +131,4 @@ thumbnailAspectRatio = "1.75"
   showBreadcrumbs = true
   groupByYear = false
   cardView = true
-  cardViewScreenWidth = true
+  cardViewScreenWidth = false

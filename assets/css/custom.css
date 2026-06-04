@@ -1285,52 +1285,151 @@ body.plucky-home-page {
 }
 
 
+
+
 /* ============================================================
-   Component refinement
+   Site-wide visual system v4
    ============================================================ */
 
+:root {
+  --plucky-home-max: 1380px;
+  --plucky-inner-max: 1180px;
+  --plucky-article-max: 46rem;
+
+  --plucky-gutter: clamp(1rem, 2.2vw, 2rem);
+  --plucky-gap: 0.9rem;
+
+  --plucky-radius-lg: 1rem;
+  --plucky-radius-md: 0.82rem;
+  --plucky-radius-sm: 0.68rem;
+
+  --plucky-line: rgba(255, 255, 255, 0.072);
+  --plucky-line-strong: rgba(255, 255, 255, 0.105);
+
+  --plucky-text-high: rgba(255, 255, 255, 0.92);
+  --plucky-text-mid: rgba(218, 223, 236, 0.64);
+  --plucky-text-low: rgba(207, 250, 254, 0.42);
+
+  --plucky-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
 /* ------------------------------------------------------------
-   Header
+   Global typography
    ------------------------------------------------------------ */
 
-.plucky-header-blur {
-  border-bottom-color: rgba(255, 255, 255, 0.055);
-  background: rgba(7, 8, 13, 0.78);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
-  backdrop-filter: blur(18px) saturate(150%);
+body {
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Text",
+    "Segoe UI",
+    sans-serif;
+  letter-spacing: -0.008em;
 }
 
-.plucky-main-menu {
-  min-height: 3.05rem;
-  gap: 1rem;
-}
-
-.plucky-brand {
-  color: rgba(255, 255, 255, 0.88);
+h1,
+h2,
+h3,
+h4 {
   font-family:
     "Space Grotesk",
     Inter,
     -apple-system,
     BlinkMacSystemFont,
     sans-serif;
-  font-size: 0.94rem;
-  font-weight: 650;
-  letter-spacing: -0.045em;
-  transition: color 180ms ease;
 }
 
-.plucky-brand:hover {
-  color: rgb(103, 232, 249);
+.prose {
+  color: var(--plucky-text-mid);
+  font-size: 1rem;
+  line-height: 1.78;
+}
+
+.prose p {
+  margin-top: 1.05em;
+  margin-bottom: 1.05em;
+}
+
+.prose h2 {
+  margin-top: 2.2em;
+  margin-bottom: 0.7em;
+  color: var(--plucky-text-high);
+  font-size: 1.72rem;
+  letter-spacing: -0.045em;
+  line-height: 1.18;
+}
+
+.prose h3 {
+  margin-top: 1.8em;
+  margin-bottom: 0.55em;
+  color: var(--plucky-text-high);
+  font-size: 1.34rem;
+  letter-spacing: -0.035em;
+  line-height: 1.25;
+}
+
+.prose code {
+  font-size: 0.88em;
+}
+
+/* ------------------------------------------------------------
+   Header
+   ------------------------------------------------------------ */
+
+.plucky-header-blur {
+  border-bottom-color: rgba(255, 255, 255, 0.052);
+  background: rgba(7, 8, 13, 0.8);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(18px) saturate(145%);
+}
+
+.plucky-header-shell {
+  width: min(
+    var(--plucky-home-max),
+    calc(100vw - 2 * var(--plucky-gutter))
+  );
+  padding-top: 0.34rem;
+  padding-bottom: 0.34rem;
+}
+
+.plucky-inner-page .plucky-header-shell {
+  width: min(
+    var(--plucky-inner-max),
+    calc(100vw - 2 * var(--plucky-gutter))
+  );
+}
+
+.plucky-header-spacer {
+  height: 3.72rem;
+}
+
+.plucky-main-menu {
+  min-height: 2.95rem;
+  gap: 1rem;
+}
+
+.plucky-brand {
+  color: rgba(255, 255, 255, 0.9);
+  font-family:
+    "Space Grotesk",
+    Inter,
+    sans-serif;
+  font-size: 0.98rem;
+  font-weight: 650;
+  letter-spacing: -0.04em;
 }
 
 .plucky-desktop-nav {
   height: auto;
-  margin-left: 2.1rem;
-  gap: 1.2rem;
+  margin-left: 2rem;
+  gap: 1.22rem;
 }
 
 .plucky-nav-link {
-  color: rgba(214, 219, 235, 0.56);
+  color: rgba(214, 219, 235, 0.58);
   transition:
     color 180ms ease,
     transform 180ms ease;
@@ -1346,10 +1445,29 @@ body.plucky-home-page {
     "IBM Plex Mono",
     ui-monospace,
     monospace;
-  font-size: 0.65rem;
+  font-size: 0.69rem;
   font-weight: 500;
-  letter-spacing: 0.11em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
+}
+
+#search-button,
+#search-button-mobile {
+  color: rgba(214, 219, 235, 0.62);
+  font-size: 0.92rem;
+}
+
+/* ------------------------------------------------------------
+   Homepage canvas
+   ------------------------------------------------------------ */
+
+.plucky-home-v2 {
+  width: min(
+    var(--plucky-home-max),
+    calc(100vw - 2 * var(--plucky-gutter))
+  );
+  margin-top: 0.55rem;
+  margin-bottom: 2.4rem;
 }
 
 /* ------------------------------------------------------------
@@ -1357,67 +1475,81 @@ body.plucky-home-page {
    ------------------------------------------------------------ */
 
 .plucky-hero-v2 {
-  border-color: rgba(255, 255, 255, 0.075);
+  min-height: 23rem;
+  border-color: var(--plucky-line);
+  border-radius: var(--plucky-radius-lg);
   background:
     radial-gradient(
       circle at 78% 28%,
-      rgba(124, 58, 237, 0.12),
-      transparent 23rem
+      rgba(124, 58, 237, 0.115),
+      transparent 21rem
     ),
     linear-gradient(
       135deg,
       rgba(17, 18, 28, 0.98),
       rgba(8, 9, 15, 0.98)
     );
+  box-shadow:
+    0 20px 54px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .plucky-copy-v2 {
-  padding-right: clamp(1.8rem, 3vw, 2.8rem);
-  padding-bottom: 3rem;
-  padding-left: clamp(2rem, 3.4vw, 3.15rem);
+  width: min(56%, 43rem);
+  min-height: 23rem;
+  padding:
+    2.2rem
+    clamp(1.8rem, 3vw, 2.7rem)
+    2.65rem
+    clamp(2rem, 3.4vw, 3rem);
 }
 
 .plucky-eyebrow-v2 {
-  color: rgba(207, 250, 254, 0.6);
-  letter-spacing: 0.15em;
-  gap: 0.52rem;
+  margin-bottom: 0.72rem;
+  color: rgba(207, 250, 254, 0.62);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  gap: 0.5rem;
 }
 
 .plucky-status-v2 {
   width: 0.38rem;
   height: 0.38rem;
   box-shadow:
-    0 0 8px rgba(103, 232, 249, 0.68),
-    0 0 18px rgba(103, 232, 249, 0.3);
+    0 0 8px rgba(103, 232, 249, 0.64),
+    0 0 16px rgba(103, 232, 249, 0.26);
 }
 
 .plucky-wordmark-v2 {
-  font-size: clamp(4rem, 7.4vw, 6.85rem);
-  letter-spacing: -0.076em;
-  line-height: 0.92;
+  font-size: clamp(4rem, 6.4vw, 5.95rem);
+  font-weight: 700;
+  letter-spacing: -0.074em;
+  line-height: 0.94;
 }
 
 .plucky-wordmark-v2 span {
-  text-shadow: 0 0 18px rgba(103, 232, 249, 0.34);
+  text-shadow: 0 0 16px rgba(103, 232, 249, 0.3);
 }
 
 .plucky-lede-v2 {
-  margin-top: 0.95rem;
-  color: rgba(224, 228, 240, 0.6);
-  font-size: clamp(0.96rem, 1.18vw, 1.06rem);
+  max-width: 27rem;
+  margin-top: 0.9rem;
+  color: rgba(224, 228, 240, 0.62);
+  font-size: clamp(0.98rem, 1.1vw, 1.05rem);
+  line-height: 1.56;
 }
 
 .plucky-actions-v2 {
-  margin-top: 1.25rem;
-  gap: 0.65rem;
+  margin-top: 1.15rem;
+  gap: 0.62rem;
 }
 
 .plucky-button-v2 {
-  min-height: 2.42rem;
-  padding: 0.58rem 0.86rem;
-  font-size: 0.61rem;
-  letter-spacing: 0.07em;
-  gap: 0.58rem;
+  min-height: 2.36rem;
+  padding: 0.56rem 0.82rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.065em;
+  gap: 0.54rem;
 }
 
 .plucky-button-v2:hover {
@@ -1430,164 +1562,186 @@ body.plucky-home-page {
     0 8px 22px rgba(0, 0, 0, 0.2);
 }
 
+.plucky-meta-v2,
+.plucky-ticker-v2,
+.plucky-scan-v2,
+.plucky-hud-side-v2,
+.plucky-hud-bottom-v2 {
+  display: none;
+}
+
 /* ------------------------------------------------------------
    Orbital scene
    ------------------------------------------------------------ */
 
 .plucky-scene-v2 {
-  width: 48%;
+  width: 46%;
 }
 
 .plucky-grid-v2 {
   right: -10%;
-  bottom: -42%;
+  bottom: -44%;
   height: 72%;
-  opacity: 0.32;
-}
-
-.plucky-scan-v2 {
-  display: none;
+  opacity: 0.28;
 }
 
 .plucky-orbit-outer-v2 {
-  top: 5%;
+  top: 7%;
   right: -2%;
-  width: 31rem;
-  height: 31rem;
-  border-color: rgba(255, 255, 255, 0.065);
+  width: 28rem;
+  height: 28rem;
+  border-color: rgba(255, 255, 255, 0.06);
 }
 
 .plucky-orbit-middle-v2 {
-  top: 16%;
-  right: 9%;
-  width: 23.5rem;
-  height: 23.5rem;
-  border-color: rgba(196, 181, 253, 0.16);
+  top: 18%;
+  right: 10%;
+  width: 21rem;
+  height: 21rem;
+  border-color: rgba(196, 181, 253, 0.15);
 }
 
 .plucky-orbit-inner-v2 {
-  top: 30%;
-  right: 22%;
-  width: 14.5rem;
-  height: 14.5rem;
-  border-color: rgba(103, 232, 249, 0.2);
+  top: 32%;
+  right: 23%;
+  width: 13rem;
+  height: 13rem;
+  border-color: rgba(103, 232, 249, 0.19);
 }
 
 .plucky-core-v2 {
-  top: 31%;
-  right: 25%;
-  width: 7.1rem;
-  height: 7.1rem;
+  top: 33%;
+  right: 26%;
+  width: 6.3rem;
+  height: 6.3rem;
   box-shadow:
-    0 0 28px rgba(139, 92, 246, 0.28),
-    0 0 70px rgba(139, 92, 246, 0.11);
+    0 0 24px rgba(139, 92, 246, 0.25),
+    0 0 62px rgba(139, 92, 246, 0.1);
 }
 
 .plucky-core-highlight-v2 {
-  width: 1.55rem;
-  height: 1.55rem;
-  opacity: 0.62;
+  width: 1.35rem;
+  height: 1.35rem;
+  opacity: 0.58;
 }
 
 .plucky-satellite-v2 {
   right: 11%;
   bottom: 15%;
-  width: 2rem;
-  height: 2rem;
-  opacity: 0.62;
+  width: 1.75rem;
+  height: 1.75rem;
+  opacity: 0.58;
   box-shadow:
-    0 0 20px rgba(103, 232, 249, 0.48),
-    0 0 42px rgba(103, 232, 249, 0.14);
+    0 0 18px rgba(103, 232, 249, 0.42),
+    0 0 38px rgba(103, 232, 249, 0.12);
 }
 
 .plucky-hud-top-v2 {
-  top: 1.25rem;
-  right: 1.25rem;
-  color: rgba(207, 250, 254, 0.38);
-  font-size: 0.55rem;
-  letter-spacing: 0.14em;
+  top: 1.12rem;
+  right: 1.12rem;
+  color: rgba(207, 250, 254, 0.42);
+  font-size: 0.63rem;
+  letter-spacing: 0.12em;
 }
 
 .plucky-rail-v2 {
-  right: 1.05rem;
-  bottom: 0.72rem;
-  left: 1.05rem;
-  color: rgba(207, 250, 254, 0.3);
-  font-size: 0.49rem;
-  letter-spacing: 0.13em;
+  right: 1rem;
+  bottom: 0.68rem;
+  left: 1rem;
+  color: rgba(207, 250, 254, 0.34);
+  font-size: 0.62rem;
+  letter-spacing: 0.095em;
 }
 
 /* ------------------------------------------------------------
-   Bento cards
+   Bento navigation
    ------------------------------------------------------------ */
+
+.plucky-bento-v2 {
+  margin-top: 0.82rem;
+  grid-template-columns: minmax(0, 1.48fr) minmax(15rem, 0.72fr);
+  gap: 0.82rem;
+}
+
+.plucky-bento-stack-v2 {
+  gap: 0.82rem;
+}
 
 .plucky-tile-v2 {
   isolation: isolate;
-  padding: 0.95rem;
-  border-color: rgba(255, 255, 255, 0.07);
+  padding: 1rem;
+  border-color: var(--plucky-line);
+  border-radius: var(--plucky-radius-md);
   background:
     linear-gradient(
       135deg,
       rgba(21, 23, 35, 0.76),
       rgba(10, 11, 18, 0.72)
     );
-  box-shadow:
-    0 10px 26px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  box-shadow: var(--plucky-shadow);
+}
+
+.plucky-tile-feature-v2 {
+  min-height: 9.5rem;
+}
+
+.plucky-tile-small-v2 {
+  min-height: 4.34rem;
 }
 
 .plucky-tile-v2::after {
-  right: -5.8rem;
-  bottom: -6.4rem;
-  width: 12rem;
-  height: 12rem;
-  border-color: rgba(167, 139, 250, 0.14);
+  right: -5.6rem;
+  bottom: -6.2rem;
+  width: 11.5rem;
+  height: 11.5rem;
+  border-color: rgba(167, 139, 250, 0.13);
 }
 
 .plucky-tile-v2:hover {
   transform: translateY(-3px);
-  border-color: rgba(167, 139, 250, 0.32);
+  border-color: rgba(167, 139, 250, 0.3);
   box-shadow:
-    0 18px 38px rgba(0, 0, 0, 0.26),
-    0 0 22px rgba(139, 92, 246, 0.075);
+    0 18px 36px rgba(0, 0, 0, 0.25),
+    0 0 20px rgba(139, 92, 246, 0.065);
+}
+
+.plucky-tile-top-v2,
+.plucky-tile-bottom-v2 p {
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
 }
 
 .plucky-tile-top-v2 {
-  color: rgba(103, 232, 249, 0.56);
-  font-size: 0.55rem;
-  letter-spacing: 0.14em;
+  color: rgba(103, 232, 249, 0.58);
 }
 
 .plucky-tile-bottom-v2 p {
-  margin-bottom: 0.22rem;
-  color: rgba(207, 250, 254, 0.38);
-  font-size: 0.55rem;
-  letter-spacing: 0.15em;
+  margin-bottom: 0.2rem;
+  color: rgba(207, 250, 254, 0.42);
 }
 
 .plucky-tile-bottom-v2 strong {
-  max-width: 23rem;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: clamp(1.16rem, 1.65vw, 1.62rem);
-  letter-spacing: -0.036em;
-  line-height: 1.08;
+  max-width: 22rem;
+  color: rgba(255, 255, 255, 0.91);
+  font-size: clamp(1.2rem, 1.55vw, 1.48rem);
+  letter-spacing: -0.032em;
+  line-height: 1.1;
 }
 
 .plucky-tile-small-v2 strong {
-  font-size: 1.1rem;
+  font-size: 1.08rem;
 }
 
 .plucky-spark-v2 {
   right: 1.1rem;
-  bottom: 0.82rem;
-  height: 3.6rem;
-  gap: 0.24rem;
-  opacity: 0.72;
+  bottom: 0.8rem;
+  height: 3.2rem;
+  gap: 0.23rem;
+  opacity: 0.64;
 }
 
 .plucky-spark-v2 i {
-  width: 0.25rem;
-  box-shadow: 0 0 8px rgba(103, 232, 249, 0.1);
+  width: 0.24rem;
 }
 
 /* ------------------------------------------------------------
@@ -1595,21 +1749,22 @@ body.plucky-home-page {
    ------------------------------------------------------------ */
 
 .plucky-recent-v2 {
-  margin-top: 2.15rem;
+  margin-top: 2.05rem;
 }
 
 .plucky-recent-v2 h2 {
   margin-top: 0;
-  margin-bottom: 0.9rem;
-  font-size: clamp(1.7rem, 2.7vw, 2.35rem);
-  letter-spacing: -0.05em;
+  margin-bottom: 0.86rem;
+  color: var(--plucky-text-high);
+  font-size: clamp(1.8rem, 2.6vw, 2.18rem);
+  letter-spacing: -0.048em;
 }
 
 .plucky-recent-grid {
   display: grid;
   width: 100%;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.82rem;
+  gap: 0.9rem;
 }
 
 .plucky-article-card {
@@ -1621,96 +1776,70 @@ body.plucky-home-page {
 .plucky-article-card-shell {
   position: relative;
   display: flex;
-  min-height: 13.8rem;
+  min-height: 11.8rem;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 0.88rem;
+  border: 1px solid var(--plucky-line);
+  border-radius: var(--plucky-radius-md);
   background:
     linear-gradient(
       145deg,
       rgba(20, 22, 33, 0.7),
       rgba(10, 11, 18, 0.68)
     );
-  box-shadow:
-    0 10px 24px rgba(0, 0, 0, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  box-shadow: var(--plucky-shadow);
   transition:
     transform 200ms ease,
     border-color 200ms ease,
     box-shadow 200ms ease;
 }
 
-.plucky-article-card-shell::before {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 1px;
-  content: "";
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(103, 232, 249, 0.22),
-      transparent
-    );
-}
-
 .plucky-article-card:hover .plucky-article-card-shell {
   transform: translateY(-3px);
   border-color: rgba(167, 139, 250, 0.28);
   box-shadow:
-    0 18px 34px rgba(0, 0, 0, 0.24),
-    0 0 20px rgba(139, 92, 246, 0.065);
+    0 18px 34px rgba(0, 0, 0, 0.23),
+    0 0 18px rgba(139, 92, 246, 0.06);
 }
 
 .plucky-article-card-body {
   display: flex;
   width: 100%;
-  padding: 1rem 1rem 1.05rem;
+  padding: 1rem;
   flex-direction: column;
 }
 
 .plucky-article-card-title {
-  min-height: 2.65rem;
-  color: rgba(255, 255, 255, 0.91);
+  min-height: 2.55rem;
+  color: var(--plucky-text-high);
   font-family:
     "Space Grotesk",
     Inter,
-    -apple-system,
-    BlinkMacSystemFont,
     sans-serif;
-  font-size: 1.06rem;
+  font-size: 1.08rem;
   font-weight: 650;
-  letter-spacing: -0.028em;
+  letter-spacing: -0.026em;
   line-height: 1.22;
-}
-
-.plucky-article-card-external {
-  color: rgb(103, 232, 249);
-  font-size: 0.68rem;
-  vertical-align: top;
 }
 
 .plucky-article-card-meta {
   margin-top: 0.48rem;
-  color: rgba(207, 250, 254, 0.42);
+  color: var(--plucky-text-low);
   font-family:
     "IBM Plex Mono",
     ui-monospace,
     monospace;
-  font-size: 0.56rem;
-  letter-spacing: 0.045em;
-  line-height: 1.45;
+  font-size: 0.69rem;
+  letter-spacing: 0.025em;
+  line-height: 1.48;
 }
 
 .plucky-article-card-summary {
   display: -webkit-box;
   overflow: hidden;
-  margin-top: 0.78rem;
-  color: rgba(214, 219, 235, 0.58);
-  font-size: 0.84rem;
-  line-height: 1.55;
+  margin-top: 0.68rem;
+  color: rgba(214, 219, 235, 0.6);
+  font-size: 0.88rem;
+  line-height: 1.52;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 }
@@ -1718,13 +1847,13 @@ body.plucky-home-page {
 .plucky-show-more-wrap {
   display: flex;
   justify-content: center;
-  margin-top: 1.25rem;
+  margin-top: 1.12rem;
 }
 
 .plucky-show-more-v2 {
   display: inline-flex;
   align-items: center;
-  padding: 0.62rem 0.88rem;
+  padding: 0.6rem 0.84rem;
   border: 1px solid rgba(255, 255, 255, 0.095);
   border-radius: 999px;
   color: rgba(255, 255, 255, 0.72);
@@ -1733,50 +1862,267 @@ body.plucky-home-page {
     "IBM Plex Mono",
     ui-monospace,
     monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+  letter-spacing: 0.065em;
   text-transform: uppercase;
-  transition:
-    transform 180ms ease,
-    border-color 180ms ease,
-    color 180ms ease;
-  gap: 0.62rem;
 }
 
-.plucky-show-more-v2:hover {
+/* ------------------------------------------------------------
+   Inner-page foundation
+   ------------------------------------------------------------ */
+
+body.plucky-inner-page {
+  width: 100%;
+  max-width: none;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.plucky-inner-page #main-content,
+.plucky-inner-page #site-footer {
+  width: min(
+    var(--plucky-inner-max),
+    calc(100vw - 2 * var(--plucky-gutter))
+  );
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.plucky-inner-page #main-content {
+  padding-top: 1.6rem;
+}
+
+.plucky-inner-page #main-content > header,
+.plucky-inner-page #single_header {
+  max-width: 52rem;
+  margin-top: 0;
+  margin-bottom: 1.45rem;
+}
+
+.plucky-inner-page #main-content h1 {
+  margin-top: 0;
+  color: var(--plucky-text-high);
+  font-size: clamp(2.35rem, 4vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  line-height: 1.06;
+}
+
+.plucky-inner-page #single_header > div,
+.plucky-inner-page #main-content > header > div {
+  margin-top: 0.5rem;
+  color: var(--plucky-text-low);
+  font-family:
+    "IBM Plex Mono",
+    ui-monospace,
+    monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.025em;
+}
+
+/* ------------------------------------------------------------
+   Breadcrumbs
+   ------------------------------------------------------------ */
+
+.plucky-inner-page ol {
+  color: rgba(214, 219, 235, 0.46);
+  font-family:
+    "IBM Plex Mono",
+    ui-monospace,
+    monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.plucky-inner-page ol span {
+  color: rgba(103, 232, 249, 0.64);
+}
+
+/* ------------------------------------------------------------
+   Article pages
+   ------------------------------------------------------------ */
+
+.plucky-kind-page #single_header,
+.plucky-kind-section #single_header {
+  max-width: var(--plucky-article-max);
+}
+
+.plucky-inner-page .article-content {
+  max-width: var(--plucky-article-max);
+  margin-bottom: 4rem;
+}
+
+.plucky-inner-page .single_hero_round {
+  width: 100%;
+  max-height: 22rem;
+  margin-bottom: 1.2rem;
+  border-radius: var(--plucky-radius-md);
+  object-fit: cover;
+}
+
+/* ------------------------------------------------------------
+   Table of contents
+   ------------------------------------------------------------ */
+
+.plucky-inner-page .toc {
+  padding-left: 0 !important;
+}
+
+.plucky-inner-page .toc-right {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  border-radius: 0;
+}
+
+.plucky-inner-page #TableOfContents {
+  min-width: 14rem;
+  padding-left: 1rem;
+  border-left: 1px solid var(--plucky-line);
+  color: rgba(214, 219, 235, 0.56);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.plucky-inner-page #TableOfContents a {
+  transition: color 160ms ease;
+}
+
+.plucky-inner-page #TableOfContents a:hover,
+.plucky-inner-page #TableOfContents a.active {
   color: rgb(103, 232, 249);
-  border-color: rgba(103, 232, 249, 0.38);
-  transform: translateY(-2px);
+}
+
+/* ------------------------------------------------------------
+   List and term pages
+   ------------------------------------------------------------ */
+
+.plucky-kind-section #main-content,
+.plucky-kind-taxonomy #main-content,
+.plucky-kind-term #main-content {
+  padding-bottom: 1.5rem;
+}
+
+.plucky-inner-page #main-content section.grid {
+  gap: 0.9rem;
+}
+
+.plucky-inner-page .plucky-article-card-shell {
+  min-height: 11.4rem;
+}
+
+/* ------------------------------------------------------------
+   Pagination
+   ------------------------------------------------------------ */
+
+.plucky-inner-page #main-content > ul {
+  margin-top: 1.7rem;
+  font-family:
+    "IBM Plex Mono",
+    ui-monospace,
+    monospace;
+  font-size: 0.72rem;
+}
+
+.plucky-inner-page #main-content > ul a {
+  min-width: 2rem;
+  border: 1px solid var(--plucky-line);
+  border-radius: 999px;
+  color: rgba(214, 219, 235, 0.66);
 }
 
 /* ------------------------------------------------------------
    Footer
    ------------------------------------------------------------ */
 
-body.plucky-home-page #site-footer {
-  width: min(
-    var(--plucky-page-max),
-    calc(100vw - 2 * var(--plucky-gutter))
-  );
-  margin-right: auto;
-  margin-left: auto;
-  padding-top: 1.4rem;
-  padding-bottom: 1.8rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.055);
+#site-footer {
+  margin-top: 1.4rem;
+  padding-top: 1.3rem;
+  padding-bottom: 1.7rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.052);
 }
 
-body.plucky-home-page #site-footer p {
-  color: rgba(214, 219, 235, 0.42);
+#site-footer p {
+  color: rgba(214, 219, 235, 0.44);
   font-family:
     "IBM Plex Mono",
     ui-monospace,
     monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.05em;
+  font-size: 0.66rem;
+  letter-spacing: 0.035em;
 }
 
 /* ------------------------------------------------------------
-   Responsive refinement
+   Taxonomy cards
+   ------------------------------------------------------------ */
+
+.plucky-term-card {
+  display: block;
+  text-decoration: none;
+}
+
+.plucky-term-card-shell {
+  display: flex;
+  min-height: 6.5rem;
+  align-items: end;
+  justify-content: space-between;
+  padding: 1rem;
+  border: 1px solid var(--plucky-line);
+  border-radius: var(--plucky-radius-md);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20, 22, 33, 0.7),
+      rgba(10, 11, 18, 0.68)
+    );
+  box-shadow: var(--plucky-shadow);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease;
+}
+
+.plucky-term-card:hover .plucky-term-card-shell {
+  border-color: rgba(167, 139, 250, 0.3);
+  transform: translateY(-3px);
+}
+
+.plucky-term-card-label {
+  margin: 0 0 0.22rem;
+  color: var(--plucky-text-low);
+  font-family:
+    "IBM Plex Mono",
+    ui-monospace,
+    monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+}
+
+.plucky-term-card-title {
+  margin: 0;
+  color: var(--plucky-text-high);
+  font-size: 1.15rem;
+  letter-spacing: -0.03em;
+  line-height: 1.16;
+}
+
+.plucky-term-card-count {
+  display: inline-flex;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(103, 232, 249, 0.26);
+  border-radius: 999px;
+  color: rgba(103, 232, 249, 0.78);
+  font-family:
+    "IBM Plex Mono",
+    ui-monospace,
+    monospace;
+  font-size: 0.68rem;
+}
+
+/* ------------------------------------------------------------
+   Responsive
    ------------------------------------------------------------ */
 
 @media (max-width: 960px) {
@@ -1785,40 +2131,45 @@ body.plucky-home-page #site-footer p {
   }
 
   .plucky-scene-v2 {
-    width: 56%;
-    opacity: 0.58;
+    width: 54%;
+    opacity: 0.56;
   }
 }
 
 @media (max-width: 680px) {
+  :root {
+    --plucky-gutter: 0.62rem;
+  }
+
   .plucky-main-menu {
-    min-height: 2.85rem;
+    min-height: 2.78rem;
   }
 
   .plucky-hero-v2 {
-    min-height: 28.5rem;
+    min-height: 27rem;
   }
 
   .plucky-copy-v2 {
-    padding: 1.45rem 1.05rem;
-  }
-
-  .plucky-eyebrow-v2 {
-    font-size: 0.56rem;
+    width: 100%;
+    min-height: auto;
+    padding: 1.4rem 1.05rem;
   }
 
   .plucky-wordmark-v2 {
-    font-size: clamp(3.85rem, 19vw, 5.5rem);
+    font-size: clamp(3.8rem, 18vw, 5.25rem);
   }
 
   .plucky-lede-v2 {
     max-width: 18rem;
-    font-size: 0.92rem;
+    font-size: 0.94rem;
   }
 
   .plucky-scene-v2 {
-    height: 39%;
-    opacity: 0.46;
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    height: 38%;
+    opacity: 0.43;
   }
 
   .plucky-hud-top-v2,
@@ -1828,12 +2179,12 @@ body.plucky-home-page #site-footer p {
 
   .plucky-tile-feature-v2,
   .plucky-tile-small-v2 {
-    min-height: 5.85rem;
+    min-height: 5.6rem;
   }
 
   .plucky-recent-grid {
     grid-template-columns: 1fr;
-    gap: 0.68rem;
+    gap: 0.7rem;
   }
 
   .plucky-article-card-shell {
@@ -1842,5 +2193,13 @@ body.plucky-home-page #site-footer p {
 
   .plucky-article-card-title {
     min-height: auto;
+  }
+
+  .plucky-inner-page #main-content {
+    padding-top: 1.15rem;
+  }
+
+  .plucky-inner-page #main-content h1 {
+    font-size: 2.18rem;
   }
 }
