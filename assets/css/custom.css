@@ -991,106 +991,138 @@ pre {
 }
 
 
+
+
 /* ============================================================
-   Layout refinement: restrained editorial interface
+   Homepage layout: unified editorial grid
    ============================================================ */
 
-html {
-  font-size: 16px;
+:root {
+  --plucky-page-max: 1440px;
+  --plucky-gutter: clamp(1rem, 2.1vw, 2rem);
+  --plucky-gap: 0.9rem;
 }
 
-body {
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "SF Pro Text",
-    "Segoe UI",
-    sans-serif;
-  letter-spacing: -0.008em;
+/* ------------------------------------------------------------
+   Reset Blowfish container only on homepage
+   ------------------------------------------------------------ */
+
+body.plucky-home-page {
+  width: 100%;
+  max-width: none;
+  padding-right: 0;
+  padding-left: 0;
 }
+
+/* Header and homepage must share exactly the same canvas. */
 
 .plucky-header-shell,
 .plucky-home-v2 {
-  width: min(1280px, calc(100vw - 3rem));
+  position: relative;
+  left: auto;
+  width: min(
+    var(--plucky-page-max),
+    calc(100vw - 2 * var(--plucky-gutter))
+  );
+  margin-right: auto;
+  margin-left: auto;
+  transform: none;
 }
 
+/* ------------------------------------------------------------
+   Header
+   ------------------------------------------------------------ */
+
 .plucky-header-spacer {
-  height: 4.6rem;
+  height: 4rem;
 }
 
 .plucky-header-shell {
-  padding-top: 0.72rem;
-  padding-bottom: 0.72rem;
+  padding-top: 0.42rem;
+  padding-bottom: 0.42rem;
 }
 
-/* Hero */
+/* ------------------------------------------------------------
+   Homepage canvas
+   ------------------------------------------------------------ */
+
+.plucky-home-v2 {
+  margin-top: 0.65rem;
+  margin-bottom: 2.5rem;
+}
+
+/* ------------------------------------------------------------
+   Hero: compact rather than full-screen
+   ------------------------------------------------------------ */
 
 .plucky-hero-v2 {
-  min-height: 30rem;
-  border-radius: 1.25rem;
+  min-height: 25.5rem;
+  border-radius: 1.15rem;
   box-shadow:
-    0 26px 72px rgba(0, 0, 0, 0.34),
+    0 22px 60px rgba(0, 0, 0, 0.32),
     inset 0 1px 0 rgba(255, 255, 255, 0.045);
 }
 
 .plucky-copy-v2 {
-  width: min(60%, 48rem);
-  min-height: 29rem;
-  padding: clamp(2.4rem, 4.4vw, 4.2rem);
+  width: min(57%, 46rem);
+  min-height: 25.5rem;
+  padding: clamp(1.8rem, 3vw, 2.8rem);
+}
+
+.plucky-eyebrow-v2 {
+  margin-bottom: 0.8rem;
+  font-size: 0.62rem;
 }
 
 .plucky-wordmark-v2 {
-  font-family:
-    "Space Grotesk",
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
-  font-size: clamp(4.6rem, 8.4vw, 8rem);
+  font-size: clamp(4.2rem, 7.8vw, 7.2rem);
   font-weight: 700;
-  letter-spacing: -0.085em;
+  letter-spacing: -0.082em;
   line-height: 0.9;
 }
 
 .plucky-lede-v2 {
-  max-width: 30rem;
-  margin-top: 1.5rem;
-  color: rgba(224, 228, 240, 0.64);
-  font-size: clamp(1rem, 1.35vw, 1.14rem);
-  line-height: 1.62;
+  max-width: 28rem;
+  margin-top: 1.05rem;
+  font-size: clamp(0.98rem, 1.25vw, 1.1rem);
+  line-height: 1.58;
 }
 
 .plucky-actions-v2 {
-  margin-top: 1.7rem;
+  margin-top: 1.35rem;
 }
 
 .plucky-button-v2 {
-  padding: 0.72rem 0.96rem;
-  font-size: 0.66rem;
-  letter-spacing: 0.075em;
+  padding: 0.68rem 0.92rem;
+  font-size: 0.64rem;
 }
 
 .plucky-meta-v2 {
   display: none;
 }
 
-/* Reduce visual noise */
+/* ------------------------------------------------------------
+   Orbital scene: reduce its visual footprint
+   ------------------------------------------------------------ */
+
+.plucky-scene-v2 {
+  width: 51%;
+}
 
 .plucky-hero-v2::before {
-  opacity: 0.2;
+  opacity: 0.18;
 }
 
 .plucky-hero-noise-v2 {
-  opacity: 0.035;
+  opacity: 0.03;
 }
 
 .plucky-scan-v2 {
-  opacity: 0.28;
+  opacity: 0.2;
 }
 
 .plucky-axis-v2 {
-  opacity: 0.12;
+  opacity: 0.1;
 }
 
 .plucky-hud-side-v2,
@@ -1098,131 +1130,156 @@ body {
   display: none;
 }
 
-.plucky-hud-top-v2 {
-  color: rgba(207, 250, 254, 0.42);
-}
-
 .plucky-core-v2 {
-  width: 8.6rem;
-  height: 8.6rem;
+  top: 29%;
+  right: 24%;
+  width: 8rem;
+  height: 8rem;
   box-shadow:
-    0 0 38px rgba(139, 92, 246, 0.34),
-    0 0 96px rgba(139, 92, 246, 0.14);
+    0 0 32px rgba(139, 92, 246, 0.3),
+    0 0 82px rgba(139, 92, 246, 0.13);
 }
 
 .plucky-satellite-v2 {
-  width: 2.7rem;
-  height: 2.7rem;
-  opacity: 0.72;
-  box-shadow:
-    0 0 24px rgba(103, 232, 249, 0.52),
-    0 0 54px rgba(103, 232, 249, 0.18);
+  width: 2.5rem;
+  height: 2.5rem;
+  opacity: 0.66;
 }
 
-/* Rail and ticker */
+/* ------------------------------------------------------------
+   Bottom rail
+   ------------------------------------------------------------ */
 
 .plucky-rail-v2 {
-  right: 1.4rem;
-  bottom: 1rem;
-  left: 1.4rem;
-  font-size: 0.54rem;
-  letter-spacing: 0.13em;
+  right: 1.2rem;
+  bottom: 0.85rem;
+  left: 1.2rem;
+  font-size: 0.52rem;
 }
+
+/* The ticker adds height but does not add information. */
 
 .plucky-ticker-v2 {
   display: none;
 }
 
-/* Bento */
+/* ------------------------------------------------------------
+   Bento navigation
+   ------------------------------------------------------------ */
 
 .plucky-bento-v2 {
-  margin-top: 1.25rem;
-  grid-template-columns: minmax(0, 1.34fr) minmax(17rem, 0.72fr);
-  gap: 1rem;
+  margin-top: var(--plucky-gap);
+  grid-template-columns: minmax(0, 1.48fr) minmax(16rem, 0.72fr);
+  gap: var(--plucky-gap);
 }
 
 .plucky-bento-stack-v2 {
-  gap: 1rem;
+  gap: var(--plucky-gap);
 }
 
 .plucky-tile-v2 {
-  padding: 1.35rem;
-  border-radius: 1.05rem;
-  background:
-    linear-gradient(
-      135deg,
-      rgba(22, 24, 36, 0.8),
-      rgba(10, 11, 18, 0.74)
-    );
+  padding: 1rem;
+  border-radius: 0.95rem;
   box-shadow:
-    0 14px 36px rgba(0, 0, 0, 0.2),
+    0 12px 30px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 .plucky-tile-feature-v2 {
-  min-height: 14rem;
+  min-height: 10.8rem;
 }
 
 .plucky-tile-small-v2 {
-  min-height: 6.5rem;
+  min-height: 4.95rem;
+}
+
+.plucky-tile-top-v2,
+.plucky-tile-bottom-v2 p {
+  font-size: 0.58rem;
 }
 
 .plucky-tile-bottom-v2 strong {
-  font-family:
-    "Space Grotesk",
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
-  font-size: clamp(1.34rem, 2vw, 2rem);
-  letter-spacing: -0.04em;
-  line-height: 1.08;
+  font-size: clamp(1.25rem, 1.8vw, 1.8rem);
+  line-height: 1.06;
 }
 
 .plucky-tile-small-v2 strong {
-  font-size: 1.36rem;
+  font-size: 1.18rem;
 }
 
-/* Recent articles */
+.plucky-spark-v2 {
+  right: 1.4rem;
+  bottom: 1rem;
+  height: 4.4rem;
+}
+
+/* ------------------------------------------------------------
+   Recent articles
+   ------------------------------------------------------------ */
 
 .plucky-recent-v2 {
-  margin-top: 4rem;
+  margin-top: 2.4rem;
 }
 
 .plucky-recent-v2 h2 {
-  margin-bottom: 1.25rem;
-  font-family:
-    "Space Grotesk",
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
-  font-size: clamp(1.9rem, 3.4vw, 2.8rem);
+  margin-bottom: 1rem;
+  font-size: clamp(1.8rem, 3vw, 2.55rem);
   letter-spacing: -0.055em;
 }
 
-/* Mobile */
+/* ------------------------------------------------------------
+   Responsive layout
+   ------------------------------------------------------------ */
 
-@media (max-width: 680px) {
-  .plucky-header-shell,
-  .plucky-home-v2 {
-    width: min(100% - 1rem, 1280px);
-  }
-
-  .plucky-hero-v2 {
-    min-height: 34rem;
-  }
-
-  .plucky-wordmark-v2 {
-    font-size: clamp(4.2rem, 21vw, 6.4rem);
-  }
-
+@media (max-width: 960px) {
   .plucky-copy-v2 {
-    padding: 1.8rem 1.25rem;
+    width: 68%;
   }
 
   .plucky-scene-v2 {
-    height: 44%;
-    opacity: 0.56;
+    width: 60%;
+    opacity: 0.68;
+  }
+
+  .plucky-bento-v2 {
+    grid-template-columns: 1fr;
+  }
+
+  .plucky-tile-feature-v2,
+  .plucky-tile-small-v2 {
+    min-height: 6.8rem;
+  }
+}
+
+@media (max-width: 680px) {
+  :root {
+    --plucky-gutter: 0.55rem;
+  }
+
+  .plucky-hero-v2 {
+    min-height: 31rem;
+    border-radius: 0.95rem;
+  }
+
+  .plucky-copy-v2 {
+    width: 100%;
+    min-height: auto;
+    padding: 1.55rem 1.1rem;
+  }
+
+  .plucky-wordmark-v2 {
+    font-size: clamp(4rem, 20vw, 6rem);
+  }
+
+  .plucky-scene-v2 {
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    height: 42%;
+    opacity: 0.52;
+  }
+
+  .plucky-recent-v2 {
+    margin-top: 2rem;
   }
 }
