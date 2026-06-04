@@ -486,7 +486,7 @@ article img {
 .plucky-brand {
   display: inline-flex;
   align-items: center;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.88);
   font-family:
     "Space Grotesk",
     Inter,
@@ -494,22 +494,10 @@ article img {
   font-size: 0.98rem;
   font-weight: 650;
   letter-spacing: -0.04em;
-  gap: 0.42rem;
-}
-
-.plucky-brand::after {
-  width: 0.34rem;
-  height: 0.34rem;
-  border-radius: 999px;
-  background: rgb(103, 232, 249);
-  box-shadow:
-    0 0 8px rgba(103, 232, 249, 0.68),
-    0 0 16px rgba(103, 232, 249, 0.24);
-  content: "";
 }
 
 .plucky-brand:hover {
-  color: rgb(103, 232, 249);
+  color: rgb(255, 255, 255);
 }
 
 /* Desktop nav */
@@ -532,21 +520,19 @@ article img {
   transform: translateY(-1px);
 }
 
+.plucky-nav-link.active,
+.plucky-nav-link[aria-current="page"] {
+  color: rgba(255, 255, 255, 0.96);
+}
+
 .plucky-nav-link.active::after,
 .plucky-nav-link[aria-current="page"]::after {
   position: absolute;
   right: 0;
-  bottom: -0.38rem;
+  bottom: -0.34rem;
   left: 0;
   height: 1px;
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(103, 232, 249, 0.62),
-      rgba(167, 139, 250, 0.42),
-      transparent
-    );
+  background: rgba(103, 232, 249, 0.45);
   content: "";
 }
 
@@ -565,25 +551,25 @@ article img {
 #search-button,
 #search-button-mobile {
   display: inline-flex;
-  width: 2rem;
-  height: 2rem;
+  width: 1.9rem;
+  height: 1.9rem;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--line-base);
+  border: 1px solid transparent;
   border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.025);
-  color: rgba(214, 219, 235, 0.62);
-  font-size: 0.92rem;
+  background: transparent;
+  color: rgba(214, 219, 235, 0.56);
+  font-size: 0.9rem;
   transition:
-    border-color var(--motion-fast) ease,
+    color var(--motion-fast) ease,
     background-color var(--motion-fast) ease,
     transform var(--motion-fast) ease;
 }
 
 #search-button:hover,
 #search-button-mobile:hover {
-  border-color: rgba(103, 232, 249, 0.32);
-  background: rgba(103, 232, 249, 0.04);
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.035);
   transform: translateY(-1px);
 }
 
