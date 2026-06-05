@@ -5,6 +5,19 @@
   {{ end }}
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  {{/* Build version */}}
+  {{ with .GitInfo }}
+  <meta name="git-commit" content="{{ .AbbreviatedHash }}" />
+  <meta name="git-date" content="{{ .CommitDate.Format "2006-01-02T15:04:05Z07:00" }}" />
+  {{ else }}
+  {{ with getenv "GITHUB_SHA" }}
+  <meta name="git-commit" content="{{ slicestr . 0 7 }}" />
+  {{ end }}
+  {{ end }}
+  {{/* Font preconnect */}}
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
   {{/* Title */}}
   {{ if .IsHome -}}
   <title>{{ .Site.Title | emojify }}</title>

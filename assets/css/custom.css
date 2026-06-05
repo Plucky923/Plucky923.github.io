@@ -1,11 +1,4 @@
 /* ============================================================
-   Fonts
-   ============================================================ */
-
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap");
-
-
-/* ============================================================
    Global foundation
    ============================================================ */
 
@@ -26,11 +19,11 @@
 
 html {
   scroll-behavior: smooth;
-  font-size: 12.5pt;
+  font-size: 100%;
 }
 
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
   color: var(--plucky-text);
   background-color: var(--plucky-bg);
   font-family:
@@ -38,6 +31,9 @@ body {
     Inter,
     ui-sans-serif,
     system-ui,
+    "PingFang SC",
+    "Noto Sans SC",
+    "Microsoft YaHei",
     sans-serif;
   letter-spacing: 0.002em;
 }
@@ -139,6 +135,13 @@ h1,
 h2,
 h3 {
   letter-spacing: -0.034em;
+}
+
+:lang(zh) h1,
+:lang(zh) h2,
+:lang(zh) h3,
+:lang(zh) h4 {
+  letter-spacing: -0.015em;
 }
 
 .prose {
@@ -258,6 +261,9 @@ pre {
   --shadow-card-hover:
     0 18px 38px rgba(0, 0, 0, 0.26),
     0 0 22px rgba(139, 92, 246, 0.075);
+
+  /* Header */
+  --plucky-header-height: 3.72rem;
 }
 
 /* ------------------------------------------------------------
@@ -270,6 +276,9 @@ body {
     -apple-system,
     BlinkMacSystemFont,
     "SF Pro Text",
+    "PingFang SC",
+    "Noto Sans SC",
+    "Microsoft YaHei",
     "Segoe UI",
     sans-serif;
   letter-spacing: -0.008em;
@@ -329,6 +338,7 @@ h4 {
 
 .prose code {
   font-size: 0.88em;
+  tab-size: 2;
 }
 
 /* Inline code */
@@ -344,6 +354,7 @@ h4 {
 /* Code blocks */
 pre {
   overflow-x: auto;
+  tab-size: 2;
   padding: 1.15rem;
   border: 1px solid var(--line-base);
   border-radius: var(--radius-md);
@@ -398,9 +409,24 @@ article img {
 
 /* Tables */
 .prose table {
+  display: block;
   width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
   border-collapse: collapse;
   font-size: 0.92rem;
+  white-space: nowrap;
+}
+
+.prose {
+  overflow-wrap: anywhere;
+}
+
+.prose img,
+.prose video,
+.prose iframe {
+  max-width: 100%;
+  height: auto;
 }
 
 .prose thead {
@@ -458,7 +484,7 @@ article img {
 }
 
 .plucky-header-spacer {
-  height: 3.72rem;
+  height: var(--plucky-header-height);
 }
 
 .plucky-header-shell {
@@ -798,6 +824,7 @@ article img {
   width: 46%;
   height: 100%;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .plucky-scene-v2::before {
@@ -947,7 +974,7 @@ article img {
   left: 1rem;
   display: flex;
   justify-content: space-between;
-  color: rgba(207, 250, 254, 0.34);
+  color: rgba(207, 250, 254, 0.42);
   font-family:
     "IBM Plex Mono",
     ui-monospace,
@@ -1048,7 +1075,7 @@ article img {
 .plucky-tile-top-v2 {
   display: flex;
   justify-content: space-between;
-  color: rgba(103, 232, 249, 0.58);
+  color: rgba(103, 232, 249, 0.68);
   font-family:
     "IBM Plex Mono",
     ui-monospace,
@@ -1063,7 +1090,7 @@ article img {
 
 .plucky-tile-bottom-v2 p {
   margin-bottom: 0.2rem;
-  color: rgba(207, 250, 254, 0.42);
+  color: rgba(207, 250, 254, 0.54);
   font-family:
     "IBM Plex Mono",
     ui-monospace,
@@ -1850,6 +1877,188 @@ body.plucky-inner-page {
         transparent
       );
   }
+
+  /* Mobile prose sizing */
+  .prose {
+    font-size: 0.98rem;
+    line-height: 1.74;
+  }
+
+  .prose h2 {
+    font-size: 1.55rem;
+  }
+
+  .prose h3 {
+    font-size: 1.24rem;
+  }
+}
+
+/* Tablet and narrow desktop */
+@media (max-width: 767px) {
+  .plucky-bento-v2 {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.72rem;
+  }
+
+  .plucky-bento-stack-v2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.72rem;
+  }
+
+  .plucky-tile-feature-v2 {
+    min-height: 8.4rem;
+  }
+
+  .plucky-rail-v2 {
+    right: 0.9rem;
+    left: 0.9rem;
+    gap: 0.7rem;
+    justify-content: space-between;
+    white-space: nowrap;
+    font-size: 0.57rem;
+    letter-spacing: 0.055em;
+  }
+
+  /* Hero progressive transition: switch to mobile layout at 760px */
+  .plucky-hero-v2 {
+    min-height: 27rem;
+  }
+
+  .plucky-copy-v2 {
+    width: 100%;
+    min-height: auto;
+    padding: 1.4rem 1.05rem;
+  }
+
+  .plucky-wordmark-v2 {
+    font-size: clamp(3.8rem, 18vw, 5.25rem);
+  }
+
+  .plucky-lede-v2 {
+    max-width: 18rem;
+    font-size: 0.94rem;
+  }
+
+  .plucky-scene-v2 {
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    height: 38%;
+    opacity: 0.43;
+  }
+
+  .plucky-hud-top-v2,
+  .plucky-satellite-v2 {
+    display: none;
+  }
+
+  /* Header height for tablet/narrow desktop */
+  :root {
+    --plucky-header-height: 3.45rem;
+  }
+
+  .plucky-main-menu {
+    min-height: 2.78rem;
+  }
+
+  /* Mobile menu & appearance toggle touch targets */
+  #menu-button {
+    display: inline-flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  #appearance-switcher,
+  #appearance-switcher-mobile {
+    display: inline-flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Regular phones */
+@media (max-width: 480px) {
+  .plucky-hero-v2 {
+    min-height: 29rem;
+  }
+
+  .plucky-copy-v2 {
+    padding-bottom: 2rem;
+  }
+
+  .plucky-scene-v2 {
+    height: 34%;
+  }
+
+  .plucky-bento-stack-v2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .plucky-tile-feature-v2,
+  .plucky-tile-small-v2 {
+    min-height: 6.4rem;
+  }
+
+  .plucky-rail-v2 span:nth-child(2) {
+    display: none;
+  }
+
+  .plucky-button-v2 {
+    min-height: 2.75rem;
+    padding-inline: 0.95rem;
+  }
+
+  #search-button,
+  #search-button-mobile {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .plucky-eyebrow-v2 {
+    letter-spacing: 0.11em;
+  }
+
+  .plucky-tile-top-v2,
+  .plucky-tile-bottom-v2 p {
+    font-size: 0.68rem;
+  }
+}
+
+/* Very narrow phones */
+@media (max-width: 350px) {
+  .plucky-wordmark-v2 {
+    font-size: clamp(3.5rem, 17vw, 4.6rem);
+  }
+
+  .plucky-lede-v2 {
+    max-width: 16rem;
+  }
+
+  .plucky-rail-v2 span:last-child {
+    display: none;
+  }
+}
+
+/* KaTeX overflow protection */
+.katex-display {
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+/* Search modal close button touch target */
+#close-search-button {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+/* Search input placeholder in dark mode */
+#search-query::placeholder {
+  color: rgba(214, 219, 235, 0.38);
 }
 
 @media (prefers-reduced-motion: reduce) {

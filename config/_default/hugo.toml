@@ -11,6 +11,7 @@ buildDrafts = false
 buildFuture = false
 
 enableEmoji = true
+enableGitInfo = true
 
 [pagination]
   pagerSize = 100
@@ -33,6 +34,10 @@ ignoreLogs = ['warning-goldmark-raw-html']
 [markup.tableOfContents]
   startLevel = 1
   endLevel = 3
+
+[security]
+  [security.funcs]
+    getenv = ['^HUGO_', '^CI$', '^GITHUB_SHA$']
 
 [outputs]
   home = ["HTML", "RSS", "JSON"]
