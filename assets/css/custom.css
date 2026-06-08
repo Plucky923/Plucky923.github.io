@@ -134,14 +134,14 @@ a:hover .thumbnail_card {
 h1,
 h2,
 h3 {
-  letter-spacing: -0.034em;
+  letter-spacing: 0;
 }
 
 :lang(zh) h1,
 :lang(zh) h2,
 :lang(zh) h3,
 :lang(zh) h4 {
-  letter-spacing: -0.015em;
+  letter-spacing: 0;
 }
 
 .prose {
@@ -246,8 +246,8 @@ pre {
   --text-card-title: 1.12rem;
   --text-h3: 1.34rem;
   --text-h2: 1.72rem;
-  --text-page-title: clamp(2.4rem, 4vw, 3.1rem);
-  --text-wordmark: clamp(4.2rem, 6.4vw, 6rem);
+  --text-page-title: 2.9rem;
+  --text-wordmark: 5.55rem;
 
   /* Motion */
   --motion-fast: 160ms;
@@ -281,7 +281,7 @@ body {
     "Microsoft YaHei",
     "Segoe UI",
     sans-serif;
-  letter-spacing: -0.008em;
+  letter-spacing: 0;
 }
 
 h1,
@@ -313,7 +313,7 @@ h4 {
   margin-bottom: var(--space-3);
   color: var(--text-high);
   font-size: var(--text-h2);
-  letter-spacing: -0.045em;
+  letter-spacing: 0;
   line-height: 1.18;
 }
 
@@ -322,13 +322,14 @@ h4 {
   margin-bottom: var(--space-2);
   color: var(--text-high);
   font-size: var(--text-h3);
-  letter-spacing: -0.035em;
+  letter-spacing: 0;
   line-height: 1.25;
 }
 
 .prose a {
   text-decoration-thickness: 1px;
   text-underline-offset: 0.22em;
+  overflow-wrap: anywhere;
   transition: color var(--motion-fast) ease;
 }
 
@@ -419,7 +420,8 @@ article img {
 }
 
 .prose {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .prose img,
@@ -518,8 +520,8 @@ article img {
     Inter,
     sans-serif;
   font-size: 0.98rem;
-  font-weight: 650;
-  letter-spacing: -0.04em;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .plucky-brand:hover {
@@ -706,7 +708,7 @@ article img {
     sans-serif;
   font-size: var(--text-wordmark);
   font-weight: 700;
-  letter-spacing: -0.074em;
+  letter-spacing: 0;
   line-height: 0.94;
   -webkit-background-clip: text;
 }
@@ -720,7 +722,7 @@ article img {
   max-width: 27rem;
   margin-top: 0.9rem;
   color: rgba(224, 228, 240, 0.62);
-  font-size: clamp(0.98rem, 1.1vw, 1.05rem);
+  font-size: var(--text-body-lg);
   line-height: 1.56;
 }
 
@@ -1107,8 +1109,8 @@ article img {
     "Space Grotesk",
     Inter,
     sans-serif;
-  font-size: clamp(1.2rem, 1.55vw, 1.48rem);
-  letter-spacing: -0.032em;
+  font-size: var(--text-h3);
+  letter-spacing: 0;
   line-height: 1.1;
 }
 
@@ -1163,8 +1165,8 @@ article img {
     "Space Grotesk",
     Inter,
     sans-serif;
-  font-size: clamp(1.8rem, 2.6vw, 2.18rem);
-  letter-spacing: -0.048em;
+  font-size: var(--text-h2);
+  letter-spacing: 0;
 }
 
 .plucky-recent-grid {
@@ -1254,8 +1256,8 @@ article img {
     Inter,
     sans-serif;
   font-size: 1.08rem;
-  font-weight: 650;
-  letter-spacing: -0.026em;
+  font-weight: 600;
+  letter-spacing: 0;
   line-height: 1.22;
 }
 
@@ -1356,7 +1358,7 @@ body.plucky-inner-page {
   color: var(--text-high);
   font-size: var(--text-page-title);
   font-weight: 700;
-  letter-spacing: -0.06em;
+  letter-spacing: 0;
   line-height: 1.06;
 }
 
@@ -1409,7 +1411,7 @@ body.plucky-inner-page {
   color: var(--text-high);
   font-size: var(--text-page-title);
   font-weight: 700;
-  letter-spacing: -0.06em;
+  letter-spacing: 0;
   line-height: 1.06;
 }
 
@@ -1460,7 +1462,8 @@ body.plucky-inner-page {
    Breadcrumbs
    ------------------------------------------------------------ */
 
-.plucky-inner-page ol {
+.plucky-inner-page #single_header > ol,
+.plucky-inner-page #main-content > ol:first-child {
   color: rgba(214, 219, 235, 0.46);
   font-family:
     "IBM Plex Mono",
@@ -1471,7 +1474,8 @@ body.plucky-inner-page {
   text-transform: uppercase;
 }
 
-.plucky-inner-page ol span {
+.plucky-inner-page #single_header > ol span,
+.plucky-inner-page #main-content > ol:first-child span {
   color: rgba(103, 232, 249, 0.64);
 }
 
@@ -1628,7 +1632,7 @@ body.plucky-inner-page {
   margin: 0;
   color: var(--text-high);
   font-size: 1.15rem;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
   line-height: 1.16;
 }
 
@@ -1819,7 +1823,7 @@ body.plucky-inner-page {
   }
 
   .plucky-wordmark-v2 {
-    font-size: clamp(3.8rem, 18vw, 5.25rem);
+    font-size: var(--text-wordmark);
   }
 
   .plucky-lede-v2 {
@@ -1931,7 +1935,7 @@ body.plucky-inner-page {
   }
 
   .plucky-wordmark-v2 {
-    font-size: clamp(3.8rem, 18vw, 5.25rem);
+    font-size: var(--text-wordmark);
   }
 
   .plucky-lede-v2 {
@@ -2032,7 +2036,7 @@ body.plucky-inner-page {
 /* Very narrow phones */
 @media (max-width: 350px) {
   .plucky-wordmark-v2 {
-    font-size: clamp(3.5rem, 17vw, 4.6rem);
+    font-size: var(--text-wordmark);
   }
 
   .plucky-lede-v2 {
@@ -2070,4 +2074,615 @@ body.plucky-inner-page {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* ============================================================
+   Geometry system
+   ============================================================ */
+
+:root {
+  --plucky-shell: 1440px;
+  --plucky-gutter: clamp(1rem, 3vw, 2.5rem);
+  --plucky-gap: clamp(0.75rem, 1.2vw, 1rem);
+}
+
+.plucky-header-spacer {
+  display: none !important;
+}
+
+.plucky-header-shell,
+.plucky-home-v2 {
+  width: min(
+    var(--plucky-shell),
+    calc(100vw - var(--plucky-gutter) - var(--plucky-gutter))
+  );
+  margin-inline: auto;
+}
+
+/*
+ * Blowfish places the custom homepage inside its own content container.
+ * Break out of that container and center against the viewport.
+ */
+.plucky-home-v2 {
+  position: relative;
+  left: 50%;
+  margin-top: clamp(1rem, 2vw, 1.5rem);
+  margin-bottom: 5rem;
+  transform: translateX(-50%);
+}
+
+.plucky-header-shell {
+  padding-block: 0.85rem;
+}
+
+
+/* ============================================================
+   Hero: use grid for macro layout
+   ============================================================ */
+
+.plucky-hero-v2 {
+  display: grid;
+  min-height: clamp(34rem, 55vw, 42rem);
+  grid-template-columns:
+    minmax(0, 1.12fr)
+    minmax(24rem, 0.88fr);
+}
+
+.plucky-copy-v2 {
+  width: auto;
+  min-height: 0;
+  padding:
+    clamp(2rem, 5vw, 5rem)
+    clamp(1.5rem, 4.5vw, 4.5rem)
+    5rem;
+}
+
+.plucky-scene-v2 {
+  position: relative;
+  inset: auto;
+  width: auto;
+  height: auto;
+  min-height: 100%;
+  border-left: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+
+/* ============================================================
+   Align all homepage sections
+   ============================================================ */
+
+.plucky-ticker-v2,
+.plucky-bento-v2,
+.plucky-recent-v2 {
+  width: 100%;
+}
+
+.plucky-ticker-v2,
+.plucky-bento-v2 {
+  margin-top: var(--plucky-gap);
+}
+
+.plucky-bento-v2 {
+  display: grid;
+  align-items: stretch;
+  grid-template-columns:
+    minmax(0, 1.5fr)
+    minmax(18rem, 0.8fr);
+  gap: var(--plucky-gap);
+}
+
+.plucky-bento-stack-v2 {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: var(--plucky-gap);
+}
+
+.plucky-tile-feature-v2,
+.plucky-tile-small-v2 {
+  min-height: 0;
+}
+
+.plucky-tile-feature-v2 {
+  height: 100%;
+}
+
+.plucky-recent-v2 {
+  margin-top: clamp(3.5rem, 7vw, 6rem);
+}
+
+
+/* ============================================================
+   Responsive layout
+   ============================================================ */
+
+@media (max-width: 960px) {
+  .plucky-hero-v2 {
+    min-height: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .plucky-copy-v2 {
+    padding:
+      2.25rem
+      clamp(1.25rem, 5vw, 2.5rem)
+      2.5rem;
+  }
+
+  .plucky-scene-v2 {
+    min-height: 19rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.075);
+    border-left: 0;
+  }
+
+  .plucky-bento-v2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  :root {
+    --plucky-gutter: 0.65rem;
+    --plucky-gap: 0.65rem;
+  }
+
+  .plucky-header-shell {
+    padding-block: 0.55rem;
+  }
+
+  .plucky-hero-v2 {
+    border-radius: 1rem;
+  }
+
+  .plucky-copy-v2 {
+    padding: 1.65rem 1.2rem 2rem;
+  }
+
+  .plucky-scene-v2 {
+    min-height: 16rem;
+  }
+
+  .plucky-rail-v2 {
+    display: none;
+  }
+
+  .plucky-tile-v2 {
+    border-radius: 0.9rem;
+  }
+}
+
+/* ============================================================
+   Typography system
+   ============================================================ */
+
+:root {
+  --font-body:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Text",
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Noto Sans SC",
+    "Microsoft YaHei",
+    "Segoe UI",
+    sans-serif;
+  --font-display:
+    "Space Grotesk",
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Noto Sans SC",
+    "Microsoft YaHei",
+    sans-serif;
+  --font-code:
+    "IBM Plex Mono",
+    "SFMono-Regular",
+    Consolas,
+    "Liberation Mono",
+    ui-monospace,
+    monospace;
+
+  --text-xs: 0.72rem;
+  --text-sm: 0.84rem;
+  --text-meta: 0.75rem;
+  --text-label: 0.72rem;
+  --text-action: 0.76rem;
+  --text-body: 1rem;
+  --text-body-lg: 1.08rem;
+  --text-card-title: 1.16rem;
+  --text-h3: 1.36rem;
+  --text-h2: 1.72rem;
+  --text-page-title: 2.9rem;
+  --text-wordmark: 5.55rem;
+}
+
+body {
+  color: var(--text-high);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.72;
+  letter-spacing: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body.plucky-page *,
+:lang(zh) h1,
+:lang(zh) h2,
+:lang(zh) h3,
+:lang(zh) h4,
+.plucky-inner-page #single_header > div,
+.plucky-inner-page #main-content > header > div {
+  letter-spacing: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+.plucky-brand,
+.plucky-wordmark-v2,
+.plucky-tile-bottom-v2 strong,
+.plucky-recent-v2 h2,
+.plucky-article-card-title,
+.plucky-term-card-title,
+#search-query {
+  font-family: var(--font-display);
+  letter-spacing: 0;
+}
+
+.plucky-eyebrow-v2,
+.plucky-nav-label,
+.plucky-button-v2,
+.plucky-show-more-v2,
+.plucky-hud-top-v2,
+.plucky-rail-v2,
+.plucky-tile-top-v2,
+.plucky-tile-bottom-v2 p,
+.plucky-article-card-meta,
+.plucky-kind-section .page-eyebrow,
+.plucky-kind-taxonomy .page-eyebrow,
+.plucky-kind-term .page-eyebrow,
+.plucky-inner-page #single_header > ol,
+.plucky-inner-page #main-content > ol:first-child,
+.plucky-inner-page #main-content > ul,
+.plucky-term-card-label,
+.plucky-term-card-count,
+#menu-wrapper a,
+#menu-wrapper p,
+#site-footer p,
+.prose th,
+pre,
+.prose code {
+  font-family: var(--font-code);
+  letter-spacing: 0;
+}
+
+.plucky-brand {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.plucky-nav-label {
+  font-size: var(--text-label);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+#menu-wrapper a,
+#menu-wrapper p {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.plucky-wordmark-v2 {
+  font-size: var(--text-wordmark);
+  font-weight: 700;
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+.plucky-eyebrow-v2,
+.plucky-hud-top-v2,
+.plucky-rail-v2,
+.plucky-tile-top-v2,
+.plucky-tile-bottom-v2 p,
+.plucky-kind-section .page-eyebrow,
+.plucky-kind-taxonomy .page-eyebrow,
+.plucky-kind-term .page-eyebrow,
+.plucky-term-card-label {
+  font-size: var(--text-label);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.plucky-lede-v2 {
+  max-width: 29rem;
+  font-size: var(--text-body-lg);
+  line-height: 1.62;
+}
+
+.plucky-button-v2,
+.plucky-show-more-v2 {
+  font-size: var(--text-action);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.plucky-tile-bottom-v2 strong {
+  font-size: var(--text-h3);
+  font-weight: 700;
+  line-height: 1.16;
+  text-wrap: balance;
+}
+
+.plucky-tile-small-v2 strong,
+.plucky-article-card-title,
+.plucky-term-card-title {
+  font-size: var(--text-card-title);
+  font-weight: 600;
+  line-height: 1.24;
+  text-wrap: balance;
+}
+
+.plucky-recent-v2 h2,
+.prose h2 {
+  font-size: var(--text-h2);
+  line-height: 1.22;
+  text-wrap: balance;
+}
+
+.prose h3 {
+  font-size: var(--text-h3);
+  line-height: 1.28;
+  text-wrap: balance;
+}
+
+.plucky-inner-page #main-content h1,
+.plucky-kind-section #main-content > h1,
+.plucky-kind-taxonomy #main-content > h1,
+.plucky-kind-term #main-content > h1,
+.plucky-kind-section .page-header,
+.plucky-kind-taxonomy .page-header,
+.plucky-kind-term .page-header {
+  font-size: var(--text-page-title);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.prose {
+  max-width: var(--plucky-article-max);
+  color: var(--text-mid);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.84;
+}
+
+.prose p,
+.prose li {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.84;
+  overflow-wrap: break-word;
+  word-break: normal;
+  text-transform: none;
+}
+
+.prose ol,
+.prose ul {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  text-transform: none;
+}
+
+.prose strong {
+  color: var(--text-high);
+  font-weight: 600;
+}
+
+.prose blockquote {
+  font-size: var(--text-body);
+  line-height: 1.76;
+}
+
+.prose :not(pre) > code {
+  font-size: 0.86em;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+pre {
+  font-size: 0.9rem;
+  line-height: 1.68;
+}
+
+.plucky-article-card-meta,
+.plucky-inner-page #single_header > div,
+.plucky-inner-page #main-content > header > div,
+.plucky-inner-page #main-content > ul,
+.plucky-term-card-count,
+#site-footer p {
+  font-size: var(--text-meta);
+  line-height: 1.5;
+}
+
+.plucky-article-card-summary {
+  font-size: var(--text-sm);
+  line-height: 1.58;
+}
+
+@media (max-width: 960px) {
+  :root {
+    --text-page-title: 2.55rem;
+    --text-wordmark: 4.85rem;
+  }
+}
+
+@media (max-width: 680px) {
+  :root {
+    --text-xs: 0.7rem;
+    --text-sm: 0.82rem;
+    --text-meta: 0.72rem;
+    --text-label: 0.7rem;
+    --text-action: 0.74rem;
+    --text-body: 0.98rem;
+    --text-body-lg: 1rem;
+    --text-card-title: 1.08rem;
+    --text-h3: 1.24rem;
+    --text-h2: 1.52rem;
+    --text-page-title: 2.16rem;
+    --text-wordmark: 4.05rem;
+  }
+
+  .plucky-wordmark-v2 {
+    font-size: var(--text-wordmark);
+  }
+
+  .plucky-lede-v2 {
+    max-width: 20rem;
+    font-size: var(--text-body-lg);
+  }
+
+  .plucky-button-v2 {
+    font-size: var(--text-action);
+  }
+
+  .plucky-rail-v2 {
+    font-size: var(--text-xs);
+  }
+}
+
+@media (max-width: 350px) {
+  :root {
+    --text-wordmark: 3.55rem;
+  }
+}
+
+@media (max-width: 680px) {
+  .plucky-inner-page section.prose,
+  .plucky-inner-page .article-content {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .plucky-inner-page .toc-inside {
+    width: 100%;
+    margin: 0 0 var(--space-5);
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--line-base);
+    border-radius: var(--radius-sm);
+    background: rgba(17, 19, 29, 0.54);
+  }
+
+  .plucky-inner-page .toc-inside summary {
+    margin: 0;
+    padding: 0.62rem 0.78rem;
+    border-radius: 0;
+    background: rgba(255, 255, 255, 0.045);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .plucky-inner-page .toc-inside > div {
+    margin: 0;
+    padding: 0.68rem 0.82rem;
+    border-left: 0;
+  }
+
+  .prose ol,
+  .prose ul {
+    padding-left: 1.18rem;
+  }
+
+  .prose li {
+    padding-left: 0.1rem;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+}
+
+/* ============================================================
+   Readability contrast
+   ============================================================ */
+
+:root {
+  --plucky-text: rgba(255, 255, 255, 0.97);
+  --plucky-muted: rgba(226, 232, 244, 0.78);
+
+  --text-high: rgba(255, 255, 255, 0.97);
+  --text-mid: rgba(232, 237, 248, 0.82);
+  --text-low: rgba(214, 224, 238, 0.68);
+}
+
+body {
+  color: var(--text-high);
+}
+
+.prose,
+.prose p,
+.prose li,
+.plucky-article-card-summary {
+  color: var(--text-mid);
+}
+
+.plucky-lede-v2 {
+  color: rgba(236, 240, 250, 0.78);
+}
+
+.plucky-nav-link,
+#search-button,
+#search-button-mobile {
+  color: rgba(230, 236, 248, 0.76);
+}
+
+.plucky-nav-link:hover,
+.plucky-nav-link.active,
+.plucky-nav-link[aria-current="page"],
+#search-button:hover,
+#search-button-mobile:hover {
+  color: var(--text-high);
+}
+
+.plucky-eyebrow-v2,
+.plucky-hud-top-v2,
+.plucky-rail-v2,
+.plucky-tile-top-v2,
+.plucky-tile-bottom-v2 p,
+.plucky-kind-section .page-eyebrow,
+.plucky-kind-taxonomy .page-eyebrow,
+.plucky-kind-term .page-eyebrow,
+.plucky-term-card-label {
+  color: rgba(190, 246, 255, 0.76);
+}
+
+.plucky-article-card-meta,
+.plucky-inner-page #single_header > div,
+.plucky-inner-page #main-content > header > div,
+.plucky-inner-page #single_header > ol,
+.plucky-inner-page #main-content > ol:first-child,
+.plucky-term-card-count,
+#site-footer p {
+  color: var(--text-low);
+}
+
+.plucky-button-secondary-v2,
+.plucky-show-more-v2 {
+  color: rgba(244, 247, 255, 0.84);
+}
+
+.plucky-inner-page #TableOfContents {
+  color: rgba(226, 232, 244, 0.76);
+}
+
+.plucky-inner-page #TableOfContents a:hover,
+.plucky-inner-page #TableOfContents a.active {
+  color: rgb(125, 238, 250);
 }

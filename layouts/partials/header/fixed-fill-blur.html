@@ -1,9 +1,11 @@
-<div class="plucky-header-spacer"></div>
+<div class="sticky top-0 z-100">
+  <div
+    id="menu-blur"
+    class="absolute inset-0 opacity-100 border-b border-white/5
+           bg-neutral-950/72 backdrop-blur-2xl backdrop-saturate-150">
+  </div>
 
-<div class="fixed inset-x-0 top-0 z-100">
-  <div id="menu-blur" class="plucky-header-blur"></div>
-
-  <div class="plucky-header-shell">
+  <div class="plucky-header-shell relative">
     {{ partial "header/basic.html" . }}
   </div>
 </div>
