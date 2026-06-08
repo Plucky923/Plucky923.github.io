@@ -13,11 +13,20 @@
 {{ $toc := and (.Params.showTableOfContents | default (.Site.Params.taxonomy.showTableOfContents | default false)) (in
 .TableOfContents "<ul") }} 
 
-  <header>
+  {{ $termCount := 0 }}
+  {{ with .Data.Terms }}{{ $termCount = len . }}{{ end }}
+  <header class="plucky-taxonomy-header plucky-page-hero">
     {{ if .Params.showBreadcrumbs | default (.Site.Params.taxonomy.showBreadcrumbs | default false) }}
       {{ partial "breadcrumbs.html" . }}
     {{ end }}
+    <div class="plucky-page-hero-top">
+      <span>taxonomy</span>
+      <span>{{ $termCount }} terms</span>
+    </div>
     <h1 class="mt-5 text-4xl font-extrabold text-neutral-900 dark:text-neutral">{{ .Title }}</h1>
+    {{ with .Description }}
+    <p class="plucky-page-description">{{ . }}</p>
+    {{ end }}
     <div class="mt-1 mb-2 text-base text-neutral-500 dark:text-neutral-400 print:hidden">
       {{ partial "article-meta/taxonomy.html" (dict "context" . "scope" "single") }}
     </div>
@@ -39,17 +48,29 @@
 
   {{ if .Site.Params.taxonomy.cardView }}
 
-  <section class="w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+  <section class="plucky-taxonomy-grid w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3">
     {{ range .Data.Terms }}
     {{ partial "term-link/card.html" . }}
+    {{ else }}
+    <div class="plucky-empty-state">
+      <span>Empty index</span>
+      <h2>No terms yet</h2>
+      <p>When content gains tags or categories, they will gather here.</p>
+    </div>
     {{ end }}
   </section>
 
   {{ else }}
 
-  <section class="flex flex-wrap max-w-prose -mx-2 overflow-hidden">
+  <section class="plucky-taxonomy-cloud flex flex-wrap max-w-prose -mx-2 overflow-hidden">
     {{ range .Data.Terms }}
       {{ partial "term-link/text.html" . }}
+    {{ else }}
+      <div class="plucky-empty-state">
+        <span>Empty index</span>
+        <h2>No terms yet</h2>
+        <p>When content gains tags or categories, they will gather here.</p>
+      </div>
     {{ end }}
   </section>
 

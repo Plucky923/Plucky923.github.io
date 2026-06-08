@@ -1,20 +1,30 @@
-<section class="plucky-home-v2">
-  <section class="plucky-hero-v2">
+{{ $homeImage := resources.Get "img/home-card.webp" }}
+{{ $latestPosts := first 1 (where .Site.RegularPages "Section" "post") }}
+
+<section class="plucky-home-v2 plucky-home-v3">
+  <section class="plucky-hero-v2 plucky-hero-v3">
+    {{ with $homeImage }}
+    <div class="plucky-hero-media-v3" aria-hidden="true">
+      <img
+        src="{{ .RelPermalink }}"
+        width="{{ .Width }}"
+        height="{{ .Height }}"
+        alt=""
+        decoding="async"
+        fetchpriority="high" />
+    </div>
+    {{ end }}
+    <div class="plucky-hero-shade-v3" aria-hidden="true"></div>
     <div class="plucky-hero-noise-v2" aria-hidden="true"></div>
+    <div class="plucky-hero-frame-v4" aria-hidden="true"></div>
+    <div class="plucky-hero-slice-v4" aria-hidden="true"></div>
 
     <div class="plucky-copy-v2">
-      <p class="plucky-eyebrow-v2">
-        <span class="plucky-status-v2"></span>
-        PLUCKY / DIGITAL FIELD NOTES
-      </p>
-
       <h1 class="plucky-wordmark-v2">
         plucky<span>.</span>
       </h1>
 
-      <p class="plucky-lede-v2">
-        Notes on systems, software, and ideas.
-      </p>
+      <div class="plucky-wordmark-rule-v4" aria-hidden="true"></div>
 
       <div class="plucky-actions-v2">
         <a class="plucky-button-v2 plucky-button-primary-v2" href="{{ "/post/" | relURL }}">
@@ -32,41 +42,6 @@
 
     </div>
 
-    <div class="plucky-scene-v2" aria-hidden="true">
-      <div class="plucky-grid-v2"></div>
-      <div class="plucky-scan-v2"></div>
-
-      <div class="plucky-orbit-v2 plucky-orbit-outer-v2"></div>
-      <div class="plucky-orbit-v2 plucky-orbit-middle-v2"></div>
-      <div class="plucky-orbit-v2 plucky-orbit-inner-v2"></div>
-
-      <div class="plucky-axis-v2 plucky-axis-horizontal-v2"></div>
-      <div class="plucky-axis-v2 plucky-axis-vertical-v2"></div>
-
-      <div class="plucky-core-v2">
-        <div class="plucky-core-highlight-v2"></div>
-      </div>
-
-      <div class="plucky-satellite-v2"></div>
-
-      <span class="plucky-hud-v2 plucky-hud-top-v2">
-        SIGNAL / 01
-      </span>
-
-      <span class="plucky-hud-v2 plucky-hud-side-v2">
-        ORBITAL INDEX
-      </span>
-
-      <span class="plucky-hud-v2 plucky-hud-bottom-v2">
-        X 48.18 / Y 23.91
-      </span>
-    </div>
-
-    <div class="plucky-rail-v2">
-      <span>PLUCKY.WANG</span>
-      <span>FIELD NOTES / 2026</span>
-      <span>SCROLL TO EXPLORE ↓</span>
-    </div>
   </section>
 
   <section class="plucky-bento-v2">
@@ -127,4 +102,18 @@
       </a>
     </div>
   </section>
+
+  {{ range $latestPosts }}
+  <section class="plucky-latest-v3">
+    <div class="plucky-latest-label-v3">
+      <span>Latest</span>
+      <span>{{ .Date.Format "2006.01.02" }}</span>
+    </div>
+
+    <a class="plucky-latest-link-v3" href="{{ .RelPermalink }}">
+      <h2>{{ .Title | emojify }}</h2>
+      <p>{{ .Description | default (.Summary | plainify) | truncate 180 }}</p>
+    </a>
+  </section>
+  {{ end }}
 </section>

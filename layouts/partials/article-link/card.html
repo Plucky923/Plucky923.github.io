@@ -1,0 +1,78 @@
+{{ $external := .Params.externalUrl | default .Params.externalURL }}
+{{ $disableImageOptimization := .Page.Site.Params.disableImageOptimization | default false }}
+{{ $summary := .Description | default (.Summary | plainify) }}
+{{ $sectionTitle := .Section }}
+{{ with .Site.GetPage .Section }}
+  {{ $sectionTitle = .Title }}
+{{ end }}
+
+{{ $featured := false }}
+{{- with $.Params.images -}}
+  {{- range first 6 . }}
+  <meta property="og:image" content="{{ . | absURL }}" />
+  {{ end -}}
+{{- else -}}
+  {{- $images := $.Resources.ByType "image" -}}
+  {{- $featured = $images.GetMatch "*feature*" -}}
+  {{- if not $featured }}{{ $featured = $images.GetMatch "{*cover*,*thumbnail*}" }}{{ end -}}
+  {{ if and .Params.featureimage (not $featured) }}
+    {{- $url := .Params.featureimage -}}
+    {{ $featured = resources.GetRemote $url }}
+  {{ end }}
+  {{- if not $featured }}{{ with .Site.Params.defaultFeaturedImage }}{{ $featured = resources.Get . }}{{ end }}{{ end -}}
+  {{ if .Params.hideFeatureImage }}{{ $featured = false }}{{ end }}
+{{- end -}}
+
+<a
+  href="{{ if $external }}{{ $external }}{{ else }}{{ .RelPermalink }}{{ end }}"
+  {{ if $external }}target="_blank" rel="external"{{ end }}
+  class="plucky-article-card plucky-list-card min-w-0">
+  <article class="plucky-article-card-shell plucky-list-card-shell">
+    {{ with $featured }}
+      {{ if or $disableImageOptimization (strings.HasSuffix . ".svg") }}
+        <div class="plucky-list-card-media nozoom" style="background-image:url({{ .RelPermalink }});"></div>
+      {{ else }}
+        {{ with .Resize "900x" }}
+          <div class="plucky-list-card-media nozoom" style="background-image:url({{ .RelPermalink }});"></div>
+        {{ end }}
+      {{ end }}
+    {{ else }}
+      <div class="plucky-list-card-ambient" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    {{ end }}
+
+    <div class="plucky-article-card-body plucky-list-card-body">
+      <div class="plucky-list-card-kicker">
+        <span>{{ $sectionTitle | default "Article" }}</span>
+        {{ with .Date }}<span>{{ .Format "2006.01.02" }}</span>{{ end }}
+      </div>
+
+      <h2 class="plucky-article-card-title plucky-list-card-title">
+        {{ .Title | emojify }}
+        {{ if $external }}<span class="plucky-external-mark">&#8599;</span>{{ end }}
+      </h2>
+
+      <div class="plucky-article-card-meta plucky-list-card-meta">
+        {{ partial "article-meta/basic.html" . }}
+      </div>
+
+      {{ with $summary }}
+      <p class="plucky-article-card-summary plucky-list-card-summary">
+        {{ . | plainify | truncate 220 }}
+      </p>
+      {{ end }}
+
+      <div class="plucky-list-card-footer">
+        <span>Read</span>
+        <span aria-hidden="true">&#8594;</span>
+      </div>
+
+      {{ if and .Draft .Site.Params.article.showDraftLabel }}
+      <span class="plucky-list-draft">{{ partial "badge.html" (i18n "article.draft" | emojify) }}</span>
+      {{ end }}
+    </div>
+  </article>
+</a>

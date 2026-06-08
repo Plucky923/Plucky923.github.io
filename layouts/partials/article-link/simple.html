@@ -1,0 +1,35 @@
+{{ $external := .Params.externalUrl | default .Params.externalURL }}
+{{ $summary := .Description | default (.Summary | plainify) }}
+{{ $sectionTitle := .Section }}
+{{ with .Site.GetPage .Section }}
+  {{ $sectionTitle = .Title }}
+{{ end }}
+
+<a
+  href="{{ if $external }}{{ $external }}{{ else }}{{ .RelPermalink }}{{ end }}"
+  {{ if $external }}target="_blank" rel="external"{{ end }}
+  class="plucky-list-row article">
+  <article class="plucky-list-row-shell">
+    <div class="plucky-list-row-index" aria-hidden="true">
+      {{ with .Date }}{{ .Format "06" }}{{ else }}{{ substr (.Title | plainify) 0 2 }}{{ end }}
+    </div>
+    <div class="plucky-list-row-body">
+      <div class="plucky-list-card-kicker">
+        <span>{{ $sectionTitle | default "Article" }}</span>
+        {{ with .Date }}<span>{{ .Format "2006.01.02" }}</span>{{ end }}
+      </div>
+      <h2 class="plucky-list-row-title">
+        {{ .Title | emojify }}
+        {{ if $external }}<span class="plucky-external-mark">&#8599;</span>{{ end }}
+      </h2>
+      {{ with $summary }}
+      <p class="plucky-list-row-summary">
+        {{ . | plainify | truncate 240 }}
+      </p>
+      {{ end }}
+      <div class="plucky-list-card-meta">
+        {{ partial "article-meta/basic.html" . }}
+      </div>
+    </div>
+  </article>
+</a>

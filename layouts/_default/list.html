@@ -11,11 +11,18 @@
 {{- end -}}
 
 {{ $toc := and (.Params.showTableOfContents | default (.Site.Params.list.showTableOfContents | default false)) (in
-.TableOfContents "<ul") }} <header>
+.TableOfContents "<ul") }} <header class="plucky-list-header plucky-page-hero">
   {{ if .Params.showBreadcrumbs | default (.Site.Params.list.showBreadcrumbs | default false) }}
   {{ partial "breadcrumbs.html" . }}
   {{ end }}
+  <div class="plucky-page-hero-top">
+    <span>{{ .Kind | default "index" }}</span>
+    <span>{{ len .Pages }} entries</span>
+  </div>
   <h1 class="mt-5 text-4xl font-extrabold text-neutral-900 dark:text-neutral">{{ .Title }}</h1>
+  {{ with .Description }}
+  <p class="plucky-page-description">{{ . }}</p>
+  {{ end }}
   <div class="mt-1 mb-2 text-base text-neutral-500 dark:text-neutral-400 print:hidden">
     {{ partial "article-meta/list.html" (dict "context" . "scope" "single") }}
   </div>
@@ -35,7 +42,7 @@
   <script type="text/javascript" src="{{ $jsPage.RelPermalink }}" integrity="{{ $jsPage.Data.Integrity }}"></script>
   {{ end }}
   </header>
-  <section class="{{ if $toc -}}
+  <section class="plucky-list-intro {{ if $toc -}}
       mt-12
     {{- else -}}
       mt-0
@@ -48,7 +55,7 @@
       </div>
     </div>
     {{ end }}
-    <div class="min-w-0 min-h-0 max-w-prose">
+    <div class="plucky-list-content min-w-0 min-h-0 max-w-prose">
       {{ .Content }}
     </div>
 
@@ -66,7 +73,7 @@
 
     {{ if not $cardView }}
 
-    <section class="space-y-10 w-full">
+    <section class="plucky-list-feed space-y-10 w-full">
       {{ if not $orderByWeight }}
         {{ range (.Paginate (.Pages.GroupByDate "2006")).PageGroups }}
         {{ if $groupByYear }}
@@ -96,7 +103,7 @@
           <h2 class="mt-12 mb-3 text-2xl font-bold text-neutral-700 first:mt-8 dark:text-neutral-300">
             {{ .Key }}
           </h2>
-        <section class="w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3 {{ if $cardViewScreenWidth }} xl:grid-cols-4 2xl:grid-cols-5 {{ end }}">
+        <section class="plucky-list-grid w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3 {{ if $cardViewScreenWidth }} xl:grid-cols-4 2xl:grid-cols-5 {{ end }}">
           {{ range .Pages }}
           {{ partial "article-link/card.html" . }}
           {{ end }}
@@ -108,9 +115,9 @@
 
         {{ if $cardViewScreenWidth }}
         <div class="relative w-screen max-w-[1600px] px-[30px]" style="left: calc(max(-50vw,-800px) + 50%);">
-        <section class="w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        <section class="plucky-list-grid w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {{ else }}
-        <section class="w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <section class="plucky-list-grid w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3">
         {{ end }}
         {{ if not $orderByWeight }}
           {{ range (.Paginate (.Pages.GroupByDate "2006")).PageGroups }}
@@ -131,10 +138,11 @@
     {{end}}
 
   {{ else }}
-  <section class="mt-10 prose dark:prose-invert">
-    <p class="py-8 border-t">
-      <em>{{ i18n "list.no_articles" | emojify }}</em>
-    </p>
+  <section class="plucky-empty-state">
+    <span>Nothing scheduled yet</span>
+    <h2>{{ i18n "list.no_articles" | emojify }}</h2>
+    <p>Fresh notes will appear here once they are published.</p>
+    <a href="{{ "/" | relURL }}">Back home</a>
   </section>
   {{ end }}
 

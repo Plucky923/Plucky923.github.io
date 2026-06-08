@@ -1,9 +1,14 @@
 {{ define "main" }}
-  <h1 class="mb-3 text-4xl font-extrabold">{{ i18n "error.404_title" | emojify }}</h1>
-  <p class="mt-8 mb-12 text-neutral-400 dark:text-neutral-500">
-    {{ i18n "error.404_error" | emojify }}
-  </p>
-  <div class="prose dark:prose-invert">
-    <p>{{ i18n "error.404_description" | emojify }}</p>
-  </div>
+  <section class="plucky-notfound">
+    <div class="plucky-notfound-code">404</div>
+    <div>
+      <p class="plucky-page-hero-top"><span>{{ i18n "error.404_error" | emojify }}</span></p>
+      <h1 class="mb-3 text-4xl font-extrabold">{{ i18n "error.404_title" | emojify }}</h1>
+      <p>{{ i18n "error.404_description" | emojify }}</p>
+      <div class="plucky-notfound-actions">
+        <a href="{{ "/" | relURL }}">Home</a>
+        <a href="{{ "/post/" | relURL }}">Archive</a>
+      </div>
+    </div>
+  </section>
 {{ end }}

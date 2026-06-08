@@ -1,14 +1,21 @@
 {{ define "main" }}
-  <article class="max-w-full">
-    <header>
+  <article class="plucky-simple-page max-w-full">
+    <header class="plucky-simple-header plucky-page-hero">
       {{ if .Params.showBreadcrumbs | default (.Site.Params.article.showBreadcrumbs | default false) }}
         {{ partial "breadcrumbs.html" . }}
       {{ end }}
+      <div class="plucky-page-hero-top">
+        <span>page</span>
+        {{ with .Description }}<span>{{ . }}</span>{{ end }}
+      </div>
       <h1 class="mt-0 text-4xl font-extrabold text-neutral-900 dark:text-neutral">
         {{ .Title | emojify }}
       </h1>
+      {{ with .Description }}
+      <p class="plucky-page-description">{{ . }}</p>
+      {{ end }}
     </header>
-    <section class="max-w-full mt-6 prose dark:prose-invert">
+    <section class="plucky-simple-content max-w-full mt-6 prose dark:prose-invert">
       {{ .Content }}
     </section>
     <footer class="pt-8">

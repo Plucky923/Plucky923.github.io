@@ -11,11 +11,18 @@
 {{- end -}}
 
 {{ $toc := and (.Params.showTableOfContents | default (.Site.Params.term.showTableOfContents | default false)) (in
-.TableOfContents "<ul") }} <header>
+.TableOfContents "<ul") }} <header class="plucky-term-header plucky-page-hero">
   {{ if .Params.showBreadcrumbs | default (.Site.Params.term.showBreadcrumbs | default false) }}
   {{ partial "breadcrumbs.html" . }}
   {{ end }}
+  <div class="plucky-page-hero-top">
+    <span>term</span>
+    <span>{{ len .Pages }} entries</span>
+  </div>
   <h1 class="mt-5 text-4xl font-extrabold text-neutral-900 dark:text-neutral">{{ .Title }}</h1>
+  {{ with .Description }}
+  <p class="plucky-page-description">{{ . }}</p>
+  {{ end }}
   <div class="mt-1 mb-2 text-base text-neutral-500 dark:text-neutral-400 print:hidden">
     {{ partial "article-meta/term.html" (dict "context" . "scope" "single") }}
   </div>
@@ -66,7 +73,7 @@
   <h2 class="mt-12 mb-3 text-2xl font-bold text-neutral-700 first:mt-8 dark:text-neutral-300">
     {{ .Key }}
   </h2>
-  <section class="w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+  <section class="plucky-list-grid w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3">
     {{ range .Pages }}
     {{ partial "article-link/card.html" . }}
     {{ end }}
@@ -75,7 +82,7 @@
 
   {{ else }}
 
-  <section class="w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+  <section class="plucky-list-grid w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3">
     {{ range (.Paginate (.Pages.GroupByDate "2006")).PageGroups }}
     {{ range .Pages }}
     {{ partial "article-link/card.html" . }}
@@ -119,10 +126,11 @@
   {{end}}
 
   {{ else }}
-  <section class="mt-10 prose dark:prose-invert">
-    <p class="py-8 border-t">
-      <em>{{ i18n "term.no_articles" | emojify }}</em>
-    </p>
+  <section class="plucky-empty-state">
+    <span>Empty term</span>
+    <h2>{{ i18n "term.no_articles" | emojify }}</h2>
+    <p>This index will become useful as more notes are published.</p>
+    <a href="{{ "/" | relURL }}">Back home</a>
   </section>
   {{ end }}
 
