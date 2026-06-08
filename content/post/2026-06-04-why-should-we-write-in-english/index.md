@@ -1,5 +1,5 @@
 ---
-title: "Why Shoud We Write In English?"
+title: "Why Should We Write In English?"
 date: 2026-06-04T13:03:48+0800
 draft: false
 description: ""
@@ -8,11 +8,11 @@ tags: []
 
 # Introduction
 
-In earlier times, many great ideas were presented in words. people used words to express their thought processes or resulting ideas.
+In earlier times, many great ideas were presented in words. People used words to express their thought processes or resulting ideas.
 
-With the development of generative AI, writing is longer exclusively a human ability. Generative AI can produce text with high speed.
+With the development of generative AI, writing is no longer exclusively a human ability. Generative AI can produce text with high speed.
 
-This brings two advantages. Generative AI eliminates two challenges that people faced in eariler times: using foriegn languages and turning rough thoughts into words. 
+This brings two advantages. Generative AI eliminates two challenges that people faced in earlier times: using foreign languages and turning rough thoughts into words.
 
 So this raises two important questions:
 
@@ -21,9 +21,9 @@ So this raises two important questions:
 
 # Background
 
-How would you answer these questions? Before sharing my answer, i think we first need to clarify what writing and what English is.
+How would you answer these questions? Before sharing my answer, I think we first need to clarify what writing and what English is.
 
-## What writting is
+## What writing is
 
 Writing is the act of using language to express and preserve our thoughts. During my studies, my mentor, Tate Tian, often told me that writing is thinking in slow motion. Expressing an idea clearly is difficult. The world is complex, and explaining a question or phenomenon in simple terms is even harder.
 
@@ -45,4 +45,4 @@ Although generative AI is convenient, there are still many things it cannot do b
 
 # Conclusion
 
-In my opinion, AI can help us work more efficiently and make it easier to produce content or other deliverables. However, the real challenge is still thinking. AI cannot replace human judgment; it can analyze information and generate answers, but people still need to decide what questions to ask and whether the answers make sense. So, critical and system thinking is becoming more important than ever. So, we should practice writing in English to express our ideas clearly and develop different ways of thinking. This can help us remain valuable in a world where AI is becoming more capable.
+In my opinion, AI can help us work more efficiently and make it easier to produce content or other deliverables. However, the real challenge is still thinking. AI cannot replace human judgment; it can analyze information and generate answers, but people still need to decide what questions to ask and whether the answers make sense. So, critical and systems thinking is becoming more important than ever. So, we should practice writing in English to express our ideas clearly and develop different ways of thinking. This can help us remain valuable in a world where AI is becoming more capable.

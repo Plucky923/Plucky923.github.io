@@ -5028,3 +5028,154 @@ a[id^="forgejo-"]:hover > div {
     min-height: 0;
   }
 }
+
+/* ============================================================
+   Border detail refinement
+   ============================================================ */
+
+.plucky-hero-frame-v4 {
+  display: none;
+}
+
+.plucky-hero-frame-v4::before,
+.plucky-hero-frame-v4::after {
+  display: none;
+  height: 1px;
+  border: 0;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.18),
+      rgba(103, 232, 249, 0.14),
+      transparent
+    );
+  opacity: 0.72;
+}
+
+.plucky-hero-frame-v4::before {
+  top: 1.15rem;
+  right: 0.85rem;
+}
+
+.plucky-hero-frame-v4::after {
+  bottom: 1.15rem;
+  left: 0.85rem;
+}
+
+.plucky-hero-slice-v4 {
+  border: 0;
+  background:
+    linear-gradient(
+      105deg,
+      transparent,
+      rgba(103, 232, 249, 0.1) 28%,
+      rgba(250, 204, 21, 0.08) 54%,
+      transparent 80%
+    ),
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.12),
+      transparent
+    )
+    top / 100% 1px no-repeat,
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(103, 232, 249, 0.12),
+      transparent
+    )
+    bottom / 100% 1px no-repeat;
+  box-shadow: 0 0 32px rgba(103, 232, 249, 0.08);
+  opacity: 0.48;
+}
+
+.plucky-home-v3 .plucky-tile-v2,
+.plucky-article-card-shell,
+.plucky-list-row-shell,
+.plucky-term-card-shell,
+.plucky-empty-state,
+.plucky-simple-content,
+.prose blockquote,
+.plucky-lead,
+.plucky-alert {
+  border-color: rgba(255, 255, 255, 0.058);
+}
+
+.plucky-home-v3 .plucky-tile-v2,
+.plucky-article-card-shell,
+.plucky-list-row-shell,
+.plucky-term-card-shell {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.045),
+    0 18px 42px rgba(0, 0, 0, 0.2);
+}
+
+.plucky-home-v3 .plucky-tile-v2::after {
+  content: none;
+}
+
+.plucky-home-v3 .plucky-tile-v2:hover {
+  border-color: rgba(103, 232, 249, 0.18);
+}
+
+.plucky-list-card-ambient::before {
+  content: none;
+}
+
+.plucky-list-card-ambient span {
+  opacity: 0.7;
+}
+
+.plucky-list-card-shell {
+  border-color: rgba(255, 255, 255, 0.055);
+}
+
+.plucky-article-content > p:first-of-type::first-letter {
+  float: none;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-shadow: none;
+}
+
+.plucky-article-card:hover .plucky-article-card-shell,
+.plucky-list-row:hover .plucky-list-row-shell {
+  border-color: rgba(103, 232, 249, 0.18);
+}
+
+.plucky-page-hero::after,
+.plucky-latest-v3,
+#site-footer::before {
+  opacity: 0.72;
+}
+
+.plucky-page-hero::after {
+  right: 34%;
+  opacity: 0.56;
+}
+
+.article-content figure img,
+.prose table,
+.prose pre,
+.prose :not(pre) > code {
+  border-color: rgba(103, 232, 249, 0.12);
+}
+
+@media (max-width: 680px) {
+  .plucky-hero-frame-v4 {
+    display: none;
+  }
+
+  .plucky-hero-frame-v4::before,
+  .plucky-hero-frame-v4::after {
+    display: none;
+    width: min(6rem, 28vw);
+  }
+
+  .plucky-home-v3 .plucky-tile-v2::after {
+    content: none;
+  }
+}
