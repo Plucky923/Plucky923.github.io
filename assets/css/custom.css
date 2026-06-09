@@ -5268,14 +5268,6 @@ body::before {
   opacity: 0.42;
 }
 
-.plucky-hero-media-v3 img {
-  object-position: 72% 50%;
-  opacity: 0.9;
-  filter: saturate(1.08) contrast(1.06) brightness(0.82);
-  transform: scale(1.025);
-  animation: plucky-avatar-drift 18s ease-in-out infinite alternate;
-}
-
 .plucky-hero-shade-v3 {
   background:
     linear-gradient(
@@ -5429,21 +5421,7 @@ body::before {
   border-top-color: rgba(255, 122, 24, 0.22);
 }
 
-@keyframes plucky-avatar-drift {
-  from {
-    transform: scale(1.025) translate3d(0, 0, 0);
-  }
-
-  to {
-    transform: scale(1.055) translate3d(-0.7rem, 0.35rem, 0);
-  }
-}
-
 @media (max-width: 960px) {
-  .plucky-hero-media-v3 img {
-    object-position: 70% 50%;
-  }
-
   .plucky-home-v3 .plucky-copy-v2 {
     width: min(38rem, calc(100vw - 2rem));
   }
@@ -5469,12 +5447,6 @@ body::before {
 
   .plucky-home-v3 .plucky-hero-v3 {
     min-height: min(34rem, calc(100svh - 4rem));
-  }
-
-  .plucky-hero-media-v3 img {
-    object-position: 67% 50%;
-    opacity: 0.66;
-    filter: saturate(1.02) contrast(1.02) brightness(0.72);
   }
 
   .plucky-hero-shade-v3 {
@@ -5514,5 +5486,234 @@ body::before {
 
   .plucky-tile-bottom-v2 strong {
     overflow-wrap: anywhere;
+  }
+}
+
+/* ============================================================
+   Homepage poster simplification v7
+   ============================================================ */
+
+.plucky-home-v3 .plucky-hero-v3 {
+  min-height: min(40rem, calc(100svh - 8rem));
+}
+
+.plucky-hero-media-v3 {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(3, 4, 7, 0.98) 0%,
+      rgba(3, 4, 7, 0.78) 28%,
+      rgba(3, 4, 7, 0.28) 62%,
+      rgba(3, 4, 7, 0.88) 100%
+    ),
+    linear-gradient(
+      132deg,
+      rgba(255, 122, 24, 0.16) 0%,
+      transparent 28%,
+      rgba(103, 232, 249, 0.12) 52%,
+      transparent 76%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.04) 0,
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 1px,
+      transparent 8.25rem
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.024) 0,
+      rgba(255, 255, 255, 0.024) 1px,
+      transparent 1px,
+      transparent 5.5rem
+    ),
+    radial-gradient(
+      ellipse at 66% 34%,
+      rgba(103, 232, 249, 0.18),
+      transparent 34rem
+    ),
+    radial-gradient(
+      ellipse at 74% 68%,
+      rgba(255, 122, 24, 0.14),
+      transparent 30rem
+    ),
+    rgb(3, 4, 7);
+}
+
+.plucky-hero-media-v3::before,
+.plucky-hero-media-v3::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+}
+
+.plucky-hero-media-v3::before {
+  background:
+    linear-gradient(
+      118deg,
+      transparent 0%,
+      transparent 37%,
+      rgba(255, 255, 255, 0.18) 37.1%,
+      rgba(103, 232, 249, 0.18) 37.35%,
+      transparent 37.8%,
+      transparent 100%
+    ),
+    linear-gradient(
+      104deg,
+      transparent 0%,
+      transparent 55%,
+      rgba(255, 122, 24, 0.18) 55.12%,
+      rgba(254, 240, 138, 0.12) 55.44%,
+      transparent 56%,
+      transparent 100%
+    );
+  opacity: 0.78;
+  animation: plucky-light-planes 9s ease-in-out infinite alternate;
+}
+
+.plucky-hero-media-v3::after {
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.085),
+      transparent
+    )
+    0 24% / 100% 1px no-repeat,
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(103, 232, 249, 0.13),
+      rgba(255, 122, 24, 0.1),
+      transparent
+    )
+    0 76% / 100% 1px no-repeat,
+    repeating-linear-gradient(
+      116deg,
+      transparent 0,
+      transparent 4.25rem,
+      rgba(255, 255, 255, 0.032) 4.25rem,
+      rgba(255, 255, 255, 0.032) calc(4.25rem + 1px)
+    );
+  opacity: 0.72;
+}
+
+.plucky-hero-media-v3 img {
+  display: none;
+}
+
+.plucky-hero-shade-v3 {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(3, 4, 7, 0.92) 0%,
+      rgba(3, 4, 7, 0.58) 34%,
+      rgba(3, 4, 7, 0.1) 66%,
+      rgba(3, 4, 7, 0.68) 100%
+    ),
+    linear-gradient(
+      0deg,
+      rgba(3, 4, 7, 0.95) 0%,
+      rgba(3, 4, 7, 0.2) 54%,
+      rgba(3, 4, 7, 0.08) 100%
+    );
+}
+
+.plucky-home-v3 .plucky-copy-v2 {
+  width: min(54rem, calc(100vw - 2rem));
+  padding-top: clamp(5rem, 12vh, 8rem);
+  padding-bottom: clamp(5.5rem, 13vh, 8.5rem);
+}
+
+.plucky-home-v3 .plucky-wordmark-v2 {
+  font-size: clamp(5.5rem, 12vw, 10.25rem);
+  letter-spacing: 0;
+}
+
+.plucky-wordmark-rule-v4 {
+  width: min(31rem, 82%);
+  margin-top: 1.15rem;
+}
+
+.plucky-home-v3 .plucky-lede-v2,
+.plucky-proofline-v3,
+.plucky-hero-caption-v3 {
+  display: none;
+}
+
+.plucky-home-v3 .plucky-actions-v2 {
+  margin-top: clamp(1.35rem, 2.8vw, 2.1rem);
+}
+
+.plucky-home-v3 .plucky-button-v2 {
+  min-height: 2.84rem;
+  padding: 0.78rem 1.08rem;
+}
+
+.plucky-hero-slice-v4 {
+  right: max(1rem, calc((100vw - var(--plucky-shell)) / 2 + 1.5rem));
+  bottom: 3.8rem;
+  width: min(52rem, 58vw);
+  height: 12rem;
+  opacity: 0.5;
+}
+
+@keyframes plucky-light-planes {
+  from {
+    opacity: 0.55;
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    opacity: 0.9;
+    transform: translate3d(-0.6rem, 0.35rem, 0);
+  }
+}
+
+@media (max-width: 680px) {
+  .plucky-home-v3 .plucky-hero-v3 {
+    min-height: min(32rem, calc(100svh - 6rem));
+  }
+
+  .plucky-hero-media-v3 {
+    background:
+      linear-gradient(
+        90deg,
+        rgba(3, 4, 7, 0.98),
+        rgba(3, 4, 7, 0.68)
+      ),
+      linear-gradient(
+        132deg,
+        rgba(255, 122, 24, 0.14),
+        transparent 36%,
+        rgba(103, 232, 249, 0.11) 68%,
+        transparent
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.035) 0,
+        rgba(255, 255, 255, 0.035) 1px,
+        transparent 1px,
+        transparent 4.75rem
+      ),
+      rgb(3, 4, 7);
+  }
+
+  .plucky-hero-media-v3::before {
+    opacity: 0.55;
+  }
+
+  .plucky-home-v3 .plucky-copy-v2 {
+    padding-top: 4.6rem;
+    padding-bottom: 4.6rem;
+  }
+
+  .plucky-home-v3 .plucky-wordmark-v2 {
+    font-size: clamp(4.2rem, 19vw, 5rem);
+  }
+
+  .plucky-wordmark-rule-v4 {
+    width: min(18rem, 86%);
   }
 }

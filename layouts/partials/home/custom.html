@@ -1,19 +1,8 @@
-{{ $homeImage := resources.Get "img/plucky-avatar.jpg" }}
 {{ $latestPosts := first 1 (where .Site.RegularPages "Section" "post") }}
 
 <section class="plucky-home-v2 plucky-home-v3">
   <section class="plucky-hero-v2 plucky-hero-v3">
-    {{ with $homeImage }}
-    <div class="plucky-hero-media-v3" aria-hidden="true">
-      <img
-        src="{{ .RelPermalink }}"
-        width="{{ .Width }}"
-        height="{{ .Height }}"
-        alt=""
-        decoding="async"
-        fetchpriority="high" />
-    </div>
-    {{ end }}
+    <div class="plucky-hero-media-v3" aria-hidden="true"></div>
     <div class="plucky-hero-shade-v3" aria-hidden="true"></div>
     <div class="plucky-hero-noise-v2" aria-hidden="true"></div>
     <div class="plucky-hero-frame-v4" aria-hidden="true"></div>
@@ -26,36 +15,21 @@
 
       <div class="plucky-wordmark-rule-v4" aria-hidden="true"></div>
 
-      <p class="plucky-lede-v2">
-        Systems security notes, teaching logs, and small experiments from Zhenchen Wang.
-      </p>
-
-      <div class="plucky-proofline-v3" aria-label="Site focus">
-        <span>Container security</span>
-        <span>Operating systems</span>
-        <span>Research notes</span>
-      </div>
-
       <div class="plucky-actions-v2">
         <a class="plucky-button-v2 plucky-button-primary-v2" href="{{ "/post/" | relURL }}">
-          Read notes
+          Archive
           <span aria-hidden="true">→</span>
         </a>
 
         <a
           class="plucky-button-v2 plucky-button-secondary-v2"
           href="{{ "/about/" | relURL }}">
-          Research profile
+          About
           <span aria-hidden="true">↗</span>
         </a>
       </div>
 
     </div>
-
-    <a class="plucky-hero-caption-v3" href="{{ "/about/" | relURL }}">
-      <span>Identity</span>
-      <strong>Pixel calm, security notes, and a site icon with personality.</strong>
-    </a>
 
   </section>
 
