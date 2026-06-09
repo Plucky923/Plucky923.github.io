@@ -14,7 +14,7 @@ title = "plucky"
 [params.author]
   name = "Zhenchen Wang"
   email = "m202372036@hust.edu.cn"
-  # image = "img/author.jpg"
+  image = "img/plucky-avatar.jpg"
   imageQuality = 96
   headline = "Cyber Security Researcher"
   bio = "Master student at Huazhong University of Science and Technology. Interested in Operating System and Container Security."

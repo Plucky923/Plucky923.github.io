@@ -1,4 +1,4 @@
-{{ $homeImage := resources.Get "img/home-card.webp" }}
+{{ $homeImage := resources.Get "img/plucky-avatar.jpg" }}
 {{ $latestPosts := first 1 (where .Site.RegularPages "Section" "post") }}
 
 <section class="plucky-home-v2 plucky-home-v3">
@@ -26,21 +26,36 @@
 
       <div class="plucky-wordmark-rule-v4" aria-hidden="true"></div>
 
+      <p class="plucky-lede-v2">
+        Systems security notes, teaching logs, and small experiments from Zhenchen Wang.
+      </p>
+
+      <div class="plucky-proofline-v3" aria-label="Site focus">
+        <span>Container security</span>
+        <span>Operating systems</span>
+        <span>Research notes</span>
+      </div>
+
       <div class="plucky-actions-v2">
         <a class="plucky-button-v2 plucky-button-primary-v2" href="{{ "/post/" | relURL }}">
-          Browse archive
+          Read notes
           <span aria-hidden="true">→</span>
         </a>
 
         <a
           class="plucky-button-v2 plucky-button-secondary-v2"
           href="{{ "/about/" | relURL }}">
-          About
+          Research profile
           <span aria-hidden="true">↗</span>
         </a>
       </div>
 
     </div>
+
+    <a class="plucky-hero-caption-v3" href="{{ "/about/" | relURL }}">
+      <span>Identity</span>
+      <strong>Pixel calm, security notes, and a site icon with personality.</strong>
+    </a>
 
   </section>
 
@@ -55,8 +70,8 @@
       </div>
 
       <div class="plucky-tile-bottom-v2">
-        <p>ALL NOTES</p>
-        <strong>Browse the complete archive.</strong>
+        <p>NOTEBOOK</p>
+        <strong>Browse research notes and essays.</strong>
       </div>
 
       <div class="plucky-spark-v2" aria-hidden="true">
@@ -82,22 +97,22 @@
 
         <div class="plucky-tile-bottom-v2">
           <p>PROFILE</p>
-          <strong>Who I am</strong>
+          <strong>Research profile</strong>
         </div>
       </a>
 
       <a
         class="plucky-tile-v2 plucky-tile-small-v2"
-        href="{{ "/tags/" | relURL }}">
+        href="{{ "/teaching/" | relURL }}">
 
         <div class="plucky-tile-top-v2">
-          <span>03 / INDEX</span>
+          <span>03 / TEACHING</span>
           <span>→</span>
         </div>
 
         <div class="plucky-tile-bottom-v2">
-          <p>EXPLORE</p>
-          <strong>Tags</strong>
+          <p>COURSES</p>
+          <strong>Teaching material</strong>
         </div>
       </a>
     </div>

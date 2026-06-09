@@ -9,6 +9,7 @@ colorScheme = "plucky"
 
 defaultAppearance = "dark"
 autoSwitchAppearance = false
+disableTextInHeader = false
 
 enableSearch = true
 enableCodeCopy = true
