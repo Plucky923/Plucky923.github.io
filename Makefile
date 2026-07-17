@@ -1,6 +1,6 @@
 .PHONY: server deploy build clean draft new
 
-# 显式使用本地安装的 Hugo 0.162.1，避免与 Homebrew 旧版本冲突
+# 显式使用本地安装的 Hugo 0.161.1，避免与 Homebrew 旧版本冲突
 HUGO := $(HOME)/.local/bin/hugo
 
 # 本地预览（包含草稿，自动清理缓存）

@@ -24,7 +24,7 @@
       {{ partial "article-meta/basic.html" (dict "context" . "scope" "single") }}
     </div>
 
-    {{ $authorsData := .Site.Data.authors }}
+    {{ $authorsData := hugo.Data.authors }}
     {{ $taxonomies := .Site.Taxonomies.authors }}
     {{ $baseURL := .Site.BaseURL }}
     {{ $taxonomyLink := 0 }}
@@ -131,13 +131,6 @@
           {{ $lang := print "."  .Lang  ".md" }}
           {{ $path = replace $path $lang ".md" }}
         {{end}}
-      <script>
-        var oid = "views_{{ $path }}"
-        var oid_likes = "likes_{{ $path }}"
-      </script>
-      {{ $jsPage := resources.Get "js/page.js" }}
-      {{ $jsPage = $jsPage | resources.Minify | resources.Fingerprint "sha512" }}
-      <script type="text/javascript" src="{{ $jsPage.RelPermalink }}" integrity="{{ $jsPage.Data.Integrity }}"></script>
       {{ end }}
   
     </section>
