@@ -1,0 +1,27 @@
+{{ $resources := .Resources }}
+{{ if gt (len $resources) 0 }}
+  <section class="plucky-project-files" aria-labelledby="project-files-heading">
+    <div class="plucky-project-files-header">
+      <div>
+        <p class="plucky-project-files-kicker">PROJECT RESOURCES</p>
+        <h2 id="project-files-heading">Files</h2>
+      </div>
+      <span>{{ len $resources }} {{ if eq (len $resources) 1 }}file{{ else }}files{{ end }}</span>
+    </div>
+
+    <ul class="plucky-project-file-list">
+      {{ range $resources }}
+        {{ $fileName := path.Base .Name }}
+        {{ $extension := replace (path.Ext $fileName) "." "" }}
+        <li>
+          <a class="plucky-project-file-link" href="{{ .RelPermalink }}" download aria-label="Download {{ $fileName }}">
+            <span class="plucky-project-file-kind">{{ if $extension }}{{ upper $extension }}{{ else }}FILE{{ end }}</span>
+            <span class="plucky-project-file-name">{{ $fileName }}</span>
+            <span class="plucky-project-file-type">{{ .MediaType.Type }}</span>
+            <span class="plucky-project-file-action">Download <span aria-hidden="true">↓</span></span>
+          </a>
+        </li>
+      {{ end }}
+    </ul>
+  </section>
+{{ end }}

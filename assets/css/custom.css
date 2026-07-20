@@ -4465,6 +4465,574 @@ a[id^="forgejo-"]:hover > div {
   }
 }
 
+/* ============================================================
+   Projects directory
+   ============================================================ */
+
+.plucky-projects-page,
+.plucky-project-page {
+  width: 100%;
+  max-width: none;
+}
+
+.plucky-projects-hero {
+  margin-bottom: clamp(1.5rem, 3.5vw, 2.5rem);
+}
+
+.plucky-projects-description {
+  max-width: 46rem;
+  margin: 0.82rem 0 0;
+  color: rgba(226, 232, 240, 0.76);
+  font-size: var(--text-body-lg);
+  line-height: 1.65;
+}
+
+.plucky-projects-stats {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 1.3rem;
+  gap: 0.62rem 1.1rem;
+  color: var(--text-low);
+  font-family: var(--font-code);
+  font-size: var(--text-meta);
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.plucky-projects-stats span + span::before {
+  margin-right: 1.1rem;
+  color: rgba(251, 191, 36, 0.7);
+  content: "/";
+}
+
+.plucky-projects-stats strong {
+  color: rgba(255, 255, 255, 0.88);
+  font-weight: 600;
+}
+
+.plucky-projects-intro {
+  max-width: 46rem;
+  margin-bottom: 1.65rem;
+  color: var(--text-mid);
+  font-size: var(--text-body);
+  line-height: 1.74;
+}
+
+.plucky-projects-intro > * + * {
+  margin-top: 0.8rem;
+}
+
+.plucky-project-directory {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 25rem), 1fr));
+  gap: clamp(0.8rem, 1.7vw, 1.2rem);
+}
+
+.plucky-project-card {
+  display: block;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.plucky-project-card-shell {
+  position: relative;
+  display: flex;
+  min-height: clamp(16rem, 25vw, 19rem);
+  height: 100%;
+  padding: clamp(1rem, 2.2vw, 1.45rem);
+  overflow: hidden;
+  border: 1px solid var(--line-base);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(145deg, rgba(20, 22, 34, 0.76), rgba(8, 9, 15, 0.82));
+  box-shadow: var(--shadow-card);
+  flex-direction: column;
+  transition:
+    border-color var(--motion-base) ease,
+    box-shadow var(--motion-base) ease,
+    transform var(--motion-base) ease;
+}
+
+.plucky-project-card-shell::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background:
+    linear-gradient(90deg, transparent, rgba(103, 232, 249, 0.55), rgba(251, 191, 36, 0.34), transparent);
+  content: "";
+  opacity: 0.7;
+}
+
+.plucky-project-card:hover .plucky-project-card-shell,
+.plucky-project-card:focus-visible .plucky-project-card-shell {
+  border-color: rgba(103, 232, 249, 0.28);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-3px);
+}
+
+.plucky-project-card:focus-visible {
+  outline: none;
+}
+
+.plucky-project-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.plucky-project-card-folder {
+  position: relative;
+  display: block;
+  width: 2.6rem;
+  height: 1.85rem;
+  margin-top: 0.14rem;
+  border: 1px solid rgba(103, 232, 249, 0.38);
+  border-radius: 0.28rem;
+  background:
+    linear-gradient(135deg, rgba(103, 232, 249, 0.16), rgba(167, 139, 250, 0.08));
+  box-shadow: 0 0 22px rgba(103, 232, 249, 0.08);
+}
+
+.plucky-project-card-folder::before {
+  position: absolute;
+  top: -0.42rem;
+  left: 0.2rem;
+  width: 1.02rem;
+  height: 0.48rem;
+  border: 1px solid rgba(103, 232, 249, 0.38);
+  border-bottom: 0;
+  border-radius: 0.26rem 0.26rem 0 0;
+  background: rgba(103, 232, 249, 0.13);
+  content: "";
+}
+
+.plucky-project-card-folder::after {
+  position: absolute;
+  right: 0.36rem;
+  bottom: 0.38rem;
+  left: 0.36rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+  content: "";
+}
+
+.plucky-project-card-kicker,
+.plucky-project-page-kicker,
+.plucky-project-files-kicker,
+.plucky-projects-empty-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+  color: rgba(190, 246, 255, 0.76);
+  font-family: var(--font-code);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.plucky-project-card-kicker {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.plucky-project-card-kicker span + span::before,
+.plucky-project-page-kicker span + span::before {
+  margin-right: 0.42rem;
+  color: rgba(251, 191, 36, 0.68);
+  content: "/";
+}
+
+.plucky-project-card-body {
+  margin-top: auto;
+  padding-top: clamp(2.2rem, 4vw, 3.2rem);
+}
+
+.plucky-project-card-body h2 {
+  margin: 0;
+  color: var(--text-high);
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 2.5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.plucky-project-card-body p {
+  display: -webkit-box;
+  max-width: 60ch;
+  margin: 0.82rem 0 0;
+  overflow: hidden;
+  color: var(--text-mid);
+  font-size: var(--text-sm);
+  line-height: 1.65;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.plucky-project-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.25rem;
+  padding-top: 0.82rem;
+  border-top: 1px solid var(--line-soft);
+  gap: 0.75rem;
+  color: var(--text-low);
+  font-family: var(--font-code);
+  font-size: var(--text-action);
+  line-height: 1.3;
+}
+
+.plucky-project-card-footer span:last-child {
+  color: rgba(125, 238, 250, 0.9);
+  text-align: right;
+}
+
+.plucky-projects-empty {
+  display: grid;
+  min-height: 15rem;
+  padding: clamp(1.3rem, 3.2vw, 2.2rem);
+  border: 1px solid var(--line-base);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, rgba(103, 232, 249, 0.055), transparent 48%),
+    rgba(12, 13, 21, 0.58);
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.1rem, 3vw, 2rem);
+}
+
+.plucky-projects-empty-mark {
+  position: relative;
+  display: block;
+  width: clamp(4.5rem, 11vw, 6.2rem);
+  aspect-ratio: 1;
+  border: 1px solid rgba(103, 232, 249, 0.22);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(103, 232, 249, 0.16) 0 2px, transparent 3px),
+    radial-gradient(circle at center, transparent 0 36%, rgba(251, 191, 36, 0.14) 37% 38%, transparent 39%);
+}
+
+.plucky-projects-empty-mark::before,
+.plucky-projects-empty-mark::after {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 140%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(103, 232, 249, 0.52), transparent);
+  content: "";
+}
+
+.plucky-projects-empty-mark::before {
+  transform: translate(-50%, -50%) rotate(28deg);
+}
+
+.plucky-projects-empty-mark::after {
+  transform: translate(-50%, -50%) rotate(-28deg);
+}
+
+.plucky-projects-empty h2 {
+  margin: 0.28rem 0 0;
+  color: var(--text-high);
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  line-height: 1.16;
+}
+
+.plucky-projects-empty p:not(.plucky-projects-empty-kicker) {
+  max-width: 42rem;
+  margin: 0.72rem 0 0;
+  color: var(--text-mid);
+  font-size: var(--text-body);
+  line-height: 1.68;
+}
+
+.plucky-project-page {
+  max-width: var(--plucky-wide-article-max);
+}
+
+.plucky-project-page-header {
+  position: relative;
+  margin-top: clamp(0.4rem, 1.8vw, 1.2rem);
+  padding: clamp(1rem, 2.7vw, 1.8rem) 0 clamp(1.35rem, 3.2vw, 2.35rem);
+  border-bottom: 1px solid var(--line-base);
+}
+
+.plucky-project-page-header::after {
+  position: absolute;
+  right: 20%;
+  bottom: -1px;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(103, 232, 249, 0.68), rgba(251, 191, 36, 0.38), transparent);
+  content: "";
+}
+
+.plucky-project-page-kicker {
+  margin-top: 1.15rem;
+}
+
+.plucky-project-page-header h1 {
+  max-width: 18ch;
+  margin: 0.75rem 0 0;
+  color: var(--text-high);
+  font-family: var(--font-display);
+  font-size: clamp(2.35rem, 6vw, 5.2rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+.plucky-project-page-description {
+  max-width: 46rem;
+  margin: 1.15rem 0 0;
+  color: rgba(226, 232, 240, 0.78);
+  font-size: var(--text-body-lg);
+  line-height: 1.68;
+}
+
+.plucky-project-page-meta {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 1.12rem;
+  gap: 0.45rem 0.9rem;
+  color: var(--text-low);
+  font-family: var(--font-code);
+  font-size: var(--text-meta);
+  line-height: 1.5;
+}
+
+.plucky-project-page-meta span + span::before {
+  margin-right: 0.9rem;
+  color: rgba(251, 191, 36, 0.66);
+  content: "/";
+}
+
+.plucky-project-page-links {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 1.35rem;
+  gap: 0.65rem;
+}
+
+.plucky-project-page-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.55rem;
+  padding: 0.62rem 0.82rem;
+  border: 1px solid rgba(103, 232, 249, 0.22);
+  border-radius: var(--radius-sm);
+  color: rgba(214, 251, 255, 0.9);
+  background: rgba(103, 232, 249, 0.055);
+  font-family: var(--font-code);
+  font-size: var(--text-action);
+  line-height: 1;
+  text-decoration: none;
+  gap: 0.45rem;
+  transition:
+    border-color var(--motion-fast) ease,
+    background-color var(--motion-fast) ease,
+    transform var(--motion-fast) ease;
+}
+
+.plucky-project-page-links a:hover,
+.plucky-project-page-links a:focus-visible {
+  border-color: rgba(103, 232, 249, 0.5);
+  background: rgba(103, 232, 249, 0.11);
+  transform: translateY(-1px);
+}
+
+.plucky-project-page-content {
+  max-width: var(--plucky-article-max);
+  margin-top: clamp(2rem, 5vw, 3.8rem);
+  color: rgba(238, 242, 252, 0.86);
+  font-family: var(--font-article);
+  font-size: var(--text-article);
+  line-height: var(--line-article);
+}
+
+.plucky-project-page-content > * + * {
+  margin-top: 1.15rem;
+}
+
+.plucky-project-page-content h2,
+.plucky-project-page-content h3,
+.plucky-project-page-content h4 {
+  color: var(--text-high);
+  font-family: var(--font-display);
+  line-height: 1.18;
+}
+
+.plucky-project-page-content h2 {
+  margin-top: 3.4rem;
+  font-size: var(--text-h2);
+}
+
+.plucky-project-page-content h3 {
+  margin-top: 2.5rem;
+  font-size: var(--text-h3);
+}
+
+.plucky-project-page-content a {
+  color: rgba(125, 238, 250, 0.94);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+}
+
+.plucky-project-files {
+  margin-top: clamp(2.8rem, 6vw, 4.7rem);
+  padding-top: clamp(1.2rem, 2.8vw, 1.8rem);
+  border-top: 1px solid var(--line-base);
+}
+
+.plucky-project-files-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.plucky-project-files-header h2 {
+  margin: 0.22rem 0 0;
+  color: var(--text-high);
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  line-height: 1.12;
+}
+
+.plucky-project-files-header > span {
+  color: var(--text-low);
+  font-family: var(--font-code);
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.plucky-project-file-list {
+  margin: 1.2rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line-soft);
+  list-style: none;
+}
+
+.plucky-project-file-list li {
+  margin: 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.plucky-project-file-link {
+  display: grid;
+  min-height: 4.4rem;
+  padding: 0.76rem 0.15rem;
+  color: inherit;
+  grid-template-columns: minmax(3.4rem, 0.3fr) minmax(0, 1.8fr) minmax(7rem, 0.8fr) auto;
+  align-items: center;
+  gap: 0.85rem;
+  text-decoration: none;
+  transition: background-color var(--motion-fast) ease;
+}
+
+.plucky-project-file-link:hover,
+.plucky-project-file-link:focus-visible {
+  background: linear-gradient(90deg, rgba(103, 232, 249, 0.07), transparent 82%);
+}
+
+.plucky-project-file-kind,
+.plucky-project-file-type,
+.plucky-project-file-action {
+  font-family: var(--font-code);
+  font-size: var(--text-meta);
+  line-height: 1.42;
+}
+
+.plucky-project-file-kind {
+  color: rgba(251, 191, 36, 0.82);
+  letter-spacing: 0.05em;
+}
+
+.plucky-project-file-name {
+  min-width: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--text-body);
+  overflow-wrap: anywhere;
+}
+
+.plucky-project-file-type {
+  color: var(--text-low);
+  overflow-wrap: anywhere;
+}
+
+.plucky-project-file-action {
+  color: rgba(125, 238, 250, 0.94);
+  text-align: right;
+  white-space: nowrap;
+}
+
+@media (max-width: 680px) {
+  .plucky-projects-stats span + span::before,
+  .plucky-project-page-meta span + span::before {
+    display: none;
+  }
+
+  .plucky-projects-stats,
+  .plucky-project-page-meta {
+    display: grid;
+    gap: 0.28rem;
+  }
+
+  .plucky-projects-empty {
+    grid-template-columns: 1fr;
+  }
+
+  .plucky-projects-empty-mark {
+    width: 4.2rem;
+  }
+
+  .plucky-project-file-link {
+    min-height: 0;
+    padding: 0.92rem 0.1rem;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.48rem 0.72rem;
+  }
+
+  .plucky-project-file-kind {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .plucky-project-file-name {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .plucky-project-file-action {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .plucky-project-file-type {
+    grid-column: 2 / 4;
+    grid-row: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plucky-project-card-shell,
+  .plucky-project-page-links a,
+  .plucky-project-file-link {
+    transition: none;
+  }
+}
+
 @media (max-width: 390px) {
   .plucky-home-v3 .plucky-wordmark-v2 {
     font-size: 4.18rem;

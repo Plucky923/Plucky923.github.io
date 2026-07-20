@@ -8,6 +8,7 @@
 
 - [hugo-blowfish-overrides.md](./hugo-blowfish-overrides.md) — 主题覆写纪律
 - [toolchain-versioning.md](./toolchain-versioning.md) — 版本 pin 纪律
+- [project-content-bundles.md](./project-content-bundles.md) — Projects 目录与文件资源约定
 
 ## Quality Check
 

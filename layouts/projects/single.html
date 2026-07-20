@@ -1,0 +1,55 @@
+{{ define "main" }}
+  {{ $projectType := .Params.projectType }}
+  {{ $status := .Params.status }}
+  {{ $hasDate := not .Date.IsZero }}
+  {{ $hasLinks := or .Params.repository .Params.demo }}
+
+  <article class="plucky-project-page">
+    <header class="plucky-project-page-header">
+      {{ if .Params.showBreadcrumbs | default (.Site.Params.article.showBreadcrumbs | default false) }}
+        {{ partial "breadcrumbs.html" . }}
+      {{ end }}
+
+      <div class="plucky-project-page-kicker">
+        <span>PROJECT</span>
+        {{ with $projectType }}<span>{{ . }}</span>{{ end }}
+      </div>
+
+      <h1>{{ .Title | emojify }}</h1>
+
+      {{ with .Description }}
+        <p class="plucky-project-page-description">{{ . }}</p>
+      {{ end }}
+
+      {{ if or $status $hasDate }}
+        <div class="plucky-project-page-meta" aria-label="Project metadata">
+          {{ with $status }}<span>Status: {{ . }}</span>{{ end }}
+          {{ if $hasDate }}<span>Added {{ .Date.Format "2006.01.02" }}</span>{{ end }}
+        </div>
+      {{ end }}
+
+      {{ if $hasLinks }}
+        <nav class="plucky-project-page-links" aria-label="Project links">
+          {{ with .Params.repository }}
+            <a href="{{ . }}" target="_blank" rel="noopener noreferrer">
+              <span>Repository</span><span aria-hidden="true">↗</span>
+            </a>
+          {{ end }}
+          {{ with .Params.demo }}
+            <a href="{{ . }}" target="_blank" rel="noopener noreferrer">
+              <span>Project link</span><span aria-hidden="true">↗</span>
+            </a>
+          {{ end }}
+        </nav>
+      {{ end }}
+    </header>
+
+    {{ with .Content }}
+      <section class="plucky-project-page-content">
+        {{ . }}
+      </section>
+    {{ end }}
+
+    {{ partial "project-resource-list.html" . }}
+  </article>
+{{ end }}

@@ -1,4 +1,4 @@
-.PHONY: server deploy build clean draft new
+.PHONY: server deploy build clean draft new new-project
 
 # 显式使用本地安装的 Hugo 0.161.1，避免与 Homebrew 旧版本冲突
 HUGO := $(HOME)/.local/bin/hugo
@@ -55,3 +55,19 @@ new:
 	echo "---" >> "$$file"; \
 	echo "" >> "$$file"; \
 	echo "Created $$file"
+
+# 创建一个项目目录（index.md 与后续文件放在同一 Hugo leaf bundle 中）
+# 用法：make new-project TITLE="My Project"
+new-project:
+	@slug=$$(echo "$(TITLE)" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-'); \
+	if [ -z "$$slug" ]; then \
+		echo "Project title must contain at least one letter or number"; \
+		exit 1; \
+	fi; \
+	dir="content/projects/$$slug"; \
+	if [ -e "$$dir" ]; then \
+		echo "Project directory already exists: $$dir"; \
+		exit 1; \
+	fi; \
+	$(HUGO) new content --kind project "$$dir/index.md"; \
+	echo "Add files beside $$dir/index.md to publish them in the project Files list."

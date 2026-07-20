@@ -1,0 +1,53 @@
+{{ define "main" }}
+  {{ $projects := .RegularPages.ByWeight }}
+  {{ $projectCount := len $projects }}
+  {{ $resourceCount := 0 }}
+  {{ range $projects }}
+    {{ $resourceCount = add $resourceCount (len .Resources) }}
+  {{ end }}
+
+  <section class="plucky-projects-page">
+    <header class="plucky-projects-hero plucky-page-hero">
+      {{ if .Params.showBreadcrumbs | default (.Site.Params.list.showBreadcrumbs | default false) }}
+        {{ partial "breadcrumbs.html" . }}
+      {{ end }}
+
+      <div class="plucky-page-hero-top">
+        <span>PROJECT DIRECTORY</span>
+        <span>{{ $projectCount }} {{ if eq $projectCount 1 }}project{{ else }}projects{{ end }}</span>
+      </div>
+
+      <h1>{{ .Title | emojify }}</h1>
+
+      {{ with .Description }}
+        <p class="plucky-projects-description">{{ . }}</p>
+      {{ end }}
+
+      <div class="plucky-projects-stats" aria-label="Project collection summary">
+        <span><strong>{{ $projectCount }}</strong> published projects</span>
+        <span><strong>{{ $resourceCount }}</strong> attached files</span>
+      </div>
+    </header>
+
+    {{ with .Content }}
+      <div class="plucky-projects-intro">{{ . }}</div>
+    {{ end }}
+
+    {{ if gt $projectCount 0 }}
+      <section class="plucky-project-directory" aria-label="Published projects">
+        {{ range $projects }}
+          {{ partial "project-card.html" . }}
+        {{ end }}
+      </section>
+    {{ else }}
+      <section class="plucky-projects-empty" aria-labelledby="projects-empty-title">
+        <span class="plucky-projects-empty-mark" aria-hidden="true"></span>
+        <div>
+          <p class="plucky-projects-empty-kicker">DIRECTORY READY</p>
+          <h2 id="projects-empty-title">No projects published yet.</h2>
+          <p>Projects will appear here as focused working directories, with their notes and files kept together.</p>
+        </div>
+      </section>
+    {{ end }}
+  </section>
+{{ end }}

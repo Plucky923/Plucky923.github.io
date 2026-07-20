@@ -1,0 +1,29 @@
+{{ $summary := .Description | default (.Summary | plainify) }}
+{{ $resourceCount := len .Resources }}
+{{ $projectType := .Params.projectType | default "Project" }}
+{{ $status := .Params.status | default "Directory" }}
+
+<a class="plucky-project-card" href="{{ .RelPermalink }}">
+  <article class="plucky-project-card-shell">
+    <div class="plucky-project-card-top">
+      <span class="plucky-project-card-folder" aria-hidden="true"></span>
+      <div class="plucky-project-card-kicker">
+        <span>{{ $projectType }}</span>
+        <span>{{ $status }}</span>
+      </div>
+    </div>
+
+    <div class="plucky-project-card-body">
+      <h2>{{ .Title | emojify }}</h2>
+
+      {{ with $summary }}
+        <p>{{ . | plainify | truncate 200 }}</p>
+      {{ end }}
+    </div>
+
+    <div class="plucky-project-card-footer">
+      <span>{{ $resourceCount }} {{ if eq $resourceCount 1 }}file{{ else }}files{{ end }}</span>
+      <span>Open directory <span aria-hidden="true">→</span></span>
+    </div>
+  </article>
+</a>
