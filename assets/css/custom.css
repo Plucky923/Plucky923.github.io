@@ -4977,6 +4977,53 @@ a[id^="forgejo-"]:hover > div {
   white-space: nowrap;
 }
 
+.plucky-project-documents {
+  margin-top: clamp(2.8rem, 6vw, 4.7rem);
+  padding-top: clamp(1.2rem, 2.8vw, 1.8rem);
+  border-top: 1px solid var(--line-base);
+}
+
+.plucky-project-documents-header h2 {
+  margin: 0.22rem 0 0;
+  color: var(--text-high);
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  line-height: 1.12;
+}
+
+.plucky-project-document-list {
+  margin: 1.2rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line-soft);
+  list-style: none;
+}
+
+.plucky-project-document-list li {
+  margin: 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.plucky-project-document-link {
+  display: block;
+  padding: 0.9rem 0.15rem;
+  color: var(--text-high);
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+  line-height: 1.35;
+  text-decoration: none;
+  transition:
+    color var(--motion-fast) ease,
+    background-color var(--motion-fast) ease,
+    padding-left var(--motion-fast) ease;
+}
+
+.plucky-project-document-link:hover,
+.plucky-project-document-link:focus-visible {
+  padding-left: 0.45rem;
+  color: rgba(125, 238, 250, 0.96);
+  background: linear-gradient(90deg, rgba(103, 232, 249, 0.07), transparent 82%);
+}
+
 @media (max-width: 680px) {
   .plucky-projects-stats span + span::before,
   .plucky-project-page-meta span + span::before {
@@ -5028,7 +5075,8 @@ a[id^="forgejo-"]:hover > div {
 @media (prefers-reduced-motion: reduce) {
   .plucky-project-card-shell,
   .plucky-project-page-links a,
-  .plucky-project-file-link {
+  .plucky-project-file-link,
+  .plucky-project-document-link {
     transition: none;
   }
 }

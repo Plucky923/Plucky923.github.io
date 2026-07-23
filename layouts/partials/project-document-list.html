@@ -1,0 +1,19 @@
+{{ $documents := .RegularPages.ByWeight }}
+{{ if gt (len $documents) 0 }}
+  <section class="plucky-project-documents" aria-labelledby="project-documents-heading">
+    <div class="plucky-project-documents-header">
+      <p class="plucky-project-files-kicker">PROJECT DOCUMENTS</p>
+      <h2 id="project-documents-heading">Documents</h2>
+    </div>
+
+    <ul class="plucky-project-document-list">
+      {{ range $documents }}
+        <li>
+          <a class="plucky-project-document-link" href="{{ .RelPermalink }}">
+            {{ .Title | emojify }}
+          </a>
+        </li>
+      {{ end }}
+    </ul>
+  </section>
+{{ end }}

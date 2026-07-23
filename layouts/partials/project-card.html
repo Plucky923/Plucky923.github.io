@@ -1,5 +1,5 @@
 {{ $summary := .Description | default (.Summary | plainify) }}
-{{ $resourceCount := len .Resources }}
+{{ $documentCount := len .RegularPages }}
 {{ $projectType := .Params.projectType | default "Project" }}
 {{ $status := .Params.status | default "Directory" }}
 
@@ -22,7 +22,7 @@
     </div>
 
     <div class="plucky-project-card-footer">
-      <span>{{ $resourceCount }} {{ if eq $resourceCount 1 }}file{{ else }}files{{ end }}</span>
+      <span>{{ $documentCount }} {{ if eq $documentCount 1 }}document{{ else }}documents{{ end }}</span>
       <span>Open directory <span aria-hidden="true">→</span></span>
     </div>
   </article>

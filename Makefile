@@ -56,7 +56,7 @@ new:
 	echo "" >> "$$file"; \
 	echo "Created $$file"
 
-# 创建一个项目目录（index.md 与后续文件放在同一 Hugo leaf bundle 中）
+# 创建一个项目目录（_index.md 是目录页，后续 .md 文件是项目文档页）
 # 用法：make new-project TITLE="My Project"
 new-project:
 	@slug=$$(echo "$(TITLE)" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-'); \
@@ -69,5 +69,5 @@ new-project:
 		echo "Project directory already exists: $$dir"; \
 		exit 1; \
 	fi; \
-	$(HUGO) new content --kind project "$$dir/index.md"; \
-	echo "Add files beside $$dir/index.md to publish them in the project Files list."
+	$(HUGO) new content --kind project "$$dir/_index.md"; \
+	echo "Add Markdown files beside $$dir/_index.md to publish them in the project Documents list."

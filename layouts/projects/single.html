@@ -3,6 +3,7 @@
   {{ $status := .Params.status }}
   {{ $hasDate := not .Date.IsZero }}
   {{ $hasLinks := or .Params.repository .Params.demo }}
+  {{ $isProjectDocument := and .Parent (ne .Parent.RelPermalink "/projects/") }}
 
   <article class="plucky-project-page">
     <header class="plucky-project-page-header">
@@ -11,7 +12,7 @@
       {{ end }}
 
       <div class="plucky-project-page-kicker">
-        <span>PROJECT</span>
+        <span>{{ if $isProjectDocument }}PROJECT DOCUMENT{{ else }}PROJECT{{ end }}</span>
         {{ with $projectType }}<span>{{ . }}</span>{{ end }}
       </div>
 
