@@ -90,7 +90,7 @@ The prototyper layer uses these interfaces to implement M-mode services,
 such as SBI firmware, an RTOS runtime, or a security monitor, without directly
 manipulating raw machine state.
 
-![](image.png)
+![](../image.png)
 
 This figure presents the overall architecture of our intra-firmware
 privilege-separation design. The entire firmware executes within a single
