@@ -1,3 +1,0 @@
-{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
-{"file": ".trellis/tasks/07-17-site-refactor/research/blowfish-upgrade-scan.md", "reason": "Blowfish v2.82->v2.104 upgrade scan: no declared breaking changes, verification strategy"}
-{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "Override audit rationale: delete duplicated template copies, keep only real modifications"}

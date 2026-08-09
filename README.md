@@ -26,7 +26,6 @@ Production builds and deploys to GitHub Pages are handled by `.github/workflows/
 - `layouts/` — Hugo template overrides
 - `assets/css/` — custom styles
 - `_vendor/` — vendored Blowfish theme
-- `.trellis/` — task research and Trellis workflow files
 
 ## Projects
 

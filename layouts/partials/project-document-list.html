@@ -6,14 +6,15 @@
       <h2 id="project-documents-heading">Documents</h2>
     </div>
 
-    <ul class="plucky-project-document-list">
-      {{ range $documents }}
+    <ol class="plucky-project-document-list">
+      {{ range $index, $document := $documents }}
         <li>
-          <a class="plucky-project-document-link" href="{{ .RelPermalink }}">
-            {{ .Title | emojify }}
+          <a class="plucky-project-document-link" href="{{ $document.RelPermalink }}">
+            <span class="plucky-project-document-number">{{ printf "%02d" (add $index 1) }}</span>
+            <span>{{ $document.Title | emojify }}</span>
           </a>
         </li>
       {{ end }}
-    </ul>
+    </ol>
   </section>
 {{ end }}

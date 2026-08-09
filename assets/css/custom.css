@@ -5004,7 +5004,9 @@ a[id^="forgejo-"]:hover > div {
 }
 
 .plucky-project-document-link {
-  display: block;
+  display: flex;
+  align-items: baseline;
+  gap: 0.76rem;
   padding: 0.9rem 0.15rem;
   color: var(--text-high);
   font-family: var(--font-display);
@@ -5015,6 +5017,15 @@ a[id^="forgejo-"]:hover > div {
     color var(--motion-fast) ease,
     background-color var(--motion-fast) ease,
     padding-left var(--motion-fast) ease;
+}
+
+.plucky-project-document-number {
+  flex: 0 0 2ch;
+  color: var(--text-low);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
 }
 
 .plucky-project-document-link:hover,
